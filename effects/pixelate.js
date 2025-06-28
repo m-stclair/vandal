@@ -17,7 +17,7 @@ export default {
 
   apply(instance, imageData) {
     const {blockSize, sampleStrategy, preserveAlpha} = instance.config;
-    const {data, width, height} = imageData.data;
+    const {data, width, height} = imageData;
     const copy = new Uint8ClampedArray(data);
 
     const getIndex = (x, y) => 4 * (y * width + x);

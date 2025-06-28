@@ -15,7 +15,7 @@ export default {
     const id = `morphOpFilter-${instance.id}`;
     const existing = document.getElementById(id);
     if (existing) {
-      updateMorphFilter(existing, config);
+      updateMorphFilter(existing, instance.config);
       return `url(#${id})`;
     }
 

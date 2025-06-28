@@ -4,6 +4,8 @@
 I make no guarantees that it is not a _broken_ toy: this is a recreational
 project. 
 
+A live version is available at: https://m-stclair.github.io/vandal/.
+
 `vandal` is pre-alpha but unlikely to delete your computer. No documentation is 
 available. 
 

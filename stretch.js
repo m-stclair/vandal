@@ -21,10 +21,26 @@ function normalizeRange(data, lo, hi, targetMin = 0, targetMax = 255) {
     return output;
 }
 
-function percentileClip(data, percentileLow = 1, percentileHigh = 99) {
-    const sorted = Array.from(data).sort((a, b) => a - b);
-    const lo = sorted[Math.floor((percentileLow / 100) * (sorted.length - 1))];
-    const hi = sorted[Math.ceil((percentileHigh / 100) * (sorted.length - 1))];
+function fastPercentileClip(data, percentileLow = 1, percentileHigh = 99) {
+
+    const hist = new Uint32Array(256);  // assumes 8-bit input
+    for (let i = 0; i < data.length; i++) hist[data[i]]++;
+
+    const total = data.length;
+    const loThresh = (percentileLow / 100) * total;
+    const hiThresh = (percentileHigh / 100) * total;
+
+    let sum = 0, lo = 0, hi = 255;
+    for (let i = 0; i < 256; i++) {
+        sum += hist[i];
+        if (sum >= loThresh) { lo = i; break; }
+    }
+    sum = 0;
+    for (let i = 255; i >= 0; i--) {
+        sum += hist[i];
+        if (sum >= total - hiThresh) { hi = i; break; }
+    }
+
     return normalizeRange(data, lo, hi);
 }
 
@@ -54,7 +70,7 @@ function channelwise(data, width, height, stretchFunc, ...stretchArgs) {
 
 export {
     normalizeRange,
-    percentileClip,
+    fastPercentileClip,
     stddevClip,
     minmaxClip,
     channelwise

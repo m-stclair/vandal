@@ -1,6 +1,6 @@
 // effects/stretch_effect.js
 
-import {channelwise, normalizeRange, percentileClip, stddevClip} from '../stretch.js';
+import {channelwise, normalizeRange, fastPercentileClip, stddevClip} from '../stretch.js';
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -28,7 +28,7 @@ export default {
                 params = [];
                 break;
             case "percentile":
-                func = percentileClip;
+                func = fastPercentileClip;
                 params = [config.paramA, config.paramB];
         }
         if (config.channelwise) {

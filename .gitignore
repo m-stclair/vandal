@@ -1,0 +1,6 @@
+_*.js
+*_old.js
+*graveyard/
+*.wasm
+*.mjs
+.idea/

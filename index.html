@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>vandal</title>
+    <link rel="stylesheet" href="labpage.css">
+    <script type="module" src="glitch.js"></script>
+</head>
+<body>
+<svg id="filter-defs" style="display: none">
+  <defs></defs>
+</svg>
+
+<div id="mainLayout">
+    <div id="leftPane">
+        <input type="file" id="upload" accept="image/*"/>
+        <canvas id="glitchCanvas"></canvas>
+    </div>
+    <div id="dragBar"></div>
+    <div id="rightPane">
+        <h2>Effect Settings</h2>
+        <div id="configForm"></div>
+        <h2>Effect Stack</h2>
+        <div id="effectStack"></div>
+        <div id="effectControls">
+            <label for="addEffect"></label>
+            <select id="addEffect"></select>
+            <button id="addEffectBtn">Add</button>
+        </div>
+        <details id="stackPersistence">
+        <summary>Save / Load Stack</summary>
+        <div class="stack-controls">
+            <button id="save-stack">Copy JSON</button>
+            <button id="clear-stack">Clear</button>
+            <textarea id="stack-json"
+                      rows="8"
+                      placeholder="Paste JSON to load..."
+                      spellcheck="false"></textarea>
+            <button id="load-stack">Load Stack</button>
+        </div>
+    </details>
+    </div>
+</div>
+
+</body>
+</html>

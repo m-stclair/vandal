@@ -10,9 +10,9 @@ export default {
     offset: 0
   },
 
-  apply(imageData, config) {
+  apply(instance, imageData) {
     const { width, height, data } = imageData;
-    const { bandSize, orientation, mirrorRate, offset } = config;
+    const { bandSize, orientation, mirrorRate, offset } = instance.config;
 
     const out = new Uint8ClampedArray(data.length);
     const getIndex = (x, y) => (y * width + x) * 4;

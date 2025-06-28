@@ -46,7 +46,7 @@ export default {
         flip: false
     },
 
-    apply(imageData, config) {
+    apply(instance, imageData) {
         const { data } = imageData;
         const counts = new Map();
 
@@ -57,12 +57,12 @@ export default {
 
         const valuesToReplace = [];
         for (let key of counts.keys()) {
-            if (Math.random() < config.density) {
+            if (Math.random() < instance.config.density) {
                 valuesToReplace.push(key.split(',').map(Number));
             }
         }
 
-        return shredTuples(imageData, valuesToReplace, counts, config.flip);
+        return shredTuples(imageData, valuesToReplace, counts, instance.config.flip);
     },
 
     uiLayout: [

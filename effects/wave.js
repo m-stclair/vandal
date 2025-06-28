@@ -8,8 +8,8 @@ export default {
         direction: "horizontal"
     },
 
-    apply(imageData, config) {
-        const { amplitude, frequency, direction } = config;
+    apply(instance, imageData) {
+        const { amplitude, frequency, direction } = instance.config;
         const { width, height, data } = imageData;
         const copy = new Uint8ClampedArray(data);
 

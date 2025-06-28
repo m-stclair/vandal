@@ -96,16 +96,18 @@ function generateEffectId() {
 
 export function makeEffectInstance(mod) {
     if (!mod) return;
-    return {
+    const instance = {
         id: generateEffectId(),
         name: mod.name,
-        apply: mod.apply,
         config: structuredClone(mod.defaultConfig),
+        uiLayout: mod.uiLayout,
+        disabled: false,
         styleHook: mod.styleHook,
         cleanupHook: mod.cleanupHook,
-        uiLayout: mod.uiLayout,
-        disabled: false
+        apply: mod.apply,
     }
+    if (mod.initHook) mod.initHook(instance);
+    return instance;
 }
 
 // state save/load

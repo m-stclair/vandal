@@ -7,8 +7,8 @@ export default {
         intensity: 0.3,
     },
 
-    apply(imageData, config) {
-        const {lineSpacing, intensity} = config;
+    apply(instance, imageData) {
+        const {lineSpacing, intensity} = instance.config;
         const {width, height, data} = imageData;
         const copy = new Uint8ClampedArray(data);
 

@@ -19,10 +19,10 @@ export default {
         perlin: false,
     },
 
-    apply(imgData, config) {
+    apply(instance, imgData) {
         const {width, height, data} = imgData;
         const sortedData = new Uint8ClampedArray(data);
-        const {threshold, direction, useR, useG, useB, perlin} = config;
+        const {threshold, direction, useR, useG, useB, perlin} = instance.config;
 
         const brightness = (p, x, y) => {
             let value = 0;

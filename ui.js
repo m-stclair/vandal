@@ -2,7 +2,6 @@ import {gid} from "./utils.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");
-const rightPane = document.getElementById("rightPane");
 const leftPane = document.getElementById("leftPane");
 const layout = document.getElementById("mainLayout");
 

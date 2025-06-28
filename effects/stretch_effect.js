@@ -14,8 +14,9 @@ export default {
         channelwise: true
     },
 
-    apply(imageData, config) {
+    apply(instance, imageData) {
         const { data, width, height } = imageData;
+        const config = instance.config;
         let func, params, result;
 
         switch (config.method) {

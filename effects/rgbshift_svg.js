@@ -18,9 +18,9 @@ export default {
       { type: "range", key: "bdy", label: "Blue Y", min: -10, max: 10, step: 1 }
     ],
 
-    styleHook(config, uuid) {
-        const dom_id = `rgbshiftFilter-${uuid}`;
-
+    styleHook(instance) {
+        const dom_id = `rgbshiftFilter-${instance.id}`;
+        const config = instance.config;
         let filter = document.getElementById(dom_id);
         if (!filter) {
             const svgRoot = document.querySelector("svg#filter-defs");
@@ -80,8 +80,8 @@ export default {
         return `url(#${dom_id})`;
     },
 
-    cleanupHook(uuid) {
-        const dom_id = `rgbshiftFilter-${uuid}`;
+    cleanupHook(instance) {
+        const dom_id = `rgbshiftFilter-${instance.id}`;
         const filter = document.getElementById(dom_id);
         if (filter) filter.remove();
     }

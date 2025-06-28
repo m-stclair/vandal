@@ -7,11 +7,11 @@ export default {
         intensity: 1
     },
 
-    apply(imgData, config) {
+    apply(instance, imgData) {
         const {width, height, data} = imgData;
         const output = new Uint8ClampedArray(data);
         const getIndex = (x, y) => 4 * (y * width + x);
-        const radius = config.intensity;
+        const radius = instance.config.intensity;
 
         for (let y = radius; y < height - radius; y++) {
             for (let x = radius; x < width - radius; x++) {

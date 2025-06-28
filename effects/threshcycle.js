@@ -12,7 +12,7 @@ export default {
     lightness: 50    // percent
   },
 
-apply(imageData, config) {
+apply(instance, imageData) {
   const { width, height, data } = imageData;
   const {
     threshold,
@@ -21,7 +21,7 @@ apply(imageData, config) {
     saturation,
     lightness,
     cycleMode
-  } = config;
+  } = instance.config;
 
   const out = new Uint8ClampedArray(data.length);
 

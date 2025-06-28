@@ -71,17 +71,17 @@ export default {
         threshold: 128
     },
 
-    styleHook(config, uuid) {
-        const filterId = `edgeTraceFilter-${uuid}`
-        injectEdgeFilter(config, filterId);
+    styleHook(instance) {
+        const filterId = `edgeTraceFilter-${instance.id}`
+        injectEdgeFilter(instance.config, filterId);
         const el = document.getElementById(filterId)
         el.dataset.edgeTraceFilter = filterId;
         el.style.filter = `url(#${filterId})`;
         return `url(#${filterId})`;
     },
 
-    cleanupHook(uuid) {
-        const filterId = `edgeTraceFilter-${uuid}`
+    cleanupHook(instance) {
+        const filterId = `edgeTraceFilter-${instance.id}`
         const filter = document.getElementById(filterId);
         if (filter) filter.remove();
     },

@@ -10,8 +10,8 @@ export default {
       { type: "range", key: "sigma", label: "Sigma", min: 1, max: 15, step: 1 }
     ],
 
-    styleHook(config, uuid) {
-        const dom_id = `blurFilter-${uuid}`;
+    styleHook(instance) {
+        const dom_id = `blurFilter-${instance.id}`;
         let filter = document.getElementById(dom_id);
         if (!filter) {
             const svg = document.querySelector("svg");
@@ -25,12 +25,12 @@ export default {
         }
         const SVG_NS = "http://www.w3.org/2000/svg";
         const blur = filter.getElementsByTagNameNS(SVG_NS, "feGaussianBlur")[0];
-        blur.setAttribute("stdDeviation", config.sigma);
+        blur.setAttribute("stdDeviation", instance.config.sigma);
         return `url(#${dom_id})`;
     },
 
-    cleanupHook(uuid) {
-        const dom_id = `blurFilter-${uuid}`;
+    cleanupHook(instance) {
+        const dom_id = `blurFilter-${instance.id}`;
         const filter = document.getElementById(dom_id);
         if (filter) filter.remove();
     }

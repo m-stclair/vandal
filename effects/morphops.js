@@ -11,8 +11,8 @@ export default {
     k1: 0, k2: 0, k3: 1, k4: 0 // for arithmetic
   },
 
-  styleHook(config, uuid) {
-    const id = `morphOpFilter-${uuid}`;
+  styleHook(instance) {
+    const id = `morphOpFilter-${instance.id}`;
     const existing = document.getElementById(id);
     if (existing) {
       updateMorphFilter(existing, config);
@@ -26,13 +26,13 @@ export default {
     filter.setAttribute("y", "0%");
     filter.setAttribute("width", "100%");
     filter.setAttribute("height", "100%");
-    buildMorphFilter(filter, config);
+    buildMorphFilter(filter, instance.config);
     document.querySelector("svg").appendChild(filter);
     return `url(#${id})`;
   },
 
-  cleanupHook(uuid) {
-    const id = `morphOpFilter-${uuid}`;
+  cleanupHook(instance) {
+    const id = `morphOpFilter-${instance.id}`;
     const existing = document.getElementById(id);
     if (existing) existing.remove();
   },

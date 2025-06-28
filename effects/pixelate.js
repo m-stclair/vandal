@@ -15,8 +15,8 @@ export default {
     {type: 'checkbox', key: 'preserveAlpha', label: "Preserve Alpha"}
   ],
 
-  apply(imageData, config) {
-    const {blockSize, sampleStrategy, preserveAlpha} = config;
+  apply(instance, imageData) {
+    const {blockSize, sampleStrategy, preserveAlpha} = instance.config;
     const {data, width, height} = imageData.data;
     const copy = new Uint8ClampedArray(data);
 
@@ -28,8 +28,6 @@ export default {
 
         const xEnd = Math.min(x + blockSize, width);
         const yEnd = Math.min(y + blockSize, height);
-
-        let sample;
 
         if (sampleStrategy === 'center') {
           const sx = x + Math.floor(blockSize / 2);

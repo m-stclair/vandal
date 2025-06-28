@@ -24,17 +24,31 @@ type BaseEffect = {
     name: string;
     defaultConfig: object;
     uiLayout: Array<UIControl>;
-    cleanupHook?: (uuid: string) => void;
+    cleanupHook?: (instance: EffectInstance) => void;
+    initHook?: (instance: EffectInstance) => void;
 };
 
 type PixelEffect = BaseEffect & {
-    apply: (imageData: ImageData, config: object) => ImageData;
+    apply: (instance: EffectInstance, imageData: ImageData) => ImageData;
     styleHook?: never;
 };
 
 type VisualEffect = BaseEffect & {
-    styleHook: (config: object, uuid: string) => string;
+    styleHook: (instance: EffectInstance) => string;
     apply?: never;
 };
 
 export type EffectModule = PixelEffect | VisualEffect;
+
+interface EffectInstance {
+    id: string;
+    name: string;
+    config: Record<string, any>;
+    apply: (instance: EffectInstance, imageData: ImageData) => ImageData;
+    styleHook: (instance: EffectInstance, uuid: string) => string;
+    cleanupHook?: () => void;
+    uiLayout: UIControl[];
+    disabled: boolean;
+    // optional per-instance derived data cache
+    auxiliaryCache?: Record<string, any>;
+}

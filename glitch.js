@@ -23,7 +23,7 @@ import {
     addEffectToStack,
     getEffectStack, saveState, loadState, makeEffectInstance, setResizedOriginalImage, getResizedOriginalImage
 } from "./state.js";
-import {gid} from "./utils.js";
+import {gid, makeConfigHash} from "./utils.js";
 import {buildUI} from "./ui_builder.js";
 import {effectGroups, effectRegistry} from "./effects/index.js";
 
@@ -75,11 +75,11 @@ function applyEffects() {
         const prior = current;
         const configChanged = (
             !cacheEntry
-            || JSON.stringify(fx.config) !== JSON.stringify(cacheEntry.config)
+            || makeConfigHash(fx.config) !== makeConfigHash(cacheEntry.config)
         );
         const dependencyChanged = !cacheEntry || cacheEntry.dependsOn !== prior;
         if (configChanged || dependencyChanged || needsRecompute) {
-            const result = fx.apply(prior, fx.config);
+            const result = fx.apply(fx, prior);
             current = result;
             renderCacheSet(fx.id, {
                 imageData: result,
@@ -99,7 +99,7 @@ function maybeCallStyleHook(fx) {
     if (!fx.styleHook || fx.disabled) {
         return false;
     }
-    return fx.styleHook(fx.config, fx.id);
+    return fx.styleHook(fx);
 }
 
 function updateVisualStyles() {
@@ -131,7 +131,7 @@ function renderEffectInStackUI(fx, i) {
 
     div.onclick = () => {
         // Build the config UI fresh
-        buildUI(configContainer, fx.config, debouncedApply, fx.uiLayout);
+        buildUI(fx, configContainer, fx.config, debouncedApply, fx.uiLayout);
         renderStackUI(); // trigger visual updates
     };
     const delBtn = document.createElement('button');
@@ -139,7 +139,7 @@ function renderEffectInStackUI(fx, i) {
     delBtn.onclick = (e) => {
         e.stopPropagation();
         if (fx.cleanupHook) {
-            fx.cleanupHook(fx.id);
+            fx.cleanupHook(fx);
         }
         filterEffectStack(e => e.id !== fx.id);
         clearRenderCache();

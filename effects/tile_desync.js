@@ -10,13 +10,13 @@ export default {
     freezeTiles: false  // placeholder; not used yet
   },
 
-  apply(imageData, config) {
+  apply(instance, imageData) {
     const { width, height, data } = imageData;
     const {
       tileSize,
       corruptionRate,
       maxOffset
-    } = config;
+    } = instance.config;
 
     const output = new Uint8ClampedArray(data.length);
     const getIndex = (x, y) => (y * width + x) * 4;

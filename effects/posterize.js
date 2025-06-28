@@ -11,9 +11,9 @@ export default {
       preserveAlpha: true
     },
 
-    apply(imageData, config) {
+    apply(instance, imageData) {
         const { width, height, data } = imageData;
-        const { levels, perChannel, mode, gamma, preserveAlpha } = config;
+        const { levels, perChannel, mode, gamma, preserveAlpha } = instance.config;
 
         const copy = new Uint8ClampedArray(data);
 

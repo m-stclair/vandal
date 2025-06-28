@@ -1,3 +1,5 @@
+import {downsampleImageData, imageDataHash, showImageData} from "./utils.js";
+
 function makeField() {
     const wrapper = document.createElement('div');
     wrapper.className = 'field';
@@ -104,19 +106,35 @@ export default {
         return wrapper;
     },
 
-    // Optional future enhancement
-    Group(groupLabel, elements) {
-        const wrapper = makeField();
+    ReferenceImage(key, labelText, instance, onChange) {
+        const container = document.createElement("div");
+        container.className = "widget";
 
-        if (groupLabel) {
-            const label = document.createElement('div');
-            label.textContent = groupLabel;
-            label.style.fontWeight = 'bold';
-            label.style.marginBottom = '0.25em';
-            wrapper.appendChild(label);
-        }
+        const label = document.createElement("label");
+        label.textContent = labelText || "Reference Image";
 
-        elements.forEach(e => wrapper.appendChild(e));
-        return wrapper;
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.addEventListener("change", async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            const imageBitmap = await createImageBitmap(file);
+            const canvas = document.createElement("canvas");
+            canvas.width = imageBitmap.width;
+            canvas.height = imageBitmap.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(imageBitmap, 0, 0);
+            const fullImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const downsampledImage = await downsampleImageData(fullImage);
+            instance.auxiliaryCache.referenceImage = downsampledImage;
+            instance.config[key] = imageDataHash(instance.auxiliaryCache.referenceImage);
+        })
+        container.appendChild(label);
+        container.appendChild(input);
+        return container;
     }
+
 }

@@ -50,10 +50,10 @@ export default {
             label: 'Animate Noise',
         }
     ],
-    styleHook(config, uuid) {
-        const {baseFrequency, numOctaves, scale, seed, animate} = config;
+    styleHook(instance) {
+        const {baseFrequency, numOctaves, scale, seed, animate} = instance.config;
 
-        const filterId = `warpNoise-${uuid}`;
+        const filterId = `warpNoise-${instance.id}`;
         let filter = document.getElementById(filterId);
         if (!filter) {
             const svg = document.querySelector("svg");
@@ -90,8 +90,8 @@ export default {
         return `url(#${filterId})`
     },
 
-    cleanupHook(uuid) {
-        const dom_id = `warpNoise-${uuid}`;
+    cleanupHook(instance) {
+        const dom_id = `warpNoise-${instance.id}`;
         const filter = document.getElementById(dom_id);
         if (filter) filter.remove();
     }

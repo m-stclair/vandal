@@ -11,10 +11,10 @@ export default {
         mode: "lambertian",
     },
 
-    apply(imageData, config) {
+    apply(instance, imageData) {
         const { width, height, data } = imageData;
         const result = new Uint8ClampedArray(data.length);
-        const { azimuth, mode } = config;
+        const { azimuth, mode } = instance.config;
         const azrad = deg2rad(azimuth)
         const cosAz = Math.cos(azrad);
         const sinAz = Math.sin(azrad);

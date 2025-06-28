@@ -46,10 +46,10 @@ export default {
         saturation: 1.0,   // 0 to 4
      },
 
-    apply(imageData, config) {
+    apply(instance, imageData) {
         const {data, width, height} = imageData;
         const {r, g, b, a} = splitChannels(data, width, height);
-        const adjusted = adjustColorChannels(r, g, b, config);
+        const adjusted = adjustColorChannels(r, g, b, instance.config);
         return new ImageData(
             combineChannels({...adjusted, a, width, height}), width, height
         )

@@ -18,6 +18,8 @@ import stretchEffect from "./stretch_effect.js";
 import bcsAdjustments from "./brightness_contrast_saturation.js";
 import pixelate from "./pixelate.js";
 import warpNoise from "./warpnoise_svg.js";
+import paletteDebug from "./palette_debug.js";
+import reinhardTransfer from "./reinhardTransfer.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 
@@ -28,11 +30,15 @@ export const effectGroups = [
   },
   {
     label: "Stylized / Visual",
-    effects: [posterize, threshcycle, colorShred, edgeTrace, hillShade]
+    effects: [colorShred, jointShred, edgeTrace, hillShade]
+  },
+  {
+    label: 'Color Effects',
+    effects: [posterize, reinhardTransfer, threshcycle]
   },
   {
     label: "Disruptive / Desync",
-    effects: [pixelsort, tileDesync, bandedFlip, jointShred, warpNoise]
+    effects: [pixelsort, tileDesync, bandedFlip, warpNoise]
   },
   {
     label: "Distortions",
@@ -41,6 +47,10 @@ export const effectGroups = [
   {
     label: "Other / Experimental",
     effects: [scanlines]
+  },
+  {
+    label: "System / Debug",
+    effects: [paletteDebug]
   }
 ];
 

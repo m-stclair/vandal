@@ -13,7 +13,6 @@ import {
     clearRenderCache,
     setOriginalImage,
     setRenderedImage,
-    getRenderedImage,
     renderCacheSet,
     renderCacheGet,
     setFilters,
@@ -111,11 +110,16 @@ function updateVisualStyles() {
     setFilters(filters || 'none');
 }
 
-let applyTimer = null;
+let rafPending = false;
 
 function debouncedApply() {
-    if (applyTimer) clearTimeout(applyTimer);
-    applyTimer = setTimeout(updateApp, 1);
+    if (rafPending) return;
+    rafPending = true;
+
+    requestAnimationFrame(() => {
+        updateApp();
+        rafPending = false;
+    });
 }
 
 function renderEffectInStackUI(fx, i) {

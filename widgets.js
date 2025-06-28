@@ -87,6 +87,7 @@ export default {
         const valueLabel = document.createElement("span");
         valueLabel.textContent = input.value;
         valueLabel.style.marginLeft = "0.5em";
+        valueLabel.classList.add("slider-value")
         wrapper.appendChild(valueLabel);
 
         Object.defineProperty(wrapper, 'value', {

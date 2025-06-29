@@ -26,7 +26,7 @@ export default {
     filter.setAttribute("y", "0%");
     filter.setAttribute("width", "100%");
     filter.setAttribute("height", "100%");
-    buildMorphFilter(filter, instance.config);
+    updateMorphFilter(filter, instance.config);
     document.querySelector("svg").appendChild(filter);
     return `url(#${id})`;
   },
@@ -49,7 +49,7 @@ export default {
   ]
 };
 
-function buildMorphFilter(filter, config) {
+function updateMorphFilter(filter, config) {
   const { operator, useThreshold, threshold, radius, k1, k2, k3, k4 } = config;
   const thresh = Math.max(0, Math.min(1, threshold));
 
@@ -74,8 +74,4 @@ function buildMorphFilter(filter, config) {
     ` : ''}
     <feBlend in="SourceGraphic" in2="out" mode="darken"/>
   `;
-}
-
-function updateMorphFilter(filter, config) {
-  buildMorphFilter(filter, config);
 }

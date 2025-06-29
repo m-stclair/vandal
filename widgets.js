@@ -151,7 +151,7 @@ export default {
             input.step = (input.max - input.min) / steps
         } else {
             input.step = reverseScaling(
-                step == undefined ? 1 : step, input.scale, input.scaleFactor
+                step === undefined ? 1 : step, input.scale, input.scaleFactor
             );
         }
         input.value = reverseScaling(value, input.scale, input.scaleFactor);

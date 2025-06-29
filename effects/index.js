@@ -22,6 +22,8 @@ import paletteDebug from "./palette_debug.js";
 import reinhardTransfer from "./reinhardTransfer.js";
 import contourSynth from "./contour_synth.js";
 import colorMap from "./colormap.js";
+import FIR from "./fir.js";
+import delayLineGL from "./delayline_gl.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 
@@ -40,7 +42,7 @@ export const effectGroups = [
   },
   {
     label: "Disruptive / Desync",
-    effects: [pixelsort, tileDesync, bandedFlip, warpNoise]
+    effects: [delayLineGL, FIR, pixelsort, tileDesync, bandedFlip, warpNoise]
   },
   {
     label: "Distortions",

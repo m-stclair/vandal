@@ -84,7 +84,6 @@ export function getOriginalImage() {
     return originalImage;
 }
 
-
 // canvas property modification
 
 export function setFilters(filters) {
@@ -100,7 +99,7 @@ export function clearConfigUI() {
 }
 
 export function makeEffectInstance(mod) {
-    if (!mod) return;
+    if (!mod) return Promise.resolve();
     const instance = {
         id: uuidv4(),
         name: mod.name,
@@ -113,7 +112,8 @@ export function makeEffectInstance(mod) {
         label: mod.name,
         solo: false,
     }
-    if (mod.initHook) mod.initHook(instance);
+    const hook = mod.initHook?.(instance);
+    instance.ready = hook?.then ? hook : Promise.resolve();
     return instance;
 }
 

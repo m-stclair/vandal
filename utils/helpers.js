@@ -122,5 +122,6 @@ export function uuidv4() {
   }
 }
 
+export const nullish = (thing) => thing == null;
 
 export {gid, gen}

@@ -109,7 +109,9 @@ export function setupStaticButtons(
     loadState, registry, resetStack, update
 ) {
     uploadButton.addEventListener('change', handleUpload);
-    addEffectButton.addEventListener('click', addSelectedEffect);
+    addEffectButton.addEventListener(
+        'click', async () => await addSelectedEffect()
+    );
     saveBtn.addEventListener("click", () => {
         textarea.value = saveState();
         navigator.clipboard?.writeText(textarea.value).then(() =>

@@ -259,9 +259,10 @@ function createControlGroup(fx, effectStack, i, configContainer) {
     dupBtn.textContent = "⧉";
     dupBtn.title = "Duplicate effect";
     dupBtn.className = "effectButton";
-    dupBtn.addEventListener("click", (e) => {
+    dupBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
         const newFx = makeEffectInstance(effectRegistry[fx.name]);
+        await newFx.ready;
         newFx.config = structuredClone(fx.config);
         effectStack.splice(i + 1, 0, newFx);
         updateApp();
@@ -356,9 +357,11 @@ function resetStack() {
 }
 
 
-function addSelectedEffect() {
+async function addSelectedEffect() {
     const selected = addEffectSelect.value;
+    if (!selected) return;
     const fx = makeEffectInstance(effectRegistry[selected]);
+    await fx.ready;
     addEffectToStack(fx);
     addEffectSelect.value = '';
     clearRenderCache()

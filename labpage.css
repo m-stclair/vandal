@@ -134,8 +134,9 @@ label {
     margin: 0 0.5em;
 }
 
-#effectStack div {
-    margin: 0.5em;
+.effectRow {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
     padding: 0.5em;
     background: #2a2a2a;
     border: 1px solid #444;
@@ -144,15 +145,142 @@ label {
     transition: background 0.2s, border 0.2s;
 }
 
-#effectStack div:hover {
+.effectRow:hover {
     background: #3a3a3a;
     border-color: #666;
 }
 
-#effectStack div.selected {
+.effectRow.selected {
     background: #555;
     border: 1px solid #888;
 }
+
+.effectHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.labelRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.buttonRow {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    flex-wrap: wrap; /* Allows clean wrapping if needed on narrow layouts */
+}
+
+.labelWrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.effectLabel {
+    flex: 1;
+    font-weight: 600;
+    font-size: 1.1em;
+    outline: none;
+    padding: 2px 4px;
+    cursor: default;
+    border: 1px dashed transparent;
+    background: transparent;
+}
+
+.effectLabel[contenteditable="true"] {
+    border-color: #666;
+    background: #111;
+    cursor: text;
+}
+
+.editButton {
+    background: transparent;
+    border: none;
+    font-size: 1em;
+    cursor: pointer;
+    color: #ccc;
+    padding: 2px;
+    transition: color 0.2s;
+}
+
+.editButton:hover {
+    color: #fff;
+}
+
+.effectToggle {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #999;
+    background: #222;
+    display: inline-block;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.effectToggle:checked {
+    border-color: #3af;
+}
+
+.effectToggle::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 6px;
+    width: 4px;
+    height: 9px;
+    border: solid #000;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.effectToggle:checked::after {
+    opacity: 1;
+}
+
+.effectRow.unsoloed {
+    opacity: 0.4;
+}
+.effectRow.soloed {
+    border-color: #4af;
+}
+
+.enableToggle:checked {
+    background: #3af;
+}
+
+.soloToggle {
+    background: #800
+}
+
+.soloToggle:checked {
+    background: #e00;
+}
+
+.effectButton {
+    padding: 2px 6px;
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.controlGroup {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+}
+
 
 .field label {
     margin-bottom: 0;
@@ -253,4 +381,37 @@ input[type=range]::-webkit-slider-thumb {
 input[type=range]::-moz-range-thumb {
     height: 12px;
     width: 12px;
+}
+
+.drop-zone {
+    height: 20px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    transition: background 0.2s;
+    pointer-events: all;
+}
+
+.drop-zone.drop-hover {
+    background: #666; /* or something subtle like a translucent line */
+}
+
+.drop-zone::before {
+    content: "";
+    display: block;
+    margin: 0 auto;
+    width: 80%;
+    height: 2px;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.drop-zone.drop-hover::before {
+    background: #aaa;
+}
+
+.drop-zone {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
 }

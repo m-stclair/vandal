@@ -7,6 +7,17 @@ export function forEachEffect(cb) {
     return effectStack.forEach(cb);
 }
 
+export function getActiveEffects() {
+    const soloed = effectStack.find(fx => fx.solo);
+    if (soloed) return [soloed];
+    return effectStack.filter(fx => !fx.disabled);
+}
+
+export function forEachActiveEffect(cb) {
+    return getActiveEffects().forEach(cb);
+}
+
+
 export function filterEffectStack(func) {
     effectStack = effectStack.filter(func);
 }
@@ -99,6 +110,8 @@ export function makeEffectInstance(mod) {
         styleHook: mod.styleHook,
         cleanupHook: mod.cleanupHook,
         apply: mod.apply,
+        label: mod.name,
+        solo: false,
     }
     if (mod.initHook) mod.initHook(instance);
     return instance;

@@ -27,13 +27,9 @@ function applyPatternMoire(inputCtx, outputCtx, config) {
     const { width, height } = inputCtx.canvas;
     const inputData = inputCtx.getImageData(0, 0, width, height);
     const outputData = outputCtx.createImageData(width, height);
-
     const {freq, freqScale, phaseScale, spatialMode, waveform, 
       blend, phaseOff, hueModStrength, colorMode} = config;
-    console.log(colorMode);
-
     const phaseOffRad = deg2rad(phaseOff);
-
     let waveFunc;
     switch (waveform) {
       case "sawtooth":
@@ -61,19 +57,13 @@ function applyPatternMoire(inputCtx, outputCtx, config) {
 
             const lum = getLuminance(r, g, b) / 255;
             const phase = lum * Math.PI * 2;
-
             const spatial = spatialPhase(x, y, width, height, freq, spatialMode);
-            
-            const patternA = waveFunc(
-              spatial * freqScale + phase
-            );
+            const patternA = waveFunc(spatial * freqScale + phase);
             const patternB = waveFunc(
-                phase * (
-                  - (spatial * freqScale + phase * phaseScale)
-                ) 
-                + phaseOffRad
+                - phase * (
+                   (spatial * freqScale + phase * phaseScale)
+                ) + phaseOffRad
             );
-
             const patval = Math.abs(patternA - patternB) * 255;
             if (colorMode === "none") {
               const val = patval * blend + lum * (1 - blend) * 255;
@@ -87,11 +77,6 @@ function applyPatternMoire(inputCtx, outputCtx, config) {
               outputData.data[i + 1] = g - val;
               outputData.data[i + 2] = b - val;
               outputData.data[i + 3] = 255;
-
-              // outputData.data[i] = val + (1 - blend) * r;
-              // outputData.data[i + 1] = val + (1 - blend) * g;
-              // outputData.data[i + 2] = val + (1 - blend) * b;
-              // outputData.data[i + 3] = 255;
             } else if (colorMode === "hueMod") {
               const [h, s, l] = rgb2Hsl(r, g, b);
               const mod = (patval / 255) * hueModStrength;

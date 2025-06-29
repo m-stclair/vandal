@@ -54,4 +54,7 @@ interface EffectInstance {
     disabled: boolean;
     // optional per-instance derived data cache
     auxiliaryCache?: Record<string, any>;
+    // user-edited name
+    label?: string;
+    solo: boolean;
 }

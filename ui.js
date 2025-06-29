@@ -42,8 +42,11 @@ export function setupPaneDrag() {
 const effectStackElement = document.getElementById("effectStack");
 
 export function moveEffectInStack(effectStack, from, to) {
-    if (from < 0 || to < 0 || from === to || from >= effectStack.length || to >= effectStack.length) return;
+    if (from < 0 || from >= effectStack.length) return;
+    to = Math.max(0, Math.min(to, effectStack.length));
+    if (from === to) return;
     const [moved] = effectStack.splice(from, 1);
+    console.log(from, to);
     effectStack.splice(to, 0, moved);
 }
 
@@ -55,7 +58,6 @@ export function setupEffectStackDragAndDrop(
     effectStackElement.addEventListener("dragstart", (e) => {
         e.dataTransfer.setData("text/plain", e.target.dataset.index);
     });
-
     effectStackElement.addEventListener("dragover", (e) => {
         e.preventDefault();
         const target = e.target.closest("div");
@@ -63,12 +65,10 @@ export function setupEffectStackDragAndDrop(
             target.style.borderTop = "2px solid #999";
         }
     });
-
     effectStackElement.addEventListener("dragleave", (e) => {
         const target = e.target.closest("div");
         if (target) target.style.borderTop = "";
     });
-
     effectStackElement.addEventListener("drop", (e) => {
         e.preventDefault();
         const from = parseInt(e.dataTransfer.getData("text/plain"), 10);

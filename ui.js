@@ -34,32 +34,18 @@ export function setupPaneDrag() {
             document.body.style.cursor = "default";
         }
     });
-        // const startX = e.clientX;
-        // const startWidth = rightPane.getBoundingClientRect().width;
-        //
-        // const onMouseMove = (e) => {
-        //     const dx = startX - e.clientX;
-        //     const newWidth = startWidth + dx;
-        //     if (newWidth > 200 && newWidth < window.innerWidth - 100) {
-        //         rightPane.style.width = `${newWidth}px`;
-        //     }
-        // };
-        //
-        // const onMouseUp = () => {
-        //     document.body.style.cursor = "";
-        //     document.removeEventListener("mousemove", onMouseMove);
-        //     document.removeEventListener("mouseup", onMouseUp);
-        // };
-        //
-        // document.addEventListener("mousemove", onMouseMove);
-        // document.addEventListener("mouseup", onMouseUp);
-    // });
 }
 
 
 // effect stack container
 
 const effectStackElement = document.getElementById("effectStack");
+
+export function moveEffectInStack(effectStack, from, to) {
+    if (from < 0 || to < 0 || from === to || from >= effectStack.length || to >= effectStack.length) return;
+    const [moved] = effectStack.splice(from, 1);
+    effectStack.splice(to, 0, moved);
+}
 
 export function setupEffectStackDragAndDrop(
     effectStack,
@@ -92,8 +78,7 @@ export function setupEffectStackDragAndDrop(
         const to = parseInt(toDiv.dataset.index, 10);
         if (from === to) return;
 
-        const moved = effectStack.splice(from, 1)[0];
-        effectStack.splice(to, 0, moved);
+        moveEffectInStack(effectStack, from, to);
 
         // invalidate cache
         clearRenderCache()

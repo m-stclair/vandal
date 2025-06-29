@@ -125,11 +125,11 @@ function debouncedApply() {
 function renderEffectInStackUI(fx, i) {
     const configContainer = gid("configForm");
     const stackContainer = gid('effectStack');
-    const div = document.createElement('div');
-    div.textContent = fx.name;
-    div.classList.add('effectRow');
+    const effectRow = document.createElement('div');
+    effectRow.textContent = fx.name;
+    effectRow.classList.add('effectRow');
 
-    div.onclick = () => {
+    effectRow.onclick = () => {
         // Build the config UI fresh
         buildUI(fx, configContainer, fx.config, debouncedApply, fx.uiLayout);
         renderStackUI(); // trigger visual updates
@@ -146,7 +146,7 @@ function renderEffectInStackUI(fx, i) {
         configContainer.innerHTML = '';
         updateApp();
     };
-    div.appendChild(delBtn);
+    effectRow.appendChild(delBtn);
 
     const toggle = document.createElement('input');
     toggle.type = 'checkbox';
@@ -160,11 +160,11 @@ function renderEffectInStackUI(fx, i) {
         fx.disabled = !toggle.checked;
         updateApp();
     });
-    div.appendChild(toggle);
+    effectRow.appendChild(toggle);
 
-    div.dataset.index = i;
-    div.draggable = true;
-    stackContainer.appendChild(div);
+    effectRow.dataset.index = i;
+    effectRow.draggable = true;
+    stackContainer.appendChild(effectRow);
 }
 
 function renderStackUI() {

@@ -1,4 +1,5 @@
-import {getImageStats, rgb2lab_A, lab2rgb_A} from "./paletteutils.js";
+import {getImageStats} from "../utils/paletteutils.js";
+import {lab2Rgb_A, rgb2Lab_A} from "../utils/colorutils.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -32,11 +33,11 @@ export default {
         }
         const cacheKey = `stats-${referenceImageId}`;
         if (!instance.auxiliaryCache[cacheKey]) {
-            const reflab = rgb2lab_A(referenceImage.data);
+            const reflab = rgb2Lab_A(referenceImage.data);
             instance.auxiliaryCache[cacheKey] = getImageStats(reflab);
         }
         const sourceStats = instance.auxiliaryCache[cacheKey];
-        const inputLabA = rgb2lab_A(imageData.data);
+        const inputLabA = rgb2Lab_A(imageData.data);
         const inputStats = getImageStats(inputLabA);
         const outLabA = [];
 
@@ -50,7 +51,7 @@ export default {
             }
             outLabA[i + 3] = inputLabA[i + 3]; // Alpha passthrough
         }
-        const outRGBA = new Uint8ClampedArray(lab2rgb_A(outLabA));
+        const outRGBA = new Uint8ClampedArray(lab2Rgb_A(outLabA));
         return new ImageData(outRGBA, imageData.width, imageData.height);
     },
 

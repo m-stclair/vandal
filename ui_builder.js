@@ -11,7 +11,17 @@ export function buildUI(instance, container, config, update, layout) {
     switch (type.toLowerCase()) {
       case 'range':
         widget = widgets.Range(
-            { key, label, value, min: item.min, max: item.max, step: item.step }
+            { 
+              key, 
+              label, 
+              value, 
+              scale: item.scale, 
+              min: item.min, 
+              max: item.max, 
+              step: item.step,
+              steps: item.steps,
+              scaleFactor: item.scaleFactor
+            }
         );
         break;
       case 'select':

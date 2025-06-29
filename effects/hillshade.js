@@ -1,5 +1,5 @@
-import {deg2rad} from "../mathutils.js";
-import {channelwise, normalizeRange} from "../stretch.js";
+import {deg2rad} from "../utils/mathutils.js";
+import {channelwise, normalizeRange} from "../utils/stretch.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */

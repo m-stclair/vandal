@@ -1,5 +1,3 @@
-import {buildUI} from "../ui_builder.js";
-
 const noise = function(x, y) {
   const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
   return seed - Math.floor(seed);

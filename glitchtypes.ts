@@ -6,6 +6,9 @@ export type UIControl =
     min: number;
     max: number;
     step?: number;
+    steps?: number;
+    scale?: "log" | "lin" | "exp";
+    scaleFactor?: number;
 }
     | {
     type: "select";

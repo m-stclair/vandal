@@ -1,4 +1,4 @@
-import {getPalette} from "./paletteutils.js";
+import {getPalette} from "../utils/paletteutils.js";
 
 function renderSwatchImage(palette, width, height) {
     const swatchWidth = Math.floor(width / palette.length);
@@ -19,7 +19,6 @@ function renderSwatchImage(palette, width, height) {
 
     return new ImageData(out, width, height);
 }
-
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */

@@ -23,7 +23,7 @@ import {
     addEffectToStack,
     getEffectStack, saveState, loadState, makeEffectInstance, setResizedOriginalImage, getResizedOriginalImage
 } from "./state.js";
-import {gid, makeConfigHash} from "./utils.js";
+import {gid, makeConfigHash} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
 import {effectGroups, effectRegistry} from "./effects/index.js";
 

@@ -1,5 +1,6 @@
-import {combineChannels, splitChannels} from "../channelutils.js";
+import {combineChannels, splitChannels} from "../utils/channelutils.js";
 
+// todo -- some should be pulled out to colorutils
 function adjustColorChannels(r, g, b, config) {
     const { brightness, contrast, saturation } = config;
 

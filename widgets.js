@@ -1,9 +1,75 @@
-import {downsampleImageData, imageDataHash, showImageData} from "./utils.js";
+import {downsampleImageData, imageDataHash, showImageData} from "./utils/helpers.js";
+
+function formatFloatWidth(val, maxChars = 5) {
+    if (!Number.isFinite(val)) return String(val).slice(0, maxChars);
+
+    if (val === 0) return val;
+
+    const abs = Math.abs(val);
+
+    // Prefer fixed-point if it'll fit
+    let fixed = abs >= 1e-3 && abs < 1e6
+    ? val.toFixed(Math.max(0, maxChars - String(Math.trunc(val)).length - 1))
+    : null;
+
+    if (fixed) {
+        fixed = fixed.replace(/\.?0+$/, ''); // Trim trailing .0s
+    } 
+    if (fixed && fixed.length <= maxChars) {
+        return fixed;
+    }
+
+    // Fall back to exponential
+    let expDigits = maxChars - 5; // 1e+00 is 5 chars minimum
+    if (expDigits < 0) expDigits = 0;
+
+    return val.toExponential(expDigits)
+            .replace(/\.?0+e/, 'e')       // Trim unneeded .0s
+            .replace(/e\+?(-?)0*(\d+)/, 'e$1$2'); // Trim leading 0s in exponent
+}
+
+
+function logBase(x, base) {
+  return Math.log(x) / Math.log(base);
+}
 
 function makeField() {
     const wrapper = document.createElement('div');
     wrapper.className = 'field';
     return wrapper;
+}
+
+function applyScaling(sliderValue, scale, scaleFactor) {
+    const value = parseFloat(sliderValue);
+    switch (scale) {
+        case "log":
+            return Math.pow(scaleFactor, value) - 1;
+        case "lin":
+            break;
+        default:
+            console.warn(
+                `'${scale}' scaling not implemented, defaulting to linear`
+            );
+    }
+    return value;
+}
+
+function clampInfinity(value, minval = 0.001) {
+    return value === -Infinity ? minval : value
+}
+
+function reverseScaling(value, scale, scaleFactor) {
+    switch (scale) {
+        case "log":
+            return clampInfinity(logBase(value + 1, scaleFactor));
+        case "lin":
+            break;
+        default:
+            console.warn(
+                `'${scale}' scaling not implemented, defaulting to linear`
+            );
+    }
+    return value;
 }
 
 export default {
@@ -65,7 +131,7 @@ export default {
         return wrapper;
     },
 
-    Range({key, label, value, min, max, step}) {
+    Range({key, label, value, min, max, step, steps, scale, scaleFactor}) {
         const wrapper = makeField();
 
         const lElement = document.createElement('label');
@@ -77,26 +143,38 @@ export default {
 
         const input = document.createElement('input');
         input.type = 'range';
-        input.min = min;
-        input.max = max;
-        input.step = step ?? '1';
-        input.value = value;
+        input.scale = scale ?? 'lin';
+        input.scaleFactor = scaleFactor ?? 10;
+        input.min = reverseScaling(min, input.scale, input.scaleFactor);
+        input.max = reverseScaling(max, input.scale, input.scaleFactor);
+        if (steps) {
+            input.step = (input.max - input.min) / steps
+        } else {
+            input.step = reverseScaling(
+                step == undefined ? 1 : step, input.scale, input.scaleFactor
+            );
+        }
+        input.value = reverseScaling(value, input.scale, input.scaleFactor);
         input.name = key;
-        input.classList.add('slider');
+        input.classList.add('slider')
 
         wrapper.appendChild(input);
 
         const valueLabel = document.createElement("span");
-        valueLabel.textContent = input.value;
+        valueLabel.textContent = formatFloatWidth(
+            applyScaling(input.value, input.scale, input.scaleFactor)
+        );
         valueLabel.style.marginLeft = "0.5em";
         valueLabel.classList.add("slider-value")
         wrapper.appendChild(valueLabel);
 
         Object.defineProperty(wrapper, 'value', {
-            'get': () => parseFloat(input.value)
+            'get': () => applyScaling(input.value, input.scale, input.scaleFactor)
         })
         input.addEventListener('input', () => {
-            valueLabel.textContent = input.value;
+            valueLabel.textContent = formatFloatWidth(
+                applyScaling(input.value, input.scale, input.scaleFactor)
+            );
             wrapper.dispatchEvent(new Event('input'));
         });
 

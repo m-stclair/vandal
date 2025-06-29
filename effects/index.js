@@ -20,17 +20,19 @@ import pixelate from "./pixelate.js";
 import warpNoise from "./warpnoise_svg.js";
 import paletteDebug from "./palette_debug.js";
 import reinhardTransfer from "./reinhardTransfer.js";
+import contourSynth from "./contour_synth.js";
+import colorMap from "./colormap.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 
 export const effectGroups = [
   {
     label: "Core Adjustments",
-    effects: [stretchEffect, bcsAdjustments]
+    effects: [stretchEffect, bcsAdjustments, colorMap]
   },
   {
-    label: "Stylized / Visual",
-    effects: [colorShred, jointShred, edgeTrace, hillShade]
+    label: "Structural",
+    effects: [contourSynth, colorShred, jointShred, edgeTrace, hillShade]
   },
   {
     label: 'Color Effects',
@@ -45,7 +47,7 @@ export const effectGroups = [
     effects: [pixelate, wave, morphOp, rgbShiftSvg, blur, blur_svg]
   },
   {
-    label: "Other / Experimental",
+    label: "Patterns",
     effects: [scanlines]
   },
   {

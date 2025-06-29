@@ -1,6 +1,6 @@
 // effects/stretch_effect.js
 
-import {channelwise, normalizeRange, fastPercentileClip, stddevClip} from '../stretch.js';
+import {channelwise, normalizeRange, fastPercentileClip, stddevClip} from '../utils/stretch.js';
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */

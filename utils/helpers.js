@@ -95,4 +95,32 @@ export function showImageData(imageData) {
     gid("debug").appendChild(canvas); // or some debug div
 }
 
+
+function fallbackUUIDv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8); // ensure `y` is in [8, 9, A, B]
+    return v.toString(16);
+  });
+}
+
+export function uuidv4() {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+
+    // Per RFC4122 v4
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    return [...bytes].map((b, i) => {
+      const hex = b.toString(16).padStart(2, '0');
+      return [4, 6, 8, 10].includes(i) ? '-' + hex : hex;
+    }).join('');
+  } else {
+    return fallbackUUIDv4();
+  }
+}
+
+
 export {gid, gen}

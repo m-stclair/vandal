@@ -1,4 +1,4 @@
-import {gid} from "./utils.js";
+import {gid} from "./utils/helpers.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");

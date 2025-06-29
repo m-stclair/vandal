@@ -1,5 +1,5 @@
 import {canvas, ctx} from "./ui.js";
-import {gid} from "./utils.js";
+import {gid, uuidv4} from "./utils/helpers.js";
 
 let effectStack = [];
 
@@ -88,16 +88,10 @@ export function clearConfigUI() {
     configContainer.innerHTML = '';
 }
 
-// effect instantiation
-
-function generateEffectId() {
-    return crypto.randomUUID();
-}
-
 export function makeEffectInstance(mod) {
     if (!mod) return;
     const instance = {
-        id: generateEffectId(),
+        id: uuidv4(),
         name: mod.name,
         config: structuredClone(mod.defaultConfig),
         uiLayout: mod.uiLayout,

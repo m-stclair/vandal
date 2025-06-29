@@ -5,6 +5,8 @@ import {boxKernel, circularKernel, annularKernel} from "../utils/kernels.js";
 
 let fragSource = null;
 let runner = null;
+const fragURL = new URL("../shaders/delayline.frag", import.meta.url);
+fragURL.searchParams.set("v", Date.now());
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -67,7 +69,7 @@ export default {
       runner = new WebGLRunner();
     }
     if (nullish(fragSource)) {
-      return loadShaderSource(`../shaders/delayline.frag?v=${Date.now()}`)
+      return loadShaderSource(fragURL.href)
         .then(src => { fragSource = src;});
     }
     return Promise.resolve();

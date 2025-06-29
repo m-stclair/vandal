@@ -46,7 +46,6 @@ export function moveEffectInStack(effectStack, from, to) {
     to = Math.max(0, Math.min(to, effectStack.length));
     if (from === to) return;
     const [moved] = effectStack.splice(from, 1);
-    console.log(from, to);
     effectStack.splice(to, 0, moved);
 }
 

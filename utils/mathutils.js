@@ -1,2 +1,39 @@
 export const rad2deg = (rad) => rad * (180 / Math.PI);
 export const deg2rad = (deg) => deg * Math.PI / 180;
+
+export function rotationMatrix2D(theta) {
+  const c = Math.cos(theta);
+  const s = Math.sin(theta);
+  return new Float32Array([
+    c, -s,
+    s,  c
+  ]);
+}
+
+export function scaleMatrix2D(sx, sy) {
+  return new Float32Array([
+    sx,  0,
+     0, sy
+  ]);
+}
+
+export function shearMatrix2D(shx, shy) {
+  return new Float32Array([
+    1, shx,
+    shy, 1
+  ]);
+}
+
+export function multiplyMat2(a, b) {
+  const a00 = a[0], a01 = a[1],
+        a10 = a[2], a11 = a[3];
+  const b00 = b[0], b01 = b[1],
+        b10 = b[2], b11 = b[3];
+
+  return new Float32Array([
+    a00 * b00 + a01 * b10,  a00 * b01 + a01 * b11,
+    a10 * b00 + a11 * b10,  a10 * b01 + a11 * b11,
+  ]);
+}
+
+export const positiveClamped = (func) => (...args) => Math.max(0, func(...args));

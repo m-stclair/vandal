@@ -51,9 +51,6 @@ export default {
                 result[i + 3] = 255;
             }
         }
-        if (!config.stretch) {
-            return new ImageData(result, width, height)
-        }
         return new ImageData(
             channelwise(result, width, height, normalizeRange), width, height
         );

@@ -24,13 +24,14 @@ import contourSynth from "./contour_synth.js";
 import colorMap from "./colormap.js";
 import FIR from "./fir.js";
 import delayLineGL from "./delayline_gl.js";
+import affineTransform from "./affine_transform.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 
 export const effectGroups = [
   {
     label: "Core Adjustments",
-    effects: [stretchEffect, bcsAdjustments, colorMap]
+    effects: [stretchEffect, bcsAdjustments, colorMap, affineTransform]
   },
   {
     label: "Structural",

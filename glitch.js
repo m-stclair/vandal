@@ -50,10 +50,10 @@ function resizeAndRedraw() {
     const originalImage = getOriginalImage();
     if (!originalImage) return;
     const leftPane = document.getElementById('leftPane');
-    const maxWidth = leftPane.clientWidth - 20;  // subtract some padding
-    const maxHeight = window.innerHeight * 0.8;
+    const width = leftPane.clientWidth - 25;  // subtract some padding
+    const height = window.innerHeight * 0.8;
     let scale = Math.min(
-        maxWidth / originalImage.width, maxHeight / originalImage.height, 1
+        width / originalImage.width, height / originalImage.height
     );
 
     const w = Math.floor(originalImage.width * scale);

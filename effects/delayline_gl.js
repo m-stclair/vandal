@@ -1,12 +1,21 @@
 import {loadShaderSource, WebGLRunner} from "../utils/webgl_runner.js";
 import {nullish} from "../utils/helpers.js";
+import {
+  boxKernel,
+  circularKernel,
+  annularKernel,
+  normalizeWeights,
+  centerKernel
+} from "../utils/kernellib.js";
+import {deg2rad, multiplyMat2, rotationMatrix2D, scaleMatrix2D, shearMatrix2D} from "../utils/mathutils.js";
 import {MAX_TAPS} from "../utils/gl_config.js";
-import {boxKernel, circularKernel, annularKernel} from "../utils/kernels.js";
+import {weightFns} from "../utils/weightings.js";
 
 let fragSource = null;
 let runner = null;
 const fragURL = new URL("../shaders/delayline.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
+
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -15,52 +24,84 @@ export default {
 
   defaultConfig: {
     delay: 32,
-    nTaps: 1,
-    window: "box"
+    window: "box",
+    falloff: "uniform",
+    density: 2,
+    angle: 0,
+    shearX: 0,
+    shearY: 0,
+    scaleX: 1,
+    scaleY: 1
   },
 
   uiLayout: [
-      { key: "delay", label: "Delay", type: "range", min: 0, max: 200 },
-      { type: "range", key: "nTaps", label: "Taps", min: 1, max: 15, step: 1},
-      {
-        type: "select",
-        key: "window",
-        label: "Window",
-        options: [
-          { value: "box", label: "Box" },
-          { value: "circle", label: "Circle" },
-          { value: "ring", label: "Ring" },
-        ]
+    { key: "delay", label: "Delay (px)", type: "range", min: 0, max: 200 },
+    { key: "density", label: "Tap Density", type: "range", min: 1, max: 8, step: 0.1 },
+    {
+      type: "select",
+      key: "window",
+      label: "Window",
+      options: [
+        { value: "box", label: "Box" },
+        { value: "circle", label: "Circle" },
+        { value: "ring", label: "Ring" },
+      ]
     },
-
+    {
+      key: "falloff",
+      label: "Falloff",
+      type: "select",
+      options: Object.keys(weightFns),
+    },
+    { key: "angle", label: "Angle", type: "range", min: -180, max: 180 },
+    { key: "shearX", label: "Shear (x)", type: "range", min: -5, max: 5 , step: 0.1 },
+    { key: "shearY", label: "Shear (y)", type: "range", min: -5, max: 5, step: 0.1 },
+    { key: "scaleX", label: "Scale (x)", type: "range", min: 0.1, max: 3, step: 0.1 },
+    { key: "scaleY", label: "Scale (y)", type: "range", min: 0.1, max: 3, step: 0.1 }
   ],
 
   apply(instance, imageData) {
     const {data, width, height} = imageData;
-    const {delay, window} = instance.config;
+    const {delay, window, density, angle, falloff, shearX, shearY,
+           scaleX, scaleY} = instance.config;
     if (delay <= 0) return imageData;
-    const nTaps = Math.min(instance.config.nTaps, delay);
-    let raw;
+    let kernelFn;
+    let shapeArgs = [delay];
     if (window === "circle") {
-      raw = circularKernel(delay, delay / nTaps * 2);
+      kernelFn = circularKernel;
     } else if (window === "ring") {
-      raw = annularKernel(Math.floor(delay * 0.5), delay, delay / nTaps * 2);
+      kernelFn = annularKernel;
+      shapeArgs = [delay * 0.5, delay];
     } else {
-      raw = boxKernel(nTaps, delay / nTaps);
+      kernelFn = boxKernel;
     }
-    const sorted = raw.sort(([x, y]) => x**2 + y**2);
-    const taps = sorted.slice(0, MAX_TAPS);
-    const offsets = new Float32Array(taps.flat());
-    const weights = new Float32Array(taps.length).fill(1.0);
-    console.log(taps.length);
-    const uniforms = {
-      u_resolution: [width, height],
-      u_numTaps: taps.length,
-      u_offsets: offsets,
-      u_weights: weights,
-    };
+    let {taps, weights} = kernelFn(
+        ...shapeArgs,
+        {
+          spacing: delay / density,
+          maxTaps: MAX_TAPS,
+          weightFn: weightFns[falloff],
+        }
+    );
+    weights = normalizeWeights(weights);
+    taps = centerKernel(taps);
+    const rot = rotationMatrix2D(deg2rad(angle));
+    const shear = shearMatrix2D(shearX, shearY);
+    const scale = scaleMatrix2D(scaleX, scaleY);
+    const affine = multiplyMat2(rot, multiplyMat2(shear, scale));
 
-    const result = runner.run(fragSource, uniforms, data, width, height);
+    /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
+    /** @type {UniformSpec} */
+    const uniformSpec = {
+      u_resolution: {value: [width, height], type: "vec2"},
+      u_numTaps: {value: taps.length, type: "int"},
+      u_offsets: {value: new Float32Array(taps.flat()), type: "vec2"},
+      u_weights: {value: new Float32Array(weights), type: "floatArray"},
+      u_transformMatrix: {value: affine, type: "mat2"}
+    };
+    const result = runner.run(
+      fragSource, uniformSpec, data, width, height
+    );
     return new ImageData(result, width, height);
   },
 

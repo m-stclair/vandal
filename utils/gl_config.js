@@ -1,1 +1,1 @@
-export const MAX_TAPS = 256;
+export const MAX_TAPS = 300;

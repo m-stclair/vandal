@@ -1,3 +1,20 @@
+const UniformSetters = {
+    float:        (gl, loc, val) => gl.uniform1f(loc, val),
+    int:          (gl, loc, val) => gl.uniform1i(loc, val),
+    bool:         (gl, loc, val) => gl.uniform1i(loc, val ? 1 : 0),
+    vec2:         (gl, loc, val) => gl.uniform2fv(loc, val),
+    vec3:         (gl, loc, val) => gl.uniform3fv(loc, val),
+    vec4:         (gl, loc, val) => gl.uniform4fv(loc, val),
+    mat2:         (gl, loc, val) => gl.uniformMatrix2fv(loc, false, val),
+    mat3:         (gl, loc, val) => gl.uniformMatrix3fv(loc, false, val),
+    mat4:         (gl, loc, val) => gl.uniformMatrix4fv(loc, false, val),
+    intArray:     (gl, loc, val) => gl.uniform1iv(loc, val),
+    floatArray:   (gl, loc, val) => gl.uniform1fv(loc, val),
+    vec2Array:    (gl, loc, val) => gl.uniform2fv(loc, val),
+    vec3Array:    (gl, loc, val) => gl.uniform3fv(loc, val),
+    vec4Array:    (gl, loc, val) => gl.uniform4fv(loc, val),
+  };
+
 export class WebGLRunner {
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -33,12 +50,11 @@ export class WebGLRunner {
     return shader;
   }
 
-  run(fragmentSource, uniforms, texture, width, height) {
+  run(fragmentSource, uniformSpec, texture, width, height) {
     this.canvas.width = width;
     this.canvas.height = height;
     const gl = this.gl;
     const fragShader = this.compile(gl.FRAGMENT_SHADER, fragmentSource);
-
     const program = gl.createProgram();
     gl.attachShader(program, this.vertexShader);
     gl.attachShader(program, fragShader);
@@ -67,35 +83,12 @@ export class WebGLRunner {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.uniform1i(texLoc, 0);
-    // Uniforms
-    // console.log(uniforms);
-    for (const [k, v] of Object.entries(uniforms)) {
-      const loc = gl.getUniformLocation(program, k);
-      if (loc == null) continue;
-      if (k === "u_offsets") gl.uniform2fv(loc, v);
-      else if (k === "u_weights") gl.uniform1fv(loc, v);
-      else if (typeof v === "boolean" || Number.isInteger(v)) {
-        gl.uniform1i(loc, v);
-      } else if (typeof v === "number") {
-        gl.uniform1f(loc, v);
-      } else if (Array.isArray(v)) {
-        if (v.length === 1) gl.uniform1fv(loc, v);
-        else if (v.length === 2) gl.uniform2fv(loc, v);
-        else if (v.length === 3) gl.uniform3fv(loc, v);
-        else if (v.length === 4) gl.uniform4fv(loc, v);
-        else gl.uniform1fv(loc, v); // fallback: assume float[] like taps
-      } else if (v instanceof Float32Array) {
-        gl.uniform1fv(loc, v); // assume it's a float array (e.g., taps)
-      } else if (typeof v === "boolean" || Number.isInteger(v)) {
-        gl.uniform1i(loc, v);
-      } else {
-        console.warn(`Unhandled uniform ${k}:`, v);
-      }
-    }
-
+    Object.entries(uniformSpec).forEach(([name, {value, type}]) => {
+      const loc = gl.getUniformLocation(program, name);
+      UniformSetters[type](gl, loc, value);
+    });
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
     const pixelBuffer = new Uint8Array(this.canvas.width * this.canvas.height * 4);
     gl.readPixels(
       0, 0, this.canvas.width, this.canvas.height,

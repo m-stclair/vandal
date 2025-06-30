@@ -2,6 +2,7 @@ precision mediump float;
 
 uniform sampler2D u_texture;
 uniform vec2 u_resolution;
+uniform mat2 u_transformMatrix;
 
 const int MAX_TAPS = 256;
 uniform int u_numTaps;
@@ -15,8 +16,7 @@ void main() {
 
     for (int i = 0; i < MAX_TAPS; i++) {
         if (i >= u_numTaps) break;
-
-        vec2 offset = floor(u_offsets[i]) / u_resolution;
+        vec2 offset = floor(u_transformMatrix * u_offsets[i]) / u_resolution;
         vec4 samp = texture2D(u_texture, uv + offset);
         float w = u_weights[i];
         acc += samp * w;

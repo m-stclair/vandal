@@ -151,11 +151,12 @@ export function setupWindow(resizeAndRedraw) {
 }
 
 
-export function setupPresetUI(presetStore, updateSelect, getState, loadState, updateApp) {
+export function setupPresetUI(presetStore, updateSelect, getState, loadState, updateApp, registry) {
+
     document.getElementById('presetLoad').onclick = () => {
         const name = document.getElementById('presetSelect').value;
         const preset = presetStore.getAll().find(p => p.name === name);
-        if (preset) loadState(preset.config);
+        if (preset) loadState(preset.config, registry);
         updateApp();
     };
 
@@ -164,6 +165,7 @@ export function setupPresetUI(presetStore, updateSelect, getState, loadState, up
         if (!name) return;
         const config = getState();
         presetStore.add(name, config);
+        updateSelect();
     };
 
     document.getElementById('presetDelete').onclick = () => {
@@ -171,4 +173,23 @@ export function setupPresetUI(presetStore, updateSelect, getState, loadState, up
         presetStore.delete(name);
         updateSelect();
     };
+    updateSelect();
+}
+
+export function setupExportImage() {
+    document.getElementById('exportImage').onclick = () => {
+        const canvas = document.getElementById('glitchCanvas');
+        canvas.toBlob(blob => {
+            const link = document.createElement('a');
+            link.download = 'glitch.png';
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href); // cleanup
+        }, 'image/png');
+    };
+}
+
+export function setupVideoCapture(startCapture, stopCapture) {
+    document.getElementById('startCapture').onclick = () => startCapture();
+    document.getElementById('stopCaptureOverlay').onclick = stopCapture();
 }

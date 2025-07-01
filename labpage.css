@@ -17,6 +17,75 @@ body {
     overflow: hidden;
 }
 
+#topBar {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  padding: 0.5em;
+  background: #222;
+  color: white;
+  font-family: sans-serif;
+  font-size: 0.9em;
+  border-bottom: 1px solid #444;
+}
+#topBar input[type="file"] {
+  color: white;
+}
+#topBar button, #topBar select {
+  font-size: 0.9em;
+}
+
+#exportControls {
+  background: #222;
+  color: white;
+  padding: 0.5em;
+  border-bottom: 1px solid #444;
+  font-family: sans-serif;
+  font-size: 0.9em;
+}
+
+.export-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+  margin-top: 0.5em;
+}
+
+.export-group label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85em;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 0.5em;
+}
+
+#captureOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.8);
+  color: white;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlayMessage {
+  text-align: center;
+  font-size: 1.2em;
+}
+.overlayMessage button {
+  font-size: 1em;
+  margin-top: 1em;
+}
+
 input, select, textarea, button {
     font-size: 0.9em;
 }

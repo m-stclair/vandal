@@ -3,9 +3,9 @@ import {
     buildEffectSelect,
     canvas,
     ctx, moveEffectInStack,
-    setupEffectStackDragAndDrop,
+    setupEffectStackDragAndDrop, setupExportImage,
     setupPaneDrag, setupPresetUI,
-    setupStaticButtons, setupWindow
+    setupStaticButtons, setupVideoCapture, setupWindow
 } from "./ui.js";
 
 import {
@@ -70,6 +70,32 @@ function resizeAndRedraw() {
     updateApp();
 }
 
+let capturer = null, capturing = false;
+let exportDuration = null, exportFPS = null, frameLimit = null;
+let frameCounter = null;
+
+function startCapture() {
+    const format = document.getElementById("exportFormat").value;
+    exportDuration = document.getElementById("exportDuration").value;
+    exportFPS = document.getElementById("exportFPS").value;
+    frameLimit = exportDuration * exportFPS;
+    frameCounter = 0;
+    capturer = new CCapture({
+        format: format,
+        framerate: exportFPS,
+        verbose: true
+    });
+    capturer.start();
+    capturing = true;
+    document.getElementById('captureOverlay').style.display = 'flex';
+}
+
+function stopCapture() {
+    capturing = false;
+    capturer.stop();
+    capturer.save();
+    document.getElementById('captureOverlay').style.display = 'none';
+}
 
 function applyEffects(t = 0) {
     const resizedOriginalImage = getResizedOriginalImage();
@@ -82,7 +108,7 @@ function applyEffects(t = 0) {
         if (!fx.apply) return;
         const cacheEntry = renderCacheGet(fx.id);
         const modulated = Object.values(fx.config).some(p =>
-          typeof p === "object" && p.mod?.type !== "none"
+            typeof p === "object" && p.mod?.type !== "none"
         );
         const timeChanged = cacheEntry?.lastT !== t;
         const needsAnimationUpdate = modulated && timeChanged;
@@ -347,34 +373,39 @@ function renderStackUI() {
 }
 
 function isAnimationActive() {
-  return getEffectStack().some(fx =>
-    fx.config && Object.values(fx.config).some(p =>
-      typeof p === "object" && p.mod?.type !== "none"
-    )
-  );
+    return getEffectStack().some(fx =>
+            fx.config && Object.values(fx.config).some(p =>
+                typeof p === "object" && p.mod?.type !== "none"
+            )
+    );
 }
 
 let animating = false;
 let startTime = null;
 
 function tick(now) {
-  if (!animating) return;
-  const t = (now - startTime) / 1000;
-  document.querySelectorAll(".modulated").forEach(input => {
-      const key = input.dataset.key;
-      const fxId = input.dataset.fxId;
-      const fx = getEffectById(fxId);
-      if (fx === null) throw new Error("Effect matching control is missing")
-      const resolved = resolveAnim(fx.config[key], t);
-      const label = input.parentElement.querySelector(".slider-value");
-      label.textContent = formatFloatWidth(resolved);
+    if (!animating) return;
+    const t = (now - startTime) / 1000;
+    document.querySelectorAll(".modulated").forEach(input => {
+        const key = input.dataset.key;
+        const fxId = input.dataset.fxId;
+        const fx = getEffectById(fxId);
+        if (fx === null) throw new Error("Effect matching control is missing")
+        const resolved = resolveAnim(fx.config[key], t);
+        const label = input.querySelector(".slider-value");
+        label.textContent = formatFloatWidth(resolved);
     });
-  applyEffects(t);
-  if (isAnimationActive()) {
-    requestAnimationFrame(tick);
-  } else {
-    animating = false;
-  }
+    applyEffects(t);
+    if (capturing && capturer) {
+        capturer.capture(document.getElementById('glitchCanvas'));
+        frameCounter++;
+        if (frameCounter >= frameLimit) stopCapture();
+    }
+    if (isAnimationActive()) {
+        requestAnimationFrame(tick);
+    } else {
+        animating = false;
+    }
 }
 
 
@@ -382,14 +413,14 @@ function updateApp() {
     renderStackUI();
     applyEffects();
     updateVisualStyles();
-      const animShouldBeRunning = isAnimationActive();
-      if (animShouldBeRunning && !animating) {
+    const animShouldBeRunning = isAnimationActive();
+    if (animShouldBeRunning && !animating) {
         startTime = performance.now();
         animating = true;
         requestAnimationFrame(tick);
-      } else if (!animShouldBeRunning && animating) {
+    } else if (!animShouldBeRunning && animating) {
         animating = false;
-      }
+    }
 }
 
 function resetStack() {
@@ -418,13 +449,13 @@ async function addSelectedEffect() {
 }
 
 function updatePresetSelect() {
-  const select = document.getElementById('presetSelect');
-  select.innerHTML = '';
-  for (const { name } of PresetStore.getAll()) {
-    const opt = document.createElement('option');
-    opt.textContent = name;
-    select.appendChild(opt);
-  }
+    const select = document.getElementById('presetSelect');
+    select.innerHTML = '';
+    for (const {name} of PresetStore.getAll()) {
+        const opt = document.createElement('option');
+        opt.textContent = name;
+        select.appendChild(opt);
+    }
 }
 
 function appSetup() {
@@ -437,13 +468,16 @@ function appSetup() {
         resetStack,
         updateApp
     );
-    setupPresetUI(PresetStore, updatePresetSelect, saveState, loadState, updateApp);
+    setupPresetUI(PresetStore, updatePresetSelect, saveState, loadState, updateApp, effectRegistry);
     buildEffectSelect(effectGroups);
     setupEffectStackDragAndDrop(
         getEffectStack(), clearRenderCache, updateApp
     )
+    setupExportImage();
+    setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
     setupWindow(resizeAndRedraw);
+
 }
 
 appSetup();

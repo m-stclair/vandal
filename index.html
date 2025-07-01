@@ -4,6 +4,7 @@
     <meta charset="UTF-8"/>
     <title>vandal</title>
     <link rel="stylesheet" href="labpage.css">
+    <script src="https://cdn.jsdelivr.net/npm/ccapture.js@1.1.0/build/CCapture.all.min.js"></script>
     <script type="module" src="glitch.js"></script>
 </head>
 <body>
@@ -12,15 +13,44 @@
 </svg>
 
 <div id="debug"></div>
+
+<!-- NEW TOP BAR -->
+<div id="topBar">
+  <input type="file" id="upload" accept="image/*" />
+  <button id="exportImage">📸 Export PNG</button>
+  <details id="exportControls">
+      <summary>🎞 Export Video</summary>
+      <div class="export-group">
+        <label>Duration:
+          <input type="number" id="exportDuration" value="4" min="1" max="30" step="1">
+        </label>
+        <label>FPS:
+          <input type="number" id="exportFPS" value="30" min="1" max="60">
+        </label>
+        <label>Format:
+          <select id="exportFormat">
+            <option value="webm">WebM</option>
+            <option value="gif">GIF</option>
+            <option value="png">PNG frames</option>
+          </select>
+        </label>
+        <div class="export-buttons">
+          <button id="startCapture">🎬 Start</button>
+          <button id="stopCapture" disabled>⏹ Stop</button>
+        </div>
+      </div>
+    </details>
+
+  <label for="presetSelect">Preset:</label>
+  <select id="presetSelect"></select>
+  <button id="presetLoad">Load</button>
+  <button id="presetSave">Save As…</button>
+  <button id="presetDelete">Delete</button>
+</div>
+
+
 <div id="mainLayout">
-    <div style="display: none">
-    <select id="presetSelect"></select>
-    <button id="presetLoad">Load</button>
-    <button id="presetSave">Save As…</button>
-    <button id="presetDelete">Delete</button>
-    </div>
     <div id="leftPane">
-        <input type="file" id="upload" accept="image/*"/>
         <canvas id="glitchCanvas"></canvas>
     </div>
     <div id="dragBar"></div>
@@ -47,6 +77,12 @@
         </div>
     </details>
     </div>
+</div>
+<div id="captureOverlay" style="display: none">
+  <div class="overlayMessage">
+    <p>🎥 Recording…</p>
+    <button id="stopCaptureOverlay">⏹ Stop</button>
+  </div>
 </div>
 
 </body>

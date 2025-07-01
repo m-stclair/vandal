@@ -25,13 +25,13 @@ import colorMap from "./colormap.js";
 import FIR from "./fir.js";
 import delayLineGL from "./delayline_gl.js";
 import affineTransform from "./affine_transform.js";
-
-/** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
+import channelMixerRGB from "./channelmixer_rgb_gl.js";
+import channelMixer from "./channelmixer.js";
 
 export const effectGroups = [
   {
     label: "Core Adjustments",
-    effects: [stretchEffect, bcsAdjustments, colorMap, affineTransform]
+    effects: [channelMixer, stretchEffect, bcsAdjustments, colorMap, affineTransform, channelMixerRGB]
   },
   {
     label: "Structural",
@@ -59,7 +59,7 @@ export const effectGroups = [
   }
 ];
 
-
+/** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {Array<{name: string, mod: EffectModule}>} */
 const flatEffects = effectGroups.flatMap(group =>
   group.effects.map(effect => ({ name: effect.name, mod: effect }))

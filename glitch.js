@@ -91,6 +91,7 @@ function startCapture() {
 }
 
 function stopCapture() {
+    if (!capturing) return;
     capturing = false;
     capturer.stop();
     capturer.save();
@@ -435,7 +436,6 @@ function resetStack() {
     clearConfigUI();
     updateApp();
 }
-
 
 async function addSelectedEffect() {
     const selected = addEffectSelect.value;

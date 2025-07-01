@@ -151,3 +151,44 @@ export function lab2Rgb(L, a, b_) {
     Math.min(255, Math.max(0, Math.round(toSRGB(bl) * 255)))
   ];
 }
+
+export function rgbToHsv(r, g, b) {
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, v = max;
+
+    const d = max - min;
+    s = max === 0 ? 0 : d / max;
+
+    if (d === 0) {
+        h = 0;
+    } else {
+        switch (max) {
+            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+            case g: h = ((b - r) / d + 2) / 6; break;
+            case b: h = ((r - g) / d + 4) / 6; break;
+        }
+    }
+
+    return [h, s, v];
+}
+
+export function hsvToRgb(h, s, v) {
+    let r, g, b;
+
+    const i = Math.floor(h * 6);
+    const f = h * 6 - i;
+    const p = v * (1 - s);
+    const q = v * (1 - f * s);
+    const t = v * (1 - (1 - f) * s);
+
+    switch (i % 6) {
+        case 0: [r, g, b] = [v, t, p]; break;
+        case 1: [r, g, b] = [q, v, p]; break;
+        case 2: [r, g, b] = [p, v, t]; break;
+        case 3: [r, g, b] = [p, q, v]; break;
+        case 4: [r, g, b] = [t, p, v]; break;
+        case 5: [r, g, b] = [v, p, q]; break;
+    }
+
+    return [r, g, b];
+}

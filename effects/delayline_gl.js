@@ -1,5 +1,4 @@
-import {loadShaderSource, WebGLRunner} from "../utils/webgl_runner.js";
-import {nullish} from "../utils/helpers.js";
+import {WebGLRunner} from "../utils/webgl_runner.js";
 import {
     boxKernel,
     circularKernel,
@@ -11,11 +10,14 @@ import {deg2rad, multiplyMat2, rotationMatrix2D, scaleMatrix2D, shearMatrix2D} f
 import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
+import {makeShaderInit} from "../utils/load_runner.js";
 
-let fragSource = null;
-let runner = null;
 const fragURL = new URL("../shaders/delayline.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
+const shaderStuff = makeShaderInit({
+    fragURL,
+    makeRunner: () => new WebGLRunner()
+});
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -102,22 +104,11 @@ export default {
             u_weights: {value: new Float32Array(weights), type: "floatArray"},
             u_transformMatrix: {value: affine, type: "mat2"}
         };
-        const result = runner.run(
-            fragSource, uniformSpec, data, width, height
+        const result = shaderStuff.runner.run(
+            shaderStuff.fragSource, uniformSpec, data, width, height
         );
         return new ImageData(result, width, height);
     },
 
-    initHook(_instance) {
-        if (nullish(runner)) {
-            runner = new WebGLRunner();
-        }
-        if (nullish(fragSource)) {
-            return loadShaderSource(fragURL.href)
-                .then(src => {
-                    fragSource = src;
-                });
-        }
-        return Promise.resolve();
-    },
+    initHook: shaderStuff.initHook
 }

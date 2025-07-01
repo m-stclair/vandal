@@ -36,4 +36,13 @@ export function multiplyMat2(a, b) {
   ]);
 }
 
+export function dot3(a, b) {
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+}
+
+export function clamp(x, min, max) {
+  if (x < min) return min;
+  return Math.min(x, max)
+}
+
 export const positiveClamped = (func) => (...args) => Math.max(0, func(...args));

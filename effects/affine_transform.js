@@ -1,14 +1,17 @@
 // affine_transform.js
 
-import {loadShaderSource, WebGLRunner} from "../utils/webgl_runner.js";
+import {WebGLRunner} from "../utils/webgl_runner.js";
 import {deg2rad, rotationMatrix2D, shearMatrix2D, scaleMatrix2D, multiplyMat2} from "../utils/mathutils.js";
-import {nullish} from "../utils/helpers.js";
+import {makeShaderInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 
-let fragSource = null;
-let runner = null;
 const fragURL = new URL("../shaders/affine_transform.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
+const shaderStuff = makeShaderInit({
+    fragURL,
+    makeRunner: () => new WebGLRunner()
+});
+
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -82,23 +85,11 @@ export default {
             u_offset: {value: [translateX, translateY], type: "vec2"},
             u_wrap: {value: wrap, type: "bool"},
         }
-
-        const result = runner.run(
-            fragSource, uniformSpec, data, width, height
+        const result = shaderStuff.runner.run(
+            shaderStuff.fragSource, uniformSpec, data, width, height
         );
         return new ImageData(result, width, height);
     },
 
-    initHook(_instance) {
-        if (nullish(runner)) {
-            runner = new WebGLRunner();
-        }
-        if (nullish(fragSource)) {
-            return loadShaderSource(fragURL.href)
-                .then(src => {
-                    fragSource = src;
-                });
-        }
-        return Promise.resolve();
-    },
+    initHook: shaderStuff.initHook
 }

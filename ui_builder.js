@@ -67,6 +67,25 @@ export function buildUI(instance, container, config, update, layout) {
                         update: update
                     });
                     break;
+                case 'matrix':
+                    widget = widgets.makeMatrixSlider({
+                        config,
+                        key,
+                        label,
+                        value,
+                        id: instance.id,
+                        scale: item.scale,
+                        min: item.min,
+                        max: item.max,
+                        step: item.step,
+                        steps: item.steps,
+                        scaleFactor: item.scaleFactor,
+                        update: update,
+                        rowLabels: item.rowLabels,
+                        colLabels: item.colLabels
+                    });
+                    break;
+
                 case 'select':
                     widget = widgets.Select({key, label, value, options: item.options});
                     break;
@@ -75,6 +94,24 @@ export function buildUI(instance, container, config, update, layout) {
                     break;
                 case 'referenceimage':
                     widget = widgets.ReferenceImage(key, label, instance, update);
+                    break;
+                case 'vector':
+                    widget = widgets.makeVectorSlider({
+                        config,
+                        key,
+                        label,
+                        value,
+                        length: item.length,
+                        id: instance.id,
+                        scale: item.scale,
+                        min: item.min,
+                        max: item.max,
+                        step: item.step,
+                        steps: item.steps,
+                        scaleFactor: item.scaleFactor,
+                        update: update,
+                        subLabels: item.subLabels
+                    });
                     break;
                 default:
                     console.warn(`Unknown widget type: ${type}`);

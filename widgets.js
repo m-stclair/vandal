@@ -183,7 +183,7 @@ function makeSlider({
     input.addEventListener("input", () => {
         const scaled = applyScaling(input.value, input.scale, input.scaleFactor);
         valueLabel.textContent = formatFloatWidth(scaled);
-        if (typeof(config[key]) !== "object") {
+        if (typeof (config[key]) !== "object") {
             config[key] = scaled;
         } else {
             config[key] = {
@@ -197,105 +197,245 @@ function makeSlider({
     return wrapper;
 }
 
-function Checkbox({key, label, value}) {
+function makeMatrixSlider({
+                              key,
+                              label,
+                              value,
+                              size = [3, 3], // rows x cols
+                              min = -1,
+                              max = 1,
+                              step = 0.01,
+                              scale,
+                              scaleFactor,
+                              steps,
+                              rowLabels = () => ["Row 1", "Row 2", "Row 3"],
+                              colLabels = () => ["X", "Y", "Z"],
+                              config,
+                              update,
+                              id
+                          }) {
     const wrapper = makeField();
+    wrapper.dataset.key = key;
+    if (id) wrapper.dataset.fxId = id;
 
-    const lElement = document.createElement('label');
-    lElement.className = 'checkbox-label';
+    const labelEl = document.createElement("label");
+    labelEl.textContent = label ?? key;
+    wrapper.appendChild(labelEl);
 
-    const input = document.createElement('input');
-    input.type = 'checkbox';
-    input.checked = value;
-    input.name = key
+    const container = document.createElement("div");
+    container.classList.add("matrix-slider-group");
 
-    lElement.appendChild(input);
-    lElement.append(` ${label}`);
-    wrapper.appendChild(lElement);
+    const rowText = rowLabels(config);
+    const colText = colLabels(config);
+    console.log(rowText, colText)
+    for (let row = 0; row < size[0]; row++) {
+        const rowWrapper = makeField(); // for each row
+        const rowLabel = document.createElement("label");
+        rowLabel.textContent = rowText[row] ?? `Row ${row + 1}`;
+        rowWrapper.appendChild(rowLabel);
 
-    Object.defineProperty(wrapper, 'value', {
-        'get': () => input.checked
-    })
-    input.addEventListener('input', () => {
-        wrapper.dispatchEvent(new Event('input'));
-    });
+        const rowDiv = document.createElement("div");
+        rowDiv.classList.add("vector-slider-row");
 
-    return wrapper;
-}
+        for (let col = 0; col < size[1]; col++) {
+            const slider = document.createElement("input");
+            slider.type = "range";
+            slider.min = min;
+            slider.max = max;
+            slider.step = step;
+            slider.value = value[row][col];
 
-function Select({key, label, options, value}) {
-    const wrapper = makeField();
+            const valueLabel = document.createElement("span");
+            valueLabel.classList.add("slider-value");
+            valueLabel.textContent = formatFloatWidth(slider.value);
 
-    const lElement = document.createElement('label');
-    lElement.textContent = label || key;
-    wrapper.appendChild(lElement);
+            slider.addEventListener("input", () => {
+                const newVal = parseFloat(slider.value);
+                config[key][row][col] = newVal;
+                valueLabel.textContent = formatFloatWidth(newVal);
+                update();
+            });
 
-    const select = document.createElement('select');
+            const cell = document.createElement("div");
+            cell.classList.add("sub-slider-container");
 
-    for (const opt of options) {
-        const {value: val, label: lbl} =
-            typeof opt === "string" ? {value: opt, label: opt} : opt;
-        const o = document.createElement('option');
-        o.value = val;
-        o.textContent = lbl;
-        if (val === value) o.selected = true;
-        select.appendChild(o);
+            const colLabel = document.createElement("span");
+            colLabel.textContent = colText[col] ?? `#${col}`;
+
+            cell.append(colLabel, slider, valueLabel);
+            rowDiv.appendChild(cell);
+        }
+
+        rowWrapper.appendChild(rowDiv);
+        container.appendChild(rowWrapper);
     }
 
-    select.name = key;
-    lElement.appendChild(select);
-
-    Object.defineProperty(wrapper, 'value', {
-        get: () => select.value
-    });
-
-    select.addEventListener('input', () =>
-        wrapper.dispatchEvent(new Event('input'))
-    );
-
+    wrapper.appendChild(container);
     return wrapper;
 }
 
-function ReferenceImage(key, labelText, instance, onChange) {
-    const container = document.createElement("div");
-    container.className = "widget";
+    function makeVectorSlider({
+                                  key,
+                                  label,
+                                  value,
+                                  length = 3,
+                                  min = 0,
+                                  max = 1,
+                                  step = 0.01,
+                                  scale,
+                                  scaleFactor,
+                                  steps,
+                                  modulate = false,
+                                  subLabels = ["X", "Y", "Z"],
+                                  config,
+                                  update,
+                                  id
+                              }) {
+        const wrapper = makeField();
+        wrapper.dataset.key = key;
+        if (id) wrapper.dataset.fxId = id;
 
-    const label = document.createElement("label");
-    label.textContent = labelText || "Reference Image";
+        const lElement = document.createElement("label");
+        lElement.textContent = label ?? key;
+        wrapper.appendChild(lElement);
 
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
+        const row = document.createElement("div");
+        row.classList.add("vector-slider-row");
 
-    input.addEventListener("change", async () => {
-        const file = input.files?.[0];
-        if (!file) return;
+        for (let i = 0; i < length; i++) {
+            const subLabel = subLabels[i] ?? `#${i}`;
+            const slider = document.createElement("input");
+            slider.type = "range";
+            slider.min = min;
+            slider.max = max;
+            slider.step = step;
+            slider.value = value[i];
 
-        const imageBitmap = await createImageBitmap(file);
-        const canvas = document.createElement("canvas");
-        canvas.width = imageBitmap.width;
-        canvas.height = imageBitmap.height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(imageBitmap, 0, 0);
-        const fullImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        instance.auxiliaryCache.referenceImage = await downsampleImageData(fullImage);
-        instance.config[key] = imageDataHash(instance.auxiliaryCache.referenceImage);
-    })
-    container.appendChild(label);
-    container.appendChild(input);
-    return container;
-}
+            const valueLabel = document.createElement("span");
+            valueLabel.classList.add("slider-value");
+            valueLabel.textContent = formatFloatWidth(slider.value);
+
+            slider.addEventListener("input", () => {
+                config[key][i] = parseFloat(slider.value);
+                valueLabel.textContent = formatFloatWidth(slider.value);
+                update();
+            });
+
+            const container = document.createElement("div");
+            container.classList.add("sub-slider-container");
+
+            const labelEl = document.createElement("span");
+            labelEl.textContent = subLabel;
+
+            container.append(labelEl, slider, valueLabel);
+            row.appendChild(container);
+        }
+
+        wrapper.appendChild(row);
+        return wrapper;
+    }
+
+    function Checkbox({key, label, value}) {
+        const wrapper = makeField();
+
+        const lElement = document.createElement('label');
+        lElement.className = 'checkbox-label';
+
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.checked = value;
+        input.name = key
+
+        lElement.appendChild(input);
+        lElement.append(` ${label}`);
+        wrapper.appendChild(lElement);
+
+        Object.defineProperty(wrapper, 'value', {
+            'get': () => input.checked
+        })
+        input.addEventListener('input', () => {
+            wrapper.dispatchEvent(new Event('input'));
+        });
+
+        return wrapper;
+    }
+
+    function Select({key, label, options, value}) {
+        const wrapper = makeField();
+
+        const lElement = document.createElement('label');
+        lElement.textContent = label || key;
+        wrapper.appendChild(lElement);
+
+        const select = document.createElement('select');
+
+        for (const opt of options) {
+            const {value: val, label: lbl} =
+                typeof opt === "string" ? {value: opt, label: opt} : opt;
+            const o = document.createElement('option');
+            o.value = val;
+            o.textContent = lbl;
+            if (val === value) o.selected = true;
+            select.appendChild(o);
+        }
+
+        select.name = key;
+        lElement.appendChild(select);
+
+        Object.defineProperty(wrapper, 'value', {
+            get: () => select.value
+        });
+
+        select.addEventListener('input', () =>
+            wrapper.dispatchEvent(new Event('input'))
+        );
+
+        return wrapper;
+    }
+
+    function ReferenceImage(key, labelText, instance, onChange) {
+        const container = document.createElement("div");
+        container.className = "widget";
+
+        const label = document.createElement("label");
+        label.textContent = labelText || "Reference Image";
+
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.addEventListener("change", async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            const imageBitmap = await createImageBitmap(file);
+            const canvas = document.createElement("canvas");
+            canvas.width = imageBitmap.width;
+            canvas.height = imageBitmap.height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(imageBitmap, 0, 0);
+            const fullImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            instance.auxiliaryCache.referenceImage = await downsampleImageData(fullImage);
+            instance.config[key] = imageDataHash(instance.auxiliaryCache.referenceImage);
+        })
+        container.appendChild(label);
+        container.appendChild(input);
+        return container;
+    }
 
 
-export default {
-    formatFloatWidth,
-    makeSlider,
-    Select,
-    Checkbox,
-    ReferenceImage,
-    Range(opts) {
-        return makeSlider({...opts, modulate: false});
-    },
-    makeModSlider(opts) {
-        return makeSlider({...opts, modulate: true});
-    },
-};
+    export default {
+        formatFloatWidth,
+        makeSlider,
+        makeMatrixSlider,
+        makeVectorSlider,
+        Select,
+        Checkbox,
+        ReferenceImage,
+        Range(opts) {
+            return makeSlider({...opts, modulate: false});
+        },
+        makeModSlider(opts) {
+            return makeSlider({...opts, modulate: true});
+        },
+    };

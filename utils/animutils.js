@@ -1,7 +1,7 @@
 import {valmap} from "./helpers.js";
 
 export function resolveAnim(p, t) {
-    if (typeof p !== "object") return p;
+    if (typeof p !== "object" || p instanceof Array) return p;
     const {value, mod} = p;
     if (!mod || mod.type === "none") return value;
     const {type, freq = 1, phase = 0, scale = 1, offset = 0, rangeMode = "bipolar"} = mod;

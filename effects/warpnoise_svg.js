@@ -10,7 +10,6 @@ export default {
         seed: 0,
         animate: false
     },
-
     uiLayout: [
         {
             key: 'baseFrequency',

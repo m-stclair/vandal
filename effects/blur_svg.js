@@ -7,7 +7,7 @@ export default {
     },
 
     uiLayout: [
-      { type: "range", key: "sigma", label: "Sigma", min: 1, max: 15, step: 1 }
+        {type: "modSllider", key: "sigma", label: "Sigma", min: 1, max: 15, step: 1}
     ],
 
     styleHook(instance) {

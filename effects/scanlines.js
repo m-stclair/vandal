@@ -26,7 +26,7 @@ export default {
     },
 
     uiLayout: [
-      { type: "range", key: "lineSpacing", label: "Line Spacing", min: 1, max: 20, step: 1 },
-      { type: "range", key: "intensity", label: "Intensity", min: 0.1, max: 1, step: 0.1 }
+        {type: "range", key: "lineSpacing", label: "Line Spacing", min: 1, max: 20, step: 1},
+        {type: "range", key: "intensity", label: "Intensity", min: 0.1, max: 1, step: 0.1}
     ]
 }

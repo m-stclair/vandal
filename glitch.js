@@ -26,11 +26,12 @@ import {
     makeEffectInstance,
     setResizedOriginalImage,
     getResizedOriginalImage,
-    forEachActiveEffect, getActiveEffects
+    forEachActiveEffect, getActiveEffects, getEffectById
 } from "./state.js";
-import {gid, makeConfigHash} from "./utils/helpers.js";
+import {formatFloatWidth, gid, makeConfigHash} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
 import {effectGroups, effectRegistry} from "./effects/index.js";
+import {resolveAnim} from "./utils/animutils.js";
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -68,29 +69,36 @@ function resizeAndRedraw() {
     updateApp();
 }
 
-function applyEffects() {
+
+function applyEffects(t = 0) {
     const resizedOriginalImage = getResizedOriginalImage();
     if (!resizedOriginalImage) return;
     let current = resizedOriginalImage;
     let needsRecompute = false;
 
     forEachActiveEffect((fx) => {
+        const prior = current;
         if (!fx.apply) return;
         const cacheEntry = renderCacheGet(fx.id);
-        const prior = current;
+        const modulated = Object.values(fx.config).some(p =>
+          typeof p === "object" && p.mod?.type !== "none"
+        );
+        const timeChanged = cacheEntry?.lastT !== t;
+        const needsAnimationUpdate = modulated && timeChanged;
         const configChanged = (
             !cacheEntry
             || makeConfigHash(fx.config) !== makeConfigHash(cacheEntry.config)
         );
         const dependencyChanged = !cacheEntry || cacheEntry.dependsOn !== prior;
-        if (configChanged || dependencyChanged || needsRecompute) {
-            const result = fx.apply(fx, prior);
+        if (configChanged || dependencyChanged || needsRecompute || needsAnimationUpdate) {
+            const result = fx.apply(fx, prior, t);
             current = result;
             renderCacheSet(fx.id, {
                 imageData: result,
                 config: structuredClone(fx.config),
                 disabled: fx.disabled,
                 dependsOn: prior,
+                lastT: t
             });
             needsRecompute = true;
         } else {
@@ -337,10 +345,50 @@ function renderStackUI() {
     }
 }
 
+function isAnimationActive() {
+  return getEffectStack().some(fx =>
+    fx.config && Object.values(fx.config).some(p =>
+      typeof p === "object" && p.mod?.type !== "none"
+    )
+  );
+}
+
+let animating = false;
+let startTime = null;
+
+function tick(now) {
+  if (!animating) return;
+  const t = (now - startTime) / 1000;
+  document.querySelectorAll(".modulated").forEach(input => {
+      const key = input.dataset.key;
+      const fxId = input.dataset.fxId;
+      const fx = getEffectById(fxId);
+      if (fx === null) throw new Error("Effect matching control is missing")
+      const resolved = resolveAnim(fx.config[key], t);
+      const label = input.parentElement.querySelector(".slider-value");
+      label.textContent = formatFloatWidth(resolved);
+    });
+  applyEffects(t);
+  if (isAnimationActive()) {
+    requestAnimationFrame(tick);
+  } else {
+    animating = false;
+  }
+}
+
+
 function updateApp() {
     renderStackUI();
     applyEffects();
     updateVisualStyles();
+      const animShouldBeRunning = isAnimationActive();
+      if (animShouldBeRunning && !animating) {
+        startTime = performance.now();
+        animating = true;
+        requestAnimationFrame(tick);
+      } else if (!animShouldBeRunning && animating) {
+        animating = false;
+      }
 }
 
 function resetStack() {

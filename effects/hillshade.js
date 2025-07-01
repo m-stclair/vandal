@@ -12,9 +12,9 @@ export default {
     },
 
     apply(instance, imageData) {
-        const { width, height, data } = imageData;
+        const {width, height, data} = imageData;
         const result = new Uint8ClampedArray(data.length);
-        const { azimuth, mode } = instance.config;
+        const {azimuth, mode} = instance.config;
         const azrad = deg2rad(azimuth)
         const cosAz = Math.cos(azrad);
         const sinAz = Math.sin(azrad);
@@ -29,7 +29,7 @@ export default {
                 const center = data[i]; // Red channel as elevation
 
                 const left = x > 0 ? data[idx(x - 1, y)] : center;
-                const up   = y > 0 ? data[idx(x, y - 1)] : center;
+                const up = y > 0 ? data[idx(x, y - 1)] : center;
 
                 const dx = left - center;
                 const dy = up - center;

@@ -15,7 +15,7 @@ export default {
     },
 
     apply(instance, imageData) {
-        const { data, width, height } = imageData;
+        const {data, width, height} = imageData;
         const config = instance.config;
         let func, params, result;
 
@@ -47,9 +47,9 @@ export default {
             key: "method",
             label: "Stretch Method",
             options: [
-                { value: "percentile", label: "Percentile Clip" },
-                { value: "stddev", label: "Standard Deviation Clip" },
-                { value: "minmax", label: "Min/Max Normalize" }
+                {value: "percentile", label: "Percentile Clip"},
+                {value: "stddev", label: "Standard Deviation Clip"},
+                {value: "minmax", label: "Min/Max Normalize"}
             ]
         },
         {

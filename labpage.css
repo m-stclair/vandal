@@ -336,10 +336,15 @@ button {
     margin-left: 0.3em;
 }
 
+.ui-field {
+  margin-bottom: 1.2em; /* space between controls */
+}
+
 .slider-row {
     display: flex;
     align-items: center;
     gap: 0.5em;
+   margin-bottom: 0.4em; /* space between slider and foldout */
     /*width: 100%;*/
 }
 
@@ -355,6 +360,62 @@ button {
     font-size: 1em;
     color: #aaa;
 }
+
+.mod-foldout {
+  margin-top: 0;             /* remove space before */
+  margin-bottom: 0.6em;      /* space after to separate next control */
+  padding-left: 1em;
+  border-left: 2px solid #8884;
+  font-size: 0.9em;
+}
+
+.mod-foldout summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: #ccc;
+  margin-bottom: 0.4em;
+}
+
+.mod-foldout[open] summary {
+  color: #fff;
+}
+
+.mod-subfield {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.25em 0;
+  gap: 0.5em;
+}
+
+.mod-subfield input[type=\"range\"] {
+  flex: 1;
+}
+
+.mod-subfield select {
+  flex: 1;
+  max-width: 10em;
+}
+
+.mod-subfield > span,
+.mod-subfield > label {
+  min-width: 4em;
+  text-align: right;
+}
+
+.sub-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.25em;
+}
+
+.sub-slider-container span {
+  min-width: 3.5em;
+  text-align: right;
+  opacity: 0.8;
+}
+
 
 input[type="file"] {
     background: #333;

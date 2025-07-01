@@ -1,4 +1,6 @@
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
+import {resolveAnim} from "../utils/animutils.js";
+
 /** @type {EffectModule} */
 export default {
   name: "Threshcycle",
@@ -12,16 +14,16 @@ export default {
     lightness: 50    // percent
   },
 
-apply(instance, imageData) {
+apply(instance, imageData, t) {
   const { width, height, data } = imageData;
   const {
-    threshold,
     cycle,
-    hueShift,
     saturation,
     lightness,
     cycleMode
   } = instance.config;
+  const hueShift = resolveAnim(instance.config.hueShift, t);
+  const threshold = resolveAnim(instance.config.threshold, t);
 
   const out = new Uint8ClampedArray(data.length);
 
@@ -80,10 +82,10 @@ apply(instance, imageData) {
 },
 
   uiLayout: [
-    { type: "range", key: "threshold", label: "Threshold", min: 0, max: 255, step: 1 },
+    { type: "modSlider", key: "threshold", label: "Threshold", min: 0, max: 255, step: 1 },
     { type: "checkbox", key: "cycle", label: "Cycle" },
     { type: "select", key: "cycleMode", label: "Cycle Mode", options: ["spatial", "brightness"] },
-    { type: "range", key: "hueShift", label: "Hue Shift", min: 0, max: 360, step: 1 },
+    { type: "modSlider", key: "hueShift", label: "Hue Shift", min: 0, max: 360, step: 1 },
     { type: "range", key: "saturation", label: "Saturation", min: 0, max: 100, step: 1 },
     { type: "range", key: "lightness", label: "Lightness", min: 0, max: 100, step: 1 }
   ]

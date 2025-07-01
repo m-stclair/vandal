@@ -1,4 +1,6 @@
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
+import {resolveAnimAll} from "../utils/animutils.js";
+
 /** @type {EffectModule} */
 export default {
   name: "Pixelate",
@@ -10,13 +12,13 @@ export default {
   },
 
   uiLayout: [
-    {type: 'range', key: "blockSize", label: "Block Size", min: 1, max: 64, step: 1},
+    {type: 'modSlider', key: "blockSize", label: "Block Size", min: 1, max: 64, step: 1},
     {type: 'select', key: "sampleStrategy", label: "Sample Strategy", options: ['average', 'center', 'corner']},
     {type: 'checkbox', key: 'preserveAlpha', label: "Preserve Alpha"}
   ],
 
-  apply(instance, imageData) {
-    const {blockSize, sampleStrategy, preserveAlpha} = instance.config;
+  apply(instance, imageData, t) {
+    const {blockSize, sampleStrategy, preserveAlpha} = resolveAnimAll(instance.config, t);
     const {data, width, height} = imageData;
     const copy = new Uint8ClampedArray(data);
 

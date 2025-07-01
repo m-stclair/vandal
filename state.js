@@ -3,6 +3,13 @@ import {gid, uuidv4} from "./utils/helpers.js";
 
 let effectStack = [];
 
+export function getEffectById(id) {
+    const matches = effectStack.filter((fx) => fx.id === id);
+    if (matches.length === 0) return null;
+    if (matches.length > 1) throw new Error("Duplicate effect ids");
+    return matches[0];
+}
+
 export function forEachEffect(cb) {
     return effectStack.forEach(cb);
 }

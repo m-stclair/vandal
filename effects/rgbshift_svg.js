@@ -10,12 +10,12 @@ export default {
     },
 
     uiLayout: [
-      { type: "range", key: "rdx", label: "Red X", min: -10, max: 10, step: 1 },
-      { type: "range", key: "rdy", label: "Red Y", min: -10, max: 10, step: 1 },
-      { type: "range", key: "gdx", label: "Green X", min: -10, max: 10, step: 1 },
-      { type: "range", key: "gdy", label: "Green Y", min: -10, max: 10, step: 1 },
-      { type: "range", key: "bdx", label: "Blue X", min: -10, max: 10, step: 1 },
-      { type: "range", key: "bdy", label: "Blue Y", min: -10, max: 10, step: 1 }
+        {type: "range", key: "rdx", label: "Red X", min: -10, max: 10, step: 1},
+        {type: "range", key: "rdy", label: "Red Y", min: -10, max: 10, step: 1},
+        {type: "range", key: "gdx", label: "Green X", min: -10, max: 10, step: 1},
+        {type: "range", key: "gdy", label: "Green Y", min: -10, max: 10, step: 1},
+        {type: "range", key: "bdx", label: "Blue X", min: -10, max: 10, step: 1},
+        {type: "range", key: "bdy", label: "Blue Y", min: -10, max: 10, step: 1}
     ],
 
     styleHook(instance) {

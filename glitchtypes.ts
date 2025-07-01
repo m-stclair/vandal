@@ -61,20 +61,20 @@ export interface EffectInstance {
 
 
 export type UniformDatum =
-  | { type: "float", value: number }
-  | { type: "int", value: number }
-  | { type: "bool", value: boolean }
-  | { type: "vec2", value: [number, number] }
-  | { type: "vec3", value: [number, number, number] }
-  | { type: "vec4", value: [number, number, number, number] }
-  | { type: "mat2", value: Float32Array | number[] }  // length 4
-  | { type: "mat3", value: Float32Array | number[] }  // length 9
-  | { type: "mat4", value: Float32Array | number[] }  // length 16
-  | { type: "floatArray", value: Float32Array | number[] }
-  | { type: "intArray", value: Int32Array | number[] }
-  | { type: "vec2Array", value: Float32Array | number[] }
-  | { type: "vec3Array", value: Float32Array | number[] }
-  | { type: "vec4Array", value: Float32Array | number[] };
+    | { type: "float", value: number }
+    | { type: "int", value: number }
+    | { type: "bool", value: boolean }
+    | { type: "vec2", value: [number, number] }
+    | { type: "vec3", value: [number, number, number] }
+    | { type: "vec4", value: [number, number, number, number] }
+    | { type: "mat2", value: Float32Array | number[] }  // length 4
+    | { type: "mat3", value: Float32Array | number[] }  // length 9
+    | { type: "mat4", value: Float32Array | number[] }  // length 16
+    | { type: "floatArray", value: Float32Array | number[] }
+    | { type: "intArray", value: Int32Array | number[] }
+    | { type: "vec2Array", value: Float32Array | number[] }
+    | { type: "vec3Array", value: Float32Array | number[] }
+    | { type: "vec4Array", value: Float32Array | number[] };
 
 
 export type UniformSpec = Record<string, UniformDatum>;

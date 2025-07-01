@@ -1,4 +1,5 @@
 import {combineChannels, splitChannels} from "../utils/channelutils.js";
+import {resolveAnimAll} from "../utils/animutils.js";
 
 // todo -- some should be pulled out to colorutils
 function adjustColorChannels(r, g, b, config) {
@@ -47,10 +48,11 @@ export default {
         saturation: 1.0,   // 0 to 4
      },
 
-    apply(instance, imageData) {
+    apply(instance, imageData, t) {
+        const {config} = instance;
         const {data, width, height} = imageData;
         const {r, g, b, a} = splitChannels(data, width, height);
-        const adjusted = adjustColorChannels(r, g, b, instance.config);
+        const adjusted = adjustColorChannels(r, g, b, resolveAnimAll(config, t));
         return new ImageData(
             combineChannels({...adjusted, a, width, height}), width, height
         )
@@ -60,7 +62,7 @@ export default {
         {
             key: "brightness",
             label: "Brightness",
-            type: "range",
+            type: "modSlider",
             min: -1,
             max: 1,
             step: 0.01,
@@ -68,7 +70,7 @@ export default {
         {
             key: "contrast",
             label: "Contrast",
-            type: "range",
+            type: "modSlider",
             min: 0,
             max: 4,
             step: 0.01,
@@ -76,7 +78,7 @@ export default {
         {
             key: "saturation",
             label: "Saturation",
-            type: "range",
+            type: "modSlider",
             min: 0,
             max: 4,
             step: 0.01,

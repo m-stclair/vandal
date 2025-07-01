@@ -1,6 +1,8 @@
-const noise = function(x, y) {
-  const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-  return seed - Math.floor(seed);
+import {resolveAnimAll} from "../utils/animutils.js";
+
+const noise = function (x, y) {
+    const seed = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+    return seed - Math.floor(seed);
 }
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -17,18 +19,20 @@ export default {
         perlin: false,
     },
 
-    apply(instance, imgData) {
+    apply(instance, imgData, t) {
         const {width, height, data} = imgData;
         const sortedData = new Uint8ClampedArray(data);
-        const {threshold, direction, useR, useG, useB, perlin} = instance.config;
+        const {threshold, direction, useR, useG, useB, perlin} = resolveAnimAll(instance.config, t);
 
         const brightness = (p, x, y) => {
             let value = 0;
+            const scl = [+useR, +useG, +useB].reduce((a, b) => a + b);
+            if (scl === 0) return 0;
             if (useR) value += p.r;
             if (useG) value += p.g;
             if (useB) value += p.b;
             if (perlin) value += 128 * noise(x * 0.02, y * 0.02);
-            return value;
+            return value / scl;
         };
 
         const getPixel = (i) => ({
@@ -82,12 +86,12 @@ export default {
     },
 
     uiLayout: [
-        { type: 'range', key: 'threshold', label: 'Threshold', min: 0, max: 765, step: 1 },
-        { type: 'select', key: 'direction', label: 'Direction', options: ['horizontal', 'vertical'] },
-        { type: 'checkbox', key: 'useR', label: 'Use R' },
-        { type: 'checkbox', key: 'useG', label: 'Use G' },
-        { type: 'checkbox', key: 'useB', label: 'Use B' },
-        { type: 'checkbox', key: 'perlin', label: 'Perlin Mask' }
+        {type: 'modSlider', key: 'threshold', label: 'Threshold', min: 0, max: 255, step: 1},
+        {type: 'select', key: 'direction', label: 'Direction', options: ['horizontal', 'vertical']},
+        {type: 'checkbox', key: 'useR', label: 'Use R'},
+        {type: 'checkbox', key: 'useG', label: 'Use G'},
+        {type: 'checkbox', key: 'useB', label: 'Use B'},
+        {type: 'checkbox', key: 'perlin', label: 'Perlin Mask'}
     ]
 
 };

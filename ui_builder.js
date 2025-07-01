@@ -1,49 +1,93 @@
 import widgets from "./widgets.js"
 
+// ui_builder.js
 export function buildUI(instance, container, config, update, layout) {
-  container.innerHTML = ''; // Clear old UI
+    container.innerHTML = ''; // Clear old UI
 
-  layout.forEach(item => {
-    const { type, key, label } = item;
-    const value = config[key];
-    let widget;
+    // Group layout items by group key
+    const grouped = {};
+    layout.forEach(item => {
+        const group = item.group ?? '__default__';
+        if (!grouped[group]) grouped[group] = [];
+        grouped[group].push(item);
+    });
 
-    switch (type.toLowerCase()) {
-      case 'range':
-        widget = widgets.Range(
-            { 
-              key, 
-              label, 
-              value, 
-              scale: item.scale, 
-              min: item.min, 
-              max: item.max, 
-              step: item.step,
-              steps: item.steps,
-              scaleFactor: item.scaleFactor
+    for (const [groupName, items] of Object.entries(grouped)) {
+        let section;
+        let inner;
+
+        if (groupName === '__default__') {
+            section = document.createElement('div');
+            inner = section;
+        } else {
+            section = document.createElement('details');
+            section.open = true;
+            const summary = document.createElement('summary');
+            summary.textContent = groupName;
+            section.appendChild(summary);
+            inner = document.createElement('div');
+            section.appendChild(inner);
+        }
+
+        items.forEach(item => {
+            const {type, key, label} = item;
+            const value = config[key];
+            let widget;
+
+            switch (type.toLowerCase()) {
+                case 'range':
+                    widget = widgets.Range({
+                        key,
+                        label,
+                        value,
+                        scale: item.scale,
+                        min: item.min,
+                        max: item.max,
+                        step: item.step,
+                        steps: item.steps,
+                        scaleFactor: item.scaleFactor
+                    });
+                    break;
+                case 'modslider':
+                    widget = widgets.makeModSlider({
+                        config,
+                        key,
+                        label,
+                        value,
+                        id: instance.id,
+                        scale: item.scale,
+                        min: item.min,
+                        max: item.max,
+                        step: item.step,
+                        steps: item.steps,
+                        scaleFactor: item.scaleFactor,
+                        update
+                    });
+                    break;
+                case 'select':
+                    widget = widgets.Select({key, label, value, options: item.options});
+                    break;
+                case 'checkbox':
+                    widget = widgets.Checkbox({key, label, value});
+                    break;
+                case 'referenceimage':
+                    widget = widgets.ReferenceImage(key, label, instance, update);
+                    break;
+                default:
+                    console.warn(`Unknown widget type: ${type}`);
+                    return;
             }
-        );
-        break;
-      case 'select':
-        widget = widgets.Select({ key, label, value, options: item.options });
-        break;
-      case 'checkbox':
-        widget = widgets.Checkbox({ key, label, value });
-        break;
-      case 'referenceimage':
-        widget = widgets.ReferenceImage(key, label, instance, update);
-        break;  // skip default eventListener
-      default:
-        console.warn(`Unknown widget type: ${type}`);
-        return;
-    }
-    if (type.toLowerCase() !== 'referenceImage') {
-      widget.addEventListener('input', () => {
-        config[key] = widget.value;
-        update();
-      });
-    }
 
-    container.appendChild(widget);
-  });
+            if (type.toLowerCase() !== 'referenceimage' && type.toLowerCase() !== 'modslider') {
+                widget.addEventListener('input', () => {
+                    config[key] = widget.value;
+                    update();
+                });
+            }
+
+            inner.appendChild(widget);
+        });
+
+        container.appendChild(section);
+    }
 }

@@ -91,7 +91,7 @@ export function setupEffectStackDragAndDrop(
 // shared rendering objects
 
 export const canvas = document.getElementById('glitchCanvas');
-export const ctx = canvas.getContext("2d", { willReadFrequently: true });
+export const ctx = canvas.getContext("2d", {willReadFrequently: true});
 
 
 // top-level buttons

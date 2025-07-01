@@ -125,3 +125,25 @@ export function uuidv4() {
 export const nullish = (thing) => thing == null;
 
 export {gid, gen}
+
+export function formatFloatWidth(val, maxChars = 5) {
+    if (!Number.isFinite(val)) return String(val).slice(0, maxChars);
+    if (val === 0) return val;
+    const abs = Math.abs(val);
+    let fixed = abs >= 1e-3 && abs < 1e6
+        ? val.toFixed(Math.max(0, maxChars - String(Math.trunc(val)).length - 1))
+        : null;
+    if (fixed) fixed = fixed.replace(/\.?0+$/, '');
+    if (fixed && fixed.length <= maxChars) return fixed;
+    let expDigits = maxChars - 5;
+    if (expDigits < 0) expDigits = 0;
+    return val.toExponential(expDigits)
+        .replace(/\.?0+e/, 'e')
+        .replace(/e\+?(-?)0*(\d+)/, 'e$1$2');
+}
+
+export const valmap = (fn, obj) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, fn(v)]));
+
+export const keymap = (fn, obj) =>
+  Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));

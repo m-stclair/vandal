@@ -4,11 +4,11 @@ export default {
     name: "Warp Noise",
 
     defaultConfig: {
-      baseFrequency: 0.05,
-      numOctaves: 2,
-      scale: 20,
-      seed: 0,
-      animate: false
+        baseFrequency: 0.05,
+        numOctaves: 2,
+        scale: 20,
+        seed: 0,
+        animate: false
     },
 
     uiLayout: [

@@ -37,6 +37,7 @@ export function buildUI(instance, container, config, update, layout) {
             switch (type.toLowerCase()) {
                 case 'range':
                     widget = widgets.Range({
+                        config,
                         key,
                         label,
                         value,
@@ -45,7 +46,9 @@ export function buildUI(instance, container, config, update, layout) {
                         max: item.max,
                         step: item.step,
                         steps: item.steps,
-                        scaleFactor: item.scaleFactor
+                        scaleFactor: item.scaleFactor,
+                        update: update,
+                        id: item.id
                     });
                     break;
                 case 'modslider':
@@ -61,7 +64,7 @@ export function buildUI(instance, container, config, update, layout) {
                         step: item.step,
                         steps: item.steps,
                         scaleFactor: item.scaleFactor,
-                        update
+                        update: update
                     });
                     break;
                 case 'select':
@@ -78,7 +81,7 @@ export function buildUI(instance, container, config, update, layout) {
                     return;
             }
 
-            if (type.toLowerCase() !== 'referenceimage' && type.toLowerCase() !== 'modslider') {
+            if (type.toLowerCase() === 'select' || type.toLowerCase() === 'checkbox') {
                 widget.addEventListener('input', () => {
                     config[key] = widget.value;
                     update();

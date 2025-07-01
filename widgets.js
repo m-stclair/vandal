@@ -181,11 +181,16 @@ function makeSlider({
     }
 
     input.addEventListener("input", () => {
-        valueLabel.textContent = formatFloatWidth(applyScaling(input.value, input.scale, input.scaleFactor));
-        config[key] = {
-            value: parseFloat(applyScaling(input.value, input.scale, input.scaleFactor)),
-            mod: config[key]?.mod || {type: "none"},
-        };
+        const scaled = applyScaling(input.value, input.scale, input.scaleFactor);
+        valueLabel.textContent = formatFloatWidth(scaled);
+        if (typeof(config[key]) !== "object") {
+            config[key] = scaled;
+        } else {
+            config[key] = {
+                value: scaled,
+                mod: config[key]?.mod || {type: "none"},
+            };
+        }
         update();
     });
 

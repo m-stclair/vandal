@@ -4,7 +4,7 @@ import {
     canvas,
     ctx, moveEffectInStack,
     setupEffectStackDragAndDrop,
-    setupPaneDrag,
+    setupPaneDrag, setupPresetUI,
     setupStaticButtons, setupWindow
 } from "./ui.js";
 
@@ -32,6 +32,7 @@ import {formatFloatWidth, gid, makeConfigHash} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
 import {effectGroups, effectRegistry} from "./effects/index.js";
 import {resolveAnim} from "./utils/animutils.js";
+import {PresetStore} from "./utils/presets.js";
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -416,6 +417,16 @@ async function addSelectedEffect() {
     updateApp();
 }
 
+function updatePresetSelect() {
+  const select = document.getElementById('presetSelect');
+  select.innerHTML = '';
+  for (const { name } of PresetStore.getAll()) {
+    const opt = document.createElement('option');
+    opt.textContent = name;
+    select.appendChild(opt);
+  }
+}
+
 function appSetup() {
     setupStaticButtons(
         handleUpload,
@@ -426,6 +437,7 @@ function appSetup() {
         resetStack,
         updateApp
     );
+    setupPresetUI(PresetStore, updatePresetSelect, saveState, loadState, updateApp);
     buildEffectSelect(effectGroups);
     setupEffectStackDragAndDrop(
         getEffectStack(), clearRenderCache, updateApp

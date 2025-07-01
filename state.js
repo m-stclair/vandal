@@ -158,3 +158,4 @@ export function loadState(jsonText, registry) {
         addEffectToStack(instance);
     }
 }
+

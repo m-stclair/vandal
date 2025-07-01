@@ -149,3 +149,26 @@ export function buildEffectSelect(effectGroups) {
 export function setupWindow(resizeAndRedraw) {
     window.addEventListener('resize', resizeAndRedraw);
 }
+
+
+export function setupPresetUI(presetStore, updateSelect, getState, loadState, updateApp) {
+    document.getElementById('presetLoad').onclick = () => {
+        const name = document.getElementById('presetSelect').value;
+        const preset = presetStore.getAll().find(p => p.name === name);
+        if (preset) loadState(preset.config);
+        updateApp();
+    };
+
+    document.getElementById('presetSave').onclick = () => {
+        const name = prompt('Preset name?');
+        if (!name) return;
+        const config = getState();
+        presetStore.add(name, config);
+    };
+
+    document.getElementById('presetDelete').onclick = () => {
+        const name = document.getElementById('presetSelect').value;
+        presetStore.delete(name);
+        updateSelect();
+    };
+}

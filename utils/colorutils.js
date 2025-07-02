@@ -1,158 +1,172 @@
 export function hex2Rgb(hex) {
-  hex = hex.replace('#', '');
-  const bigint = parseInt(hex, 16);
-  return [
-    (bigint >> 16) & 255,
-    (bigint >> 8) & 255,
-    bigint & 255
-  ];
+    hex = hex.replace('#', '');
+    const bigint = parseInt(hex, 16);
+    return [
+        ((bigint >> 16) & 255) / 255,
+        ((bigint >> 8) & 255) / 255,
+        (bigint & 255) / 255
+    ];
 }
 
 export function lerpColor(a, b, t) {
-  return [
-    a[0] + (b[0] - a[0]) * t,
-    a[1] + (b[1] - a[1]) * t,
-    a[2] + (b[2] - a[2]) * t
-  ];
+    return [
+        a[0] + (b[0] - a[0]) * t,
+        a[1] + (b[1] - a[1]) * t,
+        a[2] + (b[2] - a[2]) * t
+    ];
 }
 
 export function hsl2Rgb(h, s, l) {
-  let r, g, b;
+    let r, g, b;
 
-  function hue2rgb(p, q, t) {
-    if (t < 0) t += 1;
-    if (t > 1) t -= 1;
-    if (t < 1/6) return p + (q - p) * 6 * t;
-    if (t < 1/2) return q;
-    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-    return p;
-  }
+    function hue2rgb(p, q, t) {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1 / 6) return p + (q - p) * 6 * t;
+        if (t < 1 / 2) return q;
+        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+        return p;
+    }
 
-  if (s === 0) {
-    r = g = b = l; // gray
-  } else {
-    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-    const p = 2 * l - q;
-    r = hue2rgb(p, q, h + 1/3);
-    g = hue2rgb(p, q, h);
-    b = hue2rgb(p, q, h - 1/3);
-  }
+    if (s === 0) {
+        r = g = b = l; // gray
+    } else {
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+    }
 
-  return [r * 255, g * 255, b * 255];
+    return [r, g, b];
 }
 
 export function rgb2Hsl(r, g, b) {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h, s, l = (max + min) / 2;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
 
-  if (max === min) {
-    h = s = 0; // achromatic
-  } else {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / d + 2;
-        break;
-      case b:
-        h = (r - g) / d + 4;
-        break;
+    if (max === min) {
+        h = s = 0; // achromatic
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+            case g:
+                h = (b - r) / d + 2;
+                break;
+            case b:
+                h = (r - g) / d + 4;
+                break;
+        }
+        h /= 6;
     }
-    h /= 6;
-  }
-  return [h, s, l];
+    return [h, s, l];
 }
 
 export function getLuminance(r, g, b) {
-  return (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
+    return (Math.max(r, g, b) + Math.min(r, g, b)) / 2;
 }
 
 export function rgb2Lab_A(data) {
-  const labData = [];
-  for (let i = 0; i < data.length; i += 4) {
-    const rgb = [data[i], data[i + 1], data[i + 2]];
-    labData.push(...rgb2Lab(...rgb), data[i + 3]);
-  }
-  return labData
+    const labData = [];
+    for (let i = 0; i < data.length; i += 4) {
+        const rgb = [data[i], data[i + 1], data[i + 2]];
+        labData.push(...rgb2Lab(...rgb), data[i + 3]);
+    }
+    return labData
 }
 
 export function lab2Rgb_A(data) {
-  const rgbData = [];
-  for (let i = 0; i < data.length; i += 4) {
-    const lab = [data[i], data[i + 1], data[i + 2]];
-    rgbData.push(...lab2Rgb(...lab), data[i + 3]);
-  }
-  return rgbData;
+    const rgbData = [];
+    for (let i = 0; i < data.length; i += 4) {
+        const lab = [data[i], data[i + 1], data[i + 2]];
+        rgbData.push(...lab2Rgb(...lab), data[i + 3]);
+    }
+    return rgbData;
 }
 
+// Constants
+const REF_X = 0.95047;
+const REF_Y = 1.00000;
+const REF_Z = 1.08883;
+
+// Constants for the f(t) pivot
+const EPSILON = 0.008856; // 6^3 / 29^3
+const KAPPA   = 903.3;    // 24389/27
+const ONE_THIRD = 1/3;
+const INV_255 = 1 / 255;
+const INV_100 = 1 / 100;
+
+const FI_1 = 16/116;
+
+
+function f(t) {
+  const t3 = Math.cbrt(t);
+  return t3 * (t > EPSILON) + ((KAPPA * t + 16) * INV_100) * (t <= EPSILON);
+}
+
+function fInv(t) {
+  const t3 = t * t * t;
+  return t3 * (t > 0.206893034) + ((t - FI_1) / 7.787) * (t <= 0.206893034);
+}
+
+function xyz2Lab(t) {
+  return t > 0.008856 ? Math.cbrt(t) : (7.787 * t + FI_1);
+}
+
+export function lab2Xyz(t) {
+  const t3 = t * t * t;
+  return t3 > 0.008856 ? t3 : (t - FI_1) / 7.787;
+}
+
+// Linear RGB [0,1] -> Normalized Lab [0,1]^3
 export function rgb2Lab(r, g, b) {
-  // Convert sRGB to linear RGB
-  const srgb = [r, g, b].map(v => v / 255);
-  const rgb = srgb.map(v =>
-      v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
-  );
+  const x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375;
+  const y = r * 0.2126729 + g * 0.7151522 + b * 0.0721750;
+  const z = r * 0.0193339 + g * 0.1191920 + b * 0.9503041;
 
-  // Linear RGB to XYZ (D65)
-  const [rl, gl, bl] = rgb;
-  const x = rl * 0.4124 + gl * 0.3576 + bl * 0.1805;
-  const y = rl * 0.2126 + gl * 0.7152 + bl * 0.0722;
-  const z = rl * 0.0193 + gl * 0.1192 + bl * 0.9505;
+  const fx = f(x / REF_X);
+  const fy = f(y / REF_Y);
+  const fz = f(z / REF_Z);
 
-  // Normalize by D65 white point
-  const xn = x / 0.95047;
-  const yn = y;
-  const zn = z / 1.08883;
+  const L = 116 * fy - 16;              // [0, 100]
+  const a = 500 * (fx - fy);            // ~[-128, 127]
+  const b_ = 200 * (fy - fz);           // ~[-128, 127]
 
-  const f = t => (t > 0.008856 ? Math.cbrt(t) : (7.787 * t) + 16 / 116);
-
-  const fx = f(xn);
-  const fy = f(yn);
-  const fz = f(zn);
-
-  const L = 116 * fy - 16;
-  const a = 500 * (fx - fy);
-  const b_ = 200 * (fy - fz);
-
-  return [L, a, b_];
-}
-
-export function lab2Rgb(L, a, b_) {
-  const fy = (L + 16) / 116;
-  const fx = a / 500 + fy;
-  const fz = fy - b_ / 200;
-
-  const fInv = t =>
-      Math.pow(t, 3) > 0.008856 ? Math.pow(t, 3) : (t - 16 / 116) / 7.787;
-
-  const x = fInv(fx) * 0.95047;
-  const y = fInv(fy);
-  const z = fInv(fz) * 1.08883;
-
-  // XYZ to linear RGB
-  let rl = x * 3.2406 + y * -1.5372 + z * -0.4986;
-  let gl = x * -0.9689 + y * 1.8758 + z * 0.0415;
-  let bl = x * 0.0557 + y * -0.2040 + z * 1.0570;
-
-  const toSRGB = c =>
-      c <= 0.0031308
-          ? 12.92 * c
-          : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
-
-  // Clamp and scale to [0, 255]
   return [
-    Math.min(255, Math.max(0, Math.round(toSRGB(rl) * 255))),
-    Math.min(255, Math.max(0, Math.round(toSRGB(gl) * 255))),
-    Math.min(255, Math.max(0, Math.round(toSRGB(bl) * 255)))
+    L * INV_100,
+    (a + 128) * INV_255,
+    (b_ + 128) * INV_255
   ];
 }
 
-export function rgbToHsv(r, g, b) {
+// Normalized Lab [0,1] -> Linear RGB [0,1]^3
+export function lab2Rgb(L, a, b_) {
+  const l = L * 100;
+  const a_ = a * 255 - 128;
+  const b__ = b_ * 255 - 128;
+
+  const fy = (l + 16) / 116;
+  const fx = fy + a_ / 500;
+  const fz = fy - b__ / 200;
+
+  const x = REF_X * fInv(fx);
+  const y = REF_Y * fInv(fy);
+  const z = REF_Z * fInv(fz);
+
+  const r = x * 3.2404542 + y * -1.5371385 + z * -0.4985314;
+  const g = x * -0.9692660 + y * 1.8760108 + z * 0.0415560;
+  const b = x * 0.0556434 + y * -0.2040259 + z * 1.0572252;
+
+  return [r, g, b].map(v => Math.max(0, Math.min(1, v)));
+}
+
+
+
+export function rgb2Hsv(r, g, b) {
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
     let h, s, v = max;
 
@@ -163,16 +177,22 @@ export function rgbToHsv(r, g, b) {
         h = 0;
     } else {
         switch (max) {
-            case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
-            case g: h = ((b - r) / d + 2) / 6; break;
-            case b: h = ((r - g) / d + 4) / 6; break;
+            case r:
+                h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+                break;
+            case g:
+                h = ((b - r) / d + 2) / 6;
+                break;
+            case b:
+                h = ((r - g) / d + 4) / 6;
+                break;
         }
     }
 
     return [h, s, v];
 }
 
-export function hsvToRgb(h, s, v) {
+export function hsv2Rgb(h, s, v) {
     let r, g, b;
 
     const i = Math.floor(h * 6);
@@ -182,12 +202,24 @@ export function hsvToRgb(h, s, v) {
     const t = v * (1 - (1 - f) * s);
 
     switch (i % 6) {
-        case 0: [r, g, b] = [v, t, p]; break;
-        case 1: [r, g, b] = [q, v, p]; break;
-        case 2: [r, g, b] = [p, v, t]; break;
-        case 3: [r, g, b] = [p, q, v]; break;
-        case 4: [r, g, b] = [t, p, v]; break;
-        case 5: [r, g, b] = [v, p, q]; break;
+        case 0:
+            [r, g, b] = [v, t, p];
+            break;
+        case 1:
+            [r, g, b] = [q, v, p];
+            break;
+        case 2:
+            [r, g, b] = [p, v, t];
+            break;
+        case 3:
+            [r, g, b] = [p, q, v];
+            break;
+        case 4:
+            [r, g, b] = [t, p, v];
+            break;
+        case 5:
+            [r, g, b] = [v, p, q];
+            break;
     }
 
     return [r, g, b];

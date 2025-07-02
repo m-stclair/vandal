@@ -1,4 +1,5 @@
-import {shred, histogram} from "./shredutils.js";
+import {shred} from "./shredutils.js";
+import {hist1D, val2Bin} from "../utils/mathutils.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -10,9 +11,8 @@ export default {
         flip: false
     },
 
-    apply(instance, imageData) {
-        const {density, flip} = instance.config;
-        const {width, height, data} = imageData;
+    apply(instance, data, _width, _height, _t) {
+        const {density} = instance.config;
 
         // Separate channels
         const channels = [[], [], []]; // R, G, B
@@ -25,18 +25,18 @@ export default {
 
         // Shred each channel
         const shredded = channels.map(channel => {
-            const counts = histogram(channel);
-            const allValues = Array.from(counts.keys());
-            const valuesToReplace = new Set;
-            for (let v of allValues) {
+            const binsToReplace = new Set;
+            const counts = new Map(hist1D(channel, 512, 0, 1).entries());
+            for (let b = 0; b < 512; b++) {
                 if (Math.random() < density) {
-                    valuesToReplace.add(v);
+                    binsToReplace.add(b);
                 }
             }
-            return shred(channel, valuesToReplace, counts, flip);
+            const binIxs = channel.map((v) => val2Bin(v, 0, 512));
+            return shred(binIxs, binsToReplace, counts).map((v) => v / 512);
         });
 
-        const result = new Uint8ClampedArray(data.length);
+        const result = new Float32Array(data.length);
         // Reassemble into RGBA
         for (let i = 0, j = 0; i < data.length; i += 4, j++) {
             result[i] = shredded[0][j];
@@ -44,12 +44,11 @@ export default {
             result[i + 2] = shredded[2][j];
             result[i + 3] = data[i + 3]; // preserve alpha
         }
-
-        return new ImageData(result, width, height);
+        return result
     },
 
     uiLayout: [
-        {type: "range", key: "density", label: "Density", min: 0, max: 1, step: 0.02},
+        {type: "modSlider", key: "density", label: "Density", min: 0, max: 1, step: 0.02},
         {type: "checkbox", key: "flip", label: "Flip"}
     ]
 }

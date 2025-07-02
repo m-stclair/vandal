@@ -46,3 +46,19 @@ export function clamp(x, min, max) {
 }
 
 export const positiveClamped = (func) => (...args) => Math.max(0, func(...args));
+
+
+export function hist1D(data, nbins = 256, vmin = 0, vmax = 1) {
+  const hist = new Uint32Array(nbins);
+  const scale = nbins / (vmax - vmin + 1e-15); // match your C anti-overflow fudge
+  for (let i = 0; i < data.length; i++) {
+    const v = data[i];
+    const ix = Math.floor((v - vmin) * scale);
+    if (ix >= 0 && ix < nbins) hist[ix]++;
+  }
+  return hist;
+}
+
+export function val2Bin(v, vmin, scale) {
+    return Math.floor((v - vmin) * scale);
+}

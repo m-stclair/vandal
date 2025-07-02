@@ -63,13 +63,12 @@ export default {
         {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1}
     ],
 
-    apply(instance, imageData, t) {
-        const {data, width, height} = imageData;
+    apply(instance, data, width, height, t, inputKey) {
         const {
             delay, window, density, angle, falloff, shearX, shearY,
             scaleX, scaleY
         } = resolveAnimAll(instance.config, t);
-        if (delay <= 0) return imageData;
+        if (delay <= 0) return data;
         let kernelFn;
         let shapeArgs = [delay];
         if (window === "circle") {
@@ -104,10 +103,9 @@ export default {
             u_weights: {value: new Float32Array(weights), type: "floatArray"},
             u_transformMatrix: {value: affine, type: "mat2"}
         };
-        const result = shaderStuff.runner.run(
-            shaderStuff.fragSource, uniformSpec, data, width, height
+        return shaderStuff.runner.run(
+            shaderStuff.fragSource, uniformSpec, data, width, height, inputKey
         );
-        return new ImageData(result, width, height);
     },
 
     initHook: shaderStuff.initHook

@@ -7,9 +7,8 @@ export default {
         intensity: 1
     },
 
-    apply(instance, imgData) {
-        const {width, height, data} = imgData;
-        const output = new Uint8ClampedArray(data);
+    apply(instance, data, width, height, t) {
+        const output = new Float32Array(data);
         const getIndex = (x, y) => 4 * (y * width + x);
         const radius = instance.config.intensity;
 
@@ -34,7 +33,7 @@ export default {
             }
         }
 
-        return new ImageData(output, width, height);
+        return output;
     },
 
     uiLayout: [

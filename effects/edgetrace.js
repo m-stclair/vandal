@@ -88,6 +88,6 @@ export default {
 
     uiLayout: [
         {type: "range", key: "radius", label: "Edge Radius", min: 1, max: 5, step: 1},
-        {type: "range", key: "threshold", label: "Threshold", min: 0, max: 255, step: 1}
+        {type: "range", key: "threshold", label: "Threshold", min: 0, max: 1, step: 0.005}
     ]
 };

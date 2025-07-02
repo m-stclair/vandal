@@ -1,5 +1,5 @@
 class RingBuffer {
-  constructor(size, arraytype = Uint8ClampedArray) {
+  constructor(size, arraytype = Float32Array) {
     this.buffer = new arraytype(size);
     this.head = 0;
     this.size = size;
@@ -43,8 +43,7 @@ export default {
     nTaps: 1
   },
 
-  apply(instance, imageData) {
-    const { width, height, data } = imageData;
+  apply(instance, data, width, height, t) {
     const { nSamples } = instance.config;
     const nTaps = Math.min(instance.config.nTaps, nSamples);
     const taps = [];
@@ -63,7 +62,7 @@ export default {
         copy[i] = delays.reduce((a, b) => a + b / nTaps, 0);
       }
     }
-    return new ImageData(copy, width, height);
+    return copy;
   },
 
   uiLayout: [

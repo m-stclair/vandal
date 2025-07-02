@@ -12,7 +12,7 @@ import bandedFlip from './banded_flip.js';
 import colorShred from './colorshred.js';
 import jointShred from './jointshred.js';
 import edgeTrace from './edgetrace.js';
-import morphOp from './morphops.js';
+import morphOp from './morphops_svg.js';
 import hillShade from './hillshade.js';
 import stretchEffect from "./stretch_effect.js";
 import bcsAdjustments from "./brightness_contrast_saturation.js";
@@ -24,7 +24,7 @@ import contourSynth from "./contour_synth.js";
 import colorMap from "./colormap.js";
 import FIR from "./fir.js";
 import delayLineGL from "./delayline_gl.js";
-import affineTransform from "./affine_transform.js";
+import affineTransform from "./affine_transform_gl.js";
 import channelMixerRGB from "./channelmixer_rgb_gl.js";
 import channelMixer from "./channelmixer.js";
 

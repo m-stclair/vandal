@@ -2,7 +2,7 @@ import {deg2rad} from "../utils/mathutils.js";
 import waves from "../utils/waves.js";
 import patterns from "../utils/patterns.js";
 import {getLuminance, hsl2Rgb, rgb2Hsl} from "../utils/colorutils.js";
-import {resolveAnim} from "../utils/animutils.js";
+import {resolveAnimAll} from "../utils/animutils.js";
 
 function spatialPhase(x, y, width, height, freq, mode) {
     if (mode === "none") return 0;
@@ -22,85 +22,6 @@ function spatialPhase(x, y, width, height, freq, mode) {
         default:
             return 0;
     }
-}
-
-function applyPatternMoire(inputCtx, outputCtx, config, t) {
-    const {width, height} = inputCtx.canvas;
-    const inputData = inputCtx.getImageData(0, 0, width, height);
-    const outputData = outputCtx.createImageData(width, height);
-    const {spatialMode, waveform, colorMode} = config;
-
-    const freq = resolveAnim(config.freq, t);
-    const freqScale = resolveAnim(config.freqScale, t);
-    const phaseOff = resolveAnim(config.phaseOff, t);
-    const phaseScale = resolveAnim(config.phaseScale, t);
-    const blend = resolveAnim(config.blend, t);
-    const hueModStrength = resolveAnim(config.hueModStrength, t);
-    const phaseOffRad = deg2rad(phaseOff);
-    let waveFunc;
-    switch (waveform) {
-        case "sawtooth":
-            waveFunc = waves.saw;
-            break;
-        case "square":
-            waveFunc = waves.square;
-            break;
-        case "sin":
-            waveFunc = Math.sin;
-            break;
-        case "tri":
-            waveFunc = waves.tri;
-            break;
-        default:
-            waveFunc = Math.sin;
-    }
-    ;
-
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            const i = (y * width + x) * 4;
-            const r = inputData.data[i];
-            const g = inputData.data[i + 1];
-            const b = inputData.data[i + 2];
-
-            const lum = getLuminance(r, g, b) / 255;
-            const phase = lum * Math.PI * 2;
-            const spatial = spatialPhase(x, y, width, height, freq, spatialMode);
-            const patternA = waveFunc(spatial * freqScale + phase);
-            const patternB = waveFunc(
-                -phase * (
-                    (spatial * freqScale + phase * phaseScale)
-                ) + phaseOffRad
-            );
-            const patval = Math.abs(patternA - patternB) * 255;
-            if (colorMode === "none") {
-                const val = patval * blend + lum * (1 - blend) * 255;
-                outputData.data[i] = val;
-                outputData.data[i + 1] = val;
-                outputData.data[i + 2] = val;
-                outputData.data[i + 3] = 255;
-            } else if (colorMode === "preserve") {
-                const val = patval < lum * 255 ? patval * blend : 0;
-                outputData.data[i] = r - val;
-                outputData.data[i + 1] = g - val;
-                outputData.data[i + 2] = b - val;
-                outputData.data[i + 3] = 255;
-            } else if (colorMode === "hueMod") {
-                const [h, s, l] = rgb2Hsl(r, g, b);
-                const mod = (patval / 255) * hueModStrength;
-                const newHue = (h + mod) % 1;
-                const [r1, g1, b1] = hsl2Rgb(newHue, s, l);
-
-                outputData.data[i] = r1;
-                outputData.data[i + 1] = g1;
-                outputData.data[i + 2] = b1;
-                outputData.data[i + 3] = 255;
-            } else {
-                throw new Error("bad color mode");
-            }
-        }
-    }
-    outputCtx.putImageData(outputData, 0, 0);
 }
 
 
@@ -195,15 +116,79 @@ export default {
         }
     ],
 
-    apply(instance, inputImageData, t) {
-        const width = inputImageData.width;
-        const height = inputImageData.height;
-        const inputCanvas = new OffscreenCanvas(inputImageData.width, inputImageData.height);
-        const inputCtx = inputCanvas.getContext("2d");
-        inputCtx.putImageData(inputImageData, 0, 0);
-        const outputCanvas = new OffscreenCanvas(inputImageData.width, inputImageData.height);
-        const outputCtx = outputCanvas.getContext("2d");
-        applyPatternMoire(inputCtx, outputCtx, instance.config, t);
-        return outputCtx.getImageData(0, 0, width, height);
+    apply(instance, data, width, height, t) {
+        const {
+            freq,
+            freqScale,
+            phaseOff,
+            phaseScale,
+            blend,
+            hueModStrength,
+            spatialMode,
+            waveform,
+            colorMode
+        } = resolveAnimAll(instance.config);
+        const phaseOffRad = deg2rad(phaseOff);
+        let waveFunc;
+        switch (waveform) {
+            case "sawtooth":
+                waveFunc = waves.saw;
+                break;
+            case "square":
+                waveFunc = waves.square;
+                break;
+            case "sin":
+                waveFunc = Math.sin;
+                break;
+            case "tri":
+                waveFunc = waves.tri;
+                break;
+            default:
+                waveFunc = Math.sin;
+        }
+        const outputData = new Float32Array(data.length);
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const i = (y * width + x) * 4;
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const lum = getLuminance(r, g, b);
+                const phase = lum * Math.PI * 2;
+                const spatial = spatialPhase(x, y, width, height, freq, spatialMode);
+                const patternA = waveFunc(spatial * freqScale + phase);
+                const patternB = waveFunc(
+                    -phase * (
+                        (spatial * freqScale + phase * phaseScale)
+                    ) + phaseOffRad
+                );
+                const patval = Math.abs(patternA - patternB);
+                if (colorMode === "none") {
+                    const val = patval * blend + lum * (1 - blend);
+                    outputData[i] = val;
+                    outputData[i + 1] = val;
+                    outputData[i + 2] = val;
+                    outputData[i + 3] = 1;
+                } else if (colorMode === "preserve") {
+                    const val = patval < lum ? patval * blend : 0;
+                    outputData[i] = r - val;
+                    outputData[i + 1] = g - val;
+                    outputData[i + 2] = b - val;
+                    outputData[i + 3] = 1;
+                } else if (colorMode === "hueMod") {
+                    const [h, s, l] = rgb2Hsl(r, g, b);
+                    const mod = (patval) * hueModStrength;
+                    const newHue = (h + mod) % 1;
+                    const [r1, g1, b1] = hsl2Rgb(newHue, s, l);
+                    outputData[i] = r1;
+                    outputData[i + 1] = g1;
+                    outputData[i + 2] = b1;
+                    outputData[i + 3] = 1;
+                } else {
+                    throw new Error("bad color mode");
+                }
+            }
+        }
+        return outputData;
+        }
     }
-}

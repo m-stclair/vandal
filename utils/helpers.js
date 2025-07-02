@@ -26,7 +26,7 @@ const listify = function(obj) {
  * @param {Record<string, any>} obj - Config subset or full config
  * @returns {string} hash key
  */
-export function makeConfigHash(obj) {
+export function hashObject(obj) {
     if (typeof obj !== 'object' || obj === null) return String(obj);
 
     const stable = (x) => {

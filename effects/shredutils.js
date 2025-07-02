@@ -42,18 +42,16 @@ export function makeSampler(probabilities) {
     }
 }
 
-export function shred(array, valuesToReplace, counts = undefined, flip = false) {
+export function shred(array, valuesToReplace, counts = undefined) {
     if (counts === undefined) {
         counts = histogram(array);
     }
     const valueSet = new Set(valuesToReplace);
-    const output = new Uint8ClampedArray(array.length);
+    const output = new Float32Array(array.length);
 
     // 2. Identify replacement pool
     const allValues = Array.from(counts.keys());
-    const replacementPool = flip
-        ? allValues.filter(v => valueSet.has(v))
-        : allValues.filter(v => !valueSet.has(v));
+    const replacementPool = allValues.filter(v => !valueSet.has(v));
 
     const weights = replacementPool.map(v => counts.get(v));
     const total = weights.reduce((a, b) => a + b, 0);
@@ -62,7 +60,7 @@ export function shred(array, valuesToReplace, counts = undefined, flip = false) 
 
     for (let i = 0; i < array.length; i++) {
         const val = array[i];
-        const shouldReplace = valueSet.has(val) !== flip;
+        const shouldReplace = valueSet.has(val);
         output[i] = shouldReplace ? sampler(replacementPool) : val;
     }
 

@@ -11,9 +11,8 @@ export default {
         mode: "lambertian",
     },
 
-    apply(instance, imageData) {
-        const {width, height, data} = imageData;
-        const result = new Uint8ClampedArray(data.length);
+    apply(instance, data, width, height, t) {
+        const result = new Float32Array(data.length);
         const {azimuth, mode} = instance.config;
         const azrad = deg2rad(azimuth)
         const cosAz = Math.cos(azrad);
@@ -46,14 +45,12 @@ export default {
                     // "signed" case falls through with raw value
                 }
 
-                const val = Math.max(0, Math.min(255, shade));
+                const val = Math.max(0, Math.min(1, shade));
                 result[i] = result[i + 1] = result[i + 2] = val;
-                result[i + 3] = 255;
+                result[i + 3] = 1;
             }
         }
-        return new ImageData(
-            channelwise(result, width, height, normalizeRange), width, height
-        );
+        return channelwise(result, width, height, normalizeRange)
     },
 
     uiLayout: [

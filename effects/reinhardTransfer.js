@@ -1,5 +1,6 @@
 import {getImageStats} from "../utils/paletteutils.js";
 import {lab2Rgb_A, rgb2Lab_A} from "../utils/colorutils.js";
+import {normalizeImageData} from "../utils/imageutils.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -25,21 +26,29 @@ export default {
         }
     ],
 
-    apply(instance, imageData) {
+    apply(instance, data, _width, _height, _t) {
         const {referenceImageId, strength} = instance.config;
         const referenceImage = instance.auxiliaryCache.referenceImage;
         if (!referenceImageId || !referenceImage) {
-            return imageData; // No style source: passthrough
+            return data; // No style source: passthrough
         }
         const cacheKey = `stats-${referenceImageId}`;
-        if (!instance.auxiliaryCache[cacheKey]) {
-            const reflab = rgb2Lab_A(referenceImage.data);
-            instance.auxiliaryCache[cacheKey] = getImageStats(reflab);
+        let normRef = instance.auxiliaryCache.normRefs[cacheKey];
+        if (!normRef) {
+            normRef = normalizeImageData({...instance.auxiliaryCache.referenceImage}).data;
+            instance.auxiliaryCache.normRefs[cacheKey] = normRef;
         }
-        const sourceStats = instance.auxiliaryCache[cacheKey];
-        const inputLabA = rgb2Lab_A(imageData.data);
+        if (!instance.auxiliaryCache.refLabs[cacheKey]) {
+            instance.auxiliaryCache.refLabs[cacheKey] = rgb2Lab_A(normRef);
+        }
+        const refLab = instance.auxiliaryCache.refLabs[cacheKey]
+        if (!instance.auxiliaryCache.stats[cacheKey]) {
+            instance.auxiliaryCache.stats[cacheKey] = getImageStats(refLab);
+        }
+        const sourceStats = instance.auxiliaryCache.stats[cacheKey];
+        const inputLabA = rgb2Lab_A(data);
         const inputStats = getImageStats(inputLabA);
-        const outLabA = [];
+        const outLabA = new Float32Array(inputLabA.length);
 
         for (let i = 0; i < inputLabA.length; i += 4) {
             for (let c = 0; c < 3; c++) {
@@ -51,17 +60,22 @@ export default {
             }
             outLabA[i + 3] = inputLabA[i + 3]; // Alpha passthrough
         }
-        const outRGBA = new Uint8ClampedArray(lab2Rgb_A(outLabA));
-        return new ImageData(outRGBA, imageData.width, imageData.height);
+        return new Float32Array(lab2Rgb_A(outLabA));
     },
 
     initHook(instance) {
         instance.auxiliaryCache = {
-            referenceImage: null
+            referenceImage: null,
+            normRefs: {},
+            stats: {},
+            refLabs: {}
         };
     },
 
     cleanupHook(instance) {
         instance.auxiliaryCache.referenceImage = null;
+        instance.auxiliaryCache.normRefs = null;
+        instance.auxiliaryCache.stats = null;
+        instance.auxiliaryCache.refLabs = null;
     }
 }

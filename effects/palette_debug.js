@@ -12,7 +12,7 @@ function renderSwatchImage(palette, width, height) {
                 out[px] = r;
                 out[px + 1] = g;
                 out[px + 2] = b;
-                out[px + 3] = 255;
+                out[px + 3] = 1;
             }
         }
     }

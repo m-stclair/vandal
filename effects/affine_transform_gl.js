@@ -13,7 +13,6 @@ const shaderStuff = makeShaderInit({
 });
 
 
-
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
@@ -59,7 +58,7 @@ export default {
         {key: "wrap", label: "Wrap", type: "checkbox"}
     ],
 
-    apply(instance, imageData, t) {
+    apply(instance, data, width, height, t, inputKey) {
         const {
             angle,
             shearX,
@@ -70,7 +69,6 @@ export default {
             translateY,
             wrap
         } = resolveAnimAll(instance.config, t);
-        const {data, width, height} = imageData;
 
         const rot = rotationMatrix2D(deg2rad(angle));
         const shear = shearMatrix2D(shearX, shearY);
@@ -85,10 +83,9 @@ export default {
             u_offset: {value: [translateX, translateY], type: "vec2"},
             u_wrap: {value: wrap, type: "bool"},
         }
-        const result = shaderStuff.runner.run(
-            shaderStuff.fragSource, uniformSpec, data, width, height
+        return shaderStuff.runner.run(
+            shaderStuff.fragSource, uniformSpec, data, width, height, inputKey
         );
-        return new ImageData(result, width, height);
     },
 
     initHook: shaderStuff.initHook

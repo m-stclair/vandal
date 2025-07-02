@@ -17,10 +17,9 @@ export default {
     {type: 'checkbox', key: 'preserveAlpha', label: "Preserve Alpha"}
   ],
 
-  apply(instance, imageData, t) {
+  apply(instance, data, width, height, t) {
     const {blockSize, sampleStrategy, preserveAlpha} = resolveAnimAll(instance.config, t);
-    const {data, width, height} = imageData;
-    const copy = new Uint8ClampedArray(data);
+    const copy = new Float32Array(data);
 
     const getIndex = (x, y) => 4 * (y * width + x);
 
@@ -60,7 +59,7 @@ export default {
           g = Math.round(g / count);
           b = Math.round(b / count);
           if (!preserveAlpha) a = Math.round(a / count);
-          else a = 255;
+          else a = 1;
         }
 
         for (let j = y; j < yEnd; j++) {
@@ -74,6 +73,6 @@ export default {
         }
       }
     }
-    return new ImageData(copy, width, height);
+    return copy;
   }
 }

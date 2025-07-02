@@ -27,7 +27,14 @@ export const colormaps = {
     "#440154", "#482777", "#3E4989", "#31688E", "#26838F",
     "#1F9E89", "#35B779", "#6DCD59", "#B4DE2C", "#FDE725"
   ]),
-  grayscale: (t) => [t * 255, t * 255, t * 255],
+  gistRainbowMap(x) {
+    x = x % 1; // wrap around
+    const r = Math.sin(Math.PI * x) ** 2;
+    const g = Math.sin(Math.PI * (x + 1/3)) ** 2;
+    const b = Math.sin(Math.PI * (x + 2/3)) ** 2;
+    return [r, g, b];
+  },
+  grayscale: (t) => [t, t, t],
   rainbow: (t) => {
     const h = (1 - t) * 0.7;
     return hsl2Rgb(h, 1, 0.5);
@@ -38,8 +45,35 @@ export const colormaps = {
   ]),
   aqua_pink: fromList([
     "#00FFFF", "#3FBFBF", "#7F7F7F", "#BF3FBF", "#FF00FF"
-  ])
-
+  ]),
+  glacier: fromList([
+   "#f0faff", "#c0d8ef", "#90b7df", "#6087b7", "#304760", "#101720"
+  ]),
+  ashfall: fromList([
+   "#1b1b1b", "#353535", "#505050", "#7a7a7a", "#aaaaaa"
+  ]),
+  blush: fromList([
+    "#ffffff", "#fce4ec", "#f8bbd0", "#f48fb1", "#f06292"
+  ]),
+  terrain: fromList([
+    "#006400", "#7FFF00", "#FFFF00", "#DAA520", "#A0522D", "#FFFFFF"
+  ]),
+  bone: fromList([
+    "#000000", "#1e1f26", "#44485a", "#6b6e85", "#9191a9",
+    "#b6b5c5", "#dad9dd", "#fefcf5"
+  ]),
+  cubehelix: (t) => {
+    const angle = 2 * Math.PI * (0.5 + 1.5 * t);
+    const amp = 0.5 * t * (1 - t); // perceptual contrast
+    const r = t + amp * (-0.14861 * Math.cos(angle) + 1.78277 * Math.sin(angle));
+    const g = t + amp * (-0.29227 * Math.cos(angle) - 0.90649 * Math.sin(angle));
+    const b = t + amp * (1.97294 * Math.cos(angle));
+    return [
+      Math.min(Math.max(r, 0), 1),
+      Math.min(Math.max(g, 0), 1),
+      Math.min(Math.max(b, 0), 1)
+    ];
+  }
 };
 
 /** Build a colormap from a list of CSS color strings */

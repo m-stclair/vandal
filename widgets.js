@@ -218,16 +218,12 @@ function makeMatrixSlider({
     wrapper.dataset.key = key;
     if (id) wrapper.dataset.fxId = id;
 
-    const labelEl = document.createElement("label");
-    labelEl.textContent = label ?? key;
-    wrapper.appendChild(labelEl);
-
     const container = document.createElement("div");
     container.classList.add("matrix-slider-group");
 
     const rowText = rowLabels(config);
     const colText = colLabels(config);
-    console.log(rowText, colText)
+    // console.log(rowText, colText)
     for (let row = 0; row < size[0]; row++) {
         const rowWrapper = makeField(); // for each row
         const rowLabel = document.createElement("label");
@@ -244,7 +240,6 @@ function makeMatrixSlider({
             slider.max = max;
             slider.step = step;
             slider.value = value[row][col];
-
             const valueLabel = document.createElement("span");
             valueLabel.classList.add("slider-value");
             valueLabel.textContent = formatFloatWidth(slider.value);
@@ -291,6 +286,7 @@ function makeMatrixSlider({
                                   update,
                                   id
                               }) {
+        subLabels = typeof subLabels === "function" ? subLabels(config) : subLabels
         const wrapper = makeField();
         wrapper.dataset.key = key;
         if (id) wrapper.dataset.fxId = id;

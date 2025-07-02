@@ -1,4 +1,6 @@
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
+import {resolveAnimAll} from "../utils/animutils.js";
+
 /** @type {EffectModule} */
 export default {
     name: "Desync Tiles",
@@ -16,9 +18,9 @@ export default {
             tileSize,
             corruptionRate,
             maxOffset
-        } = instance.config;
+        } = resolveAnimAll(instance.config);
 
-        const output = new Uint8ClampedArray(data.length);
+        const output = new Float32Array(data.length);
         const getIndex = (x, y) => (y * width + x) * 4;
 
         // Copy each tile individually
@@ -53,13 +55,13 @@ export default {
             }
         }
 
-        return new ImageData(output, width, height);
+        return output;
     },
 
     uiLayout: [
-        {type: "range", key: "tileSize", label: "Tile Size", min: 4, max: 64, step: 4},
-        {type: "range", key: "corruptionRate", label: "Corruption Rate", min: 0, max: 1, step: 0.01},
-        {type: "range", key: "maxOffset", label: "Max Offset", min: 0, max: 32, step: 1},
+        {type: "modSlider", key: "tileSize", label: "Tile Size", min: 4, max: 64, step: 4},
+        {type: "modSlider", key: "corruptionRate", label: "Corruption Rate", min: 0, max: 1, step: 0.01},
+        {type: "modSlider", key: "maxOffset", label: "Max Offset", min: 0, max: 32, step: 1},
         {type: "checkbox", key: "freezeTiles", label: "Freeze Tiles"}
     ],
 

@@ -1,4 +1,5 @@
-import {splitChannels, combineChannels} from "./channelutils.js";
+import {splitChannels, combineChannels} from "./imageutils.js";
+import {hist1D, val2Bin} from "./mathutils.js";
 
 function arrMin(arr) {
     return arr.reduce((a, b) => Math.min(a, b), Infinity);
@@ -8,12 +9,12 @@ function arrMax(arr) {
     return arr.reduce((a, b) => Math.max(a, b), -Infinity);
 }
 
-function normalizeRange(data, lo, hi, targetMin = 0, targetMax = 255) {
+function normalizeRange(data, lo, hi, targetMin = 0, targetMax = 1) {
     if (hi === undefined) hi = arrMax(data);
     if (lo === undefined) lo = arrMin(data);
     const range = hi - lo;
     const scale = (targetMax - targetMin) / range;
-    const output = new Uint8ClampedArray(data.length);
+    const output = new Float32Array(data.length);
     for (let i = 0; i < data.length; i++) {
         const val = Math.min(Math.max(data[i], lo), hi);
         output[i] = ((val - lo) * scale + targetMin);
@@ -21,24 +22,23 @@ function normalizeRange(data, lo, hi, targetMin = 0, targetMax = 255) {
     return output;
 }
 
-function fastPercentileClip(data, percentileLow = 1, percentileHigh = 99) {
-
-    const hist = new Uint32Array(256);  // assumes 8-bit input
-    for (let i = 0; i < data.length; i++) hist[data[i]]++;
-
+function approxPercentileClip(data, percentileLow = 1, percentileHigh = 99, nBins=512) {
+    const hist = hist1D(data, nBins, 0, 1)
     const total = data.length;
     const loThresh = (percentileLow / 100) * total;
     const hiThresh = (percentileHigh / 100) * total;
 
-    let sum = 0, lo = 0, hi = 255;
-    for (let i = 0; i < 256; i++) {
+    let sum = 0, lo = 0, hi = 1;
+    for (let i = 0; i < nBins; i++) {
         sum += hist[i];
-        if (sum >= loThresh) { lo = i; break; }
+        if (sum >= loThresh) { lo = i / nBins; break; }
     }
     sum = 0;
-    for (let i = 255; i >= 0; i--) {
+    for (let i = nBins - 1; i >= 0; i--) {
         sum += hist[i];
-        if (sum >= total - hiThresh) { hi = i; break; }
+        if (sum >= total - hiThresh) {
+            hi = i / nBins; break;
+        }
     }
 
     return normalizeRange(data, lo, hi);
@@ -70,7 +70,7 @@ function channelwise(data, width, height, stretchFunc, ...stretchArgs) {
 
 export {
     normalizeRange,
-    fastPercentileClip,
+    approxPercentileClip,
     stddevClip,
     minmaxClip,
     channelwise

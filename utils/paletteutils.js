@@ -1,4 +1,4 @@
-import {makeConfigHash} from "./helpers.js";
+import {hashObject} from "./helpers.js";
 import {rgb2Lab} from "./colorutils.js";
 
 
@@ -58,7 +58,7 @@ export function extractFakePCAPalette(imageData, nColors = 6, mode = "chroma",
 
 export function getPalette(instance) {
     const cache = instance.auxiliaryCache;
-    const configHash = makeConfigHash(instance.config)
+    const configHash = hashObject(instance.config)
     if (cache.configHash !== configHash) {
         cache.configHash = configHash;
         cache.palette = extractFakePCAPalette(instance.auxiliaryCache.referenceImage,

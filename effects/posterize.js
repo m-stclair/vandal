@@ -13,34 +13,30 @@ export default {
         preserveAlpha: true
     },
 
-    apply(instance, imageData, t) {
-        const {width, height, data} = imageData;
+    apply(instance, data, width, height, t) {
         const {levels, perChannel, mode, gamma, preserveAlpha} = resolveAnimAll(instance.config, t);
 
-        const copy = new Uint8ClampedArray(data);
+        const copy = new Float32Array(data);
 
         const quantize = (value, levels) => {
             switch (mode) {
                 case 'log': {
-                    const norm = value / 255;
-                    const compressed = Math.pow(norm, 0.8); // or 0.5
+                    const compressed = Math.pow(value, 0.8);
                     const step = 1 / levels;
-                    const quant = Math.round(compressed / step) * step;
-                    return quant * 255;
+                    return Math.round(compressed / step) * step;
                 }
                 case 'gamma': {
-                    const norm = value / 255;
-                    const gammaCorrected = Math.pow(norm, gamma);
+                    const gammaCorrected = Math.pow(value, gamma);
                     const step = 1 / levels;
                     const quant = Math.round(gammaCorrected / step) * step;
-                    return Math.pow(quant, 1 / gamma) * 255;
+                    return Math.pow(quant, 1 / gamma)
                 }
                 case 'threshold': {
-                    return value < 128 ? 0 : 255;
+                    return value <= 0.5 ? 0 : 1;
                 }
                 case 'uniform':
                 default: {
-                    const step = 256 / levels;
+                    const step = 1 / levels;
                     return Math.floor(value / step) * step;
                 }
             }
@@ -60,7 +56,7 @@ export default {
                 copy[i + 3] = quantize(data[i + 3], levels);
             }
         }
-        return new ImageData(copy, width, height);
+        return copy;
     },
 
     uiLayout: [

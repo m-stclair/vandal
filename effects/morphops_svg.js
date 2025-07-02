@@ -1,7 +1,7 @@
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "MorphOp",
+    name: "MorphOp (SVG)",
 
     defaultConfig: {
         operator: "dilate",      // "dilate", "erode", "arithmetic"

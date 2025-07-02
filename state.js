@@ -1,5 +1,6 @@
 import {canvas, ctx} from "./ui.js";
 import {gid, uuidv4} from "./utils/helpers.js";
+import {normalizeImageData} from "./utils/imageutils.js";
 
 let effectStack = [];
 
@@ -73,6 +74,7 @@ let resizedOriginalImage = null;
 
 export function setResizedOriginalImage(img) {
     resizedOriginalImage = img;
+    clearNormedImage();
 }
 
 export function getResizedOriginalImage() {
@@ -89,6 +91,26 @@ export function setOriginalImage(img) {
 
 export function getOriginalImage() {
     return originalImage;
+}
+
+let normedImage = null;
+let normLoadID = '';
+
+export function getNormLoadID() {
+    return normLoadID;
+}
+
+export function getNormedImage() {
+    if (!resizedOriginalImage) return null;
+    if (normedImage === null) {
+        normedImage = normalizeImageData(resizedOriginalImage);
+        normLoadID = uuidv4();
+        return normedImage;
+    } else return normedImage;
+}
+
+export function clearNormedImage() {
+    normedImage = null;
 }
 
 // canvas property modification

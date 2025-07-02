@@ -12,11 +12,10 @@ export default {
         offset: 0
     },
 
-    apply(instance, imageData, t) {
-        const {width, height, data} = imageData;
+    apply(instance, data, width, height, t) {
         const {bandSize, orientation, mirrorRate, offset} = resolveAnimAll(instance.config, t);
 
-        const out = new Uint8ClampedArray(data.length);
+        const out = new Float32Array(data.length);
         const getIndex = (x, y) => (y * width + x) * 4;
 
         const mirrorBand = (x, y, mirrored) => {
@@ -56,7 +55,7 @@ export default {
             }
         }
 
-        return new ImageData(out, width, height);
+        return out;
     },
 
     uiLayout: [

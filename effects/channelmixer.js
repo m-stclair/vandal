@@ -1,6 +1,6 @@
-import {combineChannels, splitChannels} from "../utils/channelutils.js";
+import {combineChannels, splitChannels} from "../utils/imageutils.js";
 import {resolveAnimAll} from "../utils/animutils.js";
-import { rgbToHsv, hsvToRgb, rgb2Hsl, hsl2Rgb } from "../utils/colorutils.js";
+import {rgb2Hsv, hsv2Rgb, rgb2Hsl, hsl2Rgb, rgb2Lab, lab2Rgb} from "../utils/colorutils.js";
 import {clamp, dot3} from "../utils/mathutils.js";
 
 const colorSpaces = {
@@ -12,15 +12,21 @@ const colorSpaces = {
     },
     hsv: {
         label: "HSV",
-        to: rgbToHsv,
-        from: hsvToRgb,
+        to: rgb2Hsv,
+        from: hsv2Rgb,
         channelLabels: ["Hue", "Saturation", "Value"],
     },
     hsl: {
         label: "HSL",
-        to: rgb2Hsl,
+        to: rgb2Hsl ,
         from: hsl2Rgb,
         channelLabels: ["Hue", "Saturation", "Lightness"],
+    },
+    lab: {
+        label: "Lab",
+        to: rgb2Lab ,
+        from: lab2Rgb,
+        channelLabels: ["L", "a", "b"],
     },
 };
 
@@ -40,12 +46,10 @@ export default {
       offset: [0, 0, 0],
     },
 
-    apply(instance, imageData, t) {
+    apply(instance, data, width, height, t) {
         const { config } = instance;
-        const { width, height, data } = imageData;
         const { r, g, b, a } = splitChannels(data, width, height);
         const resolved = resolveAnimAll(config, t);
-
         const { mixMatrix, offset } = resolved;
         const toSpace = colorSpaces[resolved.colorSpaceIn].to;
         const fromSpace = colorSpaces[resolved.colorSpaceOut].from;
@@ -64,12 +68,8 @@ export default {
             outG[i] = gOut;
             outB[i] = bOut;
         }
+        return combineChannels({ r: outR, g: outG, b: outB, a, width, height })
 
-        return new ImageData(
-            combineChannels({ r: outR, g: outG, b: outB, a, width, height }),
-            width,
-            height
-        );
     },
 
     uiLayout: [

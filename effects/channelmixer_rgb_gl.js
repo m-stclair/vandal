@@ -22,9 +22,8 @@ export default {
         offset: [0, 0, 0],
     },
 
-    apply(instance, imageData, t) {
+    apply(instance, data, width, height, t, inputKey) {
         const {config} = instance;
-        const {width, height, data} = imageData;
         const resolved = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -36,8 +35,7 @@ export default {
             u_offset: {type: "vec3", value: resolved.offset},
         };
         const {fragSource, runner} = shaderStuff;
-        const result = runner.run(fragSource, uniforms, data, width, height);
-        return new ImageData(result, width, height);
+        return runner.run(fragSource, uniforms, data, width, height, inputKey);
     },
 
     uiLayout: [

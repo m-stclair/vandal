@@ -25,14 +25,14 @@ import {
     loadState,
     makeEffectInstance,
     setResizedOriginalImage,
-    getResizedOriginalImage,
-    forEachActiveEffect, getActiveEffects, getEffectById
+    forEachActiveEffect, getActiveEffects, getEffectById, clearNormedImage, getNormedImage, getNormLoadID
 } from "./state.js";
-import {formatFloatWidth, gid, makeConfigHash} from "./utils/helpers.js";
+import {formatFloatWidth, gid, hashObject} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
 import {effectGroups, effectRegistry} from "./effects/index.js";
 import {resolveAnim} from "./utils/animutils.js";
 import {PresetStore} from "./utils/presets.js";
+import {deNormalizeImageData} from "./utils/imageutils.js";
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -67,6 +67,7 @@ function resizeAndRedraw() {
     ctx.drawImage(originalImage, 0, 0, w, h);
     setRenderedImage(ctx.getImageData(0, 0, w, h));
     setResizedOriginalImage(ctx.getImageData(0, 0, w, h));
+    clearNormedImage();
     updateApp();
 }
 
@@ -98,42 +99,56 @@ function stopCapture() {
     document.getElementById('captureOverlay').style.display = 'none';
 }
 
-function applyEffects(t = 0) {
-    const resizedOriginalImage = getResizedOriginalImage();
-    if (!resizedOriginalImage) return;
-    let current = resizedOriginalImage;
-    let needsRecompute = false;
+function isModulating(fx) {
+    return Object.values(fx.config).some(p =>
+        p !== null
+        && typeof p === "object"
+        && p.mod?.type !== "none"
+        && (!(p instanceof Array))
+    )
+}
 
-    forEachActiveEffect((fx) => {
-        const prior = current;
+function applyEffects(t = 0) {
+    let normedImage = getNormedImage();
+    if (normedImage === null) return;
+    const {width, height} = normedImage;
+    let {data} = normedImage;
+    let hashChain = `top-${width}-${height}-${getNormLoadID()}`;
+    let priorHash = hashChain;
+    forEachEffect((fx) => {
         if (!fx.apply) return;
+        if (fx.disabled) {
+            hashChain += `${fx.name}-${fx.id}-disabled`;
+            priorHash = hashChain;
+            return;
+        }
         const cacheEntry = renderCacheGet(fx.id);
-        const modulated = Object.values(fx.config).some(p =>
-            typeof p === "object" && p.mod?.type !== "none"
-        );
         const timeChanged = cacheEntry?.lastT !== t;
-        const needsAnimationUpdate = modulated && timeChanged;
-        const configChanged = (
+        const needsAnimationUpdate = isModulating(fx) && timeChanged;
+        hashChain += hashObject(fx.config) + fx.id;
+        const hashChanged = (
             !cacheEntry
-            || makeConfigHash(fx.config) !== makeConfigHash(cacheEntry.config)
+            || hashChain !== cacheEntry.hashChain
         );
-        const dependencyChanged = !cacheEntry || cacheEntry.dependsOn !== prior;
-        if (configChanged || dependencyChanged || needsRecompute || needsAnimationUpdate) {
-            const result = fx.apply(fx, prior, t);
-            current = result;
+        if (hashChanged || needsAnimationUpdate) {
+            // const enter = performance.now()
+            // console.log(hashChain);
+            data = fx.apply(fx, data, width, height, t, priorHash);
+            // const exit = performance.now()
+            // console.log(`rendered ${fx.name}-${fx.id}: ${exit-enter}ms`)
             renderCacheSet(fx.id, {
-                imageData: result,
+                data: data,
                 config: structuredClone(fx.config),
                 disabled: fx.disabled,
-                dependsOn: prior,
+                hashChain: hashChain,
                 lastT: t
             });
-            needsRecompute = true;
         } else {
-            current = cacheEntry.imageData;
+            data = cacheEntry.data;
         }
+        priorHash = hashChain;
     })
-    setRenderedImage(current);
+    setRenderedImage(deNormalizeImageData(data, width, height));
 }
 
 function maybeCallStyleHook(fx) {
@@ -345,11 +360,14 @@ function renderEffectInStackUI(fx, i) {
     const row = document.createElement('div');
     row.className = "effectRow";
     row.dataset.index = i;
-    row.addEventListener("click", () => {
+
+    function renderSettings() {
         buildUI(fx, configContainer, fx.config,
-            debouncedApply, fx.uiLayout);
+            debouncedApply, fx.uiLayout, renderSettings);
         renderStackUI();
-    });
+    }
+
+    row.addEventListener("click", () => renderSettings());
     const labelWrapper = createLabelEditor(fx);
     const controlGroup = createControlGroup(
         fx, effectStack, i, configContainer
@@ -373,13 +391,7 @@ function renderStackUI() {
     }
 }
 
-function isAnimationActive() {
-    return getEffectStack().some(fx =>
-            fx.config && Object.values(fx.config).some(p =>
-                typeof p === "object" && p.mod?.type !== "none"
-            )
-    );
-}
+const isAnimationActive = () => getEffectStack().some(fx => isModulating(fx))
 
 let animating = false;
 let startTime = null;

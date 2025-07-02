@@ -1,4 +1,6 @@
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
+import {resolveAnimAll} from "../utils/animutils.js";
+
 /** @type {EffectModule} */
 export default {
     name: "Wave Distortion",
@@ -8,10 +10,9 @@ export default {
         direction: "horizontal"
     },
 
-    apply(instance, imageData) {
-        const {amplitude, frequency, direction} = instance.config;
-        const {width, height, data} = imageData;
-        const copy = new Uint8ClampedArray(data);
+    apply(instance, data, width, height, t) {
+        const {amplitude, frequency, direction} = resolveAnimAll(instance.config, t);
+        const copy = new Float32Array(data);
 
         const getOffset = (x, y) => {
             const angle = direction === "horizontal" ? y * frequency * 0.1 : x * frequency * 0.1;
@@ -34,12 +35,12 @@ export default {
                 copy[dstIndex + 3] = data[srcIndex + 3];
             }
         }
-        return new ImageData(copy, width, height);
+        return copy;
     },
 
     uiLayout: [
         {type: "select", key: "direction", label: "Direction", options: ["horizontal", "vertical"]},
-        {type: "range", key: "amplitude", label: "Amplitude", min: 1, max: 50, step: 1},
-        {type: "range", key: "frequency", label: "Frequency", min: 0.1, max: 5, step: 0.1}
+        {type: "modSlider", key: "amplitude", label: "Amplitude", min: 1, max: 50, step: 1},
+        {type: "modSlider", key: "frequency", label: "Frequency", min: 0.1, max: 5, step: 0.1}
     ]
 }

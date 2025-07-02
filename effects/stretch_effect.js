@@ -1,6 +1,6 @@
 // effects/stretch_effect.js
 
-import {channelwise, normalizeRange, fastPercentileClip, stddevClip} from '../utils/stretch.js';
+import {channelwise, normalizeRange, approxPercentileClip, stddevClip} from '../utils/stretch.js';
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -14,8 +14,7 @@ export default {
         channelwise: true
     },
 
-    apply(instance, imageData) {
-        const {data, width, height} = imageData;
+    apply(instance, data, width, height, _t) {
         const config = instance.config;
         let func, params, result;
 
@@ -29,15 +28,16 @@ export default {
                 params = [];
                 break;
             case "percentile":
-                func = fastPercentileClip;
+                func = approxPercentileClip;
                 params = [config.paramA, config.paramB];
         }
+
         if (config.channelwise) {
             result = channelwise(data, width, height, func, ...params);
         } else {
             result = func(data, ...params);
         }
-        return new ImageData(result, width, height);
+        return result;
 
     },
 

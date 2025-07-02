@@ -1,39 +1,37 @@
 import { makeSampler } from './shredutils.js';
+import {resolveAnimAll} from "../utils/animutils.js";
+import {splitChannels} from "../utils/imageutils.js";
+import {val2Bin} from "../utils/mathutils.js";
 
-function shredTuples(imageData, valuesToReplace, counts, flip = false) {
-    const { data, width, height } = imageData;
-    const valueSet = new Set(valuesToReplace.map(v => v.join(',')));
-    const result = new Uint8ClampedArray(data.length);
+function shredTuples(data, width, height, valuesToReplace, tuples, nBins, counts) {
+    const valueSet = new Set(valuesToReplace);
+    const result = new Float32Array(data.length);
 
     const allKeys = Array.from(counts.keys());
-    const replacementPool = flip
-        ? allKeys.filter(k => valueSet.has(k))
-        : allKeys.filter(k => !valueSet.has(k));
+    const replacementPool = allKeys.filter(k => !valueSet.has(k));
 
     const weights = replacementPool.map(k => counts.get(k));
     const total = weights.reduce((a, b) => a + b, 0);
     const sampler = makeSampler(weights.map(w => w / total));
 
     for (let i = 0; i < data.length; i += 4) {
-        const key = `${data[i]},${data[i + 1]},${data[i + 2]}`;
-        const match = valueSet.has(key);
-        const shouldReplace = match !== flip;
+        const key = tuples[i];
+        const shouldReplace = valueSet.has(key);
 
         if (shouldReplace) {
-            const [r, g, b] = sampler(replacementPool).split(',').map(Number);
-            result[i]     = r;
-            result[i + 1] = g;
-            result[i + 2] = b;
+            const [rBin, gBin, bBin] = sampler(replacementPool)
+            result[i]     = rBin / nBins;
+            result[i + 1] = gBin / nBins;
+            result[i + 2] = bBin / nBins;
         } else {
             result[i]     = data[i];
             result[i + 1] = data[i + 1];
             result[i + 2] = data[i + 2];
         }
-
         result[i + 3] = data[i + 3]; // preserve alpha
     }
 
-    return new ImageData(result, width, height);
+    return result;
 }
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -42,31 +40,33 @@ export default {
     name: "JointShred",
 
     defaultConfig: {
-        density: 0.25,
-        flip: false
+        density: 0.1,
+        nBins: 4
     },
 
-    apply(instance, imageData) {
-        const { data } = imageData;
+    apply(instance, data, width, height, t) {
         const counts = new Map();
-
+        const { density, nBins } = resolveAnimAll(instance.config, t);
+        const {r, g, b, a} = splitChannels(data, width, height);
+        const [rBins, gBins, bBins] = [r, g, b].map(c => c.map(v => val2Bin(v, 0, nBins)));
+        const tuples = Array(data.length);
         for (let i = 0; i < data.length; i += 4) {
-            const key = `${data[i]},${data[i + 1]},${data[i + 2]}`;
+            const key = [rBins[i], gBins[i], bBins[i]];
             counts.set(key, (counts.get(key) || 0) + 1);
+            tuples[i] = key;
         }
-
         const valuesToReplace = [];
         for (let key of counts.keys()) {
-            if (Math.random() < instance.config.density) {
-                valuesToReplace.push(key.split(',').map(Number));
+            if (Math.random() < density) {
+                valuesToReplace.push(key);
             }
         }
-
-        return shredTuples(imageData, valuesToReplace, counts, instance.config.flip);
+        return shredTuples(data, width, height, valuesToReplace, tuples, nBins, counts);
     },
 
     uiLayout: [
-        { type: "range", key: "density", label: "Density", min: 0, max: 1, step: 0.02 },
-        { type: "checkbox", key: "flip", label: "Flip" }
+        { type: "modSlider", key: "density", label: "Density", min: 0, max: 0.99, step: 0.01 },
+        { type: "modSlider", key: "nBins", label: "nBins", min: 2, max: 32, step: 1 },
+
     ]
 };

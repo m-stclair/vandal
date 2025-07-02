@@ -11,7 +11,7 @@ export default {
     name: 'Pixel Sort',
 
     defaultConfig: {
-        threshold: 128,
+        threshold: 0.5,
         direction: 'horizontal',
         useR: true,
         useG: true,
@@ -19,9 +19,8 @@ export default {
         perlin: false,
     },
 
-    apply(instance, imgData, t) {
-        const {width, height, data} = imgData;
-        const sortedData = new Uint8ClampedArray(data);
+    apply(instance, data, width, height, t) {
+        const sortedData = new Float32Array(data);
         const {threshold, direction, useR, useG, useB, perlin} = resolveAnimAll(instance.config, t);
 
         const brightness = (p, x, y) => {
@@ -82,11 +81,11 @@ export default {
             }
         }
 
-        return new ImageData(sortedData, width, height);
+        return sortedData;
     },
 
     uiLayout: [
-        {type: 'modSlider', key: 'threshold', label: 'Threshold', min: 0, max: 255, step: 1},
+        {type: 'modSlider', key: 'threshold', label: 'Threshold', min: 0, max: 1, step: 0.01},
         {type: 'select', key: 'direction', label: 'Direction', options: ['horizontal', 'vertical']},
         {type: 'checkbox', key: 'useR', label: 'Use R'},
         {type: 'checkbox', key: 'useG', label: 'Use G'},

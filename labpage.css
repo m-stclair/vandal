@@ -144,6 +144,7 @@ input, select, textarea, button {
     flex-shrink: 1;
     flex-grow: 1;
     min-height: 0; /* Allow shrinking */
+    max-height: 100%;
     transition: all 0.05s ease;
 }
 

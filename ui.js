@@ -1,5 +1,11 @@
 import {gid} from "./utils/helpers.js";
-import {addUserPreset, listAppPresets, getAppPresetView, deleteUserPreset, updateAppPresets} from "./utils/presets.js";
+import {
+    addUserPreset,
+    listAppPresets,
+    getAppPresetView,
+    deleteUserPreset,
+    updateAppPresets,
+} from "./utils/presets.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");
@@ -188,8 +194,9 @@ export function setupPresetUI(getState, loadState, updateApp, registry) {
 
     document.getElementById('presetLoad').onclick = () => {
         const name = document.getElementById('presetSelect').value;
-        const preset = getAppPresetView(name);
-        if (preset) loadState(preset.config, registry);
+        if (listAppPresets().includes(name)) {
+            loadState(getAppPresetView(name), registry, false);
+        }
         updateApp();
     };
 

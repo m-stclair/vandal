@@ -170,27 +170,26 @@ export function makeEffectInstance(mod) {
 // state save/load
 
 export function saveState() {
-    return JSON.stringify(
-        getEffectStack().map(effect => ({
-            name: effect.name,
-            config: { ...effect.config }
-        })),
-        null,
-        2
-    );
+    return getEffectStack().map(effect => ({
+        name: effect.name,
+        config: { ...effect.config }
+    }))
 }
 
-export function loadState(jsonText, registry) {
-    let parsed;
-    try {
-        parsed = JSON.parse(jsonText);
-    } catch (err) {
-        alert("Invalid JSON.");
-        return;
+export function loadState(preset, registry, fromJSON=true) {
+    if (fromJSON) {
+        try {
+            preset = JSON.parse(preset);
+        } catch (err) {
+            alert(`Failed to load effect: ${err}.`);
+            return;
+        }
+    } else {
+        preset = preset.config;
     }
     flushEffectStack();
-
-    for (const { name, config } of parsed) {
+    console.log(preset);
+    for (const { name, config } of preset) {
         const mod = registry[name];
         if (!mod) {
             console.warn(`Unknown effect: ${name}`);

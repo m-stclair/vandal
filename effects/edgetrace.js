@@ -92,8 +92,8 @@ export default {
     ]
 };
 
-export const userMeta = {
-  group: "Edges",
+export const effectMeta = {
+  group: "Edge",
   tags: ["edges", "masking", "outline", "threshold"],
   description:
     "A binary edge detector using luminance gradients and thresholding. Outputs " +

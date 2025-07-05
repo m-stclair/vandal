@@ -77,7 +77,7 @@ function updateMorphFilter(filter, config) {
 }
 
 export const effectMeta = {
-  group: "Visual",
+  group: "Edge",
   tags: ["svg", "morphology", "binarize", "filter"],
   description: "Applies SVG-based morphological operations such as dilate and " +
       "erode. Best used on binary images, but can optionally threshold inline",

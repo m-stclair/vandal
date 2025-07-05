@@ -42,6 +42,11 @@ vec2 perlinNoise(vec2 uv, float fadeCoeffs[3], float seed) {
     float interpolatedX1 = lerp(dot01, dot11, fadeXY.x);
     float interpolatedX = lerp(interpolatedX0, interpolatedX1, fadeXY.y);
 
+    float interpolatedY0 = lerp(dot00, dot10, fadeXY.y);
+    float interpolatedY1 = lerp(dot01, dot11, fadeXY.y);
+    float interpolatedY = lerp(interpolatedY0, interpolatedY1, fadeXY.x);
+
+
     // Return the perlin noise value as a vec2
-    return vec2(interpolatedX, interpolatedX);// You can adjust the second value if needed
+    return vec2(interpolatedX, interpolatedY);// You can adjust the second value if needed
 }

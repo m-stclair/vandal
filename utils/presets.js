@@ -1,6 +1,7 @@
 // presets.js
 
 import {assertHas} from "./helpers.js";
+import {builtInPresets} from "../presets/app.js";
 
 const STORAGE_PREFIX = 'vandal';
 
@@ -8,23 +9,14 @@ function lsKey(...parts) {
     return [STORAGE_PREFIX, ...parts].join(':');
 }
 
-// Built-in effect stack presets (not stored in localStorage)
-const builtInPresets = [
-    {
-        name: 'Scanline Glow',
-        config: {/* full effect stack config object */}
-    },
-    {
-        name: 'Melty TV',
-        config: {/* another config */}
-    }
-];
 
 // ─── App-Wide Effect Stack Presets ─────────────────────────────────────────────
 
 function loadUserPresets() {
     const presets = {};
-    for (let i = 0; i < localStorage.length; i++) {
+    for (let i = 0; i < localStorage.length;
+         i++
+    ) {
         const key = localStorage.key(i);
         if (!key.startsWith(lsKey('app', 'presets'))) continue;
         try {

@@ -71,7 +71,7 @@ export default {
 
 
 export const effectMeta = {
-  group: "Analysis",
+  group: "Edge",
   tags: ["hillshade", "terrain", "cpu", "luminance"],
   description: "Computes a hillshaded relief effect from luminance gradients, " +
       "simulating directional lighting across a virtual surface.",

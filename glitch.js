@@ -508,11 +508,9 @@ async function appSetup() {
     await picker.ready;
     function toggleExpand() {
         if (picker.inSearchMode) {
-            console.log('bang: big!');
             stackHeader.style.flexShrink = '0';
             stackHeader.style.flexGrow = '2';
         } else {
-            console.log('bang: small!');
             stackHeader.style.flexShrink = '1';
             stackHeader.style.flexGrow = '1';
         }

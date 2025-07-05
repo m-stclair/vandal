@@ -78,3 +78,12 @@ export default {
     ],
     initHook: shaderStuff.initHook,
 }
+
+export const effectMeta = {
+  group: "Color",
+  tags: ["color", "rgb", "matrix", "webgl", "mix"],
+  description: "GPU-accelerated, channel mixer using a 3×3 matrix. " +
+      "Much faster than the CPU version for large images, but RGB-only",
+  canAnimate: false,
+  realtimeSafe: true,
+};

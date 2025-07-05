@@ -147,3 +147,12 @@ export const valmap = (fn, obj) =>
 
 export const keymap = (fn, obj) =>
   Object.fromEntries(Object.entries(obj).map(([k, v]) => [fn(k), v]));
+
+
+export function assertHas(obj, key, context = "") {
+  if (!(key in obj)) {
+    const summary = context ? ` in ${context}` : "";
+    throw new Error(`Expected key "${key}" to exist${summary}, but it was not found.`);
+  }
+  return obj[key]; // enables chaining
+}

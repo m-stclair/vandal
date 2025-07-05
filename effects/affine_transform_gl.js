@@ -88,5 +88,17 @@ export default {
         );
     },
 
-    initHook: shaderStuff.initHook
+    initHook: shaderStuff.initHook,
+
+
+
+}
+
+export const effectMeta = {
+  group: "Geometry",
+  tags: ["webgl", "geometry", "transform", "realtime"],
+  description: "Applies a GPU-accelerated affine transformation using a " +
+      "configurable matrix.",
+  canAnimate: true,
+  realtimeSafe: true,
 }

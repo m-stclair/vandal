@@ -91,3 +91,17 @@ export default {
         {type: "range", key: "threshold", label: "Threshold", min: 0, max: 1, step: 0.005}
     ]
 };
+
+export const userMeta = {
+  group: "Edges",
+  tags: ["edges", "masking", "outline", "threshold"],
+  description:
+    "A binary edge detector using luminance gradients and thresholding. Outputs " +
+      "sharp monochrome outlines ideal for use as masks or overlays. The edge " +
+      "direction, contrast, and blur radius can be modulated to fine-tune the " +
+      "trace. Works well as a pre-pass or compositing stage.",
+  backend: "cpu",
+  animated: true,  // due to modSlider
+  visual: false,
+  realtimeSafe: true,
+}

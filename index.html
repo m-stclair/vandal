@@ -14,7 +14,6 @@
 
 <div id="debug"></div>
 
-<!-- NEW TOP BAR -->
 <div id="topBar">
   <input type="file" id="upload" accept="image/*" />
   <button id="exportImage">📸 Export PNG</button>
@@ -55,16 +54,12 @@
     </div>
     <div id="dragBar"></div>
     <div id="rightPane">
-        <h2>Effect Settings</h2>
-        <div id="configForm"></div>
-        <h2>Effect Stack</h2>
-        <div id="effectStack"></div>
-        <div id="effectControls">
-            <label for="addEffect"></label>
-            <select id="addEffect"></select>
-            <button id="addEffectBtn">Add</button>
+        <div id="effectStackHeader"></div>
+        <div class="toggle-bar" id="toggle-stack-bar">
+            <span class="arrow">⇓ ⇓ ⇓ ⇓ ⇓ ⇓ ⇓ </span> <!-- Down arrow for expand -->
         </div>
-        <details id="stackPersistence">
+        <div id="effectStack"></div>
+        <details id="stackPersistence" style="display: none">
         <summary>Save / Load Stack</summary>
         <div class="stack-controls">
             <button id="save-stack">Copy JSON</button>

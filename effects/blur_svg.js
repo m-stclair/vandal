@@ -7,7 +7,7 @@ export default {
     },
 
     uiLayout: [
-        {type: "modSllider", key: "sigma", label: "Sigma", min: 1, max: 15, step: 1}
+        {type: "modSlider", key: "sigma", label: "Sigma", min: 1, max: 15, step: 1}
     ],
 
     styleHook(instance) {
@@ -36,3 +36,12 @@ export default {
     }
 }
 
+export const effectMeta = {
+  id: "banded_flip",
+  name: "Banded Flip",
+  group: "Distortion",
+  tags: ["bands", "invert", "temporal", "displacement"],
+  description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
+  backend: "cpu",
+  realtimeSafe: true,
+};

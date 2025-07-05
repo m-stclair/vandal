@@ -4,7 +4,7 @@ import {hsl2Rgb, rgb2Hsl} from "../utils/colorutils.js";
 
 /** @type {EffectModule} */
 export default {
-  name: "Threshcycle",
+  name: "Chromawave",
 
   defaultConfig: {
     threshold: 0.45,
@@ -31,8 +31,14 @@ apply(instance, data, width, height, t) {
   const satNorm = saturation / 100;
   const lightNorm = lightness / 100;
   const out = new Float32Array(data.length);
-  const period = 360 * hueSpread;
-  const hsNorm = hueShift * hueSpread;
+  let hsNorm, period;
+  if (cycleMode === "brightness") {
+    hsNorm = hueShift / 180 - 1;
+    period = hueSpread ** 0.8;
+  } else {
+    hsNorm = hueShift / 360 * (width + height) / 2;
+    period = 360 * hueSpread;
+  }
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = (y * width + x) * 4;
@@ -46,7 +52,7 @@ apply(instance, data, width, height, t) {
         let localHue;
         if (cycleMode === "brightness") {
           const norm = (intensity - threshold) / (1 - threshold);
-          localHue = (hsNorm + norm * period) % period;
+          localHue = (hsNorm + norm) % period;
         } else {
           localHue = (
               hsNorm
@@ -83,4 +89,16 @@ apply(instance, data, width, height, t) {
     { type: "range", key: "lightness", label: "Lightness", min: 0, max: 100, step: 1 },
     { type: "range", key: "bleed", label: "Bleed", min: 0, max: 1, step: 0.01 },
   ]
+};
+
+export const effectMeta = {
+  group: "Glitch",
+  tags: ["threshold", "chromatic", "cpu"],
+  description: "Recolors light areas of the image using a synthetic hue gradient, " +
+      "based on either spatial distance from the center or relative brightness. Dark areas are " +
+      "masked out. The hue field can radiate in concentric cycles (spatial mode) or encode " +
+      "brightness levels (brightness mode), with optional interpolation toward the original hue. " +
+      "Useful for creating radiant overlays, ink-on-pastel, false-color maps, or psychedelic sunburst effects.",
+  canAnimate: true,
+  realtimeSafe: true,
 };

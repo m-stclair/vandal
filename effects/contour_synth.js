@@ -190,5 +190,21 @@ export default {
             }
         }
         return outputData;
-        }
     }
+}
+
+export const effectMeta = {
+  group: "Synthesis",
+  tags: ["synth", "contour", "pattern", "generated", "animated"],
+  description: " A synthetic topography generator that overlays " +
+      "contour-line–like patterns onto images by modulating spatial " +
+      "derivatives of luminance. Contour spacing and directionality are driven " +
+      "by waveforms or spatial fields, enabling results that range from " +
+      "stark monochrome etchings to vibrant interference textures or " +
+      "hallucinatory landscape modulations. Behaves like a hybrid between an " +
+      "edge detector, a terrain visualizer, and a phase synth. Responsive to " +
+      "animation and extremely sensitive to parameter variation, making it " +
+      "ideal for dynamic, feedback-heavy compositions.",
+  canAnimate: true,
+  realtimeSafe: true,
+};

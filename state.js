@@ -4,6 +4,27 @@ import {normalizeImageData} from "./utils/imageutils.js";
 
 let effectStack = [];
 
+let selectedEffectId = "none";
+
+export function getSelectedEffectId() {
+    return selectedEffectId;
+}
+export function setSelectedEffectId(id) {
+    selectedEffectId = id;
+}
+
+export function toggleEffectSelection(fx) {
+    if (selectedEffectId === fx.id) {
+        selectedEffectId = "none";
+    } else {
+        selectedEffectId = fx.id;
+    }
+}
+
+export function isSelectedEffect(fx) {
+    return selectedEffectId === fx.id;
+}
+
 export function getEffectById(id) {
     const matches = effectStack.filter((fx) => fx.id === id);
     if (matches.length === 0) return null;

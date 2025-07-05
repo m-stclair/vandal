@@ -1,4 +1,4 @@
-import { makeSampler } from './shredutils.js';
+import { makeSampler } from '../utils/shredutils.js';
 import {resolveAnimAll} from "../utils/animutils.js";
 import {splitChannels} from "../utils/imageutils.js";
 import {val2Bin} from "../utils/mathutils.js";
@@ -67,6 +67,14 @@ export default {
     uiLayout: [
         { type: "modSlider", key: "density", label: "Density", min: 0, max: 0.99, step: 0.01 },
         { type: "modSlider", key: "nBins", label: "nBins", min: 2, max: 32, step: 1 },
-
     ]
+};
+
+export const effectMeta = {
+  group: "Glitch",
+  tags: ["glitch", "quantize", "color", "slow", "cpu"],
+  description: "Quantizes RGB channels codependently using joint histograms, " +
+      "producing palette-preserving colored noise. Very slow.",
+  canAnimate: true,
+  realtimeSafe: false,
 };

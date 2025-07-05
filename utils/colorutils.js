@@ -224,3 +224,30 @@ export function hsv2Rgb(h, s, v) {
 
     return [r, g, b];
 }
+
+export const colorSpaces = {
+    rgb: {
+        label: "RGB",
+        to: (r, g, b) => [r, g, b],
+        from: (x, y, z) => [x, y, z],
+        channelLabels: ["Red", "Green", "Blue"],
+    },
+    hsv: {
+        label: "HSV",
+        to: rgb2Hsv,
+        from: hsv2Rgb,
+        channelLabels: ["Hue", "Saturation", "Value"],
+    },
+    hsl: {
+        label: "HSL",
+        to: rgb2Hsl,
+        from: hsl2Rgb,
+        channelLabels: ["Hue", "Saturation", "Lightness"],
+    },
+    lab: {
+        label: "Lab",
+        to: rgb2Lab,
+        from: lab2Rgb,
+        channelLabels: ["L", "a", "b"],
+    },
+};

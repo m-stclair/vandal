@@ -34,3 +34,13 @@ export default {
         {type: "modSlider", key: "intensity", label: "Intensity", min: 0.1, max: 1, step: 0.1}
     ]
 }
+
+
+export const effectMeta = {
+  group: "Stylize",
+  tags: ["scanlines", "retro", "overlay", "cpu", "patterns"],
+  description: "Adds horizontal scanlines simulate CRT-style rendering artifacts.",
+  canAnimate: true,
+  realtimeSafe: true,
+};
+

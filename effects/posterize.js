@@ -100,3 +100,12 @@ export default {
         }
     ],
 }
+
+export const effectMeta = {
+  group: "Color",
+  tags: ["quantize", "posterize", "color", "cpu"],
+  description: "Configurable classic posterization. Reduces the number of " +
+      "available luminance or channel levels, with various quantization options.",
+  canAnimate: true,
+  realtimeSafe: true,
+};

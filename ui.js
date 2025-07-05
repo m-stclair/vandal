@@ -1,4 +1,5 @@
 import {gid} from "./utils/helpers.js";
+import {addUserPreset, listAppPresets, getAppPresetView, deleteUserPreset, updateAppPresets} from "./utils/presets.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");
@@ -49,54 +50,14 @@ export function moveEffectInStack(effectStack, from, to) {
     effectStack.splice(to, 0, moved);
 }
 
-export function setupEffectStackDragAndDrop(
-    effectStack,
-    clearRenderCache,
-    updateApp
-) {
-    effectStackElement.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", e.target.dataset.index);
-    });
-    effectStackElement.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        const target = e.target.closest("div");
-        if (target && effectStackElement.contains(target)) {
-            target.style.borderTop = "2px solid #999";
-        }
-    });
-    effectStackElement.addEventListener("dragleave", (e) => {
-        const target = e.target.closest("div");
-        if (target) target.style.borderTop = "";
-    });
-    effectStackElement.addEventListener("drop", (e) => {
-        e.preventDefault();
-        const from = parseInt(e.dataTransfer.getData("text/plain"), 10);
-        const toDiv = e.target.closest("div");
-        if (!toDiv) return;
-
-        const to = parseInt(toDiv.dataset.index, 10);
-        if (from === to) return;
-
-        moveEffectInStack(effectStack, from, to);
-
-        // invalidate cache
-        clearRenderCache()
-
-        // Rerender
-        updateApp();
-    });
-}
-
-
 // shared rendering objects
-
 export const canvas = document.getElementById('glitchCanvas');
 export const ctx = canvas.getContext("2d", {willReadFrequently: true});
 
 
 // top-level buttons
 const uploadButton = gid('upload');
-const addEffectButton = gid('addEffectBtn');
+// const addEffectButton = gid('addEffectBtn');
 const saveBtn = gid("save-stack");
 const loadBtn = gid("load-stack");
 const clearBtn = gid("clear-stack");
@@ -108,9 +69,11 @@ export function setupStaticButtons(
     loadState, registry, resetStack, update
 ) {
     uploadButton.addEventListener('change', handleUpload);
-    addEffectButton.addEventListener(
-        'click', async () => await addSelectedEffect()
-    );
+
+
+    // addEffectButton.addEventListener(
+    //     'click', async () => await addSelectedEffect()
+    // );
     saveBtn.addEventListener("click", () => {
         textarea.value = saveState();
         navigator.clipboard?.writeText(textarea.value).then(() =>
@@ -132,12 +95,12 @@ export function setupStaticButtons(
 export const addEffectSelect = gid('addEffect');
 
 export function buildEffectSelect(effectGroups) {
-
-    addEffectSelect.add(new Option("-- Add Effect --", "", true, true));
-    effectGroups.forEach(group => {
+    addEffectSelect.add(new Option("-- pick an effect --", "", true, true));
+    Object.entries(effectGroups).forEach((group) => {
+        const [label, effects] = group;
         const optgroup = document.createElement("optgroup");
-        optgroup.label = group.label;
-        group.effects.forEach(mod => {
+        optgroup.label = label;
+        effects.forEach(mod => {
             const opt = new Option(mod.name, mod.name);
             optgroup.appendChild(opt);
         });
@@ -145,17 +108,87 @@ export function buildEffectSelect(effectGroups) {
     });
 }
 
+export function initEffectBrowser(effectRegistry) {
+  const allTags = new Set();
+  Object.values(effectRegistry).forEach(entry => entry.meta.tags.forEach(tag => allTags.add(tag)));
+
+  const tagFilters = document.getElementById("tag-filters");
+  const effectList = document.getElementById("effect-list");
+  const searchInput = document.getElementById("searchInput");
+  let activeTags = new Set();
+
+  function renderTags() {
+    tagFilters.innerHTML = "";
+    allTags.forEach(tag => {
+      const div = document.createElement("div");
+      div.textContent = tag;
+      div.className = "tag";
+      if (activeTags.has(tag)) div.classList.add("active");
+      div.onclick = () => {
+        if (activeTags.has(tag)) activeTags.delete(tag);
+        else activeTags.add(tag);
+        renderEffectList();
+        renderTags();
+      };
+      tagFilters.appendChild(div);
+    });
+  }
+
+  function renderEffectList() {
+    const search = searchInput.value.toLowerCase();
+    effectList.innerHTML = "";
+    Object.values(effectRegistry).forEach(entry => {
+      const { name, meta } = entry;
+      const matchesSearch = name.toLowerCase().includes(search) || meta.description.toLowerCase().includes(search);
+      const matchesTags = [...activeTags].every(tag => meta.tags.includes(tag));
+      if (matchesSearch && matchesTags) {
+        const tile = document.createElement("div");
+        tile.className = "effect-tile";
+        tile.innerHTML = `<div class="effect-name">${name}</div><div class="effect-desc">${meta.description}</div>`;
+        tile.onclick = () => alert(`Selected: ${name}`);
+        effectList.appendChild(tile);
+      }
+    });
+  }
+
+  searchInput.oninput = renderEffectList;
+  renderTags();
+  renderEffectList();
+}
+
 // window setup (currently just resize trigger)
 export function setupWindow(resizeAndRedraw) {
     window.addEventListener('resize', resizeAndRedraw);
 }
 
+export function placeholderOption(text = "select") {
+    const nullOpt = document.createElement('option');
+    nullOpt.value = ""
+    nullOpt.textContent = text;
+    nullOpt.selected = true;
+    nullOpt.disabled = true;
+    nullOpt.hidden = true;
+    return nullOpt;
+}
 
-export function setupPresetUI(presetStore, updateSelect, getState, loadState, updateApp, registry) {
+function updatePresetSelect() {
+    updateAppPresets();
+    const select = document.getElementById('presetSelect');
+    select.innerHTML = '';
+
+    select.appendChild(placeholderOption("--- select preset ---"));
+    listAppPresets().forEach((name) => {
+        const opt = document.createElement('option');
+        opt.textContent = name;
+        select.appendChild(opt);
+    });
+}
+
+export function setupPresetUI(getState, loadState, updateApp, registry) {
 
     document.getElementById('presetLoad').onclick = () => {
         const name = document.getElementById('presetSelect').value;
-        const preset = presetStore.getAll().find(p => p.name === name);
+        const preset = getAppPresetView(name);
         if (preset) loadState(preset.config, registry);
         updateApp();
     };
@@ -164,16 +197,18 @@ export function setupPresetUI(presetStore, updateSelect, getState, loadState, up
         const name = prompt('Preset name?');
         if (!name) return;
         const config = getState();
-        presetStore.add(name, config);
-        updateSelect();
+        addUserPreset(name, config);
+        updateAppPresets();
+        updatePresetSelect();
     };
 
     document.getElementById('presetDelete').onclick = () => {
         const name = document.getElementById('presetSelect').value;
-        presetStore.delete(name);
-        updateSelect();
+        deleteUserPreset(name);
+        updateAppPresets();
+        updatePresetSelect();
     };
-    updateSelect();
+    updatePresetSelect();
 }
 
 export function setupExportImage() {

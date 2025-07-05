@@ -5,7 +5,7 @@ import {channelwise, normalizeRange, approxPercentileClip, stddevClip} from '../
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Stretch",
+    name: "Auto Levels",
 
     defaultConfig: {
         method: "percentile", // "minmax", "stddev"
@@ -74,4 +74,13 @@ export default {
             label: "Channelwise"
         }
     ]
+};
+
+export const effectMeta = {
+  group: "Utility",
+  tags: ["normalize", "stretch", "contrast", "cpu"],
+  description: "Adjusts dynamic range using percentile, sigma, or full-range " +
+      "linear stretch. Useful as pre- or post-processing for other effects.",
+  canAnimate: false,
+  realtimeSafe: true,
 };

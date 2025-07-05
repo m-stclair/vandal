@@ -92,5 +92,13 @@ export default {
         {type: 'checkbox', key: 'useB', label: 'Use B'},
         {type: 'checkbox', key: 'perlin', label: 'Perlin Mask'}
     ]
+};
 
+export const effectMeta = {
+  group: "Glitch",
+  tags: ["glitch", "sort", "cpu", "disruption", "stripe"],
+  description: "Performs directional pixel sorting based on channel-dependent brightness thresholds. '" +
+      "Can produce hard glitch streaks, gentle smearing, or luminous breathing effects.",
+  canAnimate: true,
+  realtimeSafe: false, // sorting is slow
 };

@@ -39,4 +39,17 @@ export default {
     uiLayout: [
         {type: "range", key: "intensity", label: "Intensity", min: 1, max: 5, step: 1}
     ],
+
+
+}
+
+export const effectMeta = {
+  id: "blur",
+  name: "Blur",
+  group: "Geometry",
+  tags: ["blur", "convolution", "cpu"],
+  description: "Applies a slow multi-pass separable blur on CPU.",
+  backend: "cpu",
+  canAnimate: false,
+  realtimeSafe: false,
 }

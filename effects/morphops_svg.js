@@ -75,3 +75,13 @@ function updateMorphFilter(filter, config) {
     <feBlend in="SourceGraphic" in2="out" mode="darken"/>
   `;
 }
+
+export const effectMeta = {
+  group: "Visual",
+  tags: ["svg", "morphology", "binarize", "filter"],
+  description: "Applies SVG-based morphological operations such as dilate and " +
+      "erode. Best used on binary images, but can optionally threshold inline",
+  backend: "cpu",
+  canAnimate: false,
+  realtimeSafe: true,
+};

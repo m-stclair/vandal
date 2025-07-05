@@ -94,5 +94,15 @@ export default {
         const filter = document.getElementById(dom_id);
         if (filter) filter.remove();
     }
-
 }
+
+export const effectMeta = {
+  group: "Stylize",
+  tags: ["warp", "noise", "svg", "displacement"],
+  description: "Applies a resonant noise field with an SVG filter. Can produce " +
+      "soft, organic noise or gentle mosaic effects.",
+  backend: "cpu",
+  kind: "visual",
+  canAnimate: false,
+  realtimeSafe: true,
+};

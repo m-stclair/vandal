@@ -65,5 +65,12 @@ export default {
         {'type': 'modSlider', 'key': 'offset', 'label': 'Offset', 'min': -32, 'max': 32, 'step': 1}
     ],
 
-
 };
+
+export const effectMeta = {
+  group: "Distortion",
+  tags: ["bands", "invert", "temporal", "displacement"],
+  description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
+  canAnimate: true,
+  realtimeSafe: true,
+}

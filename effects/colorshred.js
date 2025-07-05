@@ -1,4 +1,4 @@
-import {shred} from "./shredutils.js";
+import {shred} from "../utils/shredutils.js";
 import {hist1D, val2Bin} from "../utils/mathutils.js";
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -53,5 +53,11 @@ export default {
     ]
 }
 
-
+export const effectMeta = {
+  group: "Glitch",
+  tags: ["color", "displacement", "glitch", "stripe"],
+  description: "Probabilistically rebins in RGB space to create aggressive colored noise.",
+  canAnimate: true,
+  realtimeSafe: false,  // multiple histogram + sampler passes
+};
 

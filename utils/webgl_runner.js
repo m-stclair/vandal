@@ -177,8 +177,17 @@ export class WebGLRunner {
 }
 
 export async function loadShaderSource(url) {
+    if (url instanceof Array) return await collectShaderSource(url);
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to load shader: ${url}`);
     return await res.text();
+}
+
+export async function collectShaderSource(urls) {
+    const shaderPromises = urls.map(async (url) => {
+        return await loadShaderSource(url);
+    });
+    const shaders = await Promise.all(shaderPromises);
+    return shaders.join("\n\n");
 }
 

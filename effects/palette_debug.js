@@ -58,5 +58,13 @@ export default {
         instance.auxiliaryCache.palette = null;
         instance.auxiliaryCache.referenceImage = null;
     }
+};
 
+export const effectMeta = {
+  group: "Utility",
+  tags: ["palette", "debug", "cpu"],
+  description: "Takes a colormap or palette, optionally extracted from an image," +
+      "and displays it in a preview strip. Used for debugging or color inspection.",
+  canAnimate: false,
+  realtimeSafe: true,
 };

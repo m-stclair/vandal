@@ -76,3 +76,12 @@ export default {
     return copy;
   }
 }
+
+export const effectMeta = {
+  group: "Stylize",
+  tags: ["pixel", "quantize", "cpu", "lofi"],
+  description: "Reduces image resolution by averaging blocks of pixels, " +
+      "producing a pixelated appearance. Block size can be animated.",
+  canAnimate: true,
+  realtimeSafe: true,
+};

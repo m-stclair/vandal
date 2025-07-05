@@ -4,3 +4,4 @@ _*.js
 *.wasm
 *.mjs
 .idea/
+scratch*

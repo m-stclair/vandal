@@ -31,6 +31,7 @@ export default {
                 let srcX = tileX;
                 let srcY = tileY;
 
+
                 if (corrupt) {
                     const dx = Math.floor((Math.random() * 2 - 1) * maxOffset);
                     const dy = Math.floor((Math.random() * 2 - 1) * maxOffset);
@@ -64,5 +65,13 @@ export default {
         {type: "modSlider", key: "maxOffset", label: "Max Offset", min: 0, max: 32, step: 1},
         {type: "checkbox", key: "freezeTiles", label: "Freeze Tiles"}
     ],
+};
 
+export const effectMeta = {
+  group: "Glitch",
+  tags: ["tile", "offset", "glitch", "cpu", "displacement"],
+  description: "Divides the image into tiles and desynchronizes their positions. " +
+      "Can produce glassy noise, jittery breakup effects, and geometric confusion.",
+  canAnimate: true,
+  realtimeSafe: true,
 };

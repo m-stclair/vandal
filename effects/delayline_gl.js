@@ -110,3 +110,12 @@ export default {
 
     initHook: shaderStuff.initHook
 }
+
+export const effectMeta = {
+  group: "Geometry",
+  tags: ["blur", "delay", "temporal", "webgl", "kernel", "animated"],
+  description: "Applies a multi-sample spatial delay using a configurable kernel on GPU. " +
+      "Capable of motion blur, kaleidoscoping, and echoic distortion.",
+  canAnimate: true,
+  realtimeSafe: true,
+};

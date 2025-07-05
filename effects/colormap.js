@@ -50,3 +50,11 @@ export default {
         return out;
     }
 };
+
+export const effectMeta = {
+  group: "Color",
+  tags: ["color", "colormap", "lookup", "palette"],
+  description: "Applies a colormap transformation using a 1D palette LUT. Useful for remapping luminance or applying false color.",
+  canAnimate: false,
+  realtimeSafe: true,
+};

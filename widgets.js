@@ -155,7 +155,8 @@ function makeSlider({
 
         wrapper.appendChild(modFoldout);
 
-        const applyModState = () => {
+        const applyModState = (e) => {
+            e.stopPropagation();
             const modType = modSelect.value;
             const modulated = modType !== "none";
             input.disabled = modulated;
@@ -180,7 +181,8 @@ function makeSlider({
         );
     }
 
-    input.addEventListener("input", () => {
+    input.addEventListener("input", (e) => {
+        e.stopPropagation();
         const scaled = applyScaling(input.value, input.scale, input.scaleFactor);
         valueLabel.textContent = formatFloatWidth(scaled);
         if (typeof (config[key]) !== "object") {
@@ -244,7 +246,8 @@ function makeMatrixSlider({
             valueLabel.classList.add("slider-value");
             valueLabel.textContent = formatFloatWidth(slider.value);
 
-            slider.addEventListener("input", () => {
+            slider.addEventListener("input", (e) => {
+                e.stopPropagation();
                 const newVal = parseFloat(slider.value);
                 config[key][row][col] = newVal;
                 valueLabel.textContent = formatFloatWidth(newVal);

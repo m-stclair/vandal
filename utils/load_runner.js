@@ -9,7 +9,11 @@ export function makeShaderInit({fragURL, makeRunner}) {
             runner = makeRunner();
         }
         if (fragSource == null) {
-            fragSource = await loadShaderSource(fragURL.href);
+            const href =
+                fragURL instanceof URL
+                    ? fragURL.href
+                    : fragURL.map((url) => url.href)
+            fragSource = await loadShaderSource(href);
         }
     }
 

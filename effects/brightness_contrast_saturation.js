@@ -74,3 +74,11 @@ export default {
     ]
 }
 
+export const effectMeta = {
+  group: "Utility",
+  tags: ["color", "brightness", "contrast", "saturation"],
+  description: "Adjusts brightness, contrast, and saturation simultaneously in a single color pass.",
+  backend: "cpu",
+  canAnimate: true,
+  realtimeSafe: true,
+};

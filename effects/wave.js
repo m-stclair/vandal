@@ -44,3 +44,11 @@ export default {
         {type: "modSlider", key: "frequency", label: "Frequency", min: 0.1, max: 5, step: 0.1}
     ]
 }
+
+export const effectMeta = {
+  group: "Distortion",
+  tags: ["patterns", "distortion"],
+  description: "Distorts the image in regular wave patterns.",
+  canAnimate: true,
+  realtimeSafe: true,
+};

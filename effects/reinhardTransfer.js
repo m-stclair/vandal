@@ -79,3 +79,13 @@ export default {
         instance.auxiliaryCache.refLabs = null;
     }
 }
+
+export const effectMeta = {
+  group: "Color",
+  tags: ["tone", "transfer", "reinhard", "hdr", "slow", "cpu"],
+  description: "Applies a global tone mapping curve (Reinhard operator) from a " +
+      "sideloaded reference image. Can produce LUT-like behavior or provide dynamic " +
+      "range compression. Slow on large images.",
+  canAnimate: false,
+  realtimeSafe: false,
+};

@@ -1,3 +1,5 @@
+export type Int = number;
+
 export type UIControl =
     | {
     type: "range";
@@ -9,6 +11,44 @@ export type UIControl =
     steps?: number;
     scale?: "log" | "lin" | "exp";
     scaleFactor?: number;
+}
+| {
+    type: "modSlider";
+    key: string;
+    label?: string;
+    min: number;
+    max: number;
+    step?: number;
+    steps?: number;
+    scale?: "log" | "lin" | "exp";
+    scaleFactor?: number;
+}
+| {
+    type: "vector";
+    key: string;
+    label?: string;
+    min: number;
+    max: number;
+    step?: number;
+    steps?: number;
+    scale?: "log" | "lin" | "exp";
+    scaleFactor?: number;
+    subLabels: string[]; // must be of length === "length"
+    length: Int;
+}
+| {
+    type: "matrix";
+    key: string;
+    label?: string;
+    size: [Int, Int],
+    min: number;
+    max: number;
+    step?: number;
+    steps?: number;
+    scale?: "log" | "lin" | "exp";
+    scaleFactor?: number;
+    rowLabels: (config: ConfigObject) => string[];  // must have length === size[0]
+    colLabels: (config: ConfigObject) => string[];  // must have length === size[1]
 }
     | {
     type: "select";
@@ -22,22 +62,42 @@ export type UIControl =
     label?: string;
 };
 
+export type SVGUrl = string;
+
+export type ConfigPrimitive = number | boolean | string | null;
+export type ConfigObject = Record<string, ConfigPrimitive | Array<number>>;
+
+export type EffectPresetMap = {
+  [effectId: string]: {
+    [label: string]: ConfigObject;
+  };
+};
+
 
 export type BaseEffect = {
     name: string;
-    defaultConfig: object;
-    uiLayout: Array<UIControl>;
+    defaultConfig: ConfigObject;
+    uiLayout: UIControl[];
     cleanupHook?: (instance: EffectInstance) => void;
     initHook?: (instance: EffectInstance) => void;
 };
 
+export type ApplyFunc = (
+    instance: EffectInstance,
+    data: Float32Array,
+    width: Int,
+    height: Int,
+    t: number,
+    lastKey: string
+) => Float32Array;
+
 export type PixelEffect = BaseEffect & {
-    apply: (instance: EffectInstance, imageData: ImageData) => ImageData;
+    apply: ApplyFunc;
     styleHook?: never;
 };
 
 export type VisualEffect = BaseEffect & {
-    styleHook: (instance: EffectInstance) => string;
+    styleHook: (instance: EffectInstance) => SVGUrl;
     apply?: never;
 };
 
@@ -46,10 +106,11 @@ export type EffectModule = PixelEffect | VisualEffect;
 export interface EffectInstance {
     id: string;
     name: string;
-    config: Record<string, any>;
-    apply: (instance: EffectInstance, imageData: ImageData) => ImageData;
-    styleHook: (instance: EffectInstance, uuid: string) => string;
-    cleanupHook?: () => void;
+    config: ConfigObject;
+    apply?: ApplyFunc;
+    styleHook?: (instance: EffectInstance) => SVGUrl;
+    cleanupHook?: (instance: EffectInstance) => void;
+    initHook?: (instance: EffectInstance) => Promise<void> | void;
     uiLayout: UIControl[];
     disabled: boolean;
     // optional per-instance derived data cache
@@ -59,6 +120,39 @@ export interface EffectInstance {
     solo: boolean;
 }
 
+export interface EffectMeta {
+  id: string;
+  name: string;
+  group: string;
+  tags: string[];
+  description: string;
+  backend: "cpu" | "webgl" | "hybrid";
+  canAnimate: boolean; // Supports animation (e.g., modSliders exist)
+  animatedByDefault?: boolean; // Default config has non-zero mod depth or animation hook
+  realtimeSafe: boolean;
+  // Optional extensions
+  experimental?: boolean;
+  hidden?: boolean;
+  kind: "pixel" | "visual"
+}
+
+export interface RegistryEntry {
+  id: string;
+  name: string;
+  group: string;
+  tags: string[];
+  description: string;
+  backend: "cpu" | "webgl" | "hybrid";
+  animated: boolean;
+  realtimeSafe: boolean;
+  defaultConfig: ConfigObject;
+  uiLayout: UIControl[];
+  apply?: ApplyFunc;
+  styleHook?: (instance: EffectInstance) => SVGUrl;
+  cleanupHook?: (instance: EffectInstance) => void;
+  initHook?: (instance: EffectInstance) => Promise<void> | void;
+  meta: EffectMeta;
+}
 
 export type UniformDatum =
     | { type: "float", value: number }

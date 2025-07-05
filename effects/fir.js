@@ -70,3 +70,12 @@ export default {
     { type: "range", key: "nSamples", label: "Samples", min: 2, max: 200, step: 1 }
   ]
 };
+
+export const effectMeta = {
+  group: "Geometry",
+  tags: ["cpu", "filter", "convolution", "kernel"],
+  description: "Applies a general-purpose 2D FIR filter using a user-defined kernel. " +
+      "Useful for directional blur, edge enhancement, or abstract convolution effects.",
+  canAnimate: false,
+  realtimeSafe: false,  // heavy CPU convolution
+};

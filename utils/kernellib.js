@@ -63,6 +63,53 @@ export function annularKernel(rInner, rOuter, options = {}) {
   );
 }
 
+export function gaussianKernel(radius, options = {}) {
+  return makeKernel(
+    (x, y, r) => x * x + y * y <= r * r,  // Check if within radius
+    {
+      radius,
+      weightFn: (nx, ny) => Math.exp(-(nx * nx + ny * ny) / 2),  // Gaussian falloff
+      ...options
+    }
+  );
+}
+
+export function diamondKernel(size, options = {}) {
+  return makeKernel(
+    (x, y, r) => Math.abs(x) + Math.abs(y) <= r,  // Check for diamond shape
+    { radius: size / 2, ...options }
+  );
+}
+
+export function hexagonalKernel(size, options = {}) {
+  return makeKernel(
+    (x, y) => {
+      // Hexagonal grid check, no need for the unused `radius` argument
+      const q = (x * Math.sqrt(3) / 2 + y) / size;
+      const r = y / size;
+      return Math.abs(q - Math.round(q)) < 0.5 && Math.abs(r - Math.round(r)) < 0.5;
+    },
+    { radius: size, ...options }
+  );
+}
+
+export function spiralKernel(radius, options = {}) {
+  return makeKernel(
+    (x, y, r) => {
+      const distance = Math.sqrt(x * x + y * y);
+      const angle = Math.atan2(y, x);
+      return distance <= r;  // Ensure taps fall within radius
+    },
+    {
+      radius,
+      weightFn: (nx, ny) => Math.sin(Math.atan2(ny, nx)),  // Spiral weight decay
+      ...options
+    }
+  );
+}
+
+
+
 // === Utilities ===
 
 export function normalizeWeights(weights) {

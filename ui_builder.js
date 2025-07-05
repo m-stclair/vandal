@@ -1,7 +1,7 @@
 import widgets from "./widgets.js"
 
 // ui_builder.js
-export function buildUI(instance, container, config, update, layout, renderSettings) {
+export function buildUI(instance, container, config, update, layout) {
     container.innerHTML = ''; // Clear old UI
 
     // Group layout items by group key
@@ -121,7 +121,6 @@ export function buildUI(instance, container, config, update, layout, renderSetti
             if (type.toLowerCase() === 'select' || type.toLowerCase() === 'checkbox' || type.toLowerCase() === "referenceimage") {
                 widget.addEventListener('input', () => {
                     config[key] = widget.value;
-                    renderSettings();
                     update();
                 });
             }

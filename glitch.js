@@ -2,8 +2,8 @@ import {
     addEffectSelect,
     buildEffectSelect,
     canvas,
-    ctx, moveEffectInStack,
-    setupEffectStackDragAndDrop, setupExportImage,
+    ctx, moveEffectInStack, placeholderOption,
+    setupExportImage,
     setupPaneDrag, setupPresetUI,
     setupStaticButtons, setupVideoCapture, setupWindow
 } from "./ui.js";
@@ -25,14 +25,21 @@ import {
     loadState,
     makeEffectInstance,
     setResizedOriginalImage,
-    forEachActiveEffect, getActiveEffects, getEffectById, clearNormedImage, getNormedImage, getNormLoadID
+    getActiveEffects,
+    getEffectById,
+    clearNormedImage,
+    getNormedImage,
+    getNormLoadID,
+    getSelectedEffectId, toggleEffectSelection, isSelectedEffect
 } from "./state.js";
 import {formatFloatWidth, gid, hashObject} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
-import {effectGroups, effectRegistry} from "./effects/index.js";
+import {effectGroups, effectRegistry} from "./registry.js";
 import {resolveAnim} from "./utils/animutils.js";
-import {PresetStore} from "./utils/presets.js";
+import {listEffectPresets, getEffectPresetView, saveEffectPreset} from "./utils/presets.js";
 import {deNormalizeImageData} from "./utils/imageutils.js";
+
+import {EffectPicker} from './components/effectpicker.js';
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -52,8 +59,8 @@ function resizeAndRedraw() {
     const originalImage = getOriginalImage();
     if (!originalImage) return;
     const leftPane = document.getElementById('leftPane');
-    const width = leftPane.clientWidth - 25;  // subtract some padding
-    const height = window.innerHeight * 0.8;
+    const width = leftPane.clientWidth - 20;  // subtract some padding
+    const height = window.innerHeight * 0.9;
     let scale = Math.min(
         width / originalImage.width, height / originalImage.height
     );
@@ -68,7 +75,7 @@ function resizeAndRedraw() {
     setRenderedImage(ctx.getImageData(0, 0, w, h));
     setResizedOriginalImage(ctx.getImageData(0, 0, w, h));
     clearNormedImage();
-    updateApp();
+    renderImage();
 }
 
 let capturer = null, capturing = false;
@@ -113,11 +120,12 @@ function applyEffects(t = 0) {
     if (normedImage === null) return;
     const {width, height} = normedImage;
     let {data} = normedImage;
+    const anySolo = getEffectStack().some(fx => fx.solo);
     let hashChain = `top-${width}-${height}-${getNormLoadID()}`;
     let priorHash = hashChain;
     forEachEffect((fx) => {
         if (!fx.apply) return;
-        if (fx.disabled) {
+        if (fx.disabled || (anySolo && !fx.solo)) {
             hashChain += `${fx.name}-${fx.id}-disabled`;
             priorHash = hashChain;
             return;
@@ -168,39 +176,14 @@ function updateVisualStyles() {
 
 let rafPending = false;
 
-function debouncedApply() {
+function debouncedRender() {
     if (rafPending) return;
     rafPending = true;
 
     requestAnimationFrame(() => {
-        updateApp();
+        renderImage();
         rafPending = false;
     });
-}
-
-function addEffectDropTarget(effectStack, stackContainer, i) {
-    const dropZone = document.createElement("div");
-    dropZone.className = "drop-zone";
-    dropZone.dataset.index = i;
-    dropZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropZone.classList.add("drop-hover");
-    });
-    dropZone.addEventListener("dragleave", () => {
-        dropZone.classList.remove("drop-hover");
-    });
-    dropZone.addEventListener("drop", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-        const toIndex = parseInt(dropZone.dataset.index, 10);
-        if (!isNaN(fromIndex) && fromIndex !== toIndex) {
-            moveEffectInStack(effectStack, fromIndex, toIndex);
-            clearRenderCache();
-            updateApp();
-        }
-    });
-    stackContainer.appendChild(dropZone);
 }
 
 function createLabelEditor(fx) {
@@ -209,7 +192,13 @@ function createLabelEditor(fx) {
     label.textContent = fx.label || fx.name;
     label.contentEditable = false;
     label.spellcheck = false;
-    label.addEventListener("focus", () => {
+    label.addEventListener("click", (e) => {
+        if (label.classList.contains("editing")) {
+            e.stopPropagation();
+        }
+    });
+    label.addEventListener("focus", (e) => {
+        e.stopPropagation();
         label.classList.add("editing");
     });
     label.addEventListener("blur", () => {
@@ -226,7 +215,7 @@ function createLabelEditor(fx) {
             label.textContent = fx.label;
             label.blur();
         }
-    });
+    })
 
     const pencil = document.createElement("button");
     pencil.className = "editButton";
@@ -238,13 +227,51 @@ function createLabelEditor(fx) {
         label.focus();
     });
 
+    const presetDropdown = document.createElement('select');
+    presetDropdown.appendChild(placeholderOption("Preset"));
+    listEffectPresets(fx.name).forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        presetDropdown.appendChild(opt);
+    });
+
+    presetDropdown.addEventListener('click', e => {
+        e.stopPropagation()
+    });
+
+
+    presetDropdown.addEventListener('change', e => {
+        e.stopPropagation()
+        const selected = e.target.value;
+        const preset = getEffectPresetView(fx.name, selected);
+        if (preset) {
+            Object.assign(fx.config, structuredClone(preset));
+            renderImage();
+        }
+    });
+
+    const savePresetBtn = document.createElement("button");
+    savePresetBtn.innerHTML = "💾"
+    savePresetBtn.className = "save-effect-preset-btn";
+    savePresetBtn.addEventListener('click', e => {
+        e.stopPropagation()
+        saveEffectPreset(fx.name, label.textContent, structuredClone(fx.config));
+        const newOpt = document.createElement('option');
+        newOpt.value = label.textContent;
+        newOpt.textContent = label.textContent;
+        presetDropdown.appendChild(newOpt);
+    });
+
     const labelWrapper = document.createElement("div");
     labelWrapper.className = "labelWrapper";
-    labelWrapper.append(label, pencil);
+    labelWrapper.append(label, pencil, presetDropdown, savePresetBtn);
     return labelWrapper;
 }
 
-function createControlGroup(fx, effectStack, i, configContainer) {
+function createControlGroup(fx, effectStack, i,
+                            // configContainer
+) {
     const enableToggle = document.createElement('input');
     enableToggle.type = 'checkbox';
     enableToggle.classList.add("enableToggle");
@@ -257,7 +284,7 @@ function createControlGroup(fx, effectStack, i, configContainer) {
     });
     enableToggle.addEventListener('change', () => {
         fx.disabled = !enableToggle.checked;
-        updateApp();
+        renderImage();
     });
 
     const soloToggle = document.createElement("input");
@@ -281,7 +308,7 @@ function createControlGroup(fx, effectStack, i, configContainer) {
         } else {
             fx.solo = false;
         }
-        updateApp();
+        renderImage();
     });
 
     const upBtn = document.createElement("button");
@@ -321,7 +348,7 @@ function createControlGroup(fx, effectStack, i, configContainer) {
 
     const delBtn = document.createElement('button');
     delBtn.textContent = '×';
-    delBtn.className = "efectButton";
+    delBtn.className = "effectButton";
     delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (fx.cleanupHook) {
@@ -329,7 +356,7 @@ function createControlGroup(fx, effectStack, i, configContainer) {
         }
         effectStack.splice(i, 1);
         clearRenderCache();
-        configContainer.innerHTML = '';
+        // configContainer.innerHTML = '';
         updateApp();
     });
 
@@ -339,53 +366,65 @@ function createControlGroup(fx, effectStack, i, configContainer) {
     return controlGroup;
 }
 
-function decorateRow(row, fx, i, effectStack) {
-    row.setAttribute("draggable", true);
-    row.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", i.toString());
-    });
+//
+// function addDragListener(card, fx, i) {
+//     card.setAttribute("draggable", true);
+//     card.addEventListener("dragstart", (e) => {
+//         e.dataTransfer.setData("text/plain", i.toString());
+//     });
+// }
+
+function decorateForSolo(card, fx, effectStack) {
     const anySolo = effectStack.some(f => f.solo);
     if (anySolo) {
-        row.classList.toggle("soloed", fx.solo);
-        row.classList.toggle("unsoloed", !fx.solo);
+        card.classList.toggle("soloed", fx.solo);
+        card.classList.toggle("unsoloed", !fx.solo);
     } else {
-        row.classList.remove("soloed", "unsoloed");
+        card.classList.remove("soloed", "unsoloed");
     }
 }
 
 function renderEffectInStackUI(fx, i) {
-    const configContainer = gid("configForm");
     const stackContainer = gid('effectStack');
-    const effectStack = getEffectStack();
-    const row = document.createElement('div');
-    row.className = "effectRow";
-    row.dataset.index = i;
-
-    function renderSettings() {
-        buildUI(fx, configContainer, fx.config,
-            debouncedApply, fx.uiLayout, renderSettings);
-        renderStackUI();
+    // Main card container
+    const card = document.createElement('div');
+    card.className = 'effect-card';
+    if (fx.id === getSelectedEffectId()) {
+        card.classList.add('expanded');
     }
-
-    row.addEventListener("click", () => renderSettings());
+    // Header
+    const header = document.createElement('div');
+    header.className = 'effect-header';
+    header.addEventListener('click', () => {
+        toggleEffectSelection(fx);
+        renderStackUI();
+    });
+    const effectStack = getEffectStack();
     const labelWrapper = createLabelEditor(fx);
     const controlGroup = createControlGroup(
-        fx, effectStack, i, configContainer
+        fx, effectStack, i,
+        // configContainer
     );
-    const header = document.createElement("div");
-    header.className = "effectHeader";
     header.append(labelWrapper, controlGroup);
-    row.appendChild(header);
-    decorateRow(row, fx, i, effectStack);
-    stackContainer.appendChild(row);
+    card.appendChild(header);
+    if (isSelectedEffect(fx)) {
+        const configContainer = document.createElement('div');
+        configContainer.className = 'effect-config';
+        buildUI(fx, configContainer, fx.config,
+            debouncedRender, fx.uiLayout);
+        card.appendChild(configContainer);
+    }
+    // addDragListener(card, fx, i);
+    decorateForSolo(card, fx, effectStack);
+    stackContainer.appendChild(card);
 }
+
 
 function renderStackUI() {
     const stackContainer = gid('effectStack');
     stackContainer.innerHTML = '';
     const effectStack = getEffectStack();
     for (let i = 0; i <= effectStack.length; i++) {
-        addEffectDropTarget(effectStack, stackContainer, i);
         if (i >= effectStack.length) return;
         renderEffectInStackUI(effectStack[i], i);
     }
@@ -422,8 +461,7 @@ function tick(now) {
 }
 
 
-function updateApp() {
-    renderStackUI();
+function renderImage() {
     applyEffects();
     updateVisualStyles();
     const animShouldBeRunning = isAnimationActive();
@@ -434,6 +472,11 @@ function updateApp() {
     } else if (!animShouldBeRunning && animating) {
         animating = false;
     }
+}
+
+function updateApp() {
+    renderStackUI();
+    renderImage();
 }
 
 function resetStack() {
@@ -449,42 +492,66 @@ function resetStack() {
     updateApp();
 }
 
-async function addSelectedEffect() {
-    const selected = addEffectSelect.value;
-    if (!selected) return;
-    const fx = makeEffectInstance(effectRegistry[selected]);
+async function addSelectedEffect(effectName) {
+    if (!effectName) return;
+    const fx = makeEffectInstance(effectRegistry[effectName]);
     await fx.ready;
     addEffectToStack(fx);
-    addEffectSelect.value = '';
     clearRenderCache()
     updateApp();
 }
 
-function updatePresetSelect() {
-    const select = document.getElementById('presetSelect');
-    select.innerHTML = '';
-    for (const {name} of PresetStore.getAll()) {
-        const opt = document.createElement('option');
-        opt.textContent = name;
-        select.appendChild(opt);
+async function appSetup() {
+    const stackHeader = document.getElementById("effectStackHeader")
+    const picker = document.createElement("effect-picker")
+    stackHeader.appendChild(picker);
+    await picker.ready;
+    function toggleExpand() {
+        if (picker.inSearchMode) {
+            console.log('bang: big!');
+            stackHeader.style.flexShrink = '0';
+            stackHeader.style.flexGrow = '2';
+        } else {
+            console.log('bang: small!');
+            stackHeader.style.flexShrink = '1';
+            stackHeader.style.flexGrow = '1';
+        }
     }
-}
+    picker.setEffectSelectCallback(
+        async (effectName) => {
+            await addSelectedEffect(effectName);
+            toggleExpand();
+        }
+    );
+    ["input", "keydown"].forEach(
+        (eType) => stackHeader.addEventListener(
+            eType, (e) => {
+                if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
+                    toggleExpand();
+                }
+            }
+        )
+    )
+    const toggleBar = document.getElementById('toggle-stack-bar');
+    const effectStack = document.getElementById('effectStack');
 
-function appSetup() {
-    setupStaticButtons(
+    toggleBar.addEventListener('click', function() {
+        effectStack.classList.toggle('collapsed');
+        toggleBar.classList.toggle('collapsed');
+    });
+
+
+    await setupStaticButtons(
         handleUpload,
         addSelectedEffect,
         saveState,
         loadState,
         effectRegistry,
         resetStack,
-        updateApp
+        updateApp,
+        renderImage
     );
-    setupPresetUI(PresetStore, updatePresetSelect, saveState, loadState, updateApp, effectRegistry);
-    buildEffectSelect(effectGroups);
-    setupEffectStackDragAndDrop(
-        getEffectStack(), clearRenderCache, updateApp
-    )
+    setupPresetUI(saveState, loadState, updateApp, effectRegistry);
     setupExportImage();
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
@@ -492,4 +559,5 @@ function appSetup() {
 
 }
 
-appSetup();
+await appSetup();
+

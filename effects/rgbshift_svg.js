@@ -86,3 +86,13 @@ export default {
         if (filter) filter.remove();
     }
 };
+
+export const effectMeta = {
+  group: "Stylize",
+  tags: ["rgb", "shift", "displacement", "svg", "color"],
+  description: "Shifts R, G, and B channels independently using SVG filters " +
+      "to create a chromatic aberration effect.",
+  backend: "cpu",
+  kind: "visual",
+  realtimeSafe: true,
+};

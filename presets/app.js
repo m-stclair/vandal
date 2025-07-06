@@ -268,7 +268,7 @@ export const builtInPresets = [
             {
                 "name": "Chromawave",
                 "config": {
-                    "threshold": 0.675,
+                    "threshold": 0.48,
                     "cycle": true,
                     "cycleMode": "brightness",
                     "hueShift": 208,
@@ -281,14 +281,13 @@ export const builtInPresets = [
             {
                 "name": "Perlin Distort (GL)",
                 "config": {
-                    "pitchX": 1.3,
+                    "boundMode": "clamp",
+                    "pitchX": -0.98,
                     "pitchY": -0.76,
-                    "rollX": 1.66,
-                    "rollY": 0.5,
-                    "freqX": 2,
-                    "freqY": 5,
+                    "freqX": 5.722920576554524,
+                    "freqY": 0.25257086810163276,
                     "seed": 143,
-                    "depth": 0.08,
+                    "depth": 0.06,
                     "rate": 1.9581181956675286,
                     "rateDrive": 0,
                     "fc": [
@@ -296,7 +295,13 @@ export const builtInPresets = [
                         9.75,
                         15.75
                     ],
-                    "boundMode": "fract"
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0,
+                    "rollX": 1.66,
+                    "rollY": 0.5
                 }
             }
         ]

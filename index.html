@@ -17,6 +17,10 @@
 <div id="topBar">
   <input type="file" id="upload" accept="image/*" />
   <button id="exportImage">📸 Export PNG</button>
+  <select id="exportImageResolution">
+    <option value="screen" selected>Screen-Res</option>
+    <option value="full">Full-Res</option>
+  </select>
   <details id="exportControls">
       <summary>🎞 Export Video</summary>
       <div class="export-group">
@@ -75,7 +79,7 @@
 </div>
 <div id="captureOverlay" style="display: none">
   <div class="overlayMessage">
-    <p>🎥 Recording…</p>
+    <p id="overlayMessageP"></p>
     <button id="stopCaptureOverlay">⏹ Stop</button>
   </div>
 </div>

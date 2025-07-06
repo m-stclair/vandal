@@ -30,7 +30,8 @@ const effectFiles = [
     "affine_transform_gl.js",
     "channelmixer_rgb_gl.js",
     "channelmixer.js",
-    "perlin_distort_gl.js"
+    "perlin_distort_gl.js",
+    "noisemixer_gl.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 
@@ -54,6 +55,9 @@ for (const effect of Object.values(effectRegistry)) {
   effectGroups[group].push(effect);
 }
 
+console.log("effect registry")
+console.log(Object.values(effectRegistry))
+console.log("effect metadata")
 console.log(Object.values(effectRegistry).map((v) => v.meta));
 
 /** @typedef {import('./glitchtypes.ts').EffectModule} EffectModule */

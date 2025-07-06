@@ -4,7 +4,7 @@ import {makeShaderInit} from "../utils/load_runner.js";
 
 const fragURL = [
     new URL("../shaders/perlin_distort.frag", import.meta.url),
-    new URL("../shaders/perlin.frag", import.meta.url),
+    new URL("../shaders/noise.frag", import.meta.url),
 ]
 fragURL[0].searchParams.set("v", Date.now());
 fragURL[1].searchParams.set("v", Date.now());
@@ -35,7 +35,6 @@ export default {
     },
 
     uiLayout: [
-
         {key: "seed", label: "Seed", type: "range", min: 0, max: 200, step: 1},
         {key: "depth", label: "Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: "rate", label: "Rate", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
@@ -77,7 +76,6 @@ export default {
             u_rate: {value: rate, type: "float"},
             u_ratedrive: {value: rateDrive, type: "float"},
             u_boundmode: {value: boundCode, type: "int"},
-
         };
         return shaderStuff.runner.run(
             shaderStuff.fragSource, uniformSpec, data, width, height, inputKey

@@ -78,7 +78,6 @@ export class WebGLRunner {
 
     run(fragmentSource, uniformSpec, texture, width, height, inputKey) {
         const gl = this.gl;
-
         // Resize canvas and output texture if necessary
         this.canvas.width = width;
         this.canvas.height = height;

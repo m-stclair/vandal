@@ -7,7 +7,7 @@ export default {
 
   defaultConfig: {
     blockSize: 8,
-    sampleStrategy: 'average', // 'average' | 'center' | 'corner'
+    sampleStrategy: 'center', // 'average' | 'center' | 'corner'
     preserveAlpha: true
   },
 

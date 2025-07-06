@@ -1,4 +1,4 @@
-import {canvas, ctx} from "./ui.js";
+import {canvas, defaultCtx} from "./ui.js";
 import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
 
@@ -81,9 +81,9 @@ export function renderCacheGet(k) {
 // currently-rendered imageData in canvas
 let renderedImage = null;
 
-export function setRenderedImage(img) {
+export function setRenderedImage(img, context=defaultCtx) {
     renderedImage = img;
-    ctx.putImageData(img, 0, 0);
+    context.putImageData(img, 0, 0);
 }
 
 export function getRenderedImage() {
@@ -136,8 +136,8 @@ export function clearNormedImage() {
 
 // canvas property modification
 
-export function setFilters(filters) {
-    canvas.style.filter = filters;
+export function setFilters(filters, cvs=canvas) {
+    cvs.style.filter = filters;
 }
 
 // config UI clearing
@@ -176,7 +176,7 @@ export function saveState() {
     }))
 }
 
-export function loadState(preset, registry, fromJSON=true) {
+export async function loadState(preset, registry, fromJSON=true) {
     if (fromJSON) {
         try {
             preset = JSON.parse(preset);
@@ -188,7 +188,6 @@ export function loadState(preset, registry, fromJSON=true) {
         preset = preset.config;
     }
     flushEffectStack();
-    console.log(preset);
     for (const { name, config } of preset) {
         const mod = registry[name];
         if (!mod) {
@@ -196,6 +195,7 @@ export function loadState(preset, registry, fromJSON=true) {
             continue;
         }
         const instance = makeEffectInstance(mod);
+        await instance.ready;
         instance.config = { ...mod.defaultConfig, ...config };
         addEffectToStack(instance);
     }

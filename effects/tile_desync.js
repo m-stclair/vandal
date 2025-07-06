@@ -12,8 +12,7 @@ export default {
         freezeTiles: false  // placeholder; not used yet
     },
 
-    apply(instance, imageData) {
-        const {width, height, data} = imageData;
+    apply(instance, data, width, height, t) {
         const {
             tileSize,
             corruptionRate,

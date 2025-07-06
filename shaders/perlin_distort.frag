@@ -12,14 +12,14 @@ uniform float u_depth;
 uniform float u_rate;
 uniform float u_ratedrive;
 
-vec2 perlinNoise(vec2 uv, float fadeCoeffs[3], float seed);
+vec2 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float seed);
 
 void main() {
     vec2 uv = (gl_FragCoord.xy ) / u_resolution;
     if (u_ratedrive > 0.) {
         uv = uv * (1. - u_ratedrive) + sin(uv * u_rate) * u_ratedrive;
     }
-    vec2 noiseValue = perlinNoise(
+    vec2 noiseValue = perlinNoise2D(
         uv * u_yaw + u_pitch, u_fc, u_seed
     );
     vec2 displacement;

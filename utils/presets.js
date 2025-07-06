@@ -133,3 +133,7 @@ export {
     listEffectPresets,
     deleteEffectPreset
 };
+
+
+console.log("app presets")
+console.log(appPresets)

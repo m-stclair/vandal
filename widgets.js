@@ -137,7 +137,7 @@ function makeSlider({
 
         const depth = makeSubSlider("Depth", value?.mod?.scale ?? safeDepth, 0, safeDepth);
         const bias = makeSubSlider("Bias", value?.mod?.offset ?? safeBias, min ?? 0, max ?? 1);
-        const freq = makeSubSlider("Rate", value?.mod?.freq ?? 0.5, 0.01, 5, 0.01);
+        const freq = makeSubSlider("Rate", value?.mod?.freq ?? 0.5, 0.01, 4, 0.01);
         const rangeModeSelect = document.createElement("select");
         ["bipolar", "unipolar"].forEach(mode => {
             const opt = document.createElement("option");
@@ -272,169 +272,169 @@ function makeMatrixSlider({
     return wrapper;
 }
 
-    function makeVectorSlider({
-                                  key,
-                                  label,
-                                  value,
-                                  length = 3,
-                                  min = 0,
-                                  max = 1,
-                                  step = 0.01,
-                                  scale,
-                                  scaleFactor,
-                                  steps,
-                                  modulate = false,
-                                  subLabels = ["X", "Y", "Z"],
-                                  config,
-                                  update,
-                                  id
-                              }) {
-        subLabels = typeof subLabels === "function" ? subLabels(config) : subLabels
-        const wrapper = makeField();
-        wrapper.dataset.key = key;
-        if (id) wrapper.dataset.fxId = id;
+function makeVectorSlider({
+                              key,
+                              label,
+                              value,
+                              length = 3,
+                              min = 0,
+                              max = 1,
+                              step = 0.01,
+                              scale,
+                              scaleFactor,
+                              steps,
+                              modulate = false,
+                              subLabels = ["X", "Y", "Z"],
+                              config,
+                              update,
+                              id
+                          }) {
+    subLabels = typeof subLabels === "function" ? subLabels(config) : subLabels
+    const wrapper = makeField();
+    wrapper.dataset.key = key;
+    if (id) wrapper.dataset.fxId = id;
 
-        const lElement = document.createElement("label");
-        lElement.textContent = label ?? key;
-        wrapper.appendChild(lElement);
+    const lElement = document.createElement("label");
+    lElement.textContent = label ?? key;
+    wrapper.appendChild(lElement);
 
-        const row = document.createElement("div");
-        row.classList.add("vector-slider-row");
+    const row = document.createElement("div");
+    row.classList.add("vector-slider-row");
 
-        for (let i = 0; i < length; i++) {
-            const subLabel = subLabels[i] ?? `#${i}`;
-            const slider = document.createElement("input");
-            slider.type = "range";
-            slider.min = min;
-            slider.max = max;
-            slider.step = step;
-            slider.value = value[i];
+    for (let i = 0; i < length; i++) {
+        const subLabel = subLabels[i] ?? `#${i}`;
+        const slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = min;
+        slider.max = max;
+        slider.step = step;
+        slider.value = value[i];
 
-            const valueLabel = document.createElement("span");
-            valueLabel.classList.add("slider-value");
+        const valueLabel = document.createElement("span");
+        valueLabel.classList.add("slider-value");
+        valueLabel.textContent = formatFloatWidth(slider.value);
+
+        slider.addEventListener("input", () => {
+            config[key][i] = parseFloat(slider.value);
             valueLabel.textContent = formatFloatWidth(slider.value);
-
-            slider.addEventListener("input", () => {
-                config[key][i] = parseFloat(slider.value);
-                valueLabel.textContent = formatFloatWidth(slider.value);
-                update();
-            });
-
-            const container = document.createElement("div");
-            container.classList.add("sub-slider-container");
-
-            const labelEl = document.createElement("span");
-            labelEl.textContent = subLabel;
-
-            container.append(labelEl, slider, valueLabel);
-            row.appendChild(container);
-        }
-
-        wrapper.appendChild(row);
-        return wrapper;
-    }
-
-    function Checkbox({key, label, value}) {
-        const wrapper = makeField();
-
-        const lElement = document.createElement('label');
-        lElement.className = 'checkbox-label';
-
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.checked = value;
-        input.name = key
-
-        lElement.appendChild(input);
-        lElement.append(` ${label}`);
-        wrapper.appendChild(lElement);
-
-        Object.defineProperty(wrapper, 'value', {
-            'get': () => input.checked
-        })
-        input.addEventListener('input', () => {
-            wrapper.dispatchEvent(new Event('input'));
+            update();
         });
 
-        return wrapper;
-    }
-
-    function Select({key, label, options, value}) {
-        const wrapper = makeField();
-
-        const lElement = document.createElement('label');
-        lElement.textContent = label || key;
-        wrapper.appendChild(lElement);
-
-        const select = document.createElement('select');
-
-        for (const opt of options) {
-            const {value: val, label: lbl} =
-                typeof opt === "string" ? {value: opt, label: opt} : opt;
-            const o = document.createElement('option');
-            o.value = val;
-            o.textContent = lbl;
-            if (val === value) o.selected = true;
-            select.appendChild(o);
-        }
-
-        select.name = key;
-        lElement.appendChild(select);
-
-        Object.defineProperty(wrapper, 'value', {
-            get: () => select.value
-        });
-
-        select.addEventListener('input', () =>
-            wrapper.dispatchEvent(new Event('input'))
-        );
-
-        return wrapper;
-    }
-
-    function ReferenceImage(key, labelText, instance, onChange) {
         const container = document.createElement("div");
-        container.className = "widget";
+        container.classList.add("sub-slider-container");
 
-        const label = document.createElement("label");
-        label.textContent = labelText || "Reference Image";
+        const labelEl = document.createElement("span");
+        labelEl.textContent = subLabel;
 
-        const input = document.createElement("input");
-        input.type = "file";
-        input.accept = "image/*";
-
-        input.addEventListener("change", async () => {
-            const file = input.files?.[0];
-            if (!file) return;
-
-            const imageBitmap = await createImageBitmap(file);
-            const canvas = document.createElement("canvas");
-            canvas.width = imageBitmap.width;
-            canvas.height = imageBitmap.height;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(imageBitmap, 0, 0);
-            const fullImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            instance.auxiliaryCache.referenceImage = await downsampleImageData(fullImage);
-            instance.config[key] = imageDataHash(instance.auxiliaryCache.referenceImage);
-        })
-        container.appendChild(label);
-        container.appendChild(input);
-        return container;
+        container.append(labelEl, slider, valueLabel);
+        row.appendChild(container);
     }
 
+    wrapper.appendChild(row);
+    return wrapper;
+}
 
-    export default {
-        formatFloatWidth,
-        makeSlider,
-        makeMatrixSlider,
-        makeVectorSlider,
-        Select,
-        Checkbox,
-        ReferenceImage,
-        Range(opts) {
-            return makeSlider({...opts, modulate: false});
-        },
-        makeModSlider(opts) {
-            return makeSlider({...opts, modulate: true});
-        },
-    };
+function Checkbox({key, label, value}) {
+    const wrapper = makeField();
+
+    const lElement = document.createElement('label');
+    lElement.className = 'checkbox-label';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = value;
+    input.name = key
+
+    lElement.appendChild(input);
+    lElement.append(` ${label}`);
+    wrapper.appendChild(lElement);
+
+    Object.defineProperty(wrapper, 'value', {
+        'get': () => input.checked
+    })
+    input.addEventListener('input', () => {
+        wrapper.dispatchEvent(new Event('input'));
+    });
+
+    return wrapper;
+}
+
+function Select({key, label, options, value}) {
+    const wrapper = makeField();
+
+    const lElement = document.createElement('label');
+    lElement.textContent = label || key;
+    wrapper.appendChild(lElement);
+
+    const select = document.createElement('select');
+
+    for (const opt of options) {
+        const {value: val, label: lbl} =
+            typeof opt === "string" ? {value: opt, label: opt} : opt;
+        const o = document.createElement('option');
+        o.value = val;
+        o.textContent = lbl;
+        if (val === value) o.selected = true;
+        select.appendChild(o);
+    }
+
+    select.name = key;
+    lElement.appendChild(select);
+
+    Object.defineProperty(wrapper, 'value', {
+        get: () => select.value
+    });
+
+    select.addEventListener('input', () =>
+        wrapper.dispatchEvent(new Event('input'))
+    );
+
+    return wrapper;
+}
+
+function ReferenceImage(key, labelText, instance, onChange) {
+    const container = document.createElement("div");
+    container.className = "widget";
+
+    const label = document.createElement("label");
+    label.textContent = labelText || "Reference Image";
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.addEventListener("change", async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+
+        const imageBitmap = await createImageBitmap(file);
+        const canvas = document.createElement("canvas");
+        canvas.width = imageBitmap.width;
+        canvas.height = imageBitmap.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(imageBitmap, 0, 0);
+        const fullImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        instance.auxiliaryCache.referenceImage = await downsampleImageData(fullImage);
+        instance.config[key] = imageDataHash(instance.auxiliaryCache.referenceImage);
+    })
+    container.appendChild(label);
+    container.appendChild(input);
+    return container;
+}
+
+
+export default {
+    formatFloatWidth,
+    makeSlider,
+    makeMatrixSlider,
+    makeVectorSlider,
+    Select,
+    Checkbox,
+    ReferenceImage,
+    Range(opts) {
+        return makeSlider({...opts, modulate: false});
+    },
+    makeModSlider(opts) {
+        return makeSlider({...opts, modulate: true});
+    },
+};

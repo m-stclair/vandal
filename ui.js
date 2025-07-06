@@ -58,7 +58,7 @@ export function moveEffectInStack(effectStack, from, to) {
 
 // shared rendering objects
 export const canvas = document.getElementById('glitchCanvas');
-export const ctx = canvas.getContext("2d", {willReadFrequently: true});
+export const defaultCtx = canvas.getContext("2d", {willReadFrequently: true});
 
 
 // top-level buttons
@@ -192,10 +192,10 @@ function updatePresetSelect() {
 
 export function setupPresetUI(getState, loadState, updateApp, registry) {
 
-    document.getElementById('presetLoad').onclick = () => {
+    document.getElementById('presetLoad').onclick = async () => {
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
-            loadState(getAppPresetView(name), registry, false);
+            await loadState(getAppPresetView(name), registry, false);
         }
         updateApp();
     };
@@ -218,16 +218,9 @@ export function setupPresetUI(getState, loadState, updateApp, registry) {
     updatePresetSelect();
 }
 
-export function setupExportImage() {
+export function setupExportImage(exportImage) {
     document.getElementById('exportImage').onclick = () => {
-        const canvas = document.getElementById('glitchCanvas');
-        canvas.toBlob(blob => {
-            const link = document.createElement('a');
-            link.download = 'glitch.png';
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            URL.revokeObjectURL(link.href); // cleanup
-        }, 'image/png');
+        exportImage(document.getElementById("exportImageResolution").value);
     };
 }
 

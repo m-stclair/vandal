@@ -512,8 +512,8 @@ export const builtInPresets = [
             {
                 "name": "Perlin Distort (GL)",
                 "config": {
-                    "pitchX": -1.66,
-                    "pitchY": -1.63,
+                    "pitchX": -0.1,
+                    "pitchY": 0.1,
                     "freqX": 0.139,
                     "freqY": 0.139,
                     "seed": 109,

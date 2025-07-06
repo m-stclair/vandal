@@ -81,20 +81,25 @@ export const builtInPresets = [
             {
                 "name": "Perlin Distort (GL)",
                 "config": {
-                    "pitchX": 1.3,
-                    "pitchY": 0.89,
-                    "freqX": 5,
-                    "freqY": 5,
-                    "seed": 138,
-                    "depth": 0.56,
-                    "rate": 10.542246050789911,
-                    "rateDrive": 0.49,
+                    "boundMode": "fract",
+                    "pitchX": 0,
+                    "pitchY": 0,
+                    "freqX": 1.0344800199802937,
+                    "freqY": 1.0344800199802937,
+                    "seed": 1,
+                    "depth": 0.5,
+                    "rate": 11.953835045930655,
+                    "rateDrive": 0.47,
                     "fc": [
-                        5,
-                        8,
-                        9.25
+                        6,
+                        15,
+                        10
                     ],
-                    "boundMode": "clamp"
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0
                 }
             }
         ]

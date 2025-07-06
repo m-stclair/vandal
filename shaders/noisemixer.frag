@@ -22,7 +22,7 @@ vec3 darkenBlend(vec3 top, vec3 bot);
 vec3 differenceBlend(vec3 top, vec3 bot);
 vec3 hardLightBlend(vec3 top, vec3 bot);
 vec3 colorBurnBlend(vec3 top, vec3 bot);
-vec2 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float seed);
+vec2 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
 float uniformNoise(float x);
 vec2 simplexNoise2D(vec2 p);
 float gaussianNoise(vec2 p);
@@ -41,7 +41,11 @@ void main() {
     if (u_uniform > 0.) {
         noiseVal += uniformNoise(uvs.x * uvs.y) * u_uniform;
     }
-
+    float pVecs[4];
+    pVecs[0] = 1.;
+    pVecs[1] = 1.;
+    pVecs[2] = 1.;
+    pVecs[3] = 1.;
     if (u_perlin > 0.) {
         float pnoiseVal = 0.;
         for (int i = 0; i <= MAX_LOOPS; i++) {
@@ -52,6 +56,7 @@ void main() {
                         xScl + u_freqx * uniformNoise(xScl) * float(i)
                     ),
                     u_fc,
+                    pVecs,
                     u_seed
             );
             pnoiseVal += (pn2Val.x + pn2Val.y) / 2.;

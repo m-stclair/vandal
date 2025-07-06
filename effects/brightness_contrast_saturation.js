@@ -31,7 +31,7 @@ function adjustColorChannels(r, g, b, config) {
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Brightness/Contrast/Saturation",
+    name: "B/C/S",
 
     defaultConfig: {
         brightness: 0.0,

@@ -88,7 +88,7 @@ export type ApplyFunc = (
     width: Int,
     height: Int,
     t: number,
-    lastKey: string
+    inputKey: string
 ) => Float32Array;
 
 export type PixelEffect = BaseEffect & {

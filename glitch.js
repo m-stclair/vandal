@@ -135,6 +135,7 @@ function applyEffects(t = 0, context = defaultCtx, normedImage = null) {
         const timeChanged = cacheEntry?.lastT !== t;
         animationUpdate = animationUpdate ? animationUpdate : isModulating(fx) && timeChanged;
         hashChain += hashObject(fx.config) + fx.id;
+        if (isModulating(fx)) hashChain += `-${t}`;
         const hashChanged = (
             !cacheEntry
             || hashChain !== cacheEntry.hashChain

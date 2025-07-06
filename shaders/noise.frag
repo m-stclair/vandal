@@ -48,25 +48,30 @@ float lerp(float a, float b, float t) {
     return a + t * (b - a);
 }
 
-float perlinNoise1D(float spat, float fadeCoeffs[3], float seed) {
+float perlinNoise1D(float spat, float fadeCoeffs[3], float vec, float seed) {
     float x0 = floor(spat);
     float d = spat - x0;
     float fadeX = fade(d, fadeCoeffs);
 
     float dot0 = dotGradient(x0, spat, seed);
-    float dot1 = dotGradient(x0 + 1.0, spat, seed);
+    float dot1 = dotGradient(x0 + vec, spat, seed);
 
     return lerp(dot0, dot1, fadeX);
 }
 
-vec2 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float seed) {
+vec2 perlinNoise2D(
+    vec2 uv,
+    float fadeCoeffs[3],
+    float vecs[4],
+    float seed
+) {
     vec2 x0 = vec2(floor(uv.x), floor(uv.y));
     vec2 dxy = uv - vec2(float(x0.x), float(x0.y));
     vec2 fadeXY = fade(dxy, fadeCoeffs);
     float dot00 = dotGradient(x0.x, x0.y, uv.x, uv.y, seed);
-    float dot10 = dotGradient(x0.x + 1., x0.y, uv.x, uv.y, seed);
-    float dot01 = dotGradient(x0.x, x0.y + 1., uv.x, uv.y, seed);
-    float dot11 = dotGradient(x0.x + 1., x0.y + 1., uv.x, uv.y, seed);
+    float dot10 = dotGradient(x0.x + vecs[0], x0.y, uv.x, uv.y, seed);
+    float dot01 = dotGradient(x0.x, x0.y + vecs[1], uv.x, uv.y, seed);
+    float dot11 = dotGradient(x0.x + vecs[2], x0.y + vecs[3], uv.x, uv.y, seed);
 
     float interpolatedX0 = lerp(dot00, dot10, fadeXY.x);
     float interpolatedX1 = lerp(dot01, dot11, fadeXY.x);

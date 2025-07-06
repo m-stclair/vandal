@@ -83,10 +83,8 @@ export const builtInPresets = [
                 "config": {
                     "pitchX": 1.3,
                     "pitchY": 0.89,
-                    "rollX": -1.21,
-                    "rollY": 0.5,
-                    "yawX": 1.49,
-                    "yawY": 0.76,
+                    "freqX": 5,
+                    "freqY": 5,
                     "seed": 138,
                     "depth": 0.56,
                     "rate": 10.542246050789911,
@@ -282,8 +280,8 @@ export const builtInPresets = [
                     "pitchY": -0.76,
                     "rollX": 1.66,
                     "rollY": 0.5,
-                    "yawX": 0.71,
-                    "yawY": 1.1,
+                    "freqX": 2,
+                    "freqY": 5,
                     "seed": 143,
                     "depth": 0.08,
                     "rate": 1.9581181956675286,
@@ -293,7 +291,7 @@ export const builtInPresets = [
                         9.75,
                         15.75
                     ],
-                    "boundMode": "clamp"
+                    "boundMode": "fract"
                 }
             }
         ]
@@ -509,22 +507,20 @@ export const builtInPresets = [
             {
                 "name": "Perlin Distort (GL)",
                 "config": {
-                    "pitchX": 0.16,
-                    "pitchY": 0.26,
-                    "rollX": 0.25,
-                    "rollY": 0.39,
-                    "yawX": 0.95,
-                    "yawY": 1.29,
+                    "pitchX": -1.66,
+                    "pitchY": -1.63,
+                    "freqX": 0.139,
+                    "freqY": 0.139,
                     "seed": 109,
                     "depth": 0.33,
                     "rate": 2.027172223044206,
-                    "rateDrive": 0.29,
+                    "rateDrive": 0.52,
                     "fc": [
                         6,
                         15,
                         10
                     ],
-                    "boundMode": "clamp"
+                    "boundMode": "fract"
                 }
             },
             {
@@ -550,7 +546,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Brightness/Contrast/Saturation",
+                "name": "B/C/S",
                 "config": {
                     "brightness": 0.1,
                     "contrast": 1,
@@ -558,7 +554,71 @@ export const builtInPresets = [
                 }
             }
         ]
+    },
+    {
+        "name": "Untimely Met",
+        "config": [
+            {
+                "name": "Perlin Distort (GL)",
+                "config": {
+                    "pitchX": -1.01,
+                    "pitchY": 0.25,
+                    "rollX": 0.25,
+                    "rollY": -0.01,
+                    "yawX": 1.37,
+                    "yawY": 0,
+                    "seed": 35,
+                    "depth": 0.77,
+                    "rate": 5.947282785909293,
+                    "rateDrive": 0,
+                    "fc": [
+                        7.5,
+                        17.25,
+                        8.25
+                    ],
+                    "boundMode": "clamp"
+                }
+            },
+            {
+                "name": "Delay Line (GL)",
+                "config": {
+                    "delay": 8.62,
+                    "window": "box",
+                    "falloff": "uniform",
+                    "density": 5.2,
+                    "angle": -10.26,
+                    "shearX": 0.3,
+                    "shearY": -5,
+                    "scaleX": 2.6,
+                    "scaleY": 0.1
+                }
+            }
+        ]
+    },
+    {
+        "name": "Craquelure",
+        "config": [
+            {
+                "name": "Colormap",
+                "config": {
+                    "colormap": "vaportrail",
+                    "reverse": true
+                }
+            },
+            {
+                "name": "Contour Synth",
+                "config": {
+                    "freq": 2.0271722230442055,
+                    "freqScale": 1.0044899294395582,
+                    "phaseScale": 0.3152240342834747,
+                    "blend": 0.59,
+                    "phaseOff": 103.5,
+                    "spatialMode": "xy",
+                    "colorMode": "preserve",
+                    "hueModStrength": 0.23,
+                    "waveform": "sawtooth"
+                }
+            }
+        ]
     }
-
-
 ]

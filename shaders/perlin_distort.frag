@@ -14,6 +14,7 @@ uniform vec2 u_phase;
 uniform float u_fuzz;
 uniform int u_noisemode;
 uniform float u_gradient[4];
+uniform float u_clampscale;
 
 vec3 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
 float uniformNoise(float x);
@@ -30,7 +31,7 @@ void main() {
         u_freq * (uv + u_pitch), u_fc, u_gradient, u_seed
     ) * 2. - 1.;
     if (u_boundmode == 2) {
-        noiseOut = clamp(noiseOut, -1., 1.);
+        noiseOut = clamp(noiseOut, -u_clampscale, u_clampscale) + u_clampscale;
     }
     if (u_noisemode == 0) {
         uv += noiseOut.x * u_depth;

@@ -1,7 +1,6 @@
 import {WebGLRunner} from "../utils/webgl_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {makeShaderInit} from "../utils/load_runner.js";
-import {genUnitVectors} from "../utils/mathutils.js";
 
 const fragURL = [
     new URL("../shaders/perlin_distort.frag", import.meta.url),
@@ -26,8 +25,8 @@ export default {
         boundMode: "fract",
         pitchX: 0,
         pitchY: 0,
-        freqX: 5,
-        freqY: 5,
+        freqX: 4,
+        freqY: 4,
         seed: 1,
         depth: 0.5,
         rate: 4,
@@ -35,7 +34,8 @@ export default {
         fc: [6, 15, 10],
         phase: [0, 0],
         fuzz: 0,
-        noiseMode: "classic"
+        noiseMode: "classic",
+        clampScale: 1
     },
 
     uiLayout: [
@@ -43,14 +43,22 @@ export default {
         {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: "pitchX", label: "Grid Shift (X)", type: "modSlider", min: -2, max: 2, step: 0.01},
         {key: "pitchY", label: "Grid Shift (Y)", type: "modSlider", min: -2, max: 2, step: 0.01},
-        {key: "fuzz", label: "Grid Fuzz", type: "Range", min: 0, max: 100, step: 0.01},
-        {key: "freqX", label: "Noise Frequency (x)", type: "modSlider", min: 0, max: 75, steps: 250, scale: "log", scaleFactor: 1.1},
-        {key: "freqY", label: "Noise Frequency (y)", type: "modSlider", min: 0, max: 75, steps: 250, scale: "log", scaleFactor: 1.1},
+        {key: "freqX", label: "Noise Frequency (x)", type: "modSlider", min: 0, max: 90, steps: 250, scale: "log", scaleFactor: 1.1},
+        {key: "freqY", label: "Noise Frequency (y)", type: "modSlider", min: 0, max: 90, steps: 250, scale: "log", scaleFactor: 1.1},
         {key: 'noiseMode', label: 'Noise Mode', type: 'Select', options: ['classic', 'blocks']},
         {key: 'boundMode', label: 'Boundary Mode', type: 'Select', options: ['fract', 'free', 'clamp']},
+        {key: "rateDrive", label: "Spatial Modulation Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: "rate", label: "Spatial Modulation Frequency", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
         {key: 'phase', label: 'Spatial Modulation Phase', type: 'vector', sublabels: () => ["X", "Y"], length: 2, min: 0, max: 1, step: 0.005},
-        {key: "rateDrive", label: "Spatial Modulation Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
+        {key: "fuzz", label: "Fuzz", type: "Range", min: 0, max: 100, step: 0.01},
+        {
+            key: "clampScale",
+            label: "Clamp Scale (for clamp mode)",
+            type: 'Range',
+            min: 0,
+            max: 3,
+            step: 0.05
+        },
         {
             key: "fc",
             label: "Fade Coefficients",
@@ -66,7 +74,7 @@ export default {
         const {
             pitchX, pitchY, freqX, freqY, phase,
             fc, seed, depth, boundMode, rate, rateDrive, fuzz,
-            noiseMode
+            noiseMode, clampScale, clampCenter
         } = resolveAnimAll(instance.config, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
@@ -87,7 +95,8 @@ export default {
             u_boundmode: {value: boundCode, type: "int"},
             // TODO: actually do something with this
             u_gradient: {value: [1, 0, 0, 1], type: "floatArray"},
-            u_noisemode: {value: modeCode, type: "int"}
+            u_noisemode: {value: modeCode, type: "int"},
+            u_clampscale: {value: clampScale, type: "float"},
         };
         return shaderStuff.runner.run(
             shaderStuff.fragSource, uniformSpec, data, width, height, inputKey

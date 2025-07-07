@@ -307,7 +307,143 @@ export const builtInPresets = [
         ]
     },
     {
-        "name": "glitch haze",
+        "name": "Not Raining",
+        "config": [
+            {
+                "name": "Perlin Distort (GL)",
+                "config": {
+                    "boundMode": "clamp",
+                    "pitchX": -0.91,
+                    "pitchY": 0,
+                    "freqX": 9.069993561306088,
+                    "freqY": 9.82365286443436,
+                    "seed": 128,
+                    "depth": 0.39,
+                    "rate": 4,
+                    "rateDrive": 0,
+                    "fc": [
+                        6,
+                        15,
+                        10
+                    ],
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0,
+                    "noiseMode": "classic",
+                    "clampScale": 0.5
+                }
+            },
+            {
+                "name": "Delay Line (GL)",
+                "config": {
+                    "delay": 5.74,
+                    "window": "circle",
+                    "falloff": "uniform",
+                    "density": 1.6,
+                    "angle": -99.23,
+                    "shearX": 0,
+                    "shearY": 0,
+                    "scaleX": 1,
+                    "scaleY": 1
+                }
+            },
+            {
+                "name": "Perlin Distort (GL)",
+                "config": {
+                    "boundMode": "clamp",
+                    "pitchX": -1.23,
+                    "pitchY": -0.1,
+                    "freqX": 17.93629400332466,
+                    "freqY": 14.810053228674818,
+                    "seed": 251,
+                    "depth": 0.5,
+                    "rate": 4,
+                    "rateDrive": 0,
+                    "fc": [
+                        6,
+                        15,
+                        10
+                    ],
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0,
+                    "noiseMode": "classic",
+                    "clampScale": 0.45
+                }
+            },
+            {
+                "name": "Delay Line (GL)",
+                "config": {
+                    "delay": 2.85,
+                    "window": "box",
+                    "falloff": "uniform",
+                    "density": 2.1,
+                    "angle": -99.23,
+                    "shearX": 0,
+                    "shearY": 0,
+                    "scaleX": 1,
+                    "scaleY": 1
+                }
+            },
+            {
+                "name": "Perlin Distort (GL)",
+                "config": {
+                    "boundMode": "clamp",
+                    "pitchX": -1.07,
+                    "pitchY": 0.11,
+                    "freqX": 3.012220095961826,
+                    "freqY": 4.452548829300998,
+                    "seed": 182,
+                    "depth": 0.55,
+                    "rate": 4,
+                    "rateDrive": 0,
+                    "fc": [
+                        6,
+                        15,
+                        10
+                    ],
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0,
+                    "noiseMode": "classic",
+                    "clampScale": 0.45
+                }
+            },
+            {
+                "name": "RGB Channel Mixer (GL)",
+                "config": {
+                    "rMix": [
+                        0.83,
+                        0,
+                        0
+                    ],
+                    "gMix": [
+                        0,
+                        1,
+                        0
+                    ],
+                    "bMix": [
+                        -0.14,
+                        -0.04,
+                        1
+                    ],
+                    "offset": [
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "name": "Fog Glitch",
         "config": [
             {
                 "name": "Colorshred",
@@ -732,6 +868,59 @@ export const builtInPresets = [
     },
     {
         "name": "Thrifted Lava",
+        "config": [
+            {
+                "name": "Chromawave",
+                "config": {
+                    "threshold": 0.2,
+                    "cycle": false,
+                    "cycleMode": "spatial",
+                    "hueShift": 188,
+                    "saturation": 100,
+                    "lightness": 50,
+                    "hueSpread": 0.55,
+                    "bleed": 0.88
+                }
+            },
+            {
+                "name": "Perlin Distort (GL)",
+                "config": {
+                    "boundMode": "fract",
+                    "pitchX": -1.41,
+                    "pitchY": {
+                        "value": -1.06,
+                        "mod": {
+                            "type": "sine",
+                            "freq": 0.01,
+                            "phase": 0,
+                            "rangeMode": "bipolar",
+                            "scale": 2,
+                            "offset": 0
+                        }
+                    },
+                    "freqX": 3.3599009346722157,
+                    "freqY": 5.959923872645924,
+                    "seed": 381,
+                    "depth": 0.44,
+                    "rate": 4,
+                    "rateDrive": 0,
+                    "fc": [
+                        6,
+                        15,
+                        10
+                    ],
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0,
+                    "noiseMode": "classic"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Vintage Lava",
         "config": [
             {
                 "name": "Chromawave",

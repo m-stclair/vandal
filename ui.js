@@ -183,7 +183,7 @@ function updatePresetSelect() {
     select.innerHTML = '';
 
     select.appendChild(placeholderOption("--- select preset ---"));
-    listAppPresets().forEach((name) => {
+    listAppPresets().sort().forEach((name) => {
         const opt = document.createElement('option');
         opt.textContent = name;
         select.appendChild(opt);

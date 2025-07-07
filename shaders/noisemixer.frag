@@ -27,7 +27,7 @@ vec3 differenceBlend(vec3 top, vec3 bot, float intensity);
 vec3 hardLightBlend(vec3 top, vec3 bot, float intensity);
 vec3 colorBurnBlend(vec3 top, vec3 bot, float intensity);
 vec3 lightenBlend(vec3 top, vec3 bot, float intensity);
-float perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
+vec3 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
 float uniformNoise(float x);
 vec2 simplexNoise2D(vec2 p);
 float gaussianNoise(vec2 p);
@@ -43,8 +43,6 @@ void main() {
     vec2 uvs = uv + uniformNoise(u_seed);
     float xScl = uvs.x * u_freqx;
     float yScl = uvs.y * u_freqy;
-
-
     float noiseVal = 0.;
     if (u_uniform > 0.) {
         noiseVal += uniformNoise(uvs.x * uvs.y) * u_uniform;
@@ -55,31 +53,22 @@ void main() {
     pVecs[2] = 0.;
     pVecs[3] = 1.;
     if (u_perlin > 0.) {
-        float pnVal = perlinNoise2D(
-            vec2(
-                yScl + u_freqy * uniformNoise(yScl) * float(i),
-                xScl + u_freqx * uniformNoise(xScl) * float(i)
-            ),
-            u_fc,
-            pVecs,
-            u_seed
+        vec3 pnVal = perlinNoise2D(
+            vec2(xScl, yScl), u_fc, pVecs, u_seed
         );
-        noiseVal += pnVal * u_perlin;
+        noiseVal += pnVal.x * u_perlin * 2.;
     }
     if (u_simplex > 0.) {
-        float smpnVal = 0.;
-        for (int i = 0; i <= MAX_LOOPS; i++) {
-            if (i > u_blur) break;
-            vec2 gradient = vec2(0., 0.);
-            smpnVal += psrdnoise(
+        vec2 gradientOut = vec2(0., 0.);  // just scratch space
+        float smpnVal = psrdnoise(
             vec2(xScl, yScl),
             vec2(0., 0.),
             0.,
-            gradient
-            );
-        }
-        noiseVal += smpnVal / (float(u_blur) + 1.) * u_simplex;
+            gradientOut
+        );
+        noiseVal += smpnVal * u_simplex * 1.3;
     }
+
     if (u_gauss > 0.) {
         float gnVal = gaussianNoise(vec2(xScl, yScl));
         noiseVal += gnVal * u_gauss;

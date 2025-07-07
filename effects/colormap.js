@@ -9,7 +9,6 @@ export default {
         colormap: "orange_teal",
         reverse: false
     },
-
     uiLayout: [
         {
             type: "select",

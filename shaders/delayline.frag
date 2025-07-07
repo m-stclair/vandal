@@ -1,6 +1,6 @@
 precision mediump float;
 
-uniform sampler2D u_texture;
+uniform sampler2D u_image;
 uniform vec2 u_resolution;
 uniform mat2 u_transformMatrix;
 
@@ -17,7 +17,7 @@ void main() {
     for (int i = 0; i < MAX_TAPS; i++) {
         if (i >= u_numTaps) break;
         vec2 offset = floor(u_transformMatrix * u_offsets[i]) / u_resolution;
-        vec4 samp = texture2D(u_texture, uv + offset);
+        vec4 samp = texture2D(u_image, uv + offset);
         float w = u_weights[i];
         acc += samp * w;
         totalWeight += w;

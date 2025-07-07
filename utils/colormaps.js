@@ -76,6 +76,31 @@ export const colormaps = {
   }
 };
 
+function makeLut(cmap, N) {
+  const lutArr = new Uint8Array(N * 4);
+  for (let c = 0; c < N; c++) {
+    const [r, g, b] = cmap(c / N);
+    lutArr[c * 4] = Math.round(r * 255);
+    lutArr[c * 4 + 1] = Math.round(g * 255);
+    lutArr[c * 4 + 2] = Math.round(b * 255);
+    lutArr[c * 4 + 3] = 255;
+  }
+  return lutArr;
+}
+
+export const cmapLutIx = {};
+export const cmapLuts = [];
+export const LUTSIZE = 1024;
+
+function makeCmapTextureArray() {
+  Object.entries(colormaps).forEach(([name, cmap], i) => {
+    cmapLutIx[name] = i;
+    cmapLuts.push(makeLut(cmap, LUTSIZE));
+  });
+}
+
+makeCmapTextureArray();
+
 /** Build a colormap from a list of CSS color strings */
 export function fromList(colorList) {
   const stops = colorList.map(hex2Rgb);

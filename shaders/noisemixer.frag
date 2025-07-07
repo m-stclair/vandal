@@ -1,6 +1,7 @@
 precision mediump float;
 
-uniform sampler2D u_input;
+uniform sampler2D u_image;
+uniform sampler2D u_cmap;
 uniform float u_freqx;
 uniform float u_freqy;
 uniform float u_seed;
@@ -16,6 +17,7 @@ uniform int u_blur;
 uniform vec3 u_tint;
 uniform int u_tintSpace;
 uniform float u_master;
+uniform int u_cmap_len;
 
 
 vec3 softLightBlend(vec3 top, vec3 bot, float intensity);
@@ -80,30 +82,35 @@ void main() {
     float noiseMax = clamp(u_pink + u_perlin + u_uniform + u_gauss + u_simplex, 0., 1.);
     noiseVal = clamp(noiseVal, 0., 1.);
     float master = max(u_master, noiseMax);
-    vec3 noisePx = clamp(vec3(noiseVal, noiseVal, noiseVal), 0., 1.) * u_tint;
-    vec3 color = texture2D(u_input, uv).rgb;
+    vec3 noisePx = clamp(vec3(noiseVal, noiseVal, noiseVal), 0., 1.);
+    if (u_cmap_len == 0) {
+        noisePx *= u_tint;
+    } else {
+        noisePx = texture2D(u_cmap, vec2(clamp(noiseVal, 0.0, 1.0), 0.5)).rgb;
+    }
+    vec3 inColor = texture2D(u_image, uv).rgb;
     if (u_tintSpace == 1) {
-        color = rgb2hsv(color);
+        inColor = rgb2hsv(inColor);
         noisePx = rgb2hsv(noisePx);
     }
 
     vec3 blended;
     if (u_blendmode == 0) {
-        blended = linearBlend(color.rgb, noisePx, u_master);
+        blended = linearBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 1) {
-        blended = screenBlend(color.rgb, noisePx, u_master);
+        blended = screenBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 2) {
-        blended = softLightBlend(color.rgb, noisePx, u_master);
+        blended = softLightBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 3) {
-        blended = hardLightBlend(color.rgb, noisePx, u_master);
+        blended = hardLightBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 4) {
-        blended = differenceBlend(color.rgb, noisePx, u_master);
+        blended = differenceBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 5) {
-        blended = colorBurnBlend(color.rgb, noisePx, u_master);
+        blended = colorBurnBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 6) {
-        blended = darkenBlend(color.rgb, noisePx, u_master);
+        blended = darkenBlend(inColor.rgb, noisePx, u_master);
     } else if (u_blendmode == 7) {
-        blended = lightenBlend(color.rgb, noisePx, u_master);
+        blended = lightenBlend(inColor.rgb, noisePx, u_master);
     } else {
         blended = noisePx;
     }
@@ -111,5 +118,5 @@ void main() {
     if (u_tintSpace == 1) {
         blended = hsv2rgb(blended);
     }
-    gl_FragColor = clamp(vec4(blended, texture2D(u_input, uv).a), 0., 1.);
+    gl_FragColor = clamp(vec4(blended, texture2D(u_image, uv).a), 0., 1.);
 }

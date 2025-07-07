@@ -1,6 +1,7 @@
 import {WebGLRunner} from "../utils/webgl_runner.js";
 import {makeShaderInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
+import {cmapLutIx, colormaps, cmapLuts, LUTSIZE} from "../utils/colormaps.js";
 
 const fragURL = [
     new URL("../shaders/noisemixer.frag", import.meta.url),
@@ -30,11 +31,12 @@ export default {
         fc: [6, 15, 10],
         components: [0, 0, 1, 0, 0],
         master: 1,
+        colormap: "orange_teal"
     },
     apply(instance, data, width, height, t, inputKey) {
         const {
             seed, frequency, freqShift, components, fc,
-            blendMode, tintSpace, tint, master
+            blendMode, tintSpace, tint, master, colormap
         } = resolveAnimAll(instance.config, t);
         if (!components.some((c) => c)) return data;
         const [uniform, perlin, simplex, gauss, pink] = components;
@@ -48,9 +50,11 @@ export default {
             "darken": 6,
             "lighten": 7
         }[blendMode];
+
         const tintSpaceN = {"RGB": 0, "HSV": 1}[tintSpace];
         const noiseMax = pink + perlin + uniform + gauss + simplex;
         const masterC = (noiseMax < 1) ? Math.min(master, noiseMax) : master;
+
         const uniformSpec = {
             u_freqx: {type: "float", value: frequency * (1 + freqShift)},
             u_freqy: {type: "float", value: frequency * (1 - freqShift)},
@@ -65,8 +69,17 @@ export default {
             u_blendmode: {value: blendCode, type: "int"},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_tintSpace: {value: tintSpaceN, type: "int"},
-            u_master: {value: masterC, type: "float"}
+            u_master: {value: masterC, type: "float"},
+            u_cmap_len: {value: colormap !== "none" ? LUTSIZE : 0, type: "int"}
         };
+        if (colormap !== "none") {
+            uniformSpec["u_cmap"] = {
+                value: cmapLuts[cmapLutIx[colormap]],
+                type: "texture2D",
+                width: LUTSIZE,
+                height: 1
+            }
+        }
         const {fragSource, runner} = shaderStuff;
         return runner.run(fragSource, uniformSpec, data, width, height, inputKey);
     },
@@ -89,6 +102,12 @@ export default {
             type: 'Select',
             options: ['linear', 'screen', 'soft light', 'hard light',
                 'difference', 'color burn', 'darken', 'lighten']
+        },
+        {
+            type: "select",
+            key: "colormap",
+            label: "Colormap",
+            options: ["none", ...Object.keys(colormaps)]
         },
         {
             key: "tint",
@@ -116,9 +135,7 @@ export default {
             step: 0.25,
         },
         {key: "freqShift", label: "Frequency Shift", type: "Range", min: -0.25, max: 0.25, step: 0.02},
-
     ],
-
     initHook: shaderStuff.initHook,
 };
 

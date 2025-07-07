@@ -168,7 +168,8 @@ export type UniformDatum =
     | { type: "intArray", value: Int32Array | number[] }
     | { type: "vec2Array", value: Float32Array | number[] }
     | { type: "vec3Array", value: Float32Array | number[] }
-    | { type: "vec4Array", value: Float32Array | number[] };
+    | { type: "vec4Array", value: Float32Array | number[] }
+    | { type: "texture2D", value: Uint8Array, width: number, height: number };
 
 
 export type UniformSpec = Record<string, UniformDatum>;

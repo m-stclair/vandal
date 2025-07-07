@@ -15,6 +15,7 @@ const UniformSetters = {
     vec2Array: (gl, loc, val) => gl.uniform2fv(loc, val),
     vec3Array: (gl, loc, val) => gl.uniform3fv(loc, val),
     vec4Array: (gl, loc, val) => gl.uniform4fv(loc, val),
+    texture2D: (gl, loc, val) => gl.uniform1i(loc, val)
 };
 
 function allocateTexture(gl, format, width, height, buffer) {
@@ -139,11 +140,32 @@ export class WebGLRunner {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.uniform1i(texLoc, 0);
-
+        let throwawayTexture = null;
         // Upload other uniforms
-        Object.entries(uniformSpec).forEach(([name, {value, type}]) => {
+        Object.entries(uniformSpec).forEach(([name, {value, type, width, height}]) => {
             const loc = gl.getUniformLocation(program, name);
-            UniformSetters[type](gl, loc, value);
+            if (type === "texture2D") {
+                // TODO: don't like the width/height name shadowing in this block
+                // TODO: terrible to unconditionally pick texture1!
+                // NOTE: anything we're passing this way should be small,
+                //  so uploading it should be _relatively_ cheap, but we still
+                //  might want to consider a shared context across the render pipeline
+                //  -- which might also help with shader chaining
+                gl.activeTexture(gl.TEXTURE1);
+                throwawayTexture = gl.createTexture()
+                gl.bindTexture(gl.TEXTURE_2D, throwawayTexture);
+                allocateTexture(this.gl, this.format, width, height, value);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                if (!gl.isTexture(throwawayTexture)) {
+                    throw new Error("bad sideloaded texture")
+                }
+                UniformSetters[type](gl, loc, 1);
+            } else {
+                UniformSetters[type](gl, loc, value);
+            }
         });
 
         // Render to framebuffer
@@ -171,6 +193,7 @@ export class WebGLRunner {
         for (let i = 0; i < outBuf.length; ++i) {
           floatBuf[i] = outBuf[i] / 255;
         }
+        if (throwawayTexture) gl.deleteTexture(throwawayTexture);
         return floatBuf;
     }
 }

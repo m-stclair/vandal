@@ -2,7 +2,7 @@
 
 precision mediump float;
 
-uniform sampler2D u_input;
+uniform sampler2D u_image;
 uniform vec2 u_resolution;
 uniform vec2 u_offset;
 uniform mat2 u_affine;
@@ -18,5 +18,5 @@ void main() {
   } else {
     transformed = u_affine * offset + center + u_offset;
   }
-  gl_FragColor = texture2D(u_input, transformed);
+  gl_FragColor = texture2D(u_image, transformed);
 }

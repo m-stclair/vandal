@@ -1,6 +1,6 @@
 precision mediump float;
 
-uniform sampler2D u_input;
+uniform sampler2D u_image;
 uniform vec2 u_pitch;
 uniform vec2 u_resolution;
 uniform vec2 u_freq;
@@ -41,5 +41,5 @@ void main() {
     if (u_boundmode == 0) {
         uv = fract(uv);
     }
-    gl_FragColor = texture2D(u_input, uv);
+    gl_FragColor = texture2D(u_image, uv);
 }

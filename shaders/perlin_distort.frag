@@ -12,32 +12,33 @@ uniform float u_rate;
 uniform float u_ratedrive;
 uniform vec2 u_phase;
 uniform float u_fuzz;
+uniform int u_noisemode;
+uniform float u_gradient[4];
 
-vec2 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
+vec3 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
 float uniformNoise(float x);
 
 void main() {
-    vec2 uv = (gl_FragCoord.xy ) / u_resolution;
+    vec2 uv = (gl_FragCoord.xy) / u_resolution;
     if (u_ratedrive > 0.) {
         uv = uv * (1. - u_ratedrive) + sin(uv * u_rate + u_phase * 6.2831853) * u_ratedrive;
     }
-    float vecs[4];
-    vecs[0] = 1.;
-    vecs[1] = 1.;
-    vecs[2] = 1.;
-    vecs[3] = 1.;
     float fuzzX = u_fuzz * (uniformNoise(uv.x * uv.y) - 0.5);
     float fuzzY = u_fuzz * (uniformNoise(uv.x * uv.y + 0.1) - 0.5);
     uv = vec2(uv.x + fuzzX, uv.y + fuzzY);
-    vec2 noiseValue = perlinNoise2D(
-        uv * u_freq + u_pitch, u_fc, vecs, u_seed
+    vec3 noiseOut = perlinNoise2D(
+        u_freq * (uv + u_pitch), u_fc, u_gradient, u_seed
     ) * 2. - 1.;
-    if (u_boundmode == 0) {
-        uv = fract(uv + noiseValue * u_depth);
-    } else if (u_boundmode == 1) {
-        uv = uv + noiseValue *  u_depth;
+    if (u_boundmode == 2) {
+        noiseOut = clamp(noiseOut, -1., 1.);
+    }
+    if (u_noisemode == 0) {
+        uv += noiseOut.x * u_depth;
     } else {
-        uv = uv + clamp(noiseValue  * u_depth, 0., 1.);
+        uv += (noiseOut.y + noiseOut.z) / 2. * u_depth;
+    }
+    if (u_boundmode == 0) {
+        uv = fract(uv);
     }
     gl_FragColor = texture2D(u_input, uv);
 }

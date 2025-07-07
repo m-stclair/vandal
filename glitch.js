@@ -36,6 +36,7 @@ import {effectRegistry} from "./registry.js";
 import {resolveAnim} from "./utils/animutils.js";
 import {listEffectPresets, getEffectPresetView, saveEffectPreset} from "./utils/presets.js";
 import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
+// DO NOT REMOVE THIS IMPORT!
 import {EffectPicker} from "./components/effectpicker.js";
 
 function handleUpload(e) {
@@ -585,6 +586,19 @@ async function addSelectedEffect(effectName) {
     updateApp();
 }
 
+function drawBlackSquare(imgElement) {
+    canvas.width = 1024;
+    canvas.height = 1024;
+
+    // Fill the canvas with black
+    defaultCtx.fillStyle = 'black';
+    defaultCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Set the image's src to the canvas data URL (black square image)
+    imgElement.src = canvas.toDataURL();
+    setOriginalImage(imgElement);
+}
+
 async function appSetup() {
     const stackHeader = document.getElementById("effectStackHeader")
     const picker = document.createElement("effect-picker")
@@ -624,7 +638,6 @@ async function appSetup() {
         toggleBar.classList.toggle('collapsed');
     });
 
-
     await setupStaticButtons(
         handleUpload,
         addSelectedEffect,
@@ -640,6 +653,11 @@ async function appSetup() {
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
     setupWindow(resizeAndRedraw);
+    // Example usage with an HTMLImageElement
+    const imgElement = document.createElement('img');
+    drawBlackSquare(imgElement);
+    resizeAndRedraw();
+
 
 }
 

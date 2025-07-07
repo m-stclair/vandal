@@ -101,7 +101,8 @@ export default {
             label: "Color Mode",
             options: [
                 {value: "none", label: "Grey"},
-                {value: "preserve", label: "Original"},
+                {value: "preserve", label: "Darken"},
+                {value: "pass", label: "Passthrough"},
                 {value: "hueMod", label: "Hue Mod"},
             ]
         },
@@ -175,6 +176,14 @@ export default {
                     outputData[i + 1] = g - val;
                     outputData[i + 2] = b - val;
                     outputData[i + 3] = 1;
+                } else if (colorMode === "pass") {
+                    const [h, s, l] = rgb2Hsl(r, g, b);
+                    const val = patval * blend + l * (1 - blend);
+                    const [r0, g0, b0] = hsl2Rgb(h, s, val);
+                    outputData[i] = r0;
+                    outputData[i + 1] = g0;
+                    outputData[i + 2] = b0;
+                    outputData[i + 3] = 1;
                 } else if (colorMode === "hueMod") {
                     const [h, s, l] = rgb2Hsl(r, g, b);
                     const mod = (patval) * hueModStrength;
@@ -195,16 +204,15 @@ export default {
 
 export const effectMeta = {
   group: "Synthesis",
-  tags: ["synth", "contour", "pattern", "generated", "animated"],
-  description: " A synthetic topography generator that overlays " +
-      "contour-line–like patterns onto images by modulating spatial " +
+  tags: ["synth", "contour", "pattern", "generatied", "animated"],
+  description: "A synthetic topography generator that overlays " +
+      "contour-line patterns by modulating spatial " +
       "derivatives of luminance. Contour spacing and directionality are driven " +
       "by waveforms or spatial fields, enabling results that range from " +
-      "stark monochrome etchings to vibrant interference textures or " +
+      "stark monochrome etchings to vibrant interference textures to " +
       "hallucinatory landscape modulations. Behaves like a hybrid between an " +
-      "edge detector, a terrain visualizer, and a phase synth. Responsive to " +
-      "animation and extremely sensitive to parameter variation, making it " +
-      "ideal for dynamic, feedback-heavy compositions.",
+      "edge detector, a terrain visualizer, and an FM synth. Also suitable " +
+      "as a standalone pattern generator.",
   canAnimate: true,
   realtimeSafe: true,
 };

@@ -99,7 +99,8 @@ export const builtInPresets = [
                         0,
                         0
                     ],
-                    "fuzz": 0
+                    "fuzz": 0,
+                    "noiseMode": "blocks"
                 }
             }
         ]
@@ -300,8 +301,7 @@ export const builtInPresets = [
                         0
                     ],
                     "fuzz": 0,
-                    "rollX": 1.66,
-                    "rollY": 0.5
+                    noiseMode: "blocks"
                 }
             }
         ]
@@ -573,10 +573,6 @@ export const builtInPresets = [
                 "config": {
                     "pitchX": -1.01,
                     "pitchY": 0.25,
-                    "rollX": 0.25,
-                    "rollY": -0.01,
-                    "yawX": 1.37,
-                    "yawY": 0,
                     "seed": 35,
                     "depth": 0.77,
                     "rate": 5.947282785909293,
@@ -627,6 +623,162 @@ export const builtInPresets = [
                     "colorMode": "preserve",
                     "hueModStrength": 0.23,
                     "waveform": "sawtooth"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Ardor",
+        "config": [
+            {
+                "name": "Noise Mixer (GL)",
+                "config": {
+                    "frequency": 30.744329067236027,
+                    "freqShift": -0.07,
+                    "seed": 280,
+                    "blendMode": "soft light",
+                    "fc": [
+                        5,
+                        13.75,
+                        8.25
+                    ],
+                    "components": [
+                        0,
+                        0.44,
+                        0,
+                        0,
+                        0.39
+                    ],
+                    "blur": 0
+                }
+            },
+            {
+                "name": "Chromawave",
+                "config": {
+                    "threshold": 0.215,
+                    "cycle": true,
+                    "cycleMode": "brightness",
+                    "hueShift": 70,
+                    "saturation": 91,
+                    "lightness": 49,
+                    "hueSpread": 0.85,
+                    "bleed": 0.31
+                }
+            },
+            {
+                "name": "Channel Mixer",
+                "config": {
+                    "colorSpaceIn": "lab",
+                    "colorSpaceOut": "lab",
+                    "mixMatrix": [
+                        [
+                            1,
+                            -0.05,
+                            -0.09
+                        ],
+                        [
+                            0.1,
+                            0.8,
+                            0.06
+                        ],
+                        [
+                            -0.3,
+                            0.28,
+                            1
+                        ]
+                    ],
+                    "offset": [
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "name": "Nickelodeon",
+        "config": [
+            {
+                "name": "Noise Mixer (GL)",
+                "config": {
+                    "frequency": 70.25175969985042,
+                    "freqShift": 0.15,
+                    "tint": [
+                        0.7,
+                        0.33,
+                        0.42
+                    ],
+                    "seed": 314,
+                    "blendMode": "hard light",
+                    "tintSpace": "HSV",
+                    "fc": [
+                        7,
+                        14.75,
+                        11.75
+                    ],
+                    "components": [
+                        0,
+                        0.81,
+                        0.23,
+                        0,
+                        0
+                    ],
+                    "master": 0.49,
+                    "blur": 0
+                }
+            }
+        ]
+    },
+    {
+        "name": "Thrifted Lava",
+        "config": [
+            {
+                "name": "Chromawave",
+                "config": {
+                    "threshold": 0.2,
+                    "cycle": false,
+                    "cycleMode": "spatial",
+                    "hueShift": 188,
+                    "saturation": 100,
+                    "lightness": 50,
+                    "hueSpread": 0.55,
+                    "bleed": 0.88
+                }
+            },
+            {
+                "name": "Perlin Distort (GL)",
+                "config": {
+                    "boundMode": "fract",
+                    "pitchX": -1.41,
+                    "pitchY": {
+                        "value": -1.06,
+                        "mod": {
+                            "type": "sine",
+                            "freq": 0.01,
+                            "phase": 0,
+                            "rangeMode": "bipolar",
+                            "scale": 2,
+                            "offset": 0
+                        }
+                    },
+                    "freqX": 3.3599009346722157,
+                    "freqY": 5.959923872645924,
+                    "seed": 381,
+                    "depth": 0.44,
+                    "rate": 4,
+                    "rateDrive": 0,
+                    "fc": [
+                        6,
+                        15,
+                        10
+                    ],
+                    "phase": [
+                        0,
+                        0
+                    ],
+                    "fuzz": 0,
+                    "noiseMode": "classic"
                 }
             }
         ]

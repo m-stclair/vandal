@@ -62,3 +62,22 @@ export function hist1D(data, nbins = 256, vmin = 0, vmax = 1) {
 export function val2Bin(v, vmin, scale) {
     return Math.floor((v - vmin) * scale);
 }
+
+
+export function genUnitVectors(orientation, spread) {
+    const unitVectors = [];
+    const angleIncrement = Math.PI;
+
+    for (let i = 0; i < 2; i++) {
+        const angle = orientation + (i * angleIncrement) - (Math.PI / 2);
+
+        const spreadFactor = spread * Math.sin(angle);
+        const x = Math.cos(angle) + spreadFactor;
+        const y = Math.sin(angle) + spreadFactor;
+
+        unitVectors.push(x);
+        unitVectors.push(y);
+    }
+
+    return unitVectors;
+}

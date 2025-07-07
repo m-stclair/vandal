@@ -1,4 +1,7 @@
-BSD 3-Clause License
+All code in this library, unless otherwise stated, is subject to the following
+license:
+
+----
 
 Copyright (c) 2025, Michael St. Clair
 All rights reserved.
@@ -27,3 +30,10 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+Some files in the ./shaders directory have been vendored from other sources:
+- psrdnoise2.glsl
+
+Their licenses are attached as headers to the individual fies.

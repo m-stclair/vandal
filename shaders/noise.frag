@@ -1,4 +1,3 @@
-
 float hash(float x, float y, float seed) {
     return fract(sin(dot(vec2(x, y), vec2(12.9898, 78.233)) * seed));
 }
@@ -7,15 +6,14 @@ float hash(float x, float seed) {
     return fract(sin(x * 12.9898 + 78.223) * seed);
 }
 
-// just an alias
 float uniformNoise(float x) {
     return fract(sin(x * 12.9898 + 78.233) * 43758.5453);
 }
 
 vec2 grad(float ix, float iy, float seed) {
     float h = hash(ix, iy, seed);
-
-    return vec2(cos(h * 6.2831853), sin(h * 6.2831853));
+    float angle = h * 6.2831853;
+    return vec2(cos(angle), sin(angle));
 }
 
 float grad(float ix, float seed) {
@@ -32,8 +30,8 @@ float dotGradient(float ix, float iy, float x, float y, float seed) {
 
 float dotGradient(float ix, float x, float seed) {
     float gradient = grad(ix, seed);
-    float distance = x - ix;  // Only in 1D
-    return gradient * distance;  // No need for a full dot product
+    float distance = x - ix;// Only in 1D
+    return gradient * distance;// No need for a full dot product
 }
 
 vec2 fade(vec2 t, float fc[3]) {
@@ -59,7 +57,7 @@ float perlinNoise1D(float spat, float fadeCoeffs[3], float vec, float seed) {
     return lerp(dot0, dot1, fadeX);
 }
 
-vec2 perlinNoise2D(
+vec2 perlinBlocks(
     vec2 uv,
     float fadeCoeffs[3],
     float vecs[4],
@@ -84,6 +82,30 @@ vec2 perlinNoise2D(
     return vec2(interpolatedX, interpolatedY);
 }
 
+vec3 perlinNoise2D(
+    vec2 uv,
+    float fadeCoeffs[3],
+    float vecs[4],
+    float seed
+) {
+    vec2 x0 = vec2(floor(uv.x), floor(uv.y));
+    vec2 dxy = uv - vec2(float(x0.x), float(x0.y));
+    vec2 fadeXY = fade(dxy, fadeCoeffs);
+    float dot00 = dotGradient(x0.x, x0.y, uv.x, uv.y, seed);
+    float dot10 = dotGradient(x0.x + vecs[0], x0.y + vecs[1], uv.x, uv.y, seed);
+    float dot01 = dotGradient(x0.x + vecs[2], x0.y + vecs[3], uv.x, uv.y, seed);
+    float dot11 = dotGradient(x0.x + vecs[0] + vecs[2], x0.y + vecs[1] + vecs[3],
+                              uv.x, uv.y, seed);
+
+    float interpolatedX0 = lerp(dot00, dot10, fadeXY.x);
+    float interpolatedX1 = lerp(dot01, dot11, fadeXY.x);
+
+    return vec3(
+        mix(interpolatedX0, interpolatedX1, fadeXY.y),
+        dot10,
+        dot01
+    );
+}
 
 
 // Box-Muller transform to generate Gaussian noise
@@ -111,17 +133,31 @@ float pinkNoise(vec2 p) {
 }
 
 
-// Simplex Noise 2D function (based on Ken Perlin's implementation)
-vec2 simplexNoise2D(vec2 p) {
-    const vec2 G = vec2(0.211324865405187, 0.366025403784439);
-    vec2 s = floor(p + dot(p, G));  // Correct the grid coordinate calculation
-    vec2 d = p - s + dot(s, G);    // Grid offset adjustment
-    vec2 i = floor(d);             // Integer part of the offset
-    vec2 f = d - i;                // Fractional part of the offset
+// TODO : broken
 
-    // Gradient directions based on simplex
-    vec2 g = vec2(i.x + f.x, i.y + f.y);  // This could represent the gradient lookup
-    float grad0 = dot(f, vec2(1, 0));  // Gradient computation
-    float grad1 = dot(f, vec2(0, 1));  // Same here; you might need to adjust for proper gradient vectors
-    return vec2(grad0, grad1);
-}
+//vec2 l1grad(float ix, float iy) {
+//    float h = uniformNoise(ix * iy);
+//
+//    vec2 grad0 = vec2(1.0, 0.0);// Horizontal
+//    vec2 grad1 = vec2(0.0, 1.0);// Vertical
+//    vec2 grad2 = vec2(-1.0, 0.0);// Horizontal reverse
+//    vec2 grad3 = vec2(0.0, -1.0);// Vertical reverse
+//
+//    return  grad0 * step(0.25, h) +
+//    grad1 * step(0.5, h) * (1.0 - step(0.25, h)) +
+//    grad2 * step(0.75, h) * (1.0 - step(0.5, h)) +
+//    grad3 * (1.0 - step(0.75, h));
+//
+//}
+//
+//
+//// Simplex Noise 2D function (based on Ken Perlin's implementation)
+//vec2 simplexNoise2D(vec2 p) {
+//const vec2 G = vec2(0.211324865405187, 0.366025403784439);
+//vec2 s = floor(p + dot(p, G));
+//vec2 d = p - s + dot(s, G);
+//vec2 i = floor(d);
+//vec2 f = d - i;
+//
+//vec2 g = vec2(i.x + f.x, i.y + f.y);
+//return l1grad(g.x, g.y);

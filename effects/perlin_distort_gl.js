@@ -1,10 +1,12 @@
 import {WebGLRunner} from "../utils/webgl_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {makeShaderInit} from "../utils/load_runner.js";
+import {genUnitVectors} from "../utils/mathutils.js";
 
 const fragURL = [
     new URL("../shaders/perlin_distort.frag", import.meta.url),
     new URL("../shaders/noise.frag", import.meta.url),
+    new URL("../shaders/psrdnoise2.glsl", import.meta.url),
 ]
 fragURL[0].searchParams.set("v", Date.now());
 fragURL[1].searchParams.set("v", Date.now());
@@ -32,7 +34,8 @@ export default {
         rateDrive: 0,
         fc: [6, 15, 10],
         phase: [0, 0],
-        fuzz: 0
+        fuzz: 0,
+        noiseMode: "classic"
     },
 
     uiLayout: [
@@ -40,9 +43,10 @@ export default {
         {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: "pitchX", label: "Grid Shift (X)", type: "modSlider", min: -2, max: 2, step: 0.01},
         {key: "pitchY", label: "Grid Shift (Y)", type: "modSlider", min: -2, max: 2, step: 0.01},
-        {key: "fuzz", label: "Grid Fuzz", type: "Range", min: 0, max: 0.1, step: 0.005},
+        {key: "fuzz", label: "Grid Fuzz", type: "Range", min: 0, max: 100, step: 0.01},
         {key: "freqX", label: "Noise Frequency (x)", type: "modSlider", min: 0, max: 75, steps: 250, scale: "log", scaleFactor: 1.1},
         {key: "freqY", label: "Noise Frequency (y)", type: "modSlider", min: 0, max: 75, steps: 250, scale: "log", scaleFactor: 1.1},
+        {key: 'noiseMode', label: 'Noise Mode', type: 'Select', options: ['classic', 'blocks']},
         {key: 'boundMode', label: 'Boundary Mode', type: 'Select', options: ['fract', 'free', 'clamp']},
         {key: "rate", label: "Spatial Modulation Frequency", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
         {key: 'phase', label: 'Spatial Modulation Phase', type: 'vector', sublabels: () => ["X", "Y"], length: 2, min: 0, max: 1, step: 0.005},
@@ -61,9 +65,12 @@ export default {
     apply(instance, data, width, height, t, inputKey) {
         const {
             pitchX, pitchY, freqX, freqY, phase,
-            fc, seed, depth, boundMode, rate, rateDrive, fuzz
+            fc, seed, depth, boundMode, rate, rateDrive, fuzz,
+            noiseMode
         } = resolveAnimAll(instance.config, t);
+
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
+        const modeCode = {'classic': 0, "blocks": 1}[noiseMode];
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
@@ -76,8 +83,11 @@ export default {
             u_rate: {value: rate, type: "float"},
             u_ratedrive: {value: rateDrive, type: "float"},
             u_phase: {value: phase, type: "vec2"},
-            u_fuzz: {value: fuzz, type: "float"},
+            u_fuzz: {value: fuzz / 500, type: "float"},
             u_boundmode: {value: boundCode, type: "int"},
+            // TODO: actually do something with this
+            u_gradient: {value: [1, 0, 0, 1], type: "floatArray"},
+            u_noisemode: {value: modeCode, type: "int"}
         };
         return shaderStuff.runner.run(
             shaderStuff.fragSource, uniformSpec, data, width, height, inputKey

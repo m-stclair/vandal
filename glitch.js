@@ -28,7 +28,7 @@ import {
     clearNormedImage,
     getNormedImage,
     getNormLoadID,
-    getSelectedEffectId, toggleEffectSelection, isSelectedEffect
+    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer
 } from "./state.js";
 import {formatFloatWidth, gid, hashObject, imageDataHash} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
@@ -113,6 +113,10 @@ function isModulating(fx) {
         && (!(p instanceof Array))
     )
 }
+
+let currentData = null; // null until GPU->CPU fallback occurs
+let onGPU = true;
+
 
 function applyEffects(t = 0, context = defaultCtx, normedImage = null) {
     if (!normedImage) {
@@ -544,9 +548,8 @@ function tick(now) {
 }
 
 
-function renderImage(context = null) {
-    context = context ? context : defaultCtx;
-    applyEffects(0, context);
+function renderImage() {
+    renderer.applyEffects(getEffectStack(), getNormedImage(), 0);
     updateVisualStyles();
     const animShouldBeRunning = isAnimationActive();
     if (animShouldBeRunning && !animating) {

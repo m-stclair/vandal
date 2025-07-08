@@ -1,6 +1,6 @@
 import {WebGLRunner} from "../utils/webgl_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
-import {makeShaderInit} from "../utils/load_runner.js";
+import {loadFragInit} from "../utils/load_runner.js";
 
 const fragURL = [
     new URL("../shaders/perlin_distort.frag", import.meta.url),
@@ -10,7 +10,7 @@ const fragURL = [
 fragURL[0].searchParams.set("v", Date.now());
 fragURL[1].searchParams.set("v", Date.now());
 
-const shaderStuff = makeShaderInit({
+const shaderStuff = loadFragInit({
     fragURL,
     makeRunner: () => new WebGLRunner()
 });
@@ -102,7 +102,8 @@ export default {
             shaderStuff.fragSource, uniformSpec, data, width, height, inputKey
         );
     },
-    initHook: shaderStuff.initHook
+    initHook: shaderStuff.initHook,
+    gpu: true
 }
 
 export const effectMeta = {

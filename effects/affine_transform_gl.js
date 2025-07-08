@@ -2,12 +2,12 @@
 
 import {WebGLRunner} from "../utils/webgl_runner.js";
 import {deg2rad, rotationMatrix2D, shearMatrix2D, scaleMatrix2D, multiplyMat2} from "../utils/mathutils.js";
-import {makeShaderInit} from "../utils/load_runner.js";
+import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 
 const fragURL = new URL("../shaders/affine_transform.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
-const shaderStuff = makeShaderInit({
+const shaderStuff = loadFragInit({
     fragURL,
     makeRunner: () => new WebGLRunner()
 });

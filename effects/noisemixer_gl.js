@@ -1,5 +1,5 @@
 import {WebGLRunner} from "../utils/webgl_runner.js";
-import {makeShaderInit} from "../utils/load_runner.js";
+import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {cmapLutIx, colormaps, cmapLuts, LUTSIZE} from "../utils/colormaps.js";
 
@@ -12,7 +12,7 @@ const fragURL = [
 
 fragURL.forEach((u) => u.searchParams.set("v", Date.now()))
 
-const shaderStuff = makeShaderInit({
+const shaderStuff = loadFragInit({
     fragURL,
     makeRunner: () => new WebGLRunner()
 });

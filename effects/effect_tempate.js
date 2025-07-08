@@ -1,10 +1,10 @@
 import {WebGLRunner} from "../utils/webgl_runner.js";
-import {makeShaderInit} from "../utils/load_runner.js";
+import {loadFragInit} from "../utils/load_runner.js";
 
 // Replace with actual shader file URL
 const fragURL = new URL("../shaders/yourShaderFile.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
-const shaderStuff = makeShaderInit({
+const shaderStuff = loadFragInit({
     fragURL,
     makeRunner: () => new WebGLRunner()
 });

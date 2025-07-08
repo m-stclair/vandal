@@ -1,6 +1,7 @@
 import {canvas, defaultCtx} from "./ui.js";
 import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
+import {webGLState} from "./utils/webgl_state";
 
 let effectStack = [];
 
@@ -114,6 +115,9 @@ export function getOriginalImage() {
     return originalImage;
 }
 
+const renderCanvas = document.createElement("canvas");
+export const renderer = new GlitchRenderer(renderCanvas);
+
 let normedImage = null;
 let normLoadID = '';
 
@@ -150,7 +154,7 @@ export function clearConfigUI() {
 
 export function makeEffectInstance(mod) {
     if (!mod) return Promise.resolve();
-    const instance = {
+    let instance = {
         id: uuidv4(),
         name: mod.name,
         config: structuredClone(mod.defaultConfig),
@@ -162,7 +166,10 @@ export function makeEffectInstance(mod) {
         label: mod.name,
         solo: false,
     }
-    const hook = mod.initHook?.(instance);
+    if (mod.fragURL) {
+        instance.webGLState = new webGLState(renderer, mod.fragURL)
+    }
+    const hook = mod.initHook?.(instance, renderer);
     instance.ready = hook?.then ? hook : Promise.resolve();
     return instance;
 }

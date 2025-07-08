@@ -1,22 +1,5 @@
 import {float32ToUint8Array} from "./imageutils.js";
-
-const UniformSetters = {
-    float: (gl, loc, val) => gl.uniform1f(loc, val),
-    int: (gl, loc, val) => gl.uniform1i(loc, val),
-    bool: (gl, loc, val) => gl.uniform1i(loc, val ? 1 : 0),
-    vec2: (gl, loc, val) => gl.uniform2fv(loc, val),
-    vec3: (gl, loc, val) => gl.uniform3fv(loc, val),
-    vec4: (gl, loc, val) => gl.uniform4fv(loc, val),
-    mat2: (gl, loc, val) => gl.uniformMatrix2fv(loc, false, val),
-    mat3: (gl, loc, val) => gl.uniformMatrix3fv(loc, false, val),
-    mat4: (gl, loc, val) => gl.uniformMatrix4fv(loc, false, val),
-    intArray: (gl, loc, val) => gl.uniform1iv(loc, val),
-    floatArray: (gl, loc, val) => gl.uniform1fv(loc, val),
-    vec2Array: (gl, loc, val) => gl.uniform2fv(loc, val),
-    vec3Array: (gl, loc, val) => gl.uniform3fv(loc, val),
-    vec4Array: (gl, loc, val) => gl.uniform4fv(loc, val),
-    texture2D: (gl, loc, val) => gl.uniform1i(loc, val)
-};
+import {UniformSetters} from "./uniforms.js";
 
 function allocateTexture(gl, format, width, height, buffer) {
     const {internalFormat, formatEnum, typeEnum, arrayConstructor} = format;

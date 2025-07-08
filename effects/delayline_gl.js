@@ -10,11 +10,11 @@ import {deg2rad, multiplyMat2, rotationMatrix2D, scaleMatrix2D, shearMatrix2D} f
 import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
-import {makeShaderInit} from "../utils/load_runner.js";
+import {loadFragInit} from "../utils/load_runner.js";
 
 const fragURL = new URL("../shaders/delayline.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
-const shaderStuff = makeShaderInit({
+const shaderStuff = loadFragInit({
     fragURL,
     makeRunner: () => new WebGLRunner()
 });

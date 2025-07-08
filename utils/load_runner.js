@@ -1,13 +1,9 @@
 import {loadShaderSource} from "./webgl_runner.js";
 
-export function makeShaderInit({fragURL, makeRunner}) {
+export function loadFragInit(fragURL) {
     let fragSource = null;
-    let runner = null;
 
     async function initHook() {
-        if (runner == null) {
-            runner = makeRunner();
-        }
         if (fragSource == null) {
             const href =
                 fragURL instanceof URL
@@ -16,10 +12,7 @@ export function makeShaderInit({fragURL, makeRunner}) {
             fragSource = await loadShaderSource(href);
         }
     }
-
     return {
-        get fragSource() { return fragSource; },
-        get runner() { return runner; },
-        initHook,
+        get fragSource() { return fragSource; }, initHook,
     };
 }

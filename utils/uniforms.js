@@ -15,3 +15,16 @@ export const UniformSetters = {
     vec4Array: (gl, loc, val) => gl.uniform4fv(loc, val),
     texture2D: (gl, loc, val) => gl.uniform1i(loc, val)
 };
+
+export function checkFrameBuffer(gl) {
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        throw new Error(`could not construct framebuffer, status ${status}`)
+    }
+}
+
+export function checkTexture(gl, tex) {
+    if (!gl.isTexture(tex)) {
+        throw new Error("invalid texture")
+    }
+}

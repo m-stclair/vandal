@@ -1,34 +1,57 @@
 // Example GPU effect module using GlitchRenderer pipeline
+import {UniformSetters, checkTexture, checkFrameBuffer} from "./uniforms.js";
+
 export class webGLState {
     constructor(renderer, name, id) {
-        this.vertexSrc = renderer.vao;
-        this.gl = renderer.gl;
         this.renderer = renderer;
-        this.fragmentSrc = null;
+        this.fragSrc = null;
         this.initialized = false;
         this.name = name;
         this.id = id;
     }
 
+    get gl() {
+        return this.renderer.gl;
+    }
+
+    get format() {
+        return this.renderer.format;
+    }
+
+    get vao() {
+        return this.renderer.vao;
+    }
+
+    getOrCreateLUT(name, data) {
+        return this.renderer.getOrCreateLUT(name, data);
+    }
+
+
     init() {
-        if (!this.fragmentSrc) {
+        if (!this.fragSrc) {
             throw new Error(`${this.name}-${this.id} GL init called with unloaded frag source`)
         }
-        this.program = this.buildProgram(this.vertexSrc, this.fragmentSrc);
-        this.uniforms = this.getUniformLocations(this.gl, this.program);
+        this.program = this.buildProgram();
+        this.uniforms = this.getUniformLocations(this.program);
         this.initialized = true;
     }
 
-    buildProgram(vsrc, fsrc) {
+    // TODO: try to replace this with the lut functionality
+    allocateTexture(format, width, height, buffer) {
+        const {internalFormat, formatEnum, typeEnum, arrayConstructor} = this.renderer.format;
         const gl = this.gl;
-        const vs = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(vs, vsrc);
-        gl.compileShader(vs);
-        const fs = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fs, fsrc);
-        gl.compileShader(fs);
+        if (buffer && !(buffer instanceof arrayConstructor)) {
+            throw new Error("Mismatched buffer type for texture format");
+        }
+        gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, formatEnum, typeEnum, buffer);
+        return buffer;
+    }
+
+    buildProgram() {
+        const gl = this.gl;
+        const fs = this.renderer.compile(gl.FRAGMENT_SHADER, this.fragSrc);
         const prog = gl.createProgram();
-        gl.attachShader(prog, vs);
+        gl.attachShader(prog, this.renderer.vertexShader);
         gl.attachShader(prog, fs);
         gl.linkProgram(prog);
         return prog;
@@ -45,20 +68,56 @@ export class webGLState {
         return locations;
     }
 
-    renderGL(gl, inputTex, outputFBO, config, t) {
+    renderGL(inputTex, outputFBO, uniformSpec) {
         if (!this.initialized) this.init(this.gl, this.renderer);
+        const gl = this.gl;
         gl.useProgram(this.program);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, outputFBO.fbo);
-        gl.viewport(0, 0, outputFBO.width, outputFBO.height);
-        gl.bindVertexArray(this.renderer.vao);
-
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, inputTex);
-        gl.uniform1i(this.uniforms.u_image, 0);
-
-        // Add any config-based uniforms here
-        // e.g., gl.uniform1f(this.uniforms.u_strength, config.strength || 0.5);
-
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.uniform1i(this.uniforms["u_image"], 0);
+        this.uploadUniforms(uniformSpec);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, outputFBO.fbo);
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D,
+            outputFBO.texture, 0
+        );
+        gl.viewport(0, 0, outputFBO.width, outputFBO.height);
+        gl.bindVertexArray(this.renderer.vao);
+        checkFrameBuffer(gl);
+        checkTexture(gl, inputTex);
+        checkTexture(gl, outputFBO.texture);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
+
+    uploadUniforms(uniformSpec) {
+        const gl = this.gl;
+        // Upload other uniforms
+        Object.entries(uniformSpec).forEach(([name, {value, type, width, height}]) => {
+            const loc = this.uniforms[name];
+            if (type === "texture2D") {
+                // TODO: terrible to unconditionally pick texture1!
+                gl.activeTexture(gl.TEXTURE1);
+                if (!gl.isTexture(value)) {
+                    const value = gl.createTexture()
+                    this.allocateTexture(this.format, width, height, value);
+                }
+                if (!gl.isTexture(value)) {
+                    throw new Error("bad sideloaded texture")
+                }
+                gl.bindTexture(gl.TEXTURE_2D, value);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                UniformSetters[type](gl, loc, 1);
+            } else {
+                UniformSetters[type](gl, loc, value);
+            }
+        });
+    }
+
 }

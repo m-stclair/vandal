@@ -28,7 +28,7 @@ import {
     clearNormedImage,
     getNormedImage,
     getNormLoadID,
-    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer
+    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer, renderCache
 } from "./state.js";
 import {formatFloatWidth, gid, hashObject, imageDataHash} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
@@ -105,7 +105,7 @@ function stopCapture() {
     document.getElementById('captureOverlay').style.display = 'none';
 }
 
-function isModulating(fx) {
+export function isModulating(fx) {
     return Object.values(fx.config).some(p =>
         p !== null
         && typeof p === "object"
@@ -549,7 +549,10 @@ function tick(now) {
 
 
 function renderImage() {
-    renderer.applyEffects(getEffectStack(), getNormedImage(), 0);
+    if (!getNormedImage()) return;
+    const applied = renderer.applyEffects(0);
+    const {width, height} = getNormedImage();
+    setRenderedImage(deNormalizeImageData(applied, width, height), defaultCtx)
     updateVisualStyles();
     const animShouldBeRunning = isAnimationActive();
     if (animShouldBeRunning && !animating) {
@@ -589,15 +592,13 @@ async function addSelectedEffect(effectName) {
     updateApp();
 }
 
-function drawBlackSquare(imgElement) {
+async function drawBlackSquare(imgElement) {
     canvas.width = 1024;
     canvas.height = 1024;
 
-    // Fill the canvas with black
     defaultCtx.fillStyle = 'black';
     defaultCtx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Set the image's src to the canvas data URL (black square image)
     imgElement.src = canvas.toDataURL();
     setOriginalImage(imgElement);
 }
@@ -656,12 +657,9 @@ async function appSetup() {
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
     setupWindow(resizeAndRedraw);
-    // Example usage with an HTMLImageElement
     const imgElement = document.createElement('img');
-    drawBlackSquare(imgElement);
+    await drawBlackSquare(imgElement);
     resizeAndRedraw();
-
-
 }
 
 await appSetup();

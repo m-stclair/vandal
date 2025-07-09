@@ -1,7 +1,8 @@
 import {canvas, defaultCtx} from "./ui.js";
 import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
-import {webGLState} from "./utils/webgl_state";
+import {webGLState} from "./utils/webgl_state.js";
+import {GlitchRenderer} from "./utils/glitch_renderer.js"
 
 let effectStack = [];
 
@@ -65,7 +66,7 @@ export function getEffectStack() {
     return effectStack;
 }
 
-const renderCache = new Map();
+export const renderCache = new Map();
 
 export function clearRenderCache() {
     renderCache.clear();
@@ -165,9 +166,10 @@ export function makeEffectInstance(mod) {
         apply: mod.apply,
         label: mod.name,
         solo: false,
+        isGPU: mod.isGPU
     }
-    if (mod.fragURL) {
-        instance.webGLState = new webGLState(renderer, mod.fragURL)
+    if (mod.isGPU) {
+        instance.glState = new webGLState(renderer, mod.fragURL)
     }
     const hook = mod.initHook?.(instance, renderer);
     instance.ready = hook?.then ? hook : Promise.resolve();

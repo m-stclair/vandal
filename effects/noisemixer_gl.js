@@ -1,7 +1,6 @@
-import {WebGLRunner} from "../utils/webgl_runner.js";
 import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
-import {cmapLutIx, colormaps, cmapLuts, LUTSIZE} from "../utils/colormaps.js";
+import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 
 const fragURL = [
     new URL("../shaders/noisemixer.frag", import.meta.url),
@@ -12,10 +11,7 @@ const fragURL = [
 
 fragURL.forEach((u) => u.searchParams.set("v", Date.now()))
 
-const shaderStuff = loadFragInit({
-    fragURL,
-    makeRunner: () => new WebGLRunner()
-});
+const fragSource = loadFragInit(fragURL);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -31,14 +27,19 @@ export default {
         fc: [6, 15, 10],
         components: [0, 0, 1, 0, 0],
         master: 1,
-        colormap: "orange_teal"
+        colormap: "none"
     },
-    apply(instance, data, width, height, t, inputKey) {
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        if (!instance.glState) {
+            throw new Error("Can't call apply() before assigning a webGLState")
+        }
+        instance.glState.fragSrc = fragSource.src;
         const {
             seed, frequency, freqShift, components, fc,
             blendMode, tintSpace, tint, master, colormap
         } = resolveAnimAll(instance.config, t);
-        if (!components.some((c) => c)) return data;
+        // TODO: this is wrong
+        if (!components.some((c) => c)) return inputTex;
         const [uniform, perlin, simplex, gauss, pink] = components;
         const blendCode = {
             "linear": 0,
@@ -74,14 +75,13 @@ export default {
         };
         if (colormap !== "none") {
             uniformSpec["u_cmap"] = {
-                value: cmapLuts[cmapLutIx[colormap]],
+                value: instance.glState.getOrCreateLUT(colormap, cmapLuts[colormap]),
                 type: "texture2D",
                 width: LUTSIZE,
                 height: 1
             }
         }
-        const {fragSource, runner} = shaderStuff;
-        return runner.run(fragSource, uniformSpec, data, width, height, inputKey);
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
     },
     uiLayout: [
         {key: "seed", label: "Seed", type: "modSlider", min: 1, max: 500, step: 1},
@@ -136,7 +136,9 @@ export default {
         },
         {key: "freqShift", label: "Frequency Shift", type: "Range", min: -0.25, max: 0.25, step: 0.02},
     ],
-    initHook: shaderStuff.initHook,
+    initHook: fragSource.load,
+    glState: null,
+    isGPU: true
 };
 
 export const effectMeta = {

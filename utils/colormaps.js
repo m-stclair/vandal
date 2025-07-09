@@ -88,14 +88,12 @@ function makeLut(cmap, N) {
   return lutArr;
 }
 
-export const cmapLutIx = {};
-export const cmapLuts = [];
+export const cmapLuts = {};
 export const LUTSIZE = 1024;
 
 function makeCmapTextureArray() {
-  Object.entries(colormaps).forEach(([name, cmap], i) => {
-    cmapLutIx[name] = i;
-    cmapLuts.push(makeLut(cmap, LUTSIZE));
+  Object.entries(colormaps).forEach(([name, cmap]) => {
+    cmapLuts[name] = makeLut(cmap, LUTSIZE);
   });
 }
 

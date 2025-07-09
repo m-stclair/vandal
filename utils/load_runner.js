@@ -1,18 +1,19 @@
 import {loadShaderSource} from "./webgl_runner.js";
 
 export function loadFragInit(fragURL) {
-    let fragSource = null;
+    let src = null;
 
-    async function initHook() {
-        if (fragSource == null) {
+    async function load() {
+        if (src == null) {
             const href =
                 fragURL instanceof URL
                     ? fragURL.href
                     : fragURL.map((url) => url.href)
-            fragSource = await loadShaderSource(href);
+            src = await loadShaderSource(href);
         }
     }
     return {
-        get fragSource() { return fragSource; }, initHook,
+        get src() { return src; },
+        load,
     };
 }

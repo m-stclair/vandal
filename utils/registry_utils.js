@@ -54,6 +54,7 @@ export function makeRegistryEntry(mod, filename) {
         defaultConfig: mod.defaultConfig,
         uiLayout: mod.uiLayout,
         initHook: mod.initHook ?? (() => Promise.resolve()),
+        isGPU: mod.isGPU,
         meta,
     }
 }

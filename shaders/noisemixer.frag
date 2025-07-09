@@ -83,6 +83,12 @@ void main() {
     noiseVal = clamp(noiseVal, 0., 1.);
     float master = max(u_master, noiseMax);
     vec3 noisePx = clamp(vec3(noiseVal, noiseVal, noiseVal), 0., 1.);
+
+//    vec3 tone = vec3(
+//        texture2D(u_cmap, uv).rgb
+//    );
+//    gl_FragColor = vec4(tone, 1.);
+
     if (u_cmap_len == 0) {
         noisePx *= u_tint;
     } else {

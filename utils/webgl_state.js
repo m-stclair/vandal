@@ -1,5 +1,5 @@
 // Example GPU effect module using GlitchRenderer pipeline
-import {UniformSetters, checkTexture, checkFrameBuffer} from "./uniforms.js";
+import {UniformSetters, checkTexture, checkFrameBuffer} from "./gl.js";
 
 export class webGLState {
     constructor(renderer, name, id) {
@@ -97,6 +97,10 @@ export class webGLState {
         const gl = this.gl;
         // Upload other uniforms
         Object.entries(uniformSpec).forEach(([name, {value, type, width, height}]) => {
+            if (!this.uniforms[name]) {
+                // TODO: a hack. ACTIVE_UNIFORMS doesn't detect arrays well?
+                this.uniforms[name] = gl.getUniformLocation(this.program, name);
+            }
             const loc = this.uniforms[name];
             if (type === "texture2D") {
                 // TODO: terrible to unconditionally pick texture1!

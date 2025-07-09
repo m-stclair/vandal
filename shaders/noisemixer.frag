@@ -54,6 +54,11 @@ void main() {
     pVecs[1] = 0.;
     pVecs[2] = 0.;
     pVecs[3] = 1.;
+
+//    float fc[3];
+//    fc[0] = 6.;
+//    fc[1] = 15.;
+//    fc[2] = 10.;
     if (u_perlin > 0.) {
         vec3 pnVal = perlinNoise2D(
             vec2(xScl, yScl), u_fc, pVecs, u_seed

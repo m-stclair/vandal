@@ -1,6 +1,7 @@
 import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
+import {initGLEffect} from "../utils/gl.js";
 
 const fragURL = [
     new URL("../shaders/noisemixer.frag", import.meta.url),
@@ -30,10 +31,7 @@ export default {
         colormap: "none"
     },
     apply(instance, inputTex, width, height, t, outputFBO) {
-        if (!instance.glState) {
-            throw new Error("Can't call apply() before assigning a webGLState")
-        }
-        instance.glState.fragSrc = fragSource.src;
+        initGLEffect(instance, fragSource)
         const {
             seed, frequency, freqShift, components, fc,
             blendMode, tintSpace, tint, master, colormap
@@ -137,6 +135,9 @@ export default {
         {key: "freqShift", label: "Frequency Shift", type: "Range", min: -0.25, max: 0.25, step: 0.02},
     ],
     initHook: fragSource.load,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
     glState: null,
     isGPU: true
 };

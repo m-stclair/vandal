@@ -28,3 +28,10 @@ export function checkTexture(gl, tex) {
         throw new Error("invalid texture")
     }
 }
+
+export function initGLEffect(instance, fragSource) {
+    if (!instance.glState) {
+        throw new Error("Can't call apply() before assigning a webGLState")
+    }
+    instance.glState.fragSrc = fragSource.src;
+}

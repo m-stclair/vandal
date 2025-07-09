@@ -1,13 +1,11 @@
-import {resolveAnimAll, resolveAnim} from "../utils/animutils.js";
-import {WebGLRunner} from "../utils/webgl_runner.js";
+import {resolveAnimAll} from "../utils/animutils.js";
 import {loadFragInit} from "../utils/load_runner.js";
+import {initGLEffect} from "../utils/gl.js";
 
 const fragURL = new URL("../shaders/channelmixer.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
-const shaderStuff = loadFragInit({
-    fragURL,
-    makeRunner: () => new WebGLRunner()
-});
+const fragSource = loadFragInit(fragURL);
+
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -22,7 +20,8 @@ export default {
         offset: [0, 0, 0],
     },
 
-    apply(instance, data, width, height, t, inputKey) {
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSource);
         const {config} = instance;
         const resolved = resolveAnimAll(config, t);
 
@@ -34,8 +33,7 @@ export default {
             u_bMix: {type: "vec3", value: resolved.bMix},
             u_offset: {type: "vec3", value: resolved.offset},
         };
-        const {fragSource, runner} = shaderStuff;
-        return runner.run(fragSource, uniforms, data, width, height, inputKey);
+        instance.glState.renderGL(inputTex, outputFBO, uniforms);
     },
 
     uiLayout: [
@@ -76,7 +74,12 @@ export default {
             step: 0.01,
         },
     ],
-    initHook: shaderStuff.initHook,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    initHook: fragSource.load,
+    glState: null,
+    isGPU: true
 }
 
 export const effectMeta = {

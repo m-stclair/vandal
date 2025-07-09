@@ -1,5 +1,5 @@
 import {float32ToUint8Array} from "./imageutils.js";
-import {UniformSetters} from "./uniforms.js";
+import {UniformSetters} from "./gl.js";
 
 function allocateTexture(gl, format, width, height, buffer) {
     const {internalFormat, formatEnum, typeEnum, arrayConstructor} = format;

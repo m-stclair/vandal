@@ -34,8 +34,8 @@ void main() {
         noiseOut = clamp(noiseOut, -u_clampscale, u_clampscale) + u_clampscale;
     }
     if (u_noisemode == 0) {
-        uv += noiseOut.x * u_depth;
-    } else {
+        uv += noiseOut.x * u_depth; {}
+    } else if (u_noisemode == 2) {
         uv += (noiseOut.y + noiseOut.z) / 2. * u_depth;
     }
     if (u_boundmode == 0) {

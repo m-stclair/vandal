@@ -1,5 +1,5 @@
 // Hybrid GPU/CPU pipeline manager
-import {checkFrameBuffer, checkTexture} from "./uniforms.js";
+import {checkFrameBuffer, checkTexture} from "./gl.js";
 import {
     getEffectStack,
     getNormedImage,
@@ -249,7 +249,7 @@ export class GlitchRenderer {
             );
             let needsUpdate = ((hashChanged || animationUpdate) || !cacheEntry?.texture);
             let update = {};
-            // const fxStart = performance.now()
+            const fxStart = performance.now()
             if (needsUpdate) {
                 let input;
                 if (isGPU && lastCacheEntry?.texture) {
@@ -278,7 +278,7 @@ export class GlitchRenderer {
             } else {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }
-            // console.log(`${performance.now() - fxStart}ms for ${fx.name}-${fx.id}`)
+            console.log(`${performance.now() - fxStart}ms for ${fx.name}-${fx.id}`)
 
             lastCacheEntry = {
                 config: structuredClone(fx.config),

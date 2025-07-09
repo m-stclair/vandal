@@ -1,16 +1,13 @@
 // affine_transform.js
 
-import {WebGLRunner} from "../utils/webgl_runner.js";
 import {deg2rad, rotationMatrix2D, shearMatrix2D, scaleMatrix2D, multiplyMat2} from "../utils/mathutils.js";
 import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
+import {initGLEffect} from "../utils/gl.js";
 
 const fragURL = new URL("../shaders/affine_transform.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
-const shaderStuff = loadFragInit({
-    fragURL,
-    makeRunner: () => new WebGLRunner()
-});
+const fragSource = loadFragInit(fragURL);
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -58,7 +55,8 @@ export default {
         {key: "wrap", label: "Wrap", type: "checkbox"}
     ],
 
-    apply(instance, data, width, height, t, inputKey) {
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSource);
         const {
             angle,
             shearX,
@@ -83,15 +81,14 @@ export default {
             u_offset: {value: [translateX, translateY], type: "vec2"},
             u_wrap: {value: wrap, type: "bool"},
         }
-        return shaderStuff.runner.run(
-            shaderStuff.fragSource, uniformSpec, data, width, height, inputKey
-        );
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
     },
-
-    initHook: shaderStuff.initHook,
-
-
-
+    initHook: fragSource.load,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true
 }
 
 export const effectMeta = {

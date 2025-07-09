@@ -11,13 +11,11 @@ import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {loadFragInit} from "../utils/load_runner.js";
+import {initGLEffect} from "../utils/gl.js";
 
 const fragURL = new URL("../shaders/delayline.frag", import.meta.url);
 fragURL.searchParams.set("v", Date.now());
-const shaderStuff = loadFragInit({
-    fragURL,
-    makeRunner: () => new WebGLRunner()
-});
+const fragSource = loadFragInit(fragURL);
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -63,7 +61,8 @@ export default {
         {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1}
     ],
 
-    apply(instance, data, width, height, t, inputKey) {
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSource);
         const {
             delay, window, density, angle, falloff, shearX, shearY,
             scaleX, scaleY
@@ -103,12 +102,15 @@ export default {
             u_weights: {value: new Float32Array(weights), type: "floatArray"},
             u_transformMatrix: {value: affine, type: "mat2"}
         };
-        return shaderStuff.runner.run(
-            shaderStuff.fragSource, uniformSpec, data, width, height, inputKey
-        );
-    },
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
 
-    initHook: shaderStuff.initHook
+    },
+    initHook: fragSource.load,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true
 }
 
 export const effectMeta = {

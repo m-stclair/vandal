@@ -1,19 +1,15 @@
-import {WebGLRunner} from "../utils/webgl_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {loadFragInit} from "../utils/load_runner.js";
+import {initGLEffect} from "../utils/gl.js";
 
 const fragURL = [
     new URL("../shaders/perlin_distort.frag", import.meta.url),
     new URL("../shaders/noise.frag", import.meta.url),
-    new URL("../shaders/psrdnoise2.glsl", import.meta.url),
 ]
-fragURL[0].searchParams.set("v", Date.now());
-fragURL[1].searchParams.set("v", Date.now());
 
-const shaderStuff = loadFragInit({
-    fragURL,
-    makeRunner: () => new WebGLRunner()
-});
+fragURL.forEach((u) => u.searchParams.set("v", Date.now()))
+
+const fragSource = loadFragInit(fragURL);
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -70,11 +66,12 @@ export default {
         },
     ],
 
-    apply(instance, data, width, height, t, inputKey) {
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSource);
         const {
             pitchX, pitchY, freqX, freqY, phase,
             fc, seed, depth, boundMode, rate, rateDrive, fuzz,
-            noiseMode, clampScale, clampCenter
+            noiseMode, clampScale
         } = resolveAnimAll(instance.config, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
@@ -93,17 +90,19 @@ export default {
             u_phase: {value: phase, type: "vec2"},
             u_fuzz: {value: fuzz / 500, type: "float"},
             u_boundmode: {value: boundCode, type: "int"},
-            // TODO: actually do something with this
+            // TODO, mayabe: actually do something with this
             u_gradient: {value: [1, 0, 0, 1], type: "floatArray"},
             u_noisemode: {value: modeCode, type: "int"},
             u_clampscale: {value: clampScale, type: "float"},
         };
-        return shaderStuff.runner.run(
-            shaderStuff.fragSource, uniformSpec, data, width, height, inputKey
-        );
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
     },
-    initHook: shaderStuff.initHook,
-    gpu: true
+    initHook: fragSource.load,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true
 }
 
 export const effectMeta = {

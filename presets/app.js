@@ -612,8 +612,7 @@ export const builtInPresets = [
                 "config": {
                     "method": "percentile",
                     "paramA": 1,
-                    "paramB": 72.5,
-                    "channelwise": false
+                    "paramB": 75,
                 }
             },
             {
@@ -1026,10 +1025,9 @@ export const builtInPresets = [
             {
                 "name": "Auto Levels",
                 "config": {
-                    "method": "percentile",
                     "paramA": 25,
-                    "paramB": 98.5,
-                    "channelwise": true
+                    "paramB": 90,
+                    "mode": "channelwise"
                 }
             },
             {
@@ -1160,10 +1158,9 @@ export const builtInPresets = [
             {
                 "name": "Auto Levels",
                 "config": {
-                    "method": "minmax",
                     "paramA": 1,
                     "paramB": 100,
-                    "channelwise": true
+                    "mode": "channelwise"
                 }
             }
         ]

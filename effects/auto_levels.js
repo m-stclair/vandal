@@ -1,6 +1,27 @@
-// effects/stretch_effect.js
+import {resolveAnimAll} from "../utils/animutils.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {statsProbe} from "./pseudo/statsprobe.js";
+import {webGLState} from "../utils/webgl_state.js";
 
-import {channelwise, normalizeRange, approxPercentileClip, stddevClip} from '../utils/stretch.js';
+const shaderPath = "../shaders/auto_levels.frag";
+const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
+const fragSources = loadFragSrcInit(shaderPath, includePaths);
+
+//
+async function makeProbe(fx, renderer) {
+    const prb = {
+        config: structuredClone(statsProbe.config),
+        initHook: statsProbe.initHook,
+        parent: fx,
+        glState: new webGLState(
+            renderer, `${fx.name}-probe`, `${fx.id}-probe`
+        ),
+        analyze: statsProbe.analyze
+    }
+    await prb.initHook();
+    fx.probe = prb;
+}
+
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -8,79 +29,103 @@ export default {
     name: "Auto Levels",
 
     defaultConfig: {
-        method: "percentile", // "minmax", "stddev"
-        paramA: 1.0,           // For percentile: lower percentile, for stddev: sigma
-        paramB: 99.0,          // For percentile: upper percentile
-        channelwise: true
+        mode: "luma",
+        paramA: 0,
+        paramB: 100.0,
     },
 
-    apply(instance, data, width, height, _t) {
-        const config = instance.config;
-        let func, params, result;
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSources);
+        const {
+            mode,
+            paramA,
+            paramB,
+        } = resolveAnimAll(instance.config, t);
 
-        switch (config.method) {
-            case "stddev":
-                func = stddevClip;
-                params = [config.paramA];
-                break;
-            case "minmax":
-                func = normalizeRange;
-                params = [];
-                break;
-            case "percentile":
-                func = approxPercentileClip;
-                params = [config.paramA, config.paramB];
+        /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
+        /** @type {UniformSpec} */
+        const uniformSpec = {
+            u_resolution: {value: [width, height], type: "vec2"},
         }
 
-        if (config.channelwise) {
-            result = channelwise(data, width, height, func, ...params);
+        if (paramA === 0.0 && paramB === 100.0) {
+            // null op
+            instance.glState.renderGL(
+                inputTex, outputFBO, uniformSpec, {PASSTHROUGH: 1}
+            );
+            return;
+        }
+        const probe = instance.probe;
+        const channelBounds = probe.analyze(
+            probe,
+            inputTex,
+            width,
+            height,
+            paramA,
+            paramB,
+        );
+        const scales = []
+        const offsets = []
+        channelBounds.forEach(([low, high]) => {
+            scales.push(Math.min(1 / (high - low), 1000));
+            offsets.push(-low);
+        })
+        uniformSpec.u_scales = {value: scales, type: "floatArray"},
+        uniformSpec.u_offsets = {value: offsets, type: "floatArray"}
+        const defines = { PASSTHROUGH: 0,}
+        if (mode === 'luma') {
+            defines['CLIPMODE'] = '0'
         } else {
-            result = func(data, ...params);
+            defines['CLIPMODE'] = '1'
         }
-        return result;
-
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
 
+    async initHook(fx, renderer) {
+        await fragSources.load();
+        await makeProbe(fx, renderer);
+    },
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true,
     uiLayout: [
+        // only have percentile, might not even want others, they suck here
+
         {
+            key: "mode",
+            label: "Mode ",
             type: "select",
-            key: "method",
-            label: "Stretch Method",
             options: [
-                {value: "percentile", label: "Percentile Clip"},
-                {value: "stddev", label: "Standard Deviation Clip"},
-                {value: "minmax", label: "Min/Max Normalize"}
+                {value: "luma", label: "Luminance"},
+                {value: "channelwiise", label: "Per-Channel"},
             ]
         },
         {
-            type: "range",
+            type: "modSlider",
             key: "paramA",
-            label: "Param A",
-            min: 1,
+            label: "Low %",
+            min: 0,
             max: 100,
             step: 0.5
         },
         {
-            type: "range",
+            type: "modSlider",
             key: "paramB",
-            label: "Param B",
-            min: 1,
+            label: "High %",
+            min: 0,
             max: 100,
             step: 0.5
         },
-        {
-            type: "checkbox",
-            key: "channelwise",
-            label: "Channelwise"
-        }
     ]
-};
+}
 
 export const effectMeta = {
-  group: "Utility",
-  tags: ["normalize", "stretch", "contrast", "cpu"],
-  description: "Adjusts dynamic range using percentile, sigma, or full-range " +
-      "linear stretch. Useful as pre- or post-processing for other effects.",
-  canAnimate: false,
-  realtimeSafe: true,
+    group: "Utility",
+    tags: ["color", "clip", "brightness", "levels", "gpu"],
+    description: "Fast level-setter w/adjustable percentile bounds.",
+    backend: "gpu",
+    canAnimate: true,
+    realtimeSafe: true,
 };

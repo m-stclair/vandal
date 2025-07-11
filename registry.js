@@ -17,7 +17,7 @@ const effectFiles = [
     'edgetrace.js',
     'morphops_svg.js',
     'hillshade.js',
-    "auto_levels.js",
+    "auto_levels_slow.js",
     "brightness_contrast_saturation.js",
     "pixelate.js",
     "warpnoise_svg.js",
@@ -35,7 +35,8 @@ const effectFiles = [
     // "colorconvert_debug.js",
     "posterize_gl.js",
     "bcs_gl.js",
-    "look.js"
+    "look.js",
+    "auto_levels.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

@@ -65,7 +65,8 @@ export default {
             delay, window, density, angle, falloff, shearX, shearY,
             scaleX, scaleY
         } = resolveAnimAll(instance.config, t);
-        if (delay <= 0) return data;
+        // TODO: write equivalent quit-fast option for GL
+        // if (delay <= 0) return data;
         let kernelFn;
         let shapeArgs = [delay];
         if (window === "circle") {

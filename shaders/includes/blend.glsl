@@ -1,4 +1,3 @@
-// Available COLORSPACE values:
 #define COLORSPACE_RGB 0
 #define COLORSPACE_LAB 1
 #define COLORSPACE_LCH 2
@@ -7,7 +6,7 @@
 #ifndef COLORSPACE
 #define COLORSPACE COLORSPACE_RGB
 #endif
-//
+
 #if COLORSPACE == COLORSPACE_LAB
 #define IN_LAB_UNITS 1
 #elif COLORSPACE == COLORSPACE_LCH
@@ -15,7 +14,6 @@
 #else
 #define IN_LAB_UNITS 0
 #endif
-
 
 #if BLENDMODE == 4
 #define NEEDS_LAB_NORM 1
@@ -31,7 +29,6 @@
 
 
 vec3 applyBlend(vec3 base, vec3 fx, float blendAmount) {
-//
 #if NEEDS_LAB_NORM == 1
     #if COLORSPACE == COLORSPACE_LAB
         base = normalizeLab(base);

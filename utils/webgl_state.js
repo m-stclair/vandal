@@ -67,6 +67,10 @@ export class webGLState {
         gl.attachShader(prog, this.renderer.vertexShader);
         gl.attachShader(prog, fs);
         gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+          const info = gl.getProgramInfoLog(prog);
+          throw new Error(`Could not compile WebGL program. \n\n${info}`);
+         }
         this.last_defines = defines;
         return prog;
     }
@@ -130,7 +134,7 @@ export class webGLState {
                     const value = gl.createTexture()
                     this.allocateTexture(this.format, width, height, value);
                 }
-                if (!gl.isTexture(value)) {
+                if (!gl.iu_imagesTexture(value)) {
                     throw new Error("bad sideloaded texture")
                 }
                 gl.bindTexture(gl.TEXTURE_2D, value);

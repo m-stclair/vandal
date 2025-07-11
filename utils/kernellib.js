@@ -1,5 +1,7 @@
 // kernellib.js
 
+const KERNEL_SANITY_CUTOFF = 1000 * 1000
+
 /** Generalized kernel generator
  * shapeFn: (x, y, radius) => boolean  (includes point?)
  * options:
@@ -14,9 +16,24 @@ export function makeKernel(shapeFn, {
   maxTaps = Infinity,
   weightFn = () => 1
 } = {}) {
+  // always return identity kernel for 'invalid' radius/spacing
+  if (
+      !isFinite(radius) || !isFinite(spacing)
+      || isNaN(radius) || isNaN(spacing)
+      || radius <= 0 || spacing <= 0
+  ) {
+    return {taps: [[0, 0]], weights: [1]}
+  }
+  // do not generate kernels with more than a million elements (what are you
+  // doing with this thing? you are going to crash the tab)
+  if ((radius / spacing * 2) ** 2 > KERNEL_SANITY_CUTOFF) {
+    throw new Error(
+        `refusing to generate kernel of size ${(radius / spacing * 2) ** 2} .`
+        + `If you really meant to do that, go edit KERNEL_SANITY_CUTOFF.`
+    )
+  }
   const taps = [];
   const weights = [];
-
   for (let y = -radius; y <= radius; y += spacing) {
     const ny = y / radius;
     for (let x = -radius; x <= radius; x += spacing) {
@@ -36,6 +53,8 @@ export function makeKernel(shapeFn, {
 
   return { taps, weights };
 }
+
+
 
 // === Standard shapes ===
 

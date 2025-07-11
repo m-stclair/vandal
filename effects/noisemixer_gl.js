@@ -53,7 +53,6 @@ export default {
             u_fc: {value: new Float32Array(fc), type: "floatArray"},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmountC, type: "float"},
-            u_cmap_len: {value: colormap !== "none" ? LUTSIZE : 0, type: "int"}
         };
         const defines = {
             BLENDMODE: Number.parseInt(blendMode),
@@ -66,7 +65,7 @@ export default {
                 type: "texture2D",
                 width: LUTSIZE,
                 height: 1
-            }
+            };
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },

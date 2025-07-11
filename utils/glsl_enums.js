@@ -37,7 +37,9 @@ export const ColorspaceNames = {
     0: 'RGB',
     1: 'Lab',
     2: 'LCH',
-    3: 'HSV'
+    3: 'HSV',
+    4: 'Opponent',
+    5: 'YCbCr'
 }
 
 export let ColorspaceOpts = [];

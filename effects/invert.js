@@ -1,6 +1,12 @@
-import {combineChannels, splitChannels} from "../utils/imageutils.js";
-import {colorSpaces} from "../utils/colorutils.js";
+import {resolveAnimAll} from "../utils/animutils.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {ColorspaceOpts} from "../utils/glsl_enums.js";
 
+const shaderPath = "../shaders/invert.frag";
+const includePaths = {
+    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
+};
+const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -11,49 +17,45 @@ export default {
         invert0: true,
         invert1: true,
         invert2: true,
-        mode: "rgb"
+        colorSpace: '0'
     },
 
-    apply(instance, data, width, height) {
-        const {invert0, invert1, invert2, mode} = instance.config;
-        if (!(invert0 || invert1 || invert2)) return data;
-        const colorspace = colorSpaces[mode];
-        const {r, g, b, a} = splitChannels(data, width, height);
-        const inv0 = invert0 ? -1 : 1;
-        const off0 = invert0 ? 1 : 0;
-        const inv1 = invert1 ? -1 : 1;
-        const off1 = invert1 ? 1 : 0;
-        const inv2 = invert2 ? -1 : 1;
-        const off2 = invert2 ? 1 : 0;
-
-        for (let i = 0; i < data.length; i++) {
-            const cs = colorspace.to(r[i], g[i], b[i])
-            const c00 = cs[0] * inv0 + off0;
-            const c11 = cs[1] * inv1 + off1;
-            const c22 = cs[2] * inv2 + off2;
-            const rgb = colorspace.from(c00, c11, c22);
-            r[i] = rgb[0];
-            g[i] = rgb[1];
-            b[i] = rgb[2];
-        }
-        return combineChannels({r, g, b, a, width, height})
-    },
     uiLayout: [
-        { type: "checkbox", key: "invert0", label: "R / H / L" },
-        { type: "checkbox", key: "invert1", label: "G / S / a" },
-        { type: "checkbox", key: "invert2", label: "B / V / b" },
-        { type: "select", key: "mode", label: "Color Space", options: ["rgb", "hsl", "hsv", "lab"] },
-    ]
-}
+        { type: "checkbox", key: "invert0", label: "Channel 1" },
+        { type: "checkbox", key: "invert1", label: "Channel 2" },
+        { type: "checkbox", key: "invert2", label: "Channel 3" },
+        { type: "select", key: "colorSpace", label: "Colorspace", options: ColorspaceOpts },
+    ],
+
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSources)
+        const {
+            colorSpace,  invert0, invert1, invert2
+        } = resolveAnimAll(instance.config, t);
+        const uniformSpec = {
+            u_resolution: {type: "vec2", value: [width, height]},
+            u_invert0: {value: Number(invert0), type: "float"},
+            u_invert1: {value: Number(invert1), type: "float"},
+            u_invert2: {value: Number(invert2), type: "float"}
+        };
+        console.log(uniformSpec);
+        const defines = { COLORSPACE: Number.parseInt(colorSpace) };
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
+    },
+    initHook: fragSources.load,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true
+};
 
 export const effectMeta = {
   group: "Utility",
   tags: ["color", "luminance", "utility", "preprocessing"],
-  description: "Inverts luminance and/or per-channel RGB. Useful for pre- " +
-      "or post-processing",
-  backend: "cpu",
+  description: "Inverts selected channels in whatever colorspace Useful for " +
+      "pre- or post-processing, and fun negative efffects ",
+  backend: "gpu",
   canAnimate: false,
   realtimeSafe: true,
 };
-
-

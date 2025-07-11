@@ -23,7 +23,7 @@ export function generateEffectMetaFromModule(mod, filename) {
     group: userMeta.group || "Uncategorized",
     tags: [...new Set([...(userMeta.tags || []), ...inferredTags])],
     description: userMeta.description || "",
-    backend: userMeta.backend || (mod.shaderStuff ? "webgl" : "cpu"),
+    backend: userMeta.backend || (mod.isGPU ? "webgl" : "cpu"),
     kind: userMeta.kind || (mod.apply ? "pixel" : "visual"),
     realtimeSafe: userMeta.realtimeSafe ?? true,
     ...userMeta, // allow other overrides

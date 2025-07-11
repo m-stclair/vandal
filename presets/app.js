@@ -33,7 +33,7 @@ export const builtInPresets = [
                     "invert0": false,
                     "invert1": false,
                     "invert2": true,
-                    "mode": "lab"
+                    "mode": "2"
                 }
             },
             {
@@ -109,7 +109,7 @@ export const builtInPresets = [
             {
                 "name": "Wave Distortion",
                 "config": {
-                    "amplitude": 47,
+                    "amplitude": 0.5,
                     "frequency": 0.4,
                     "direction": "horizontal"
                 }
@@ -166,7 +166,7 @@ export const builtInPresets = [
                     "invert0": true,
                     "invert1": false,
                     "invert2": false,
-                    "mode": "lab"
+                    "mode": "2"
                 }
             },
             {
@@ -469,7 +469,7 @@ export const builtInPresets = [
             {
                 "name": "Wave Distortion",
                 "config": {
-                    "amplitude": 5,
+                    "amplitude": 0.05,
                     "frequency": 0.2,
                     "direction": "vertical"
                 }
@@ -477,7 +477,7 @@ export const builtInPresets = [
             {
                 "name": "Scanlines",
                 "config": {
-                    "lineSpacing": 4,
+                    "lineSpacing": 135,
                     "intensity": 0.7,
                     "phase": 0.25
                 }
@@ -569,7 +569,7 @@ export const builtInPresets = [
             {
                 "name": "Scanlines",
                 "config": {
-                    "lineSpacing": 4,
+                    "lineSpacing": 225,
                     "intensity": 0.5,
                     "phase": 0.28
                 }
@@ -677,7 +677,7 @@ export const builtInPresets = [
                     "invert0": false,
                     "invert1": true,
                     "invert2": true,
-                    "mode": "lab"
+                    "mode": "2"
                 }
             },
             {
@@ -1411,7 +1411,7 @@ export const builtInPresets = [
             {
                 "name": "Wave Distortion",
                 "config": {
-                    "amplitude": 5,
+                    "amplitude": 0.05,
                     "frequency": 1,
                     "direction": "vertical"
                 }

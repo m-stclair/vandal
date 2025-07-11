@@ -38,10 +38,10 @@ export default {
 
 export const effectMeta = {
   id: "banded_flip",
-  name: "Banded Flip",
+  name: "Blur",
   group: "Distortion",
   tags: ["bands", "invert", "temporal", "displacement", "svg"],
-  description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
+  description: "Blurs.",
   backend: "cpu",
   realtimeSafe: true,
 };

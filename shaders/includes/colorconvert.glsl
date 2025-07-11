@@ -14,7 +14,6 @@ float lab_fInv(float t) {
 }
 
 vec3 rgb2lab(vec3 rgb) {
-    // assumes linear RGB input
     float x = rgb.r * 0.4124564 + rgb.g * 0.3575761 + rgb.b * 0.1804375;
     float y = rgb.r * 0.2126729 + rgb.g * 0.7151522 + rgb.b * 0.0721750;
     float z = rgb.r * 0.0193339 + rgb.g * 0.1191920 + rgb.b * 0.9503041;
@@ -27,7 +26,7 @@ vec3 rgb2lab(vec3 rgb) {
     float a = 500.0 * (fx - fy);
     float b = 200.0 * (fy - fz);
 
-    return vec3(L, a, b); // no scaling
+    return vec3(L, a, b);
 }
 
 vec3 lab2rgb(vec3 lab) {
@@ -114,6 +113,42 @@ vec3 lch2rgb(vec3 lch) {
     return lab2rgb(vec3(L, a, b));
 }
 
+vec3 rgb2opponent(vec3 rgb) {
+    float o1 = (rgb.r + rgb.g + rgb.b) / 3.0;                  // intensity
+    float o2 = (rgb.r - rgb.g) / sqrt(2.0);                    // red vs green
+    float o3 = (rgb.r + rgb.g - 2.0 * rgb.b) / sqrt(6.0);      // yellow vs blue
+    return vec3(o1, o2, o3);
+}
+
+vec3 opponent2rgb(vec3 opp) {
+    float o1 = opp.x;
+    float o2 = opp.y;
+    float o3 = opp.z;
+    float r = o1 + o2 / sqrt(2.0) + o3 / sqrt(6.0);
+    float g = o1 - o2 / sqrt(2.0) + o3 / sqrt(6.0);
+    float b = o1 - 2.0 * o3 / sqrt(6.0);
+    return vec3(r, g, b);
+}
+
+
+vec3 rgb2ycbcr(vec3 rgb) {
+    float y  =  0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+    float cb = -0.169 * rgb.r - 0.331 * rgb.g + 0.500 * rgb.b + 0.5;
+    float cr =  0.500 * rgb.r - 0.419 * rgb.g - 0.081 * rgb.b + 0.5;
+    return vec3(y, cb, cr);
+}
+
+vec3 ycbcr2rgb(vec3 ycbcr) {
+    float y  = ycbcr.x;
+    float cb = ycbcr.y - 0.5;
+    float cr = ycbcr.z - 0.5;
+    float r = y + 1.402 * cr;
+    float g = y - 0.344136 * cb - 0.714136 * cr;
+    float b = y + 1.772 * cb;
+    return vec3(r, g, b);
+}
+
+
 vec3 srgb2linear(vec3 c) {
     return pow(c, vec3(2.2));
 }
@@ -137,3 +172,73 @@ vec3 normalizeLCH(vec3 lch) {
 vec3 denormalizeLCH(vec3 lchn) {
     return vec3(lchn.x * 100.0, lchn.y * 150.0, lchn.z * 360.0);
 }
+
+vec3 srgb2NormLab(vec3 srgb) {
+    return normalizeLab(rgb2lab(srgb2linear(srgb)));
+}
+vec3 normLab2SRGB(vec3 lab) {
+    return linear2srgb(lab2rgb(denormalizeLab(lab)));
+}
+
+vec3 srgb2NormLCH(vec3 srgb) {
+    return normalizeLCH(rgb2lch(srgb2linear(srgb)));
+}
+vec3 normLCH2SRGB(vec3 lch) {
+    return linear2srgb(lch2rgb(denormalizeLCH(lch)));
+}
+
+vec3 srgb2Opponent(vec3 srgb) {
+    return rgb2opponent(srgb2linear(srgb));
+}
+vec3 opponent2SRGB(vec3 opponent) {
+    return linear2srgb(opponent2rgb(opponent));
+}
+
+#define COLORSPACE_RGB 0
+#define COLORSPACE_LAB 1
+#define COLORSPACE_LCH 2
+#define COLORSPACE_HSV 3
+#define COLORSPACE_OPPONENT 4
+#define COLORSPACE_YCBCR 5
+
+
+#ifndef COLORSPACE
+#define COLORSPACE COLORSPACE_RGB
+#endif
+
+vec3 extractColor(vec3 srgb) {
+#if COLORSPACE == COLORSPACE_RGB
+    return srgb;
+#elif COLORSPACE == COLORSPACE_LAB
+    return srgb2NormLab(srgb);
+#elif COLORSPACE == COLORSPACE_HSV
+    return rgb2hsv(srgb);
+#elif COLORSPACE == COLORSPACE_LCH
+    return srgb2NormLCH(srgb);
+#elif COLORSPACE == COLORSPACE_OPPONENT
+    return srgb2Opponent(srgb);
+#elif COLORSPACE == COLORSPACE_YCBCR
+    return rgb2ycbcr(srgb);
+#else
+    return srgb;
+#endif
+}
+
+vec3 encodeColor(vec3 color) {
+#if COLORSPACE == COLORSPACE_RGB
+    return color;
+#elif COLORSPACE == COLORSPACE_LAB
+    return normLab2SRGB(color);
+#elif COLORSPACE == COLORSPACE_HSV
+    return hsv2rgb(color);
+#elif COLORSPACE == COLORSPACE_LCH
+    return normLCH2SRGB(color);
+#elif COLORSPACE == COLORSPACE_OPPONENT
+    return opponent2SRGB(color);
+#elif COLORSPACE == COLORSPACE_YCBCR
+    return ycbcr2rgb(color);
+#else
+    return color;
+#endif
+}
+

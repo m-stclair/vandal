@@ -7,8 +7,8 @@ precision mediump float;
 #include "blend.glsl"
 #include "psrdnoise2.glsl"
 
-#define BLENDMODE 2
-#define COLORSPACE COLORSPACE_RGB
+//#define BLENDMODE 2
+//#define COLORSPACE COLORSPACE_RGB
 
 uniform sampler2D u_image;
 uniform sampler2D u_cmap;
@@ -47,7 +47,6 @@ void main() {
     noiseVal += psrdnoise(vec2(xScl, yScl), vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
     noiseVal += gaussianNoise(vec2(xScl, yScl)) * u_gauss;
     noiseVal += pinkNoise(vec2(xScl, yScl)) * u_pink;
-
     noiseVal = clamp(noiseVal, 0.0, 1.0);
     vec3 noisePx;
 #if USE_CMAP == 0

@@ -7,9 +7,9 @@ const effectFiles = [
     'blur.js',
     'blur_svg.js',
     'rgbshift_svg.js',
+    // 'wave_old.js',
     'wave.js',
     'scanlines.js',
-    'posterize.js',
     'tile_desync.js',
     'banded_flip.js',
     'colorshred.js',
@@ -17,14 +17,11 @@ const effectFiles = [
     'edgetrace.js',
     'morphops_svg.js',
     'hillshade.js',
-    "auto_levels_slow.js",
-    "brightness_contrast_saturation.js",
     "pixelate.js",
     "warpnoise_svg.js",
-    "palette_debug.js",
+    // "palette_debug.js",
     "reinhardTransfer.js",
     "contour_synth.js",
-    "colormap.js",
     "fir.js",
     "delayline_gl.js",
     "affine_transform_gl.js",
@@ -32,11 +29,11 @@ const effectFiles = [
     "matrix_channelmixer.js",
     "perlin_distort_gl.js",
     "noisemixer_gl.js",
-    // "colorconvert_debug.js",
     "posterize_gl.js",
     "bcs_gl.js",
     "look.js",
-    "auto_levels.js"
+    "auto_levels.js",
+    "colormap.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

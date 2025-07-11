@@ -134,7 +134,7 @@ export class webGLState {
                     const value = gl.createTexture()
                     this.allocateTexture(this.format, width, height, value);
                 }
-                if (!gl.iu_imagesTexture(value)) {
+                if (!gl.isTexture(value)) {
                     throw new Error("bad sideloaded texture")
                 }
                 gl.bindTexture(gl.TEXTURE_2D, value);

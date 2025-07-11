@@ -51,7 +51,11 @@ vec3 applyLook(vec3 srgb) {
     vec3 perceptualOut = vec3(tone) + chroma * chroma_mix;
 
     // apply tint
-    vec3 tint = mix(vec3(1.0), u_tint_axis, u_tint_strength * tone);
+    vec3 tint = mix(
+        vec3(1.0),
+        mix(-u_tint_axis, u_tint_axis, lin_luma / tone),
+        u_tint_strength * tone
+    );
     perceptualOut *= tint;
     return perceptualOut;
 }

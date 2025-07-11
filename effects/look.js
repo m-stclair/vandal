@@ -17,7 +17,7 @@ export default {
         chromaWeight: 1.0,
         chromaFadeLow: -3,
         chromaFadeHigh: 2,
-        tintAxis: [1.04, 1, 0.96],
+        tintAxis: [1.27, 0.57, 0],
         tintStrength: 0
     },
     apply(instance, inputTex, width, height, t, outputFBO) {

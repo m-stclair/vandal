@@ -28,10 +28,14 @@ const effectFiles = [
     "fir.js",
     "delayline_gl.js",
     "affine_transform_gl.js",
-    "channelmixer_rgb_gl.js",
     "channelmixer.js",
+    "matrix_channelmixer.js",
     "perlin_distort_gl.js",
-    "noisemixer_gl.js"
+    "noisemixer_gl.js",
+    // "colorconvert_debug.js",
+    "posterize_gl.js",
+    "bcs_gl.js",
+    "look.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

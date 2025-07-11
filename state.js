@@ -126,6 +126,10 @@ export function getNormLoadID() {
     return normLoadID;
 }
 
+export function rerollNormLoadID() {
+    normLoadID = uuidv4();
+}
+
 export function getNormedImage() {
     if (!resizedOriginalImage) return null;
     if (normedImage === null) {

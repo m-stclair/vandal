@@ -1,14 +1,10 @@
-// affine_transform.js
-
 import {deg2rad, rotationMatrix2D, shearMatrix2D, scaleMatrix2D, multiplyMat2} from "../utils/mathutils.js";
-import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
-import {initGLEffect} from "../utils/gl.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
-const fragURL = new URL("../shaders/affine_transform.frag", import.meta.url);
-fragURL.searchParams.set("v", Date.now());
-const fragSource = loadFragInit(fragURL);
-
+const shaderPath = "../shaders/affine_transform.frag"
+const includePaths = {};
+const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -56,7 +52,7 @@ export default {
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
-        initGLEffect(instance, fragSource);
+        initGLEffect(instance, fragSources);
         const {
             angle,
             shearX,
@@ -83,7 +79,7 @@ export default {
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
     },
-    initHook: fragSource.load,
+    initHook: fragSources.load,
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
     },

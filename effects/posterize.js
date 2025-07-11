@@ -3,7 +3,7 @@ import {resolveAnimAll} from "../utils/animutils.js";
 
 /** @type {EffectModule} */
 export default {
-    name: "Posterize",
+    name: "Slow Posterize",
 
     defaultConfig: {
         levels: 6,
@@ -105,7 +105,8 @@ export const effectMeta = {
   group: "Color",
   tags: ["quantize", "posterize", "color", "cpu"],
   description: "Configurable classic posterization. Reduces the number of " +
-      "available luminance or channel levels, with various quantization options.",
+      "available luminance or channel levels, with various quantization options. " +
+      "Slow. Use the GL one.",
   canAnimate: true,
   realtimeSafe: true,
 };

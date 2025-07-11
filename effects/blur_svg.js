@@ -40,7 +40,7 @@ export const effectMeta = {
   id: "banded_flip",
   name: "Banded Flip",
   group: "Distortion",
-  tags: ["bands", "invert", "temporal", "displacement"],
+  tags: ["bands", "invert", "temporal", "displacement", "svg"],
   description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
   backend: "cpu",
   realtimeSafe: true,

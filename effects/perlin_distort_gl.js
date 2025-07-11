@@ -1,15 +1,11 @@
 import {resolveAnimAll} from "../utils/animutils.js";
-import {loadFragInit} from "../utils/load_runner.js";
-import {initGLEffect} from "../utils/gl.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
-const fragURL = [
-    new URL("../shaders/perlin_distort.frag", import.meta.url),
-    new URL("../shaders/noise.frag", import.meta.url),
-]
-
-fragURL.forEach((u) => u.searchParams.set("v", Date.now()))
-
-const fragSource = loadFragInit(fragURL);
+const shaderPath = "../shaders/perlin_distort.frag"
+const includePaths = {
+    'noise.glsl': "../shaders/includes/noise.glsl",
+};
+const fragSource = loadFragSrcInit(shaderPath, includePaths);
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -73,6 +69,7 @@ export default {
             fc, seed, depth, boundMode, rate, rateDrive, fuzz,
             noiseMode, clampScale
         } = resolveAnimAll(instance.config, t);
+        console.log(depth, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
         const modeCode = {'classic': 0, "blocks": 1}[noiseMode];

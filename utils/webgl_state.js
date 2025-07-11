@@ -8,6 +8,8 @@ export class webGLState {
         this.initialized = false;
         this.name = name;
         this.id = id;
+        this.includeMap = null;
+        this.last_defines = null;
     }
 
     get gl() {
@@ -26,7 +28,6 @@ export class webGLState {
         return this.renderer.getOrCreateLUT(name, data);
     }
 
-
     init() {
         if (!this.fragSrc) {
             throw new Error(`${this.name}-${this.id} GL init called with unloaded frag source`)
@@ -36,7 +37,6 @@ export class webGLState {
         this.initialized = true;
     }
 
-    // TODO: try to replace this with the lut functionality
     allocateTexture(format, width, height, buffer) {
         const {internalFormat, formatEnum, typeEnum, arrayConstructor} = this.renderer.format;
         const gl = this.gl;
@@ -47,13 +47,27 @@ export class webGLState {
         return buffer;
     }
 
-    buildProgram() {
+    definesChanged(defines) {
+        if (!defines) return false;
+        if (!this.last_defines) return true;
+        for (let k of Object.keys(defines)) {
+            if (defines[k] !== this.last_defines[k]) return true;
+        }
+        return false;
+    }
+
+    buildProgram(defines) {
         const gl = this.gl;
-        const fs = this.renderer.compile(gl.FRAGMENT_SHADER, this.fragSrc);
+        const fs = this.renderer.compile(
+            gl.FRAGMENT_SHADER,
+            this.fragSrc,
+            {includeMap: this.includeMap, defines: defines}
+        );
         const prog = gl.createProgram();
         gl.attachShader(prog, this.renderer.vertexShader);
         gl.attachShader(prog, fs);
         gl.linkProgram(prog);
+        this.last_defines = defines;
         return prog;
     }
 
@@ -68,9 +82,16 @@ export class webGLState {
         return locations;
     }
 
-    renderGL(inputTex, outputFBO, uniformSpec) {
+    renderGL(inputTex, outputFBO, uniformSpec, defines) {
         if (!this.initialized) this.init(this.gl, this.renderer);
         const gl = this.gl;
+        // this will result in a double compilation on the very first frame
+        // in some cases, which is probably not a huge deal.
+        if (this.definesChanged(defines)) {
+            gl.deleteProgram(this.program);
+            this.program = this.buildProgram(defines);
+            this.uniforms = this.getUniformLocations(this.program);
+        }
         gl.useProgram(this.program);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, inputTex);

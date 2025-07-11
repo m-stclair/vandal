@@ -31,7 +31,7 @@ function adjustColorChannels(r, g, b, config) {
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "B/C/S",
+    name: "Slow B/C/S",
 
     defaultConfig: {
         brightness: 0.0,
@@ -77,7 +77,7 @@ export default {
 export const effectMeta = {
   group: "Utility",
   tags: ["color", "brightness", "contrast", "saturation"],
-  description: "Adjusts brightness, contrast, and saturation simultaneously in a single color pass.",
+  description: "Adjusts brightness, contrast, and saturation. Slow. Use the other one.",
   backend: "cpu",
   canAnimate: true,
   realtimeSafe: true,

@@ -1,4 +1,3 @@
-import {WebGLRunner} from "../utils/webgl_runner.js";
 import {
     boxKernel,
     circularKernel,
@@ -10,12 +9,11 @@ import {deg2rad, multiplyMat2, rotationMatrix2D, scaleMatrix2D, shearMatrix2D} f
 import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
-import {loadFragInit} from "../utils/load_runner.js";
-import {initGLEffect} from "../utils/gl.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
-const fragURL = new URL("../shaders/delayline.frag", import.meta.url);
-fragURL.searchParams.set("v", Date.now());
-const fragSource = loadFragInit(fragURL);
+const shaderPath = "../shaders/delayline.frag"
+const includePaths = {};
+const fragSource = loadFragSrcInit(shaderPath, includePaths);
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */

@@ -1,4 +1,14 @@
+#version 300 es
+
 precision mediump float;
+
+#include "colorconvert.glsl"
+#include "noise.glsl"
+#include "blend.glsl"
+#include "psrdnoise2.glsl"
+
+#define BLENDMODE 2
+#define COLORSPACE COLORSPACE_RGB
 
 uniform sampler2D u_image;
 uniform sampler2D u_cmap;
@@ -12,122 +22,42 @@ uniform float u_simplex;
 uniform float u_gauss;
 uniform float u_pink;
 uniform float u_fc[3];
-uniform int u_blendmode;
-uniform int u_blur;
 uniform vec3 u_tint;
-uniform int u_tintSpace;
-uniform float u_master;
-uniform int u_cmap_len;
-
-
-vec3 softLightBlend(vec3 top, vec3 bot, float intensity);
-vec3 screenBlend(vec3 top, vec3 bot, float intensity);
-vec3 linearBlend(vec3 top, vec3 bot, float intensity);
-vec3 overlayBlend(vec3 top, vec3 bot, float intensity);
-vec3 darkenBlend(vec3 top, vec3 bot, float intensity);
-vec3 differenceBlend(vec3 top, vec3 bot, float intensity);
-vec3 hardLightBlend(vec3 top, vec3 bot, float intensity);
-vec3 colorBurnBlend(vec3 top, vec3 bot, float intensity);
-vec3 lightenBlend(vec3 top, vec3 bot, float intensity);
-vec3 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
-float uniformNoise(float x);
-vec2 simplexNoise2D(vec2 p);
-float gaussianNoise(vec2 p);
-float pinkNoise(vec2 p);
-float psrdnoise(vec2 x, vec2 period, float alpha, out vec2 gradient);
-vec3 hsv2rgb(vec3 c);
-vec3 rgb2hsv(vec3 c);
-
-const int MAX_LOOPS = 10;
+uniform float u_blendamount;
+out vec4 outColor;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
     vec2 uvs = uv + uniformNoise(u_seed);
     float xScl = uvs.x * u_freqx;
     float yScl = uvs.y * u_freqy;
-    float noiseVal = 0.;
-    if (u_uniform > 0.) {
-        noiseVal += uniformNoise(uvs.x * uvs.y) * u_uniform;
-    }
+    float noiseVal = 0.0;
+
+    noiseVal += uniformNoise(uvs.x * uvs.y) * u_uniform;
+
     float pVecs[4];
-    pVecs[0] = 1.;
-    pVecs[1] = 0.;
-    pVecs[2] = 0.;
-    pVecs[3] = 1.;
+    pVecs[0] = 1.0;
+    pVecs[1] = 0.0;
+    pVecs[2] = 0.0;
+    pVecs[3] = 1.0;
 
-//    float fc[3];
-//    fc[0] = 6.;
-//    fc[1] = 15.;
-//    fc[2] = 10.;
-    if (u_perlin > 0.) {
-        vec3 pnVal = perlinNoise2D(
-            vec2(xScl, yScl), u_fc, pVecs, u_seed
-        );
-        noiseVal += pnVal.x * u_perlin * 2.;
-    }
-    if (u_simplex > 0.) {
-        vec2 gradientOut = vec2(0., 0.);  // just scratch space
-        float smpnVal = psrdnoise(
-            vec2(xScl, yScl),
-            vec2(0., 0.),
-            0.,
-            gradientOut
-        );
-        noiseVal += smpnVal * u_simplex * 1.3;
-    }
+    noiseVal += perlinNoise2D(vec2(xScl, yScl), u_fc, pVecs, u_seed).x * u_perlin * 2.0;
 
-    if (u_gauss > 0.) {
-        float gnVal = gaussianNoise(vec2(xScl, yScl));
-        noiseVal += gnVal * u_gauss;
-    }
-    if (u_pink > 0.) {
-        float pinkVal = pinkNoise(vec2(xScl, yScl));
-        noiseVal += pinkVal * u_pink;
-    }
-    float noiseMax = clamp(u_pink + u_perlin + u_uniform + u_gauss + u_simplex, 0., 1.);
-    noiseVal = clamp(noiseVal, 0., 1.);
-    float master = max(u_master, noiseMax);
-    vec3 noisePx = clamp(vec3(noiseVal, noiseVal, noiseVal), 0., 1.);
+    vec2 gradientOut = vec2(0.0, 0.0); // scratch
+    noiseVal += psrdnoise(vec2(xScl, yScl), vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
+    noiseVal += gaussianNoise(vec2(xScl, yScl)) * u_gauss;
+    noiseVal += pinkNoise(vec2(xScl, yScl)) * u_pink;
 
-//    vec3 tone = vec3(
-//        texture2D(u_cmap, uv).rgb
-//    );
-//    gl_FragColor = vec4(tone, 1.);
+    float noiseMax = clamp(u_pink + u_perlin + u_uniform + u_gauss + u_simplex, 0.0, 1.0);
+    noiseVal = clamp(noiseVal, 0.0, 1.0);
+    vec3 noisePx = vec3(noiseVal);
 
-    if (u_cmap_len == 0) {
-        noisePx *= u_tint;
-    } else {
-        noisePx = texture2D(u_cmap, vec2(clamp(noiseVal, 0.0, 1.0), 0.5)).rgb;
-    }
-    vec3 inColor = texture2D(u_image, uv).rgb;
-    if (u_tintSpace == 1) {
-        inColor = rgb2hsv(inColor);
-        noisePx = rgb2hsv(noisePx);
-    }
-
-    vec3 blended;
-    if (u_blendmode == 0) {
-        blended = linearBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 1) {
-        blended = screenBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 2) {
-        blended = softLightBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 3) {
-        blended = hardLightBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 4) {
-        blended = differenceBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 5) {
-        blended = colorBurnBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 6) {
-        blended = darkenBlend(inColor.rgb, noisePx, u_master);
-    } else if (u_blendmode == 7) {
-        blended = lightenBlend(inColor.rgb, noisePx, u_master);
-    } else {
-        blended = noisePx;
-    }
-
-    if (u_tintSpace == 1) {
-        blended = hsv2rgb(blended);
-    }
-    gl_FragColor = clamp(vec4(blended, texture2D(u_image, uv).a), 0., 1.);
+#if USE_CMAP == 0
+    noisePx *= u_tint;
+#else
+    noisePx = texture(u_cmap, vec2(clamp(noiseVal, 0.0, 1.0), 0.5)).rgb;
+#endif
+    vec3 inColor = texture(u_image, uv).rgb;
+    vec3 blended = blendWithColorSpace(inColor, noisePx, u_blendamount);
+    outColor = vec4(clamp(blended, 0.0, 1.0), texture(u_image, uv).a);
 }

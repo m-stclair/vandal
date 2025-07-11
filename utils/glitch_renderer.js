@@ -1,12 +1,11 @@
 // Hybrid GPU/CPU pipeline manager
-import {checkFrameBuffer, checkTexture} from "./gl.js";
+import {checkFrameBuffer, checkTexture, preprocessGLSL} from "./gl.js";
 import {
     getEffectStack,
     getNormedImage,
     getNormLoadID,
     renderCacheGet,
     renderCacheSet,
-    renderCache,
     clearRenderCache
 } from "../state.js";
 import {hashObject} from "./helpers.js";
@@ -44,10 +43,13 @@ export class GlitchRenderer {
         this.compileVertexShader();
     }
 
-    compile(type, source) {
+    compile(type, source, ppOptions) {
         const gl = this.gl;
         const shader = gl.createShader(type);
-        gl.shaderSource(shader, source)
+        const processed = preprocessGLSL(source, ppOptions);
+        console.log(processed);
+        // console.log(ppOptions?.defines)
+        gl.shaderSource(shader, processed);
         gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             throw new Error(gl.getShaderInfoLog(shader));
@@ -56,9 +58,10 @@ export class GlitchRenderer {
     }
 
     compileVertexShader() {
-        this.vertexShader = this.compile(this.gl.VERTEX_SHADER, `
-          attribute vec2 a_position;
-          varying vec2 v_texCoord;
+        this.vertexShader = this.compile(this.gl.VERTEX_SHADER,
+            `#version 300 es
+          in vec2 a_position;
+          out vec2 v_texCoord;
           void main() {
             v_texCoord = 0.5 * (a_position + 1.0);
             gl_Position = vec4(a_position, 0, 1);
@@ -206,8 +209,7 @@ export class GlitchRenderer {
     }
 
 
-    applyEffects(t) {
-        let normedImage = getNormedImage();
+    applyEffects(t, normedImage) {
         if (!normedImage) {
             normedImage = getNormedImage();
         }
@@ -219,7 +221,7 @@ export class GlitchRenderer {
             currentTex = this.ensureInputTexture(data, width, height);
             this.inputTexture = currentTex;
             clearRenderCache();
-            // this.clearEffectBuffers();
+            this.clearEffectBuffers();
         }
         this.lastLoadID = loadId;
         const effects = getEffectStack();
@@ -230,7 +232,6 @@ export class GlitchRenderer {
             data: data,
             texture: this.inputTexture
         };
-        // const start = performance.now();
         for (const fx of effects) {
             if (!fx.apply) continue;
             if (fx.disabled || (anySolo && !fx.solo)) {
@@ -247,20 +248,27 @@ export class GlitchRenderer {
                 !cacheEntry
                 || hashChain !== cacheEntry.hashChain
             );
-            let needsUpdate = ((hashChanged || animationUpdate) || !cacheEntry?.texture);
+            let needsUpdate = (
+                (hashChanged || animationUpdate)
+                || (!cacheEntry?.texture && !cacheEntry?.data)
+            );
             let update = {};
-            const fxStart = performance.now()
             if (needsUpdate) {
                 let input;
+                console.log(`rendering ${fx.name}-${fx.id}`)
                 if (isGPU && lastCacheEntry?.texture) {
                     input = lastCacheEntry.texture;
                 } else if (isGPU && lastCacheEntry?.data) {
-                    lastCacheEntry.texture = this.f32ToTex(lastCacheEntry.data, width, height);
+                    lastCacheEntry.texture = this.f32ToTex(
+                        lastCacheEntry.data, width, height
+                    );
                     input = lastCacheEntry.texture;
                 } else if (!isGPU && lastCacheEntry?.data) {
                     input = lastCacheEntry.data;
                 } else if (!isGPU && lastCacheEntry?.texture) {
-                    lastCacheEntry.data = this.readFramebufferToPixels(lastCacheEntry.texture, width, height)
+                    lastCacheEntry.data = this.readFramebufferToPixels(
+                        lastCacheEntry.texture, width, height
+                    )
                     input = lastCacheEntry.data;
                 } else {
                     throw new Error("invalid effect cache state");
@@ -272,13 +280,12 @@ export class GlitchRenderer {
                         throw new Error("GL effect not attached to this renderer")
                     }
                     const fbo = this.getEffectFBO(fx.id, width, height);
-                    fx.apply(fx, input, width, height, 0, fbo);
+                    fx.apply(fx, input, width, height, t, fbo);
                     update['texture'] = fbo.texture;
                 }
             } else {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }
-            console.log(`${performance.now() - fxStart}ms for ${fx.name}-${fx.id}`)
 
             lastCacheEntry = {
                 config: structuredClone(fx.config),
@@ -299,7 +306,6 @@ export class GlitchRenderer {
             throw new Error("invalid pipeline output")
         }
         this.reset();
-        // console.log(`${performance.now() - start} ms total`)
         return finalPixels;
     }
 

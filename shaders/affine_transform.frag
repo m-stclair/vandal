@@ -1,4 +1,4 @@
-// affine_transform.frag
+#version 300 es
 
 precision mediump float;
 
@@ -7,6 +7,7 @@ uniform vec2 u_resolution;
 uniform vec2 u_offset;
 uniform mat2 u_affine;
 uniform int u_wrap;
+out vec4 outColor;
 
 void main() {
   vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
@@ -18,5 +19,5 @@ void main() {
   } else {
     transformed = u_affine * offset + center + u_offset;
   }
-  gl_FragColor = texture2D(u_image, transformed);
+  outColor = texture(u_image, transformed);
 }

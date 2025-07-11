@@ -63,50 +63,6 @@ vec3 colorDodgeBlend(vec3 top, vec3 bot, float intensity) {
     return mix(top, min(top / (1.0 - bot), vec3(1.0)), intensity);
 }
 
-// Convert RGB to HSV
-vec3 rgb2hsv(vec3 c) {
-    float maxc = max(c.r, max(c.g, c.b));
-    float minc = min(c.r, min(c.g, c.b));
-    float delta = maxc - minc;
-
-    float h = 0.0;
-    float s = (maxc == 0.0) ? 0.0 : (delta / maxc);
-    float v = maxc;
-
-    if (delta != 0.0) {
-        if (maxc == c.r) {
-            h = (c.g - c.b) / delta;
-        } else if (maxc == c.g) {
-            h = (c.b - c.r) / delta + 2.0;
-        } else {
-            h = (c.r - c.g) / delta + 4.0;
-        }
-        h /= 6.0;
-        if (h < 0.0) h += 1.0;
-    }
-
-    return vec3(h, s, v);
-}
-
-// Convert HSV to RGB
-vec3 hsv2rgb(vec3 c) {
-    float h = c.x * 6.0;
-    float s = c.y;
-    float v = c.z;
-
-    int i = int(floor(h));
-    float f = h - float(i);
-    float p = v * (1.0 - s);
-    float q = v * (1.0 - f * s);
-    float t = v * (1.0 - (1.0 - f) * s);
-
-    if (i == 0) return vec3(v, t, p);
-    if (i == 1) return vec3(q, v, p);
-    if (i == 2) return vec3(p, v, t);
-    if (i == 3) return vec3(p, q, v);
-    if (i == 4) return vec3(t, p, v);
-    return vec3(v, p, q);
-}
 
 // Color Burn Blend Mode
 vec3 colorBurnBlend(vec3 top, vec3 bot, float intensity) {

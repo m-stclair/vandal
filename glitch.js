@@ -28,7 +28,7 @@ import {
     clearNormedImage,
     getNormedImage,
     getNormLoadID,
-    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer, renderCache
+    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer, renderCache, rerollNormLoadID
 } from "./state.js";
 import {formatFloatWidth, gid, hashObject, imageDataHash} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
@@ -112,58 +112,6 @@ export function isModulating(fx) {
         && p.mod?.type !== "none"
         && (!(p instanceof Array))
     )
-}
-
-let currentData = null; // null until GPU->CPU fallback occurs
-let onGPU = true;
-
-
-function applyEffects(t = 0, context = defaultCtx, normedImage = null) {
-    if (!normedImage) {
-        normedImage = getNormedImage();
-    }
-    if (normedImage === null) return;
-    const {width, height} = normedImage;
-    let {data} = normedImage;
-    const anySolo = getEffectStack().some(fx => fx.solo);
-    let hashChain = `top-${width}-${height}-${getNormLoadID()}`;
-    let priorHash = hashChain;
-    let animationUpdate = false;
-    forEachEffect((fx) => {
-        if (!fx.apply) return;
-        if (fx.disabled || (anySolo && !fx.solo)) {
-            hashChain += `${fx.name}-${fx.id}-disabled`;
-            priorHash = hashChain;
-            return;
-        }
-        const cacheEntry = renderCacheGet(fx.id);
-        const timeChanged = cacheEntry?.lastT !== t;
-        animationUpdate = animationUpdate ? animationUpdate : isModulating(fx) && timeChanged;
-        hashChain += hashObject(fx.config) + fx.id;
-        if (isModulating(fx)) hashChain += `-${t}`;
-        const hashChanged = (
-            !cacheEntry
-            || hashChain !== cacheEntry.hashChain
-        );
-        if (hashChanged || animationUpdate) {
-            // const enter = performance.now()
-            // console.log(hashChain);
-            data = fx.apply(fx, data, width, height, t, priorHash);
-            // const exit = performance.now()
-            // console.log(`rendered ${fx.name}-${fx.id}: ${exit-enter}ms`)
-            renderCacheSet(fx.id, {
-                data: data,
-                config: structuredClone(fx.config),
-                disabled: fx.disabled,
-                hashChain: hashChain,
-                lastT: t
-            });
-        } else {
-            data = cacheEntry.data;
-        }
-        priorHash = hashChain;
-    })
-    setRenderedImage(deNormalizeImageData(data, width, height), context);
 }
 
 function maybeCallStyleHook(fx) {
@@ -460,18 +408,16 @@ async function exportImage(resolution) {
             const eCtx = exportCanvas.getContext('2d')
             return [imageData, eCtx];
         }
-
     }
-
     let [normData, eCtx] = getImg();
 
     function executeRender() {
         const t = animating ? (performance.now() - startTime) / 1000 : 0;
-        updateRenderMsg("rendering effects")
-        applyEffects(t, eCtx, normData);
-        updateRenderMsg("rendering visual styles")
+        updateRenderMsg("rendering effects");
+        clearRenderCache();
+        rerollNormLoadID();  // to trigger framebuffer invalidation
+        firePipeline(t, eCtx, normData);
         updateVisualStyles(exportCanvas);
-        updateRenderMsg("writing");
         exportCanvas.toBlob(onBlobResolved, 'image/png');
     }
 
@@ -485,6 +431,7 @@ async function exportImage(resolution) {
         eCtx = null;
         clearRenderCache();
         freezeAnimationFlag = false;
+        rerollNormLoadID();  // to trigger framebuffer invalidation
     }
 
     function onBlobResolved(blob) {
@@ -534,7 +481,7 @@ function tick(now) {
         const label = input.querySelector(".slider-value");
         label.textContent = formatFloatWidth(resolved);
     });
-    applyEffects(t);
+    firePipeline(t);
     if (capturing && capturer) {
         capturer.capture(document.getElementById('glitchCanvas'));
         frameCounter++;
@@ -547,13 +494,16 @@ function tick(now) {
     }
 }
 
+function firePipeline(t=0, ctx=defaultCtx, normedImage=getNormedImage()) {
+    const applied = renderer.applyEffects(t, normedImage);
+    const {width, height} = normedImage;
+    setRenderedImage(deNormalizeImageData(applied, width, height), ctx)
+    updateVisualStyles();
+}
 
 function renderImage() {
     if (!getNormedImage()) return;
-    const applied = renderer.applyEffects(0);
-    const {width, height} = getNormedImage();
-    setRenderedImage(deNormalizeImageData(applied, width, height), defaultCtx)
-    updateVisualStyles();
+    firePipeline();
     const animShouldBeRunning = isAnimationActive();
     if (animShouldBeRunning && !animating) {
         startTime = performance.now();

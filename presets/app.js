@@ -37,13 +37,11 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Posterize",
+                "name": "Posterize (GL)",
                 "config": {
                     "levels": 8,
-                    "perChannel": true,
-                    "mode": "gamma",
-                    "gamma": 3.3,
-                    "preserveAlpha": true
+                    "mode": "3",
+                    "mod": 0.55,
                 }
             },
             {
@@ -172,13 +170,12 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Posterize",
+                "name": "Posterize (GL)",
                 "config": {
                     "levels": 5,
-                    "perChannel": true,
-                    "mode": "gamma",
-                    "gamma": 0.5,
-                    "preserveAlpha": true
+                    "mode": "1",
+                    "colorSpace": "2",
+                    "c1": false
                 }
             }
         ]
@@ -187,13 +184,9 @@ export const builtInPresets = [
         "name": "Transfer Sunrise",
         "config": [
             {
-                "name": "Posterize",
+                "name": "Posterize (GL)",
                 "config": {
                     "levels": 8,
-                    "perChannel": true,
-                    "mode": "uniform",
-                    "gamma": 2.2,
-                    "preserveAlpha": true
                 }
             },
             {
@@ -210,7 +203,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Channel Mixer",
+                "name": "Matrix Channel Mixer",
                 "config": {
                     "colorSpaceIn": "lab",
                     "colorSpaceOut": "lab",
@@ -416,19 +409,19 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "RGB Channel Mixer (GL)",
+                "name": "Channel Mixer (GL)",
                 "config": {
-                    "rMix": [
+                    "mix1": [
                         0.83,
                         0,
                         0
                     ],
-                    "gMix": [
+                    "mix2": [
                         0,
                         1,
                         0
                     ],
-                    "bMix": [
+                    "mix3": [
                         -0.14,
                         -0.04,
                         1
@@ -437,7 +430,8 @@ export const builtInPresets = [
                         0,
                         0,
                         0
-                    ]
+                    ],
+                    "colorSpace": '0'
                 }
             }
         ]
@@ -567,13 +561,9 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Posterize",
+                "name": "Posterize (GL)",
                 "config": {
                     "levels": 8,
-                    "perChannel": true,
-                    "mode": "uniform",
-                    "gamma": 2.2,
-                    "preserveAlpha": false
                 }
             },
             {
@@ -601,7 +591,7 @@ export const builtInPresets = [
                     "frequency": 115.95100609902991,
                     "freqShift": 0.05,
                     "seed": 161,
-                    "blendMode": "hard light",
+                    "blendMode": "10",
                     "fc": [
                         6,
                         15,
@@ -802,7 +792,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Channel Mixer",
+                "name": "Matrix Channel Mixer",
                 "config": {
                     "colorSpaceIn": "lab",
                     "colorSpaceOut": "lab",
@@ -846,7 +836,7 @@ export const builtInPresets = [
                         0.42
                     ],
                     "seed": 314,
-                    "blendMode": "hard light",
+                    "blendMode": "10",
                     "tintSpace": "HSV",
                     "fc": [
                         7,

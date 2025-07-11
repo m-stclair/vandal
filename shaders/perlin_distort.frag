@@ -1,4 +1,8 @@
+#version 300 es
+
 precision mediump float;
+
+#include "noise.glsl"
 
 uniform sampler2D u_image;
 uniform vec2 u_pitch;
@@ -15,9 +19,7 @@ uniform float u_fuzz;
 uniform int u_noisemode;
 uniform float u_gradient[4];
 uniform float u_clampscale;
-
-vec3 perlinNoise2D(vec2 uv, float fadeCoeffs[3], float vecs[4], float seed);
-float uniformNoise(float x);
+out vec4 outColor;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy) / u_resolution;
@@ -41,5 +43,5 @@ void main() {
     if (u_boundmode == 0) {
         uv = fract(uv);
     }
-    gl_FragColor = texture2D(u_image, uv);
+    outColor = texture(u_image, uv);
 }

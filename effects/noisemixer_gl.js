@@ -1,18 +1,16 @@
-import {loadFragInit} from "../utils/load_runner.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
-import {initGLEffect} from "../utils/gl.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {BlendOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
-const fragURL = [
-    new URL("../shaders/noisemixer.frag", import.meta.url),
-    new URL("../shaders/noise.frag", import.meta.url),
-    new URL("../shaders/blend.frag", import.meta.url),
-    new URL("../shaders/psrdnoise2.glsl", import.meta.url),
-]
-
-fragURL.forEach((u) => u.searchParams.set("v", Date.now()))
-
-const fragSource = loadFragInit(fragURL);
+const shaderPath = "../shaders/noisemixer.frag"
+const includePaths = {
+    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
+    'blend.glsl': '../shaders/includes/blend.glsl',
+    'noise.glsl': '../shaders/includes/noise.glsl',
+    'psrdnoise2.glsl': '../shaders/includes/psrdnoise2.glsl'
+};
+const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -23,36 +21,24 @@ export default {
         freqShift: 0,
         tint: [1, 1, 1],
         seed: 1,
-        blendMode: "normal",
-        tintSpace: "RGB",
+        blendMode: '1',
+        colorSpace: '0',
         fc: [6, 15, 10],
         components: [0, 0, 1, 0, 0],
-        master: 1,
+        blendAmount: 0.5,
         colormap: "none"
     },
     apply(instance, inputTex, width, height, t, outputFBO) {
-        initGLEffect(instance, fragSource)
+        initGLEffect(instance, fragSources)
         const {
             seed, frequency, freqShift, components, fc,
-            blendMode, tintSpace, tint, master, colormap
+            blendMode, colorSpace, tint, blendAmount, colormap
         } = resolveAnimAll(instance.config, t);
         // TODO: this is wrong
         if (!components.some((c) => c)) return inputTex;
         const [uniform, perlin, simplex, gauss, pink] = components;
-        const blendCode = {
-            "linear": 0,
-            "screen": 1,
-            "soft light": 2,
-            "hard light": 3,
-            "difference": 4,
-            "color burn": 5,
-            "darken": 6,
-            "lighten": 7
-        }[blendMode];
-
-        const tintSpaceN = {"RGB": 0, "HSV": 1}[tintSpace];
         const noiseMax = pink + perlin + uniform + gauss + simplex;
-        const masterC = (noiseMax < 1) ? Math.min(master, noiseMax) : master;
+        const blendAmountC = (noiseMax < 1) ? Math.min(blendAmount, noiseMax) : blendAmount;
 
         const uniformSpec = {
             u_freqx: {type: "float", value: frequency * (1 + freqShift)},
@@ -65,12 +51,15 @@ export default {
             u_pink: {type: "float", value: pink},
             u_simplex: {type: "float", value: simplex},
             u_fc: {value: new Float32Array(fc), type: "floatArray"},
-            u_blendmode: {value: blendCode, type: "int"},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
-            u_tintSpace: {value: tintSpaceN, type: "int"},
-            u_master: {value: masterC, type: "float"},
+            u_blendamount: {value: blendAmountC, type: "float"},
             u_cmap_len: {value: colormap !== "none" ? LUTSIZE : 0, type: "int"}
         };
+        const defines = {
+            BLENDMODE: Number.parseInt(blendMode),
+            USE_CMAP: colormap === "none" ? 0 : 1,
+            COLORSPACE: Number.parseInt(colorSpace)
+        }
         if (colormap !== "none") {
             uniformSpec["u_cmap"] = {
                 value: instance.glState.getOrCreateLUT(colormap, cmapLuts[colormap]),
@@ -79,7 +68,7 @@ export default {
                 height: 1
             }
         }
-        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     uiLayout: [
         {key: "seed", label: "Seed", type: "modSlider", min: 1, max: 500, step: 1},
@@ -93,13 +82,12 @@ export default {
             step: 0.01,
             length: 5
         },
-        {key: "master", label: "Master", type: "Range", min: 0, max: 1, step: 0.01},
+        {key: "blendAmount", label: "Blend", type: "Range", min: 0, max: 1, step: 0.01},
         {
             key: 'blendMode',
             label: 'Blend Mode',
             type: 'Select',
-            options: ['linear', 'screen', 'soft light', 'hard light',
-                'difference', 'color burn', 'darken', 'lighten']
+            options: BlendOpts
         },
         {
             type: "select",
@@ -117,10 +105,10 @@ export default {
             step: 0.01,
         },
         {
-            key: 'tintSpace',
-            label: 'Tint Colorspace',
+            key: 'colorSpace',
+            label: 'Blend Colorspace',
             type: 'Select',
-            options: ['RGB', 'HSV']
+            options: ColorspaceOpts
         },
         {key: "frequency", label: "Frequency", type: "Range", min: 1, max: 5000, steps: 300, scale: "log"},
         {
@@ -134,7 +122,7 @@ export default {
         },
         {key: "freqShift", label: "Frequency Shift", type: "Range", min: -0.25, max: 0.25, step: 0.02},
     ],
-    initHook: fragSource.load,
+    initHook: fragSources.load,
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
     },

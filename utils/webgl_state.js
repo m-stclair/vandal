@@ -28,11 +28,11 @@ export class webGLState {
         return this.renderer.getOrCreateLUT(name, data);
     }
 
-    init() {
+    init(defines) {
         if (!this.fragSrc) {
             throw new Error(`${this.name}-${this.id} GL init called with unloaded frag source`)
         }
-        this.program = this.buildProgram();
+        this.program = this.buildProgram(defines);
         this.uniforms = this.getUniformLocations(this.program);
         this.initialized = true;
     }
@@ -83,7 +83,7 @@ export class webGLState {
     }
 
     renderGL(inputTex, outputFBO, uniformSpec, defines) {
-        if (!this.initialized) this.init(this.gl, this.renderer);
+        if (!this.initialized) this.init(defines);
         const gl = this.gl;
         // this will result in a double compilation on the very first frame
         // in some cases, which is probably not a huge deal.

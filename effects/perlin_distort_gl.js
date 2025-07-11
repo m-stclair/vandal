@@ -69,7 +69,6 @@ export default {
             fc, seed, depth, boundMode, rate, rateDrive, fuzz,
             noiseMode, clampScale
         } = resolveAnimAll(instance.config, t);
-        console.log(depth, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
         const modeCode = {'classic': 0, "blocks": 1}[noiseMode];

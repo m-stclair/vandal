@@ -51,8 +51,7 @@ vec2 perlinBlocks(
     float fadeCoeffs[3],
     float vecs[4],
     float seed
-)
-{
+) {
     vec2 x0 = vec2(floor(uv.x), floor(uv.y));
     vec2 dxy = uv - vec2(float(x0.x), float(x0.y));
     vec2 fadeXY = fade(dxy, fadeCoeffs);
@@ -121,33 +120,3 @@ float pinkNoise(vec2 p) {
 
     return total;
 }
-
-
-// TODO : broken
-
-//vec2 l1grad(float ix, float iy) {
-//    float h = uniformNoise(ix * iy);
-//
-//    vec2 grad0 = vec2(1.0, 0.0);// Horizontal
-//    vec2 grad1 = vec2(0.0, 1.0);// Vertical
-//    vec2 grad2 = vec2(-1.0, 0.0);// Horizontal reverse
-//    vec2 grad3 = vec2(0.0, -1.0);// Vertical reverse
-//
-//    return  grad0 * step(0.25, h) +
-//    grad1 * step(0.5, h) * (1.0 - step(0.25, h)) +
-//    grad2 * step(0.75, h) * (1.0 - step(0.5, h)) +
-//    grad3 * (1.0 - step(0.75, h));
-//
-//}
-//
-//
-//// Simplex Noise 2D function (based on Ken Perlin's implementation)
-//vec2 simplexNoise2D(vec2 p) {
-//const vec2 G = vec2(0.211324865405187, 0.366025403784439);
-//vec2 s = floor(p + dot(p, G));
-//vec2 d = p - s + dot(s, G);
-//vec2 i = floor(d);
-//vec2 f = d - i;
-//
-//vec2 g = vec2(i.x + f.x, i.y + f.y);
-//return l1grad(g.x, g.y);

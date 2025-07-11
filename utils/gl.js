@@ -37,8 +37,9 @@ export function initGLEffect(instance, fragSource) {
     instance.glState.includeMap = fragSource.includeMap;
 }
 
-
+// TODO: some bug somewhere related to bareword substitution
 function _preprocessGLSL(source, defines, includeMap) {
+    console.log(defines)
     const lines = source.split('\n');
     const output = [];
     const stack = [];
@@ -49,8 +50,15 @@ function _preprocessGLSL(source, defines, includeMap) {
         if (line.startsWith('#define ')) {
             const [_, key, val] = line.match(/^#define\s+(\w+)(?:\s+(.*))?/) || [];
             if (!key) continue;
-            if (defines[key] !== undefined) continue;
+            if (defines[key] !== undefined) {
+                console.log(`got ${key}: ${defines[key]}`)
+                console.log(`on ${line}`)
+                continue;
+            }
             defines[key] = val || '1';
+            console.log(`set ${key}: ${defines[key]}`)
+                            console.log(`on ${line}`)
+
             continue;
         }
         if (line.startsWith('#undef ')) {
@@ -131,6 +139,9 @@ function _preprocessGLSL(source, defines, includeMap) {
         }
         if (!skipping) {
             const processed = rawLine.replace(/\b(\w+)\b/g, k => defines[k] ?? k);
+            if (processed !== rawLine) {
+                console.log(rawLine, '\n', processed)
+            }
             output.push(processed);
         }
     }

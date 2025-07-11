@@ -48,12 +48,10 @@ void main() {
     noiseVal += gaussianNoise(vec2(xScl, yScl)) * u_gauss;
     noiseVal += pinkNoise(vec2(xScl, yScl)) * u_pink;
 
-    float noiseMax = clamp(u_pink + u_perlin + u_uniform + u_gauss + u_simplex, 0.0, 1.0);
     noiseVal = clamp(noiseVal, 0.0, 1.0);
-    vec3 noisePx = vec3(noiseVal);
-
+    vec3 noisePx;
 #if USE_CMAP == 0
-    noisePx *= u_tint;
+    noisePx = noiseVal * u_tint;
 #else
     noisePx = texture(u_cmap, vec2(clamp(noiseVal, 0.0, 1.0), 0.5)).rgb;
 #endif

@@ -961,5 +961,348 @@ export const builtInPresets = [
                 }
             }
         ]
-    }
+    },
+    {
+    "name": "When Crayon",
+    "config": [
+        {
+            "name": "Contour Synth",
+            "config": {
+                "freq": 1,
+                "freqScale": 0.7780101850886281,
+                "phaseScale": 1.3454242035217665,
+                "blend": 0.36,
+                "phaseOff": -94.5,
+                "spatialMode": "none",
+                "colorMode": "pass",
+                "hueModStrength": 0.5
+            }
+        },
+        {
+            "name": "Noise Mixer (GL)",
+            "config": {
+                "frequency": 74.06700812523023,
+                "freqShift": -0.01,
+                "tint": [
+                    1,
+                    1,
+                    1
+                ],
+                "seed": 374,
+                "blendMode": "9",
+                "colorSpace": "0",
+                "fc": [
+                    5.75,
+                    15,
+                    10
+                ],
+                "components": [
+                    0,
+                    0.25,
+                    0.45,
+                    0,
+                    0
+                ],
+                "blendAmount": 0.5,
+                "colormap": "inferno",
+                "tintSpace": "RGB",
+                "master": 0.69
+            }
+        },
+        {
+            "name": "B/C/S",
+            "config": {
+                "brightness": 0,
+                "contrast": 1,
+                "saturation": 0.83,
+                "graypoint": 0.3
+            }
+        }
+    ]
+},
+    {
+    "name": "Puzzling",
+    "config": [
+        {
+            "name": "Auto Levels",
+            "config": {
+                "method": "percentile",
+                "paramA": 25,
+                "paramB": 98.5,
+                "channelwise": true
+            }
+        },
+        {
+            "name": "Noise Mixer (GL)",
+            "config": {
+                "frequency": 84.52299235058047,
+                "freqShift": 0,
+                "tint": [
+                    0.56,
+                    0.42,
+                    0.28
+                ],
+                "seed": 242,
+                "blendMode": "8",
+                "colorSpace": "0",
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "components": [
+                    0,
+                    0,
+                    0,
+                    0.85,
+                    0
+                ],
+                "blendAmount": 0.67,
+                "colormap": "none",
+                "tintSpace": "HSV",
+                "master": 0.23
+            }
+        },
+        {
+            "name": "Pixelate",
+            "config": {
+                "blockSize": 44,
+                "sampleStrategy": "center",
+                "preserveAlpha": true
+            }
+        },
+        {
+            "name": "Perlin Distort (GL)",
+            "config": {
+                "boundMode": "clamp",
+                "pitchX": 0,
+                "pitchY": 0,
+                "freqX": 18.63212537688127,
+                "freqY": 17.597682203195408,
+                "seed": 145,
+                "depth": 0.07,
+                "rate": 5.049024392298793,
+                "rateDrive": 0,
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "phase": [
+                    0,
+                    0
+                ],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "clampScale": 1.15
+            }
+        }
+    ]
+},
+    {
+    "name": "Night City Waterfall",
+    "config": [
+        {
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.36,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": 143,
+                "saturation": 65,
+                "lightness": 42,
+                "hueSpread": 1.85,
+                "bleed": 0
+            }
+        },
+        {
+            "name": "Noise Mixer (GL)",
+            "config": {
+                "frequency": 50,
+                "freqShift": 0,
+                "tint": [
+                    1,
+                    1,
+                    0.42
+                ],
+                "seed": 321,
+                "blendMode": "9",
+                "colorSpace": "0",
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "components": [
+                    0.25,
+                    0,
+                    0,
+                    0.22,
+                    0
+                ],
+                "blendAmount": 0.5,
+                "colormap": "aqua_pink",
+                "tintSpace": "RGB",
+                "master": 1
+            }
+        },
+        {
+            "name": "Pixel Sort",
+            "config": {
+                "threshold": 0.5,
+                "direction": "vertical",
+                "useR": false,
+                "useG": false,
+                "useB": true,
+                "perlin": false
+            }
+        },
+        {
+            "name": "Auto Levels",
+            "config": {
+                "method": "minmax",
+                "paramA": 1,
+                "paramB": 100,
+                "channelwise": true
+            }
+        }
+    ]
+},
+    {
+    "name": "Not Raining",
+    "config": [
+        {
+            "name": "Perlin Distort (GL)",
+            "config": {
+                "boundMode": "clamp",
+                "pitchX": -0.91,
+                "pitchY": 0,
+                "freqX": 9.069993561306088,
+                "freqY": 9.82365286443436,
+                "seed": 128,
+                "depth": 0.39,
+                "rate": 4,
+                "rateDrive": 0,
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "phase": [
+                    0,
+                    0
+                ],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "clampScale": 0.5
+            }
+        },
+        {
+            "name": "Delay Line (GL)",
+            "config": {
+                "delay": 5.74,
+                "window": "circle",
+                "falloff": "uniform",
+                "density": 1.6,
+                "angle": -99.23,
+                "shearX": 0,
+                "shearY": 0,
+                "scaleX": 1,
+                "scaleY": 1
+            }
+        },
+        {
+            "name": "Perlin Distort (GL)",
+            "config": {
+                "boundMode": "clamp",
+                "pitchX": -1.23,
+                "pitchY": -0.1,
+                "freqX": 17.93629400332466,
+                "freqY": 14.810053228674818,
+                "seed": 251,
+                "depth": 0.5,
+                "rate": 4,
+                "rateDrive": 0,
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "phase": [
+                    0,
+                    0
+                ],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "clampScale": 0.45
+            }
+        },
+        {
+            "name": "Delay Line (GL)",
+            "config": {
+                "delay": 2.85,
+                "window": "box",
+                "falloff": "uniform",
+                "density": 2.1,
+                "angle": -99.23,
+                "shearX": 0,
+                "shearY": 0,
+                "scaleX": 1,
+                "scaleY": 1
+            }
+        },
+        {
+            "name": "Perlin Distort (GL)",
+            "config": {
+                "boundMode": "clamp",
+                "pitchX": -1.07,
+                "pitchY": 0.11,
+                "freqX": 3.012220095961826,
+                "freqY": 4.452548829300998,
+                "seed": 182,
+                "depth": 0.55,
+                "rate": 4,
+                "rateDrive": 0,
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "phase": [
+                    0,
+                    0
+                ],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "clampScale": 0.45
+            }
+        },
+        {
+            "name": "Channel Mixer (GL)",
+            "config": {
+                "mix1": [
+                    0.83,
+                    0,
+                    0
+                ],
+                "mix2": [
+                    0,
+                    1,
+                    0
+                ],
+                "mix3": [
+                    -0.14,
+                    -0.04,
+                    1
+                ],
+                "offset": [
+                    0,
+                    0,
+                    0
+                ],
+                "colorSpace": "0"
+            }
+        }
+    ]
+}
 ]

@@ -7,7 +7,7 @@
 #ifndef COLORSPACE
 #define COLORSPACE COLORSPACE_RGB
 #endif
-
+//
 #if COLORSPACE == COLORSPACE_LAB
 #define IN_LAB_UNITS 1
 #elif COLORSPACE == COLORSPACE_LCH
@@ -15,6 +15,7 @@
 #else
 #define IN_LAB_UNITS 0
 #endif
+
 
 #if BLENDMODE == 4
 #define NEEDS_LAB_NORM 1
@@ -25,26 +26,28 @@
 #elif BLENDMODE == 10
 #define NEEDS_LAB_NORM 1
 #else
-#define NEEDS_LAB_NORM 1
+#define NEEDS_LAB_NORM 0
 #endif
 
 
 vec3 applyBlend(vec3 base, vec3 fx, float blendAmount) {
 //
-//#if NEEDS_LAB_NORM == 1
-//#if COLORSPACE == COLORSPACE_LAB
-//    base = normalizeLab(base);
-//#elif COLORSPACE == COLORSPACE_LCH
-//    base = normalizeLCH(base);
-//#endif
-//#endif
+#if NEEDS_LAB_NORM == 1
+    #if COLORSPACE == COLORSPACE_LAB
+        base = normalizeLab(base);
+        fx = normalizeLab(fx);
+    #elif COLORSPACE == COLORSPACE_LCH
+        base = normalizeLCH(base);
+        fx = normalizeLab(fx);
+    #endif
+#endif
 
 vec3 blended;
 
 #if BLENDMODE == 0  // Replace
     blended = fx;
-#if BLENDMODE == 1  // Mix
-    blanded = mix(base, fx, blendAmount);
+#elif BLENDMODE == 1  // Mix
+    blended = mix(base, fx, blendAmount);
 #elif BLENDMODE == 2  // Add
     blended = base + fx * blendAmount;
 #elif BLENDMODE == 3  // Multiply
@@ -83,14 +86,13 @@ vec3 blended;
 #else
     blended = fx;
 #endif
-    //
-    //#if NEEDS_LAB_NORM == 1
-    //#if COLORSPACE == COLORSPACE_LAB
-    //    blended = denormalizeLab(blended);
-    //#elif COLORSPACE == COLORSPACE_LCH
-    //    blended = denormalizeLCH(blended);
-    //#endif
-    //#endif
+#if NEEDS_LAB_NORM == 1
+    #if COLORSPACE == COLORSPACE_LAB
+        blended = denormalizeLab(blended);
+    #elif COLORSPACE == COLORSPACE_LCH
+        blended = denormalizeLCH(blended);
+    #endif
+#endif
     return blended;
 }
 

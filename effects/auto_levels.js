@@ -99,7 +99,7 @@ export default {
             type: "select",
             options: [
                 {value: "luma", label: "Luminance"},
-                {value: "channelwiise", label: "Per-Channel"},
+                {value: "channelwise", label: "Per-Channel"},
             ]
         },
         {

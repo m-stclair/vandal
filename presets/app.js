@@ -66,7 +66,7 @@ export const builtInPresets = [
             {
                 "name": "Chromawave",
                 "config": {
-                    "threshold": 0.57,
+                    "threshold": 0.3,
                     "cycle": true,
                     "cycleMode": "spatial",
                     "hueShift": 150,
@@ -182,56 +182,49 @@ export const builtInPresets = [
     },
     {
         "name": "Transfer Sunrise",
-        "config": [
-            {
-                "name": "Posterize (GL)",
-                "config": {
-                    "levels": 8,
-                }
-            },
-            {
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.275,
-                    "cycle": true,
-                    "cycleMode": "spatial",
-                    "hueShift": 286,
-                    "saturation": 34,
-                    "lightness": 48,
-                    "hueSpread": 1.75,
-                    "bleed": 0.84
-                }
-            },
-            {
-                "name": "Matrix Channel Mixer",
-                "config": {
-                    "colorSpaceIn": "lab",
-                    "colorSpaceOut": "lab",
-                    "mixMatrix": [
-                        [
-                            1,
-                            0,
-                            -0.04
-                        ],
-                        [
-                            0.4,
-                            0.69,
-                            0
-                        ],
-                        [
-                            0,
-                            -0.16,
-                            1
-                        ]
-                    ],
-                    "offset": [
-                        0,
-                        0,
-                        0
-                    ]
-                }
+        "config": [{
+            "name": "Posterize (GL)",
+            "config": {
+                "levels": 8,
+                "mode": "1",
+                "colorSpace": "0",
+                "blendAmount": 1,
+                "mod": 0.5,
+                "c1": true,
+                "c2": true,
+                "c3": true
             }
-        ]
+        }, {
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.37,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": 1.26,
+                "saturation": 34,
+                "lightness": 48,
+                "hueSpread": 0.6,
+                "bleed": 0.77,
+                "COLORSPACE": 0,
+                "BLENDMODE": "1",
+                "blendAmount": 1,
+                "bandingSteps": 0,
+                "waveType": "square",
+                "dutyCycle": 0.5,
+                "originX": 0.57,
+                "originY": 0.42,
+                "spatialPattern": "radial"
+            }
+        }, {
+            "name": "Channel Mixer (GL)",
+            "config": {
+                "mix1": [1, 0, -0.04],
+                "mix2": [0.4, 0.83, 0],
+                "mix3": [0, -0.14, 1],
+                "offset": [0, 0, 0],
+                "colorSpace": "1"
+            }
+        }]
     },
     {
         "name": "Gouge Away",
@@ -496,6 +489,42 @@ export const builtInPresets = [
         ]
     },
     {
+        "name": "Been There",
+        "config": [{
+            "name": "Desync Tiles",
+            "config": {"tileSize": 60, "corruptionRate": 0.19, "maxOffset": 28, "freezeTiles": false}
+        }, {
+            "name": "Noise Mixer (GL)",
+            "config": {
+                "frequency": 1.8814068375361006,
+                "freqShift": -0.15,
+                "tint": [1, 1, 1],
+                "seed": 208,
+                "blendMode": "1",
+                "colorSpace": "1",
+                "fc": [6, 15, 10],
+                "components": [0.25, 0, 0.56, 0, 0],
+                "blendAmount": 0.49,
+                "colormap": "aqua_pink",
+                "tintSpace": "RGB",
+                "master": 0.49
+            }
+        }, {
+            "name": "Auto Levels",
+            "config": {"method": "percentile", "paramA": 55.5, "paramB": 100, "channelwise": true}
+        }, {
+            "name": "Pixel Sort",
+            "config": {
+                "threshold": 0.25,
+                "direction": "horizontal",
+                "useR": false,
+                "useG": false,
+                "useB": true,
+                "perlin": false
+            }
+        }]
+    },
+    {
         "name": "Nagel",
         "config": [
             {
@@ -546,7 +575,18 @@ export const builtInPresets = [
                 }
             }
         ]
-    }, {
+    },
+    {
+        "name": "Venetian Morning",
+        "config": [{
+            "name": "Invert",
+            "config": {"invert0": false, "invert1": true, "invert2": true, "mode": "lab"}
+        }, {
+            "name": "Banded Flip",
+            "config": {"bandSize": 76, "orientation": "vertical", "mirrorRate": 1, "offset": -3}
+        }]
+    },
+    {
         "name": "Blood Dragon",
         "config": [
             {
@@ -791,10 +831,9 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Matrix Channel Mixer",
+                "name": "Channel Mixer (GL)",
                 "config": {
-                    "colorSpaceIn": "lab",
-                    "colorSpaceOut": "lab",
+                    "colorSpace": '1',
                     "mixMatrix": [
                         [
                             1,
@@ -816,7 +855,9 @@ export const builtInPresets = [
                         0,
                         0,
                         0
-                    ]
+                    ],
+                    "blendMode": 1,
+                    "blendAmount": 0.8
                 }
             }
         ]
@@ -1020,6 +1061,46 @@ export const builtInPresets = [
         ]
     },
     {
+        "name": "Sheen",
+        "config": [{
+            "name": "Look",
+            "config": {
+                "exposure": 1.05,
+                "toneShoulder": -1.25,
+                "toneCenter": 0.7,
+                "chromaWeight": 1.01,
+                "chromaFadeLow": -1.7,
+                "chromaFadeHigh": 4.1,
+                "tintAxis": [0.55, 0.14, 0.18],
+                "tintStrength": 0.47
+            }
+        }, {
+            "name": "Noise Mixer (GL)",
+            "config": {
+                "frequency": 186.01893253979875,
+                "freqShift": -0.09,
+                "tint": [1, 1, 1],
+                "seed": {
+                    "value": 168,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.5,
+                        "phase": 0,
+                        "rangeMode": "bipolar",
+                        "scale": 179,
+                        "offset": 321
+                    }
+                },
+                "blendMode": "9",
+                "colorSpace": "2",
+                "fc": [6, 15, 10],
+                "components": [0, 0, 0, 0, 1],
+                "blendAmount": 0.62,
+                "colormap": "neon"
+            }
+        }]
+    },
+    {
         "name": "Puzzling",
         "config": [
             {
@@ -1029,6 +1110,41 @@ export const builtInPresets = [
                     "paramB": 90,
                     "mode": "channelwise"
                 }
+            },
+            {
+                "name": "Black Light Party",
+                "config": [{
+                    "name": "Invert",
+                    "config": {"invert0": false, "invert1": true, "invert2": true, "mode": "lab"}
+                }, {
+                    "name": "Noise Mixer (GL)",
+                    "config": {
+                        "frequency": 28.355256795885165,
+                        "freqShift": -0.05,
+                        "tint": [0, 1, 0],
+                        "seed": 160,
+                        "blendMode": "10",
+                        "colorSpace": "0",
+                        "fc": [6, 14.75, 10],
+                        "components": [0, 0, 0.73, 0, 0],
+                        "blendAmount": 0.44,
+                        "colormap": "none",
+                        "tintSpace": "RGB",
+                        "master": 0.6
+                    }
+                }, {
+                    "name": "Look",
+                    "config": {
+                        "exposure": -0.95,
+                        "toneShoulder": -1.2,
+                        "toneCenter": 0.58,
+                        "chromaWeight": 4,
+                        "chromaFadeLow": -6,
+                        "chromaFadeHigh": -3.9,
+                        "tintAxis": [1.04, 1, 0.96],
+                        "tintStrength": 0
+                    }
+                }]
             },
             {
                 "name": "Noise Mixer (GL)",
@@ -1103,7 +1219,7 @@ export const builtInPresets = [
             {
                 "name": "Chromawave",
                 "config": {
-                    "threshold": 0.36,
+                    "threshold": 0.28,
                     "cycle": true,
                     "cycleMode": "spatial",
                     "hueShift": 143,
@@ -1382,6 +1498,118 @@ export const builtInPresets = [
                 }
             }
         ]
+    },
+    {
+        "name": "Conte Brush",
+        "config": [{
+            "name": "Noise Mixer (GL)",
+            "config": {
+                "frequency": 44.734163413665485,
+                "freqShift": 0,
+                "tint": [0.56, 0.42, 0.28],
+                "seed": 297,
+                "blendMode": "1",
+                "colorSpace": "0",
+                "fc": [6, 15, 10],
+                "components": [0, 0, 0, 0, 1],
+                "blendAmount": 0.41,
+                "colormap": "sunset",
+                "tintSpace": "HSV",
+                "master": 0.73
+            }
+        }, {
+            "name": "Delay Line (GL)",
+            "config": {
+                "delay": 16.86,
+                "window": "box",
+                "falloff": "diagonal",
+                "density": 4.1,
+                "angle": 0,
+                "shearX": -2.7,
+                "shearY": -1,
+                "scaleX": 0.4,
+                "scaleY": 0.3
+            }
+        }, {"name": "Auto Levels", "config": {"method": "stddev", "paramA": 2.5, "paramB": 98.5, "channelwise": true}}]
+    },
+    {
+        "name": "Mirror Stage",
+        "config": [{
+            "name": "Look",
+            "config": {
+                "exposure": 1.65,
+                "toneShoulder": -0.7,
+                "toneCenter": 0.95,
+                "chromaWeight": 1.66,
+                "chromaFadeLow": -3.6,
+                "chromaFadeHigh": 2.7,
+                "tintAxis": [0.96, 1, 0.96],
+                "tintStrength": 0.01
+            }
+        }, {
+            "name": "Posterize (GL)",
+            "config": {
+                "levels": 12,
+                "mode": "1",
+                "colorSpace": "1",
+                "blendAmount": 0.56,
+                "mod": 0.5,
+                "c1": true,
+                "c2": false,
+                "c3": false
+            }
+        }, {
+            "name": "Perlin Distort (GL)",
+            "config": {
+                "boundMode": "clamp",
+                "pitchX": {
+                    "value": 0,
+                    "mod": {"type": "sine", "freq": 0.01, "phase": 0, "rangeMode": "bipolar", "scale": 2, "offset": 0}
+                },
+                "pitchY": 0,
+                "freqX": {
+                    "value": 3.982172218161989,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.12,
+                        "phase": 0,
+                        "rangeMode": "bipolar",
+                        "scale": 0.17,
+                        "offset": 3.98
+                    }
+                },
+                "freqY": {
+                    "value": 3.982172218161989,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.01,
+                        "phase": 0,
+                        "rangeMode": "bipolar",
+                        "scale": 2.05,
+                        "offset": 3.98
+                    }
+                },
+                "seed": 190,
+                "depth": {
+                    "value": 0.5,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 1.52,
+                        "phase": 0,
+                        "rangeMode": "unipolar",
+                        "scale": 0.42,
+                        "offset": 0.03
+                    }
+                },
+                "rate": 0.7398770712450367,
+                "rateDrive": 0,
+                "fc": [5.5, 7, 6.75],
+                "phase": [0, 0],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "clampScale": 0.5
+            }
+        }]
     },
     {
         "name": "Crew Mosaic",

@@ -2,8 +2,6 @@
 
 precision mediump float;
 
-
-
 uniform sampler2D u_image;
 uniform vec2 u_resolution;
 uniform float u_amp;
@@ -25,6 +23,5 @@ vec2 waveUV(vec2 uv, float amp, float freq, float phase, float vertical) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    vec2 waving = waveUV(uv, u_amp, u_freq, u_phase, u_vertical);
     outColor = texture(u_image, fract(waveUV(uv, u_amp, u_freq, u_phase, u_vertical)));
 }

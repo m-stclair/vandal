@@ -39,7 +39,8 @@ export const ColorspaceNames = {
     2: 'LCH',
     3: 'HSV',
     4: 'Opponent',
-    5: 'YCbCr'
+    5: 'YCbCr',
+    6: 'HSL'
 }
 
 export let ColorspaceOpts = [];
@@ -66,4 +67,18 @@ export const PosterizeModeNames = {
 export let PosterizeModeOpts = [];
 Object.entries(PosterizeModeNames).forEach(([k, v]) => {
     PosterizeModeOpts.push({'label': v, 'value': k});
+})
+
+
+export const BlendTargetNames = {
+    0: 'All',
+    1: 'Luma',
+    2: 'Hue',
+    3: 'Saturation',
+    4: 'Value',
+}
+
+export let BlendTargetOpts = [];
+Object.entries(BlendTargetNames).forEach(([k, v]) => {
+    BlendTargetOpts.push({'label': v, 'value': k});
 })

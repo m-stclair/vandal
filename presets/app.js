@@ -449,10 +449,10 @@ export const builtInPresets = [
             {
                 "name": "Desync Tiles",
                 "config": {
-                    "tileSize": 12,
-                    "corruptionRate": 0.12,
-                    "maxOffset": 6,
-                    "freezeTiles": false
+                    "tileCountX": 50,
+                    "tileCountY": 50,
+                    "offsetAmount": 0.05,
+                    "seed": 10
                 }
             },
             {
@@ -483,7 +483,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "RGB Shift (SVG)",
+                "name": "Chromatic Aberration",
                 "config": {
                     "rdx": -3,
                     "rdy": 0,
@@ -550,7 +550,7 @@ export const builtInPresets = [
         "name": "Blood Dragon",
         "config": [
             {
-                "name": "RGB Shift (SVG)",
+                "name": "Chromatic Aberration",
                 "config": {
                     "rdx": 2,
                     "rdy": 0,

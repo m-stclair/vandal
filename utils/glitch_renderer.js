@@ -47,7 +47,7 @@ export class GlitchRenderer {
         const gl = this.gl;
         const shader = gl.createShader(type);
         const processed = preprocessGLSL(source, ppOptions);
-        console.log(processed);
+        // console.log(processed);
         console.log(ppOptions?.defines)
         gl.shaderSource(shader, processed);
         gl.compileShader(shader);

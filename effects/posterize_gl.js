@@ -10,14 +10,12 @@ const includePaths = {
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
-
-
-
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
     name: "Posterize (GL)",
 
+    // TODO: expose blend type
     defaultConfig: {
         levels: 8,
         mode: '1',

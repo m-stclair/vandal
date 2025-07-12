@@ -7,9 +7,6 @@ precision mediump float;
 #include "blend.glsl"
 #include "psrdnoise2.glsl"
 
-//#define BLENDMODE 2
-//#define COLORSPACE COLORSPACE_RGB
-
 uniform sampler2D u_image;
 uniform sampler2D u_cmap;
 uniform float u_freqx;

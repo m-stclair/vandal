@@ -89,6 +89,59 @@ vec3 hsv2rgb(vec3 c) {
     return vec3(v, p, q);
 }
 
+vec3 hsl2rgb(vec3 hsl) {
+    float h = hsl.x;
+    float s = hsl.y;
+    float l = hsl.z;
+
+    float c = (1.0 - abs(2.0 * l - 1.0)) * s;
+    float h_ = h * 6.0;
+    float x = c * (1.0 - abs(mod(h_, 2.0) - 1.0));
+
+    vec3 rgb1;
+    if (h_ < 1.0)      rgb1 = vec3(c, x, 0.0);
+    else if (h_ < 2.0) rgb1 = vec3(x, c, 0.0);
+    else if (h_ < 3.0) rgb1 = vec3(0.0, c, x);
+    else if (h_ < 4.0) rgb1 = vec3(0.0, x, c);
+    else if (h_ < 5.0) rgb1 = vec3(x, 0.0, c);
+    else              rgb1 = vec3(c, 0.0, x);
+
+    float m = l - 0.5 * c;
+    return rgb1 + vec3(m);
+}
+
+vec3 rgb2hsl(vec3 rgb) {
+    float r = rgb.r;
+    float g = rgb.g;
+    float b = rgb.b;
+
+    float maxc = max(max(r, g), b);
+    float minc = min(min(r, g), b);
+    float delta = maxc - minc;
+
+    float h = 0.0;
+    if (delta > 0.0) {
+        if (maxc == r) {
+            h = mod((g - b) / delta, 6.0);
+        } else if (maxc == g) {
+            h = (b - r) / delta + 2.0;
+        } else {
+            h = (r - g) / delta + 4.0;
+        }
+        h /= 6.0;
+    }
+
+    float l = 0.5 * (maxc + minc);
+
+    float s = 0.0;
+    if (delta > 0.0) {
+        s = delta / (1.0 - abs(2.0 * l - 1.0));
+    }
+
+    return vec3(h, s, l);
+}
+
+
 vec3 rgb2lch(vec3 rgb) {
     vec3 lab = rgb2lab(rgb);
     float L = lab.x;
@@ -194,12 +247,27 @@ vec3 opponent2SRGB(vec3 opponent) {
     return linear2srgb(opponent2rgb(opponent));
 }
 
+vec3 srgb2HSL(vec3 srgb) {
+    return rgb2hsl(srgb2linear(srgb));
+}
+
+vec3 hsl2SRGB(vec3 hsl) {
+    return linear2srgb(hsl2rgb(hsl));
+}
+
+float luminance(vec3 rgb) {
+    return dot(rgb, vec3(0.2126, 0.7152, 0.0722));
+}
+
+
+
 #define COLORSPACE_RGB 0
 #define COLORSPACE_LAB 1
 #define COLORSPACE_LCH 2
 #define COLORSPACE_HSV 3
 #define COLORSPACE_OPPONENT 4
 #define COLORSPACE_YCBCR 5
+#define COLORSPACE_HSL 6
 
 
 #ifndef COLORSPACE
@@ -219,6 +287,8 @@ vec3 extractColor(vec3 srgb) {
     return srgb2Opponent(srgb);
 #elif COLORSPACE == COLORSPACE_YCBCR
     return rgb2ycbcr(srgb);
+#elif COLORSPACE == COLORSPACE_HSL
+    return srgb2HSL(srgb);
 #else
     return srgb;
 #endif
@@ -237,6 +307,8 @@ vec3 encodeColor(vec3 color) {
     return opponent2SRGB(color);
 #elif COLORSPACE == COLORSPACE_YCBCR
     return ycbcr2rgb(color);
+#elif COLORSPACE == COLORSPACE_HSL
+    return hsl2SRGB(color);
 #else
     return color;
 #endif

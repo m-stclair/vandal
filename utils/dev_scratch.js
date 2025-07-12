@@ -22,7 +22,7 @@
 //     },
 //     {
 //         label: "Distortions",
-//         effects: [pixelate, wave, morphOp, rgbShiftSvg, blur, blur_svg]
+//         effects: [pixelate.frag, wave, morphOp, rgbShiftSvg, blur, blur_svg]
 //     },
 //     {
 //         label: "Patterns",

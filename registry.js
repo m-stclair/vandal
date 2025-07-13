@@ -35,7 +35,9 @@ const effectFiles = [
     "bcs_gl.js",
     "look.js",
     "auto_levels.js",
-    "colormap.js"
+    "colormap.js",
+    "gridpattern.js",
+    "warpzone.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

@@ -16,7 +16,6 @@ uniform float u_bandingSteps;
 uniform float u_duty;
 uniform vec2 u_origin;
 
-
 out vec4 outColor;
 
 #include "colorconvert.glsl"

@@ -43,6 +43,17 @@ export const ColorspaceNames = {
     6: 'HSL'
 }
 
+export const ColorspaceIndices = {
+  RGB: 0,
+  Lab: 1,
+  LCH: 2,
+  HSV: 3,
+  Opponent: 4,
+  YCbCr: 5,
+  HSL: 6
+};
+
+
 export let ColorspaceOpts = [];
 Object.entries(ColorspaceNames).forEach(([k, v]) => {
     ColorspaceOpts.push({'label': v, 'value': k});

@@ -68,7 +68,6 @@ export default {
             type: 'Select',
             options: BlendTargetOpts
         },
-
         {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
 
     ],

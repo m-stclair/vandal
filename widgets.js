@@ -131,7 +131,7 @@ function makeSlider({
         });
         modSelect.value = value?.mod?.type ?? "none";
 
-        const defaultBias = parseFloat(applyScaling(input.value, input.scale, input.scaleFactor));
+        const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
         const defaultRangeMode = value?.mod?.rangeMode ?? "bipolar";
         const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias, defaultRangeMode);
 

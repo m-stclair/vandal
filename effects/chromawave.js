@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {BlendOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/chromawave.frag"
 const includePaths = {
@@ -30,7 +30,8 @@ export default {
         dutyCycle: 0.5,
         originX: 0.5,
         originY: 0.5,
-        spatialPattern: "radial"
+        spatialPattern: "radial",
+        blendTarget: '0'
 
     },
     uiLayout: [
@@ -44,6 +45,7 @@ export default {
         {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
         {type: "range", key: "bandingSteps", label: "Bands", min: 0, max: 5, step: 1},
         {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01},
+        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
         {
             key: 'COLORSPACE',
             label: 'Colorspace',
@@ -56,7 +58,12 @@ export default {
             type: 'Select',
             options: BlendOpts
         },
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+        {
+            key: 'blendTarget',
+            label: 'Blend Target',
+            type: 'Select',
+            options: BlendTargetOpts
+        },
         {type: "Select", key: "spatialPattern", label: "Spatial Pattern", options: ["radial", "horizontal", "vertical", "diagonal", "angle", "checker"]},
         {type: "range", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
         {type: "range", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01},
@@ -80,7 +87,8 @@ export default {
             dutyCycle,
             originX,
             originY,
-            spatialPattern
+            spatialPattern,
+            blendTarget
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm, period;
@@ -124,6 +132,7 @@ export default {
         const defines = {
             COLORSPACE: Number.parseInt(COLORSPACE),
             BLENDMODE: Number.parseInt(BLENDMODE),
+            BLEND_CHANNEL_MODE: blendTarget,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
             CHROMAWAVE_BLEED: Number(bleed > 0),
             USE_BANDING: Number(bandingSteps > 0),

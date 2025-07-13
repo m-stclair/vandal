@@ -10,9 +10,13 @@ import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {BlendOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/delayline.frag"
-const includePaths = {};
+const includePaths = {
+    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
+    "blend.glsl": "../shaders/includes/blend.glsl"
+};
 const fragSource = loadFragSrcInit(shaderPath, includePaths);
 
 
@@ -30,7 +34,11 @@ export default {
         shearX: 0,
         shearY: 0,
         scaleX: 1,
-        scaleY: 1
+        scaleY: 1,
+        COLORSPACE: '0',
+        BLENDMODE: '1',
+        blendAmount: 1,
+        blendTarget: '0'
     },
 
     uiLayout: [
@@ -56,14 +64,33 @@ export default {
         {key: "shearX", label: "Shear (x)", type: "modSlider", min: -5, max: 5, step: 0.1},
         {key: "shearY", label: "Shear (y)", type: "modSlider", min: -5, max: 5, step: 0.1},
         {key: "scaleX", label: "Scale (x)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
-        {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1}
+        {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
+        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+        {
+            key: 'COLORSPACE',
+            label: 'Colorspace',
+            type: 'Select',
+            options: ColorspaceOpts
+        },
+        {
+            key: 'BLENDMODE',
+            label: 'Blend Mode',
+            type: 'Select',
+            options: BlendOpts
+        },
+        {
+            key: 'blendTarget',
+            label: 'Blend Target',
+            type: 'Select',
+            options: BlendTargetOpts
+        },
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSource);
         const {
             delay, window, density, angle, falloff, shearX, shearY,
-            scaleX, scaleY
+            scaleX, scaleY, blendAmount, BLENDMODE, blendTarget, COLORSPACE
         } = resolveAnimAll(instance.config, t);
         // TODO: write equivalent quit-fast option for GL
         // if (delay <= 0) return data;
@@ -99,10 +126,16 @@ export default {
             u_numTaps: {value: taps.length, type: "int"},
             u_offsets: {value: new Float32Array(taps.flat()), type: "vec2"},
             u_weights: {value: new Float32Array(weights), type: "floatArray"},
-            u_transformMatrix: {value: affine, type: "mat2"}
+            u_transformMatrix: {value: affine, type: "mat2"},
+            u_blendamount: {value: blendAmount, type: "float"}
         };
-        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
+        const defines = {
+            COLORSPACE: Number.parseInt(COLORSPACE),
+            BLENDMODE: Number.parseInt(BLENDMODE),
+            BLEND_CHANNEL_MODE: blendTarget,
+        }
 
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSource.load,
     cleanupHook(instance) {

@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/chromawave.frag"
 const includePaths = {
@@ -23,7 +23,7 @@ export default {
         hueSpread: 1,
         bleed: 0,
         COLORSPACE: 0,
-        BLENDMODE: '1',
+        BLENDMODE: 1,
         blendAmount: 1,
         bandingSteps: 0,
         waveType: 0,
@@ -56,7 +56,7 @@ export default {
             key: 'BLENDMODE',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
         {
             key: 'blendTarget',
@@ -130,8 +130,8 @@ export default {
             u_origin: {type: "vec2", value: [originX * width, originY * height]}
         };
         const defines = {
-            COLORSPACE: Number.parseInt(COLORSPACE),
-            BLENDMODE: Number.parseInt(BLENDMODE),
+            COLORSPACE:COLORSPACE,
+            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: blendTarget,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
             CHROMAWAVE_BLEED: Number(bleed > 0),

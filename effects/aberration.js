@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, ColorspaceOpts, PosterizeModeOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts, ColorspaceOpts, PosterizeModeOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/aberration.frag"
 const includePaths = {
@@ -15,8 +15,8 @@ export default {
     name: "Chromatic Aberration",
 
     defaultConfig: {
-        blendMode: '1',
-        colorSpace: '0',
+        BLENDMODE: 1,
+        COLORSPACE: 0,
         blendAmount: 1,
         rdx: 0, rdy: 0,
         gdx: 0, gdy: 0,
@@ -39,7 +39,7 @@ export default {
             key: 'blendMode',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
         {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
     ],
@@ -61,8 +61,8 @@ export default {
             u_shift2: {value: [bdx / width, bdy / height], "type": "vec2"},
         };
         const defines = {
-            COLORSPACE: Number.parseInt(colorSpace),
-            BLENDMODE: Number.parseInt(blendMode),
+            COLORSPACE: colorSpace,
+            BLENDMODE: blendMode,
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

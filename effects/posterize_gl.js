@@ -19,7 +19,7 @@ export default {
     defaultConfig: {
         levels: 8,
         mode: '1',
-        colorSpace: '0',
+        COLORSPACE: 0,
         blendAmount: 1,
         mod: 0.5,
         c1: true,

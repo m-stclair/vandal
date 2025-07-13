@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/tile_desync.frag"
 const includePaths = {
@@ -16,8 +16,8 @@ export default {
     name: "Tile Desync",
 
     defaultConfig: {
-        blendMode: '1',
-        colorSpace: '0',
+        BLENDMODE: 1,
+        COLORSPACE: 0,
         blendAmount: 1,
         tileCountX: 10,
         tileCountY: 10,
@@ -39,7 +39,7 @@ export default {
             key: 'blendMode',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
         {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
     ],

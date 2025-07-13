@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/gridpattern.frag";
 const includePaths = {
@@ -20,9 +20,9 @@ export default {
         phaseY: 0.0,
         direction: "grid",
         mode: "binary",
-        blendMode: '1',
+        BLENDMODE: 1,
         blendTarget: '0',
-        colorSpace: '0',
+        COLORSPACE: 0,
         blendAmount: 0.5,
         invert: true,
         noiseScale: 0.01,
@@ -148,7 +148,7 @@ export default {
             key: 'blendMode',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
         {
             key: 'blendTarget',

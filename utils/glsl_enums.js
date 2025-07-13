@@ -1,95 +1,106 @@
-export const BlendModes = {
-  REPLACE: 0,
-  MIX: 1,
-  ADD: 2,
-  MULTIPLY: 3,
-  SCREEN: 4,
-  OVERLAY: 5,
-  DARKEN: 6,
-  LIGHTEN: 7,
-  DIFFERENCE: 8,
-  SOFT_LIGHT: 9,
-  HARD_LIGHT: 10
-};
-
-export const BlendModeNames = {
-  0: 'Replace',
-  1: 'Mix',
-  2: 'Add',
-  3: 'Multiply',
-  4: 'Screen',
-  5: 'Overlay',
-  6: 'Darken',
-  7: 'Lighten',
-  8: 'Difference',
-  9: 'Soft Light',
- 10: 'Hard Light'
-};
-
-export let BlendOpts = [];
-
-Object.entries(BlendModeNames).forEach(([k, v]) => {
-    BlendOpts.push({'label': v, 'value': k});
-})
-
-
-export const ColorspaceNames = {
-    0: 'RGB',
-    1: 'Lab',
-    2: 'LCH',
-    3: 'HSV',
-    4: 'Opponent',
-    5: 'YCbCr',
-    6: 'HSL'
+/**
+ * @param {string[]} names
+ * @returns {{
+ *   enum: Record<string, number>,
+ *   names: Record<number, string>,
+ *   options: { label: string, value: number }[]
+ * }}
+ */
+function makeEnum(names) {
+    const e = {};
+    const namesMap = {};
+    names.forEach((name, i) => {
+        e[name] = i;
+        namesMap[i] = name;
+    });
+    const opts = names.map((name, i) => ({label: name, value: i}));
+    return {
+        enum: Object.freeze(e),
+        names: Object.freeze(namesMap),
+        options: Object.freeze(opts)
+    };
 }
 
-export const ColorspaceIndices = {
-  RGB: 0,
-  Lab: 1,
-  LCH: 2,
-  HSV: 3,
-  Opponent: 4,
-  YCbCr: 5,
-  HSL: 6
-};
+export const {
+    enum: ColorspaceEnum,
+    names: ColorspaceNames,
+    options: ColorspaceOpts
+} = makeEnum([
+    'RGB',
+    'Lab',
+    'LCH',
+    'HSV',
+    'Opponent',
+    'YCbCr',
+    'HSL'
+]);
+
+// Blend modes
+export const {
+    enum: BlendModeEnum,
+    names: BlendModeNames,
+    options: BlendModeOpts
+} = makeEnum([
+    'REPLACE',
+    'MIX',
+    'ADD',
+    'MULTIPLY',
+    'SCREEN',
+    'OVERLAY',
+    'DARKEN',
+    'LIGHTEN',
+    'DIFFERENCE',
+    'SOFT_LIGHT',
+    'HARD_LIGHT'
+]);
+
+// Posterize modes
+export const {
+    enum: PosterizeEnum,
+    names: PosterizeModeNames,
+    options: PosterizeModeOpts
+} = makeEnum([
+    'NONE',
+    'UNIFORM',
+    'LOG',
+    'BIAS',
+    'BAYER'
+]);
+
+// Blend targets
+export const {
+    enum: BlendTargetEnum,
+    names: BlendTargetNames,
+    options: BlendTargetOpts
+} = makeEnum([
+    'ALL',
+    'LUMA',
+    'HUE',
+    'SATURATION',
+    'VALUE'
+]);
+
+// Gate modes
+export const {
+    enum: GateModeEnum,
+    names: GateModeNames,
+    options: GateModeOpts
+} = makeEnum([
+    'NONE',
+    'SOFT',
+    'HARD',
+    'BURST'
+]);
 
 
-export let ColorspaceOpts = [];
-Object.entries(ColorspaceNames).forEach(([k, v]) => {
-    ColorspaceOpts.push({'label': v, 'value': k});
-})
-
-export const PosterizeModes = {
-  NONE: 0,
-  UNIFORM: 1,
-  LOG: 2,
-  BIAS: 3,
-  BAYER: 4
-};
-
-export const PosterizeModeNames = {
-    0: 'None',
-    1: 'Uniform',
-    2: 'Log',
-    3: 'Bias',
-    4: 'Bayer'
-}
-
-export let PosterizeModeOpts = [];
-Object.entries(PosterizeModeNames).forEach(([k, v]) => {
-    PosterizeModeOpts.push({'label': v, 'value': k});
-})
-
-
-export const BlendTargetNames = {
-    0: 'All',
-    1: 'Luma',
-    2: 'Hue',
-    3: 'Saturation',
-    4: 'Value',
-}
-
-export let BlendTargetOpts = [];
-Object.entries(BlendTargetNames).forEach(([k, v]) => {
-    BlendTargetOpts.push({'label': v, 'value': k});
-})
+// Zone shapes
+export const {
+    enum: ZoneShapeEnum,
+    names: ZoneShapeNames,
+    options: ZoneShapeOpts
+} = makeEnum([
+    'BOX',
+    'VERTICAL',
+    'SUPERELLIPSE',
+    'HORIZONTAL'
+]);

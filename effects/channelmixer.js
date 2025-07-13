@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {ColorspaceOpts} from "../utils/glsl_enums.js";
+import {ColorspaceEnum, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/channelmixer.frag"
 const includePaths = {
@@ -20,7 +20,7 @@ export default {
         mix2: [0, 1, 0],
         mix3: [0, 0, 1],
         offset: [0, 0, 0],
-        colorSpace: '1'
+        colorSpace: ColorspaceEnum.Lab
     },
 
     apply(instance, inputTex, width, height, t, outputFBO) {

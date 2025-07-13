@@ -1,7 +1,7 @@
 import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/colormap.frag";
 const includePaths = {
@@ -38,7 +38,7 @@ export default {
             key: 'blendMode',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
     ],
 

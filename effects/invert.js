@@ -17,7 +17,7 @@ export default {
         invert0: true,
         invert1: true,
         invert2: true,
-        colorSpace: '0'
+        COLORSPACE: 0
     },
 
     uiLayout: [

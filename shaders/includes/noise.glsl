@@ -6,6 +6,10 @@ float hash(float x, float seed) {
     return fract(sin(x * 12.9898 + 78.223) * seed);
 }
 
+float uniformNoise(vec2 xy) {
+    return fract(sin(xy.x * xy.y * 12.9898 + 78.233) * 43758.5453);
+}
+
 float uniformNoise(float x) {
     return fract(sin(x * 12.9898 + 78.233) * 43758.5453);
 }

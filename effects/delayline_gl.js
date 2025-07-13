@@ -10,7 +10,7 @@ import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/delayline.frag"
 const includePaths = {
@@ -35,8 +35,8 @@ export default {
         shearY: 0,
         scaleX: 1,
         scaleY: 1,
-        COLORSPACE: '0',
-        BLENDMODE: '1',
+        COLORSPACE: 0,
+        BLENDMODE: 1,
         blendAmount: 1,
         blendTarget: '0'
     },
@@ -76,7 +76,7 @@ export default {
             key: 'BLENDMODE',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
         {
             key: 'blendTarget',

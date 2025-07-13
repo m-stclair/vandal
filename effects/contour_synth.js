@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/contour_synth.frag"
 const includePaths = {
@@ -20,7 +20,7 @@ export default {
         phaseScale: 1,
         phaseOff: 0,
         blendAmount: 0.6,
-        blendMode: '1',
+        BLENDMODE: 1,
         blendTarget: '0',
         waveform: "Sine",
         spatialWaveform: "Bands"
@@ -60,7 +60,7 @@ export default {
             key: 'blendMode',
             label: 'Blend Mode',
             type: 'Select',
-            options: BlendOpts
+            options: BlendModeOpts
         },
         {
             key: 'blendTarget',

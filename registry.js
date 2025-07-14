@@ -37,7 +37,9 @@ const effectFiles = [
     "auto_levels.js",
     "colormap.js",
     "gridpattern.js",
-    "warpzone.js"
+    "warpzone.js",
+    "bloom.js",
+    "kernel2d.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

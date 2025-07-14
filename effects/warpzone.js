@@ -78,6 +78,7 @@ export default {
         const warpCode = {
             "shift": 0, "sine": 1, "noise": 2, "lens": 3
         }[WARPMODE];
+
         const defines = {
             COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,

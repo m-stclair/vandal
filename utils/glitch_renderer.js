@@ -47,7 +47,7 @@ export class GlitchRenderer {
         const gl = this.gl;
         const shader = gl.createShader(type);
         const processed = preprocessGLSL(source, ppOptions);
-        console.log(processed);
+        // console.log(processed);
         console.log(ppOptions?.defines)
         gl.shaderSource(shader, processed);
         gl.compileShader(shader);
@@ -254,6 +254,7 @@ export class GlitchRenderer {
             );
             let update = {};
             if (needsUpdate) {
+                const start = performance.now()
                 let input;
                 if (isGPU && lastCacheEntry?.texture) {
                     input = lastCacheEntry.texture;
@@ -282,10 +283,11 @@ export class GlitchRenderer {
                     fx.apply(fx, input, width, height, t, fbo);
                     update['texture'] = fbo.texture;
                 }
+                const duration = performance.now() - start;
+                console.log(`rendered ${fx.name}-${fx.id}, ${duration} ms`);
             } else {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }
-
             lastCacheEntry = {
                 config: structuredClone(fx.config),
                 disabled: fx.disabled,

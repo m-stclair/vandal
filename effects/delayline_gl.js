@@ -4,7 +4,7 @@ import {
     annularKernel,
     normalizeWeights,
     centerKernel
-} from "../utils/kernellib.js";
+} from "../utils/delay_kernels.js";
 import {deg2rad, multiplyMat2, rotationMatrix2D, scaleMatrix2D, shearMatrix2D} from "../utils/mathutils.js";
 import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";

@@ -1,4 +1,4 @@
-// kernellib.js
+// delay_kernels.js
 
 const KERNEL_SANITY_CUTOFF = 1000 * 1000
 

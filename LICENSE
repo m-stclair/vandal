@@ -33,7 +33,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Some files in the ./shaders directory have been vendored from other sources:
-- psrdnoise2.glsl
-
-Their licenses are attached as headers to the individual fies.
+./shaders/includes/webgl-noise vendors https://github.com/ashima/webgl-noise/tree/master. 
+Its license is included in that directory.

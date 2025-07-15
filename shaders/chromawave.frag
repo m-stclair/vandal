@@ -118,18 +118,6 @@ vec4 chromawave(vec2 uv) {
 
 
 void main() {
-//    vec2 delta = gl_FragCoord.xy - u_resolution * 0.5;
-//    float dist = length(delta) / length(u_resolution);
-//    float spread = clamp(u_spreadNorm, 0.1, 100.0);
-//    float phase = fract(dist * spread + u_shiftNorm);
-//    float duty = clamp(u_duty, 0.01, 0.99);
-//    float square = step(duty, phase);
-//    float safeHue = mix(0.0, 0.9, square);  // or: square * 0.999
-//    vec3 synth = hsl2SRGB(vec3(safeHue, 1.0, 0.5));
-//    outColor = vec4(synth, 1.0);
-//    return;
-
-
     vec2 uv = gl_FragCoord.xy / u_resolution;
     outColor = chromawave(uv);
 }

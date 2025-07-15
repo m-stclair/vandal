@@ -4,8 +4,8 @@ const effectFiles = [
     'chromawave.js',
     'pixelsort.js',
     'invert.js',
-    'blur.js',
-    'blur_svg.js',
+    // 'blur.js',
+    // 'blur_svg.js',
     'aberration.js',
     // 'wave_old.js',
     'wave.js',
@@ -16,7 +16,7 @@ const effectFiles = [
     'jointshred.js',
     'edgetrace.js',
     'morphops_svg.js',
-    'hillshade.js',
+    // 'hillshade.js',
     'pixelate.js',
     // "pixelate_old.js",
     "warpnoise_svg.js",
@@ -27,7 +27,7 @@ const effectFiles = [
     "delayline.js",
     "affine_transform.js",
     "channelmixer.js",
-    "matrix_channelmixer.js",
+    // "matrix_channelmixer.js",
     "perlin_distort.js",
     "noisemixer.js",
     "posterize.js",
@@ -38,7 +38,8 @@ const effectFiles = [
     "gridpattern.js",
     "warpzone.js",
     "bloom.js",
-    "kernel2d.js"
+    "kernel2d.js",
+    "pseudosort.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

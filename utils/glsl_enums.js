@@ -6,7 +6,7 @@
  *   options: { label: string, value: number }[]
  * }}
  */
-function makeEnum(names) {
+export function makeEnum(names) {
     const e = {};
     const namesMap = {};
     names.forEach((name, i) => {
@@ -104,3 +104,4 @@ export const {
     'SUPERELLIPSE',
     'HORIZONTAL'
 ]);
+

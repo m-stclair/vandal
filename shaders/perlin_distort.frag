@@ -2,7 +2,9 @@
 
 precision mediump float;
 
+#include "noisenums.glsl"
 #include "noise.glsl"
+#include "classicnoise2D.glsl"
 
 uniform sampler2D u_image;
 uniform vec2 u_pitch;
@@ -17,8 +19,8 @@ uniform float u_ratedrive;
 uniform vec2 u_phase;
 uniform float u_fuzz;
 uniform int u_noisemode;
-uniform float u_gradient[4];
 uniform float u_clampscale;
+uniform vec2 u_reps;
 out vec4 outColor;
 
 void main() {
@@ -29,19 +31,25 @@ void main() {
     float fuzzX = u_fuzz * (uniformNoise(uv.x * uv.y) - 0.5);
     float fuzzY = u_fuzz * (uniformNoise(uv.x * uv.y + 0.1) - 0.5);
     uv = vec2(uv.x + fuzzX, uv.y + fuzzY);
-    vec3 noiseOut = perlinNoise2D(
-        u_freq * (uv + u_pitch), u_fc, u_gradient, u_seed
-    ) * 2. - 1.;
-    if (u_boundmode == 2) {
-        noiseOut = clamp(noiseOut, -u_clampscale, u_clampscale) + u_clampscale;
-    }
-    if (u_noisemode == 0) {
-        uv += noiseOut.x * u_depth; {}
-    } else if (u_noisemode == 2) {
-        uv += (noiseOut.y + noiseOut.z) / 2. * u_depth;
-    }
-    if (u_boundmode == 0) {
-        uv = fract(uv);
-    }
+#if NOISEMODE == 0
+    float grad[4] = float[](1., 0., 0., 1.);
+    float pX = (perlinNoise2D(
+        u_freq * (uv + u_pitch), u_fc, grad, u_seed
+    ) * 2. - 1.).x;
+    vec2 noiseOut = vec2(pX);
+#elif NOISEMODE == 1
+    vec2 noiseOut = vec2(cnoise(u_freq * (uv + u_pitch + u_seed)));
+#elif NOISEMODE == 2
+    vec2 noiseOut = vec2(pnoise(u_freq * (uv + u_pitch + u_seed), u_reps));
+#else
+    vec2 noiseOut = cellular(u_freq * uv + u_pitch + u_seed);
+#endif
+#if BOUNDMODE == 2
+    noiseOut = clamp(noiseOut, -u_clampscale, u_clampscale) + u_clampscale;
+#endif
+    uv += noiseOut * u_depth;
+#if BOUNDMODE == 0
+    uv = fract(uv);
+#endif
     outColor = texture(u_image, uv);
 }

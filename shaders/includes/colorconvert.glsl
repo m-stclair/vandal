@@ -47,95 +47,47 @@ vec3 lab2rgb(vec3 lab) {
 
 
 vec3 rgb2hsv(vec3 c) {
-    float maxc = max(c.r, max(c.g, c.b));
-    float minc = min(c.r, min(c.g, c.b));
-    float delta = maxc - minc;
+    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
 
-    float h = 0.0;
-    float s = (maxc == 0.0) ? 0.0 : (delta / maxc);
-    float v = maxc;
-
-    if (delta != 0.0) {
-        if (maxc == c.r) {
-            h = (c.g - c.b) / delta;
-        } else if (maxc == c.g) {
-            h = (c.b - c.r) / delta + 2.0;
-        } else {
-            h = (c.r - c.g) / delta + 4.0;
-        }
-        h /= 6.0;
-        if (h < 0.0) h += 1.0;
-    }
-
-    return vec3(h, s, v);
+    float d = q.x - min(q.w, q.y);
+    float e = 1e-10;
+    return vec3(abs((q.w - q.y)/(6.0*d + e)), d/(q.x + e), q.x);
 }
+
 
 vec3 hsv2rgb(vec3 c) {
-    float h = c.x * 6.0;
-    float s = c.y;
-    float v = c.z;
-
-    int i = int(floor(h));
-    float f = h - float(i);
-    float p = v * (1.0 - s);
-    float q = v * (1.0 - f * s);
-    float t = v * (1.0 - (1.0 - f) * s);
-
-    if (i == 0) return vec3(v, t, p);
-    if (i == 1) return vec3(q, v, p);
-    if (i == 2) return vec3(p, v, t);
-    if (i == 3) return vec3(p, q, v);
-    if (i == 4) return vec3(t, p, v);
-    return vec3(v, p, q);
+    vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
+    vec3 rgb = c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
+    return rgb;
 }
 
-vec3 hsl2rgb(vec3 hsl) {
-    float h = hsl.x;
-    float s = hsl.y;
-    float l = hsl.z;
+vec3 hsl2rgb(vec3 c) {
+    float h = c.x, s = c.y, l = c.z;
 
-    float c = (1.0 - abs(2.0 * l - 1.0)) * s;
-    float h_ = h * 6.0;
-    float x = c * (1.0 - abs(mod(h_, 2.0) - 1.0));
-
-    vec3 rgb1;
-    if (h_ < 1.0)      rgb1 = vec3(c, x, 0.0);
-    else if (h_ < 2.0) rgb1 = vec3(x, c, 0.0);
-    else if (h_ < 3.0) rgb1 = vec3(0.0, c, x);
-    else if (h_ < 4.0) rgb1 = vec3(0.0, x, c);
-    else if (h_ < 5.0) rgb1 = vec3(x, 0.0, c);
-    else              rgb1 = vec3(c, 0.0, x);
-
-    float m = l - 0.5 * c;
-    return rgb1 + vec3(m);
+    float a = s * min(l, 1.0 - l);
+    vec3 k = vec3(0.0, 2.0/3.0, 1.0/3.0);
+    vec3 p = abs(fract(h + k) * 6.0 - 3.0);
+    return l - a + a * clamp(p - 1.0, 0.0, 1.0);
 }
 
-vec3 rgb2hsl(vec3 rgb) {
-    float r = rgb.r;
-    float g = rgb.g;
-    float b = rgb.b;
-
-    float maxc = max(max(r, g), b);
-    float minc = min(min(r, g), b);
+vec3 rgb2hsl(vec3 c) {
+    float maxc = max(max(c.r, c.g), c.b);
+    float minc = min(min(c.r, c.g), c.b);
     float delta = maxc - minc;
-
-    float h = 0.0;
-    if (delta > 0.0) {
-        if (maxc == r) {
-            h = mod((g - b) / delta, 6.0);
-        } else if (maxc == g) {
-            h = (b - r) / delta + 2.0;
-        } else {
-            h = (r - g) / delta + 4.0;
-        }
-        h /= 6.0;
-    }
 
     float l = 0.5 * (maxc + minc);
 
-    float s = 0.0;
-    if (delta > 0.0) {
-        s = delta / (1.0 - abs(2.0 * l - 1.0));
+    float s = delta / (1.0 - abs(2.0 * l - 1.0) + 1e-10);
+
+    float h = 0.0;
+    if (delta > 1e-10) {
+        vec3 n = (c - minc) / delta;
+        h = (c.r >= maxc) ? (n.g - n.b) :
+            (c.g >= maxc) ? (2.0 + n.b - n.r) :
+                            (4.0 + n.r - n.g);
+        h = fract(h / 6.0);
     }
 
     return vec3(h, s, l);

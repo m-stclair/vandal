@@ -72,7 +72,7 @@ export default {
 };
 
 export const effectMeta = {
-  group: "Weird",
+  group: "Wandering",
   tags: ["cpu", "filter", "convolution", "kernel"],
   description: "Applies a general-purpose 2D FIR filter in data (_not pixel_) space."
   + "Slow and may produce unrenderable transparency conditions.",

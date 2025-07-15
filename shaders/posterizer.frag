@@ -20,5 +20,5 @@ void main() {
     vec3 color = extractColor(pixel.rgb);
     vec3 postColor = posterize(color, uv, u_bayer_resolution, u_bias, u_logbase);
     vec3 srgbOut = encodeColor(postColor);
-    outColor = vec4(mix(pixel.rgb, srgbOut, u_blendamount), pixel.a);
+    outColor = vec4(applyBlend(pixel.rgb, srgbOut, u_blendamount), pixel.a);
 }

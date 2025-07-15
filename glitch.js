@@ -12,7 +12,6 @@ import {
 import {
     addEffectToStack,
     clearConfigUI,
-    clearNormedImage,
     clearRenderCache,
     Dirty,
     flushEffectStack,
@@ -29,12 +28,13 @@ import {
     requestRender,
     requestUIDraw,
     rerollNormLoadID,
+    resizeAndRedraw,
     saveState,
     setFilters,
     setOriginalImage,
     setRenderedImage,
-    setResizedOriginalImage,
-    toggleEffectSelection, uiState
+    toggleEffectSelection,
+    uiState
 } from "./state.js";
 import {formatFloatWidth, gid} from "./utils/helpers.js";
 import {renderStackUI} from "./ui_builder.js";
@@ -44,6 +44,7 @@ import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
+import {drawBlackSquare} from "./test_patterns.js";
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -58,29 +59,6 @@ function handleUpload(e) {
     img.src = URL.createObjectURL(file);
 }
 
-
-function resizeAndRedraw() {
-    const originalImage = getOriginalImage();
-    if (!originalImage) return;
-    const leftPane = document.getElementById('leftPane');
-    const width = leftPane.clientWidth - 20;  // subtract some padding
-    const height = window.innerHeight * 0.9;
-    let scale = Math.min(
-        width / originalImage.width, height / originalImage.height
-    );
-
-    const w = Math.floor(originalImage.width * scale);
-    const h = Math.floor(originalImage.height * scale);
-
-    canvas.width = w;
-    canvas.height = h;
-
-    defaultCtx.drawImage(originalImage, 0, 0, w, h);
-    setRenderedImage(defaultCtx.getImageData(0, 0, w, h));
-    setResizedOriginalImage(defaultCtx.getImageData(0, 0, w, h));
-    clearNormedImage();
-    requestRender();
-}
 
 let capturer = null, capturing = false;
 let exportDuration = null, exportFPS = null, frameLimit = null;
@@ -151,6 +129,7 @@ function updateRenderMsg(msg) {
 
 async function exportImage(resolution) {
     let exportCanvas = document.createElement("canvas");
+
     function getImg() {
         if (resolution === "full") {
             const img = getOriginalImage();
@@ -170,6 +149,7 @@ async function exportImage(resolution) {
             return [imageData, eCtx];
         }
     }
+
     let [normData, eCtx] = getImg();
 
     function executeRender() {
@@ -256,7 +236,7 @@ function tick(now) {
     }
 }
 
-function firePipeline(t=0, ctx=defaultCtx, normedImage=getNormedImage()) {
+function firePipeline(t = 0, ctx = defaultCtx, normedImage = getNormedImage()) {
     const applied = renderer.applyEffects(t, normedImage);
     const {width, height} = normedImage;
     setRenderedImage(deNormalizeImageData(applied, width, height), ctx)
@@ -302,116 +282,105 @@ async function addSelectedEffect(effectName) {
     requestRender();
 }
 
-async function drawBlackSquare(imgElement) {
-    canvas.width = 1024;
-    canvas.height = 1024;
-
-    defaultCtx.fillStyle = 'black';
-    defaultCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-    imgElement.src = canvas.toDataURL();
-    setOriginalImage(imgElement);
-}
 
 function watchRender() {
-    if (Lock.image || !Dirty.image) return;
-    Lock.image = true;
-    Dirty.image = false;
-    try {
-        renderImage()
-    } finally {
-        Lock.image = false;
-    }
-}
-
-function watchUI() {
-    if (Lock.ui || !Dirty.ui) return;
-    Lock.ui = true;
-    Dirty.ui = false;
-    try {
-        renderStackUI(getEffectStack(), uiState, gid('effectStack'));
-    } finally {
-        Lock.ui = false;
-    }
-}
-
-function rafScheduler(func, name, registry) {
-    return () => {
-        func();
-        registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
-    }
-}
-
-
-const loopIDs = {};
-const renderLoop = rafScheduler(watchRender, "render", loopIDs);
-const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
-
-
-async function appSetup() {
-    const stackHeader = document.getElementById("effectStackHeader")
-    const picker = document.createElement("effect-picker")
-    stackHeader.appendChild(picker);
-    await picker.ready;
-
-    function toggleExpand() {
-        if (picker.inSearchMode) {
-            stackHeader.style.flexShrink = '0';
-            stackHeader.style.flexGrow = '2';
-        } else {
-            stackHeader.style.flexShrink = '1';
-            stackHeader.style.flexGrow = '1';
+        if (Lock.image || !Dirty.image) return;
+        Lock.image = true;
+        Dirty.image = false;
+        try {
+            renderImage()
+        } finally {
+            Lock.image = false;
         }
     }
 
-    picker.setEffectSelectCallback(
-        async (effectName) => {
-            await addSelectedEffect(effectName);
-            toggleExpand();
+    function watchUI() {
+        if (Lock.ui || !Dirty.ui) return;
+        Lock.ui = true;
+        Dirty.ui = false;
+        try {
+            renderStackUI(getEffectStack(), uiState, gid('effectStack'));
+        } finally {
+            Lock.ui = false;
         }
-    );
-    ["input", "keydown"].forEach(
-        (eType) => stackHeader.addEventListener(
-            eType, (e) => {
-                if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
-                    toggleExpand();
-                }
+    }
+
+    function rafScheduler(func, name, registry) {
+        return () => {
+            func();
+            registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
+        }
+    }
+
+
+    const loopIDs = {};
+    const renderLoop = rafScheduler(watchRender, "render", loopIDs);
+    const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
+
+
+    async function appSetup() {
+        const stackHeader = document.getElementById("effectStackHeader")
+        const picker = document.createElement("effect-picker")
+        stackHeader.appendChild(picker);
+        await picker.ready;
+
+        function toggleExpand() {
+            if (picker.inSearchMode) {
+                stackHeader.style.flexShrink = '0';
+                stackHeader.style.flexGrow = '2';
+            } else {
+                stackHeader.style.flexShrink = '1';
+                stackHeader.style.flexGrow = '1';
             }
-        )
-    )
-    const toggleBar = document.getElementById('toggle-stack-bar');
-    const effectStack = document.getElementById('effectStack');
-    toggleBar.addEventListener('click', function () {
-        effectStack.classList.toggle('collapsed');
-        toggleBar.classList.toggle('collapsed');
-    });
-    await setupStaticButtons(
-        handleUpload,
-        addSelectedEffect,
-        saveState,
-        loadState,
-        effectRegistry,
-        resetStack,
-        requestRender,
-        requestUIDraw,
-        renderImage
-    );
-    setupPresetUI(
-        saveState,
-        loadState,
-        requestRender,
-        requestUIDraw,
-        effectRegistry
-    );
-    setupExportImage(exportImage);
-    setupVideoCapture(startCapture, stopCapture);
-    setupPaneDrag();
-    setupWindow(resizeAndRedraw);
-    const imgElement = document.createElement('img');
-    await drawBlackSquare(imgElement);
-    resizeAndRedraw();
-    uiLoop();
-    renderLoop();
-}
+        }
 
-await appSetup();
+        picker.setEffectSelectCallback(
+            async (effectName) => {
+                await addSelectedEffect(effectName);
+                toggleExpand();
+            }
+        );
+        ["input", "keydown"].forEach(
+            (eType) => stackHeader.addEventListener(
+                eType, (e) => {
+                    if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
+                        toggleExpand();
+                    }
+                }
+            )
+        )
+        const toggleBar = document.getElementById('toggle-stack-bar');
+        const effectStack = document.getElementById('effectStack');
+        toggleBar.addEventListener('click', function () {
+            effectStack.classList.toggle('collapsed');
+            toggleBar.classList.toggle('collapsed');
+        });
+        await setupStaticButtons(
+            handleUpload,
+            addSelectedEffect,
+            saveState,
+            loadState,
+            effectRegistry,
+            resetStack,
+            requestRender,
+            requestUIDraw,
+            renderImage
+        );
+        setupPresetUI(
+            saveState,
+            loadState,
+            requestRender,
+            requestUIDraw,
+            effectRegistry
+        );
+        setupExportImage(exportImage);
+        setupVideoCapture(startCapture, stopCapture);
+        setupPaneDrag();
+        setupWindow(resizeAndRedraw);
+        await drawBlackSquare();
+        resizeAndRedraw();
+        uiLoop();
+        renderLoop();
+    }
+
+    await appSetup();

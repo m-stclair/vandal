@@ -105,7 +105,7 @@ export default {
         initGLEffect(instance, fragSource);
         const {
             delay, window, density, angle, falloff, shearX, shearY,
-            scaleX, scaleY, blendAmount, BLENDMODE, blendTarget, COLORSPACE,
+            scaleX, scaleY, blendAmount, BLENDMODE, BLEND_CHANNEL_MODE, COLORSPACE,
             jitter
         } = resolveAnimAll(instance.config, t);
         // TODO: write equivalent quit-fast option for GL
@@ -163,9 +163,9 @@ export default {
             u_blendamount: {value: blendAmount, type: "float"}
         };
         const defines = {
-            COLORSPACE: Number.parseInt(COLORSPACE),
-            BLENDMODE: Number.parseInt(BLENDMODE),
-            BLEND_CHANNEL_MODE: blendTarget,
+            COLORSPACE: COLORSPACE,
+            BLENDMODE: BLENDMODE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }
 
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);

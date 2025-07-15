@@ -47,7 +47,7 @@ function _preprocessGLSL(source, defines, includeMap) {
         let rawLine = lines[i];
         let line = rawLine.trim();
         if (line.startsWith('#define ')) {
-            const [_, key, val] = line.match(/^#define\s+(\w+)(?:\s+(.*))?/) || [];
+            const [_, key, val] = line.match(/^#define\s+(\w+)\s+([^\/]+)/) || [];
             if (!key) continue;
             if (defines[key] !== undefined) {
                 continue;

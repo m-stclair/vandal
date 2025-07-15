@@ -85,12 +85,6 @@ export default {
             type: 'Select',
             options: BlendModeOpts
         },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},
         {key: "c3", label: "Channel 2", type: "checkbox"},

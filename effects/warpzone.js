@@ -12,7 +12,7 @@ import {blendControls, group, zoneControls} from "../utils/ui_configs.js";
 const shaderPath = "../shaders/warpzone.glsl";
 const includePaths = {
     "zones.glsl": "../shaders/includes/zones.glsl",
-    "psrdnoise2.glsl": "../shaders/includes/psrdnoise2.glsl",
+    "psrdnoise2.glsl": "../shaders/includes/noises/psrdnoise2.glsl",
     "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
     "blend.glsl": "../shaders/includes/blend.glsl"
 };

@@ -239,3 +239,26 @@ function NestingDict() {
 }
 
 export const uiState = NestingDict();
+
+export function resizeAndRedraw() {
+    const originalImage = getOriginalImage();
+    if (!originalImage) return;
+    const leftPane = document.getElementById('leftPane');
+    const width = leftPane.clientWidth - 20;  // subtract some padding
+    const height = window.innerHeight * 0.9;
+    let scale = Math.min(
+        width / originalImage.width, height / originalImage.height
+    );
+
+    const w = Math.floor(originalImage.width * scale);
+    const h = Math.floor(originalImage.height * scale);
+
+    canvas.width = w;
+    canvas.height = h;
+
+    defaultCtx.drawImage(originalImage, 0, 0, w, h);
+    setRenderedImage(defaultCtx.getImageData(0, 0, w, h));
+    setResizedOriginalImage(defaultCtx.getImageData(0, 0, w, h));
+    clearNormedImage();
+    requestRender();
+}

@@ -5,6 +5,9 @@ import {group} from "../utils/ui_configs.js";
 const shaderPath = "../shaders/perlin_distort.frag"
 const includePaths = {
     'noise.glsl': "../shaders/includes/noise.glsl",
+    'classicnoise2D.glsl': "../shaders/includes/noises/classicnoise2D.glsl",
+    'cellular2D.glsl': "../shaders/includes/noises/cellular2D.glsl",
+    'noisenums.glsl': "../shaders/includes/noises/noisenums.glsl",
 };
 const fragSource = loadFragSrcInit(shaderPath, includePaths);
 
@@ -25,9 +28,10 @@ export default {
         rate: 4,
         rateDrive: 0,
         fc: [6, 15, 10],
+        reps: [5, 5],
         phase: [0, 0],
         fuzz: 0,
-        noiseMode: "classic",
+        noiseMode: "pseudo",
         clampScale: 1
     },
 
@@ -79,42 +83,51 @@ export default {
         ], {color: "#001020"}),
 
         group("Noise & Bounds", [
-            {key: 'noiseMode', label: 'Noise Mode', type: 'Select', options: ['classic', 'blocks']},
+            {key: 'noiseMode', label: 'Noise Mode', type: 'Select', options: ['pseudo', 'classic', 'periodic']},
             {key: 'boundMode', label: 'Boundary Mode', type: 'Select', options: ['fract', 'free', 'clamp']},
             {
                 key: "clampScale",
-                label: "Clamp Scale (for clamp mode)",
+                label: "Clamp Scale",
                 type: 'Range',
                 min: 0,
                 max: 3,
                 step: 0.05,
                 showIf: {key: "boundMode", equals: "clamp"}
-            }
-        ], {color: "#202020"}),
-
-        group("Fade Shape", [
+            },
             {
                 key: "fc",
                 label: "Fade Coefficients",
                 type: "vector",
                 subLabels: () => ["C1", "C2", "C3"],
                 length: 3,
-                min: 5,
+                min: 1,
                 max: 20,
-                step: 0.25
+                step: 1,
+                showIf: {key: "noiseMode", equals: "pseudo"}
+            },
+            {
+                key: "reps",
+                label: "Repetitions",
+                type: "vector",
+                subLabels: () => ["X", "Y"],
+                length: 2,
+                min: 1,
+                max: 20,
+                step: 1,
+                showIf: {key: "noiseMode", equals: "periodic"}
             }
-        ], {color: "#100020"})
+        ], {color: "#202020"}),
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSource);
         const {
             pitchX, pitchY, freqX, freqY, phase,
-            fc, seed, depth, boundMode, rate, rateDrive, fuzz,
-            noiseMode, clampScale
+            seed, depth, boundMode, rate, rateDrive, fuzz,
+            noiseMode, clampScale, reps, fc
         } = resolveAnimAll(instance.config, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
-        const modeCode = {'classic': 0, "blocks": 1}[noiseMode];
+        const modeCode = {'pseudo': 0, "classic": 1, "periodic": 2}[noiseMode];
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
@@ -122,19 +135,20 @@ export default {
             u_pitch: {value: [pitchX, pitchY], type: "vec2"},
             u_freq: {value: [freqX, freqY], type: "vec2"},
             u_seed: {value: seed, type: "float"},
-            u_fc: {value: new Float32Array(fc), type: "floatArray"},
             u_depth: {value: depth, type: "float"},
             u_rate: {value: rate, type: "float"},
             u_ratedrive: {value: rateDrive, type: "float"},
             u_phase: {value: phase, type: "vec2"},
             u_fuzz: {value: fuzz / 500, type: "float"},
-            u_boundmode: {value: boundCode, type: "int"},
-            // TODO, mayabe: actually do something with this
-            u_gradient: {value: [1, 0, 0, 1], type: "floatArray"},
-            u_noisemode: {value: modeCode, type: "int"},
             u_clampscale: {value: clampScale, type: "float"},
+            u_reps: {value: reps, type: "vec2"},
+            u_fc: {value: fc, type: "floatArray"}
         };
-        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
+        const defines = {
+            NOISEMODE: modeCode,
+            BOUNDMODE: boundCode
+        }
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSource.load,
     cleanupHook(instance) {

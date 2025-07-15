@@ -14,7 +14,11 @@ const includePaths = {
     'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
     'blend.glsl': '../shaders/includes/blend.glsl',
     'noise.glsl': '../shaders/includes/noise.glsl',
-    'psrdnoise2.glsl': '../shaders/includes/psrdnoise2.glsl'
+    'psrdnoise2.glsl': '../shaders/includes/noises/psrdnoise2.glsl',
+    "classicnoise2D.glsl": '../shaders/includes/noises/classicnoise2D.glsl',
+    "cellular2D.glsl": '../shaders/includes/noises/cellular2D.glsl',
+    "noise2D.glsl": '../shaders/includes/noises/noise2D.glsl',
+    'noisenums.glsl': "../shaders/includes/noises/noisenums.glsl",
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -23,22 +27,23 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 export default {
     name: "Noise Mixer",
     defaultConfig: {
-        frequency: 50,
+        frequency: 100,
         freqShift: 0,
         tint: [1, 1, 1],
         seed: 1,
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
-        fc: [6, 15, 10],
-        components: [0, 0, 1, 0, 0],
+        components: [1, 0, 0, 0, 0, 0],
         blendAmount: 0.5,
         colormap: "none",
         threshold: 0,
         cutoff: 1,
         gate: GateModeEnum.NONE,
         burstThreshold: 0.1,
-        burstFreq: 50,
+        burstFreq: 100,
+        burstTheta: 0.52,
+        burstDTheta: 0,
         ZONESHAPE: ZoneShapeEnum.SUPERELLIPSE,
         zoneCX: 0.5,
         zoneSX: 0.6,
@@ -47,7 +52,8 @@ export default {
         zoneEllipseN: 2,
         zoneSoftness: 0.1,
         zoneAngle: 0,
-        APPLY_MASK: false
+        APPLY_MASK: false,
+        burstModType: "simplex"
     },
     uiLayout: [
         {key: "seed", label: "Seed", type: "modSlider", min: 1, max: 500, step: 1},
@@ -55,11 +61,11 @@ export default {
             key: "components",
             label: "Noise Components",
             type: "vector",
-            subLabels: () => ["Uniform", "Perlin", "Simplex", "Gaussian", "Pink"],
+            subLabels: () => ["Uniform", "Perlin", "Simplex", "Gaussian", "Pink", "Worley"],
             min: 0,
             max: 1,
             step: 0.01,
-            length: 5
+            length: 6
         },
         {key: "gate", label: "Use Gate", type: "Select", options: GateModeOpts},
         {
@@ -89,7 +95,33 @@ export default {
                     steps: 300,
                     scale: "log",
                     showIf: {'key': 'gate', 'equals': GateModeEnum.BURST}
-                }
+                },
+                {
+                    key: "burstModType",
+                    label: "Burst Modulator Type",
+                    type: "Select",
+                    options: ["simplex", "pseudoperlin", "sinusoidal"],
+                    showIf: {'key': 'gate', 'equals': GateModeEnum.BURST}
+                },
+                {
+                    key: "burstTheta",
+                    label: "Burst Angle",
+                    type: "modSlider",
+                    min: 0,
+                    max: Math.PI,
+                    steps: 100,
+                    showIf: {'key': 'gate', 'equals': GateModeEnum.BURST}
+                },
+                {
+                    key: "burstDTheta",
+                    label: "Burst Angle Dispersion",
+                    type: "modSlider",
+                    min: 0,
+                    max: Math.PI,
+                    steps: 100,
+                    showIf: {'key': 'gate', 'equals': GateModeEnum.BURST}
+                },
+
             ],
         },
         blendControls(),
@@ -110,15 +142,6 @@ export default {
             step: 0.01,
         },
         {key: "frequency", label: "Frequency", type: "Range", min: 1, max: 5000, steps: 300, scale: "log"},
-        {
-            key: "fc",
-            label: "Fade Coefficients (Perlin)",
-            type: "vector",
-            subLabels: ["F1", "F2", "F3"],
-            min: 5,
-            max: 20,
-            step: 0.25,
-        },
         {key: "freqShift", label: "Frequency Shift", type: "Range", min: -3.14, max: 3.14, steps: 200},
         {key: "APPLY_MASK", label: "Apply Mask", type: "checkbox"},
         {...zoneControls(), showIf: {'key': 'APPLY_MASK', 'equals': true}},
@@ -126,17 +149,17 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources)
         const {
-            seed, frequency, freqShift, components, fc,
+            seed, frequency, freqShift, components,
             BLENDMODE, COLORSPACE, tint, blendAmount, colormap,
             threshold, cutoff, gate, burstThreshold, burstFreq,
             ZONESHAPE, zoneCX, zoneSX, zoneCY, zoneSY,
             zoneSoftness, zoneEllipseN, zoneAngle, APPLY_MASK,
-            BLENDTARGET,
+            BLEND_CHANNEL_MODE, burstTheta, burstDTheta, burstModType
         } = resolveAnimAll(instance.config, t);
         // TODO: this is wrong
         if (!components.some((c) => c)) return inputTex;
-        const [uniform, perlin, simplex, gauss, pink] = components;
-        const noiseMax = pink + perlin + uniform + gauss + simplex;
+        const [uniform, perlin, simplex, gauss, pink, worley] = components;
+        const noiseMax = pink + perlin + uniform + gauss + simplex + worley;
         const blendAmountC = (noiseMax < 1) ? Math.min(blendAmount, noiseMax) : blendAmount;
         let xMax = zoneCX + zoneSX / 2;
         let yMax = zoneCY + zoneSY / 2;
@@ -151,12 +174,12 @@ export default {
             u_gauss: {type: "float", value: gauss},
             u_uniform: {type: "float", value: uniform},
             u_pink: {type: "float", value: pink},
+            u_worley: {type: "float", value: worley},
             u_simplex: {type: "float", value: simplex},
             u_threshold: {type: "float", value: threshold},
             u_cutoffHigh: {type: "float", value: cutoff},
             u_burstFreq: {type: "float", value: burstFreq},
             u_burstThreshold: {type: "float", value: burstThreshold},
-            u_fc: {value: new Float32Array(fc), type: "floatArray"},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmountC, type: "float"},
             u_zoneSoftness: {value: zoneSoftness, type: "float"},
@@ -164,6 +187,8 @@ export default {
             u_zoneMin: {value: [xMin, yMin], type: "vec2"},
             u_zoneMax: {value: [xMax, yMax], type: "vec2"},
             u_zoneAngle: {value: zoneAngle, type: "float"},
+            u_burstTheta: {value: burstTheta, type: "float"},
+            u_burstPhi: {value: burstTheta + burstDTheta, type: "float"}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
@@ -173,7 +198,8 @@ export default {
             USE_WINDOW: Number(cutoff < 1),
             ZONESHAPE: ZONESHAPE,
             APPLY_MASK: Number(APPLY_MASK),
-            BLEND_CHANNEL_MODE: BLENDTARGET,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            BURST_MODTYPE: {'simplex': 0, 'pseudoperlin': 1, 'sinusoidal': 2}[burstModType]
         }
         if (colormap !== "none") {
             uniformSpec["u_cmap"] = {
@@ -195,7 +221,7 @@ export default {
 
 export const effectMeta = {
     group: "Synthesis",
-    tags: ["noise", "retro", "synth", "webgl", "realtime"],  // Add relevant tags
+    tags: ["noise", "perlin", "mixer", "simplex", "worley", "white", "synth", "webgl", "realtime"],
     description: "Generates highly-configurable noise. Offers a variety of blending " +
         "methods for application to images; also suitable as a standalone pattern " +
         "generator.",

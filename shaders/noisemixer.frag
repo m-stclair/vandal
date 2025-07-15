@@ -2,11 +2,15 @@
 
 precision mediump float;
 
+#include "noisenums.glsl"
 #include "zones.glsl"
 #include "colorconvert.glsl"
 #include "noise.glsl"
 #include "blend.glsl"
 #include "psrdnoise2.glsl"
+#include "classicnoise2D.glsl"
+#include "cellular2D.glsl"
+#include "noise2D.glsl"
 
 uniform sampler2D u_image;
 uniform sampler2D u_cmap;
@@ -19,9 +23,11 @@ uniform float u_perlin;
 uniform float u_simplex;
 uniform float u_gauss;
 uniform float u_pink;
-uniform float u_fc[3];
+uniform float u_worley;
 uniform vec3 u_tint;
 uniform float u_blendamount;
+uniform float u_burstTheta;
+uniform float u_burstPhi;
 
 // mask parameters
 uniform vec2 u_zoneMin; // normalized [0,1]
@@ -47,6 +53,10 @@ out vec4 outColor;
 #define GATE_HARD 2
 #define GATE_BURST 3
 
+#define BURST_SIMPLEX 0
+#define BURST_PSEUDO_PERLIN 1
+#define BURST_SINUSOIDAL 2
+
 void main() {
     vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
     vec2 uvs = uv + uniformNoise(u_seed);
@@ -62,12 +72,14 @@ void main() {
     pVecs[2] = 0.0;
     pVecs[3] = 1.0;
 
-    noiseVal += perlinNoise2D(vec2(xScl, yScl), u_fc, pVecs, u_seed).x * u_perlin * 2.0;
-
-    vec2 gradientOut = vec2(0.0, 0.0); // scratch
+//    noiseVal += perlinNoise2D(vec2(xScl, yScl), u_fc, pVecs, u_seed).x * u_perlin * 2.0;
+    noiseVal += cnoise(vec2(xScl, yScl)) * u_perlin * 1.3;
+    vec2 gradientOut = vec2(0.0, 0.0); // scratch space for periodic simplex noise algo
     noiseVal += psrdnoise(vec2(xScl, yScl), vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
     noiseVal += gaussianNoise(vec2(xScl, yScl)) * u_gauss;
     noiseVal += pinkNoise(vec2(xScl, yScl)) * u_pink;
+    vec2 cellnoise = cellular(vec2(xScl, yScl)) * u_worley;
+    noiseVal += (cellnoise.x + cellnoise.y) / 2.;
     noiseVal = clamp(noiseVal, 0.0, 1.0);
 
 #if GATE_MODE != GATE_NONE
@@ -79,13 +91,29 @@ void main() {
     float gateVal = 1.0;
 
 #elif GATE_MODE == GATE_BURST
-    // TODO: expose rotation angle
-    float theta = 0.52;
-    mat2 rot = mat2(cos(theta), -sin(theta), sin(theta), cos(theta));
-    vec2 burstUV = rot * (uv * u_burstFreq);
-    float burstField = perlinNoise2D(burstUV, u_fc, pVecs, u_seed * 7.77).x;
     float gateVal = 1.0;
+    mat2 rot = mat2(
+        cos(u_burstTheta),
+        -sin(u_burstPhi),
+        sin(u_burstTheta),
+        cos(u_burstPhi)
+    );
+    vec2 burstUV = rot * (uv * u_burstFreq);
+#if BURST_MODTYPE == BURST_SIMPLEX
+    float burstField = snoise(burstUV + u_seed * 7.77);
 
+#elif BURST_MODTYPE == BURST_PSEUDO_PERLIN
+    float fc[3] = float[](6., 15., 10.);
+    float burstField = perlinNoise2D(burstUV, fc, pVecs, u_seed * 7.77).x * 2.;
+
+#else
+    vec2 sinusoid = (
+        sin(burstUV * u_burstPhi * 11.) * u_burstPhi
+        + cos(burstUV * burstUV * 7.) * u_burstTheta
+    );
+    float burstField = sinusoid.x * sinusoid.y;
+
+#endif
 #endif
 
 #if GATE_MODE == GATE_BURST

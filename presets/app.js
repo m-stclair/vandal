@@ -37,7 +37,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Posterize (GL)",
+                "name": "Posterize",
                 "config": {
                     "levels": 8,
                     "mode": "3",
@@ -45,7 +45,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": 178.49,
                     "window": "box",
@@ -77,7 +77,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "fract",
                     "pitchX": 0,
@@ -170,7 +170,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Posterize (GL)",
+                "name": "Posterize",
                 "config": {
                     "levels": 5,
                     "mode": "1",
@@ -183,7 +183,7 @@ export const builtInPresets = [
     {
         "name": "Transfer Sunrise",
         "config": [{
-            "name": "Posterize (GL)",
+            "name": "Posterize",
             "config": {
                 "levels": 8,
                 "mode": "1",
@@ -216,7 +216,7 @@ export const builtInPresets = [
                 "spatialPattern": "radial"
             }
         }, {
-            "name": "Channel Mixer (GL)",
+            "name": "Channel Mixer",
             "config": {
                 "mix1": [1, 0, -0.04],
                 "mix2": [0.4, 0.83, 0],
@@ -266,7 +266,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -0.98,
@@ -296,7 +296,7 @@ export const builtInPresets = [
         "name": "Not Raining",
         "config": [
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -0.91,
@@ -322,7 +322,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": 5.74,
                     "window": "circle",
@@ -336,7 +336,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -1.23,
@@ -362,7 +362,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": 2.85,
                     "window": "box",
@@ -376,7 +376,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -1.07,
@@ -402,7 +402,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Channel Mixer (GL)",
+                "name": "Channel Mixer",
                 "config": {
                     "mix1": [
                         0.83,
@@ -494,7 +494,7 @@ export const builtInPresets = [
             "name": "Desync Tiles",
             "config": {"tileSize": 60, "corruptionRate": 0.19, "maxOffset": 28, "freezeTiles": false}
         }, {
-            "name": "Noise Mixer (GL)",
+            "name": "Noise Mixer",
             "config": {
                 "frequency": 1.8814068375361006,
                 "freqShift": -0.15,
@@ -528,7 +528,7 @@ export const builtInPresets = [
         "name": "Nagel",
         "config": [
             {
-                "name": "Affine Transform (GL)",
+                "name": "Affine Transform",
                 "config": {
                     "angle": {
                         "value": 23.13,
@@ -601,7 +601,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Posterize (GL)",
+                "name": "Posterize",
                 "config": {
                     "levels": 8,
                 }
@@ -626,7 +626,7 @@ export const builtInPresets = [
         "name": "Saudade",
         "config": [
             {
-                "name": "Noise Mixer (GL)",
+                "name": "Noise Mixer",
                 "config": {
                     "frequency": 115.95100609902991,
                     "freqShift": 0.05,
@@ -680,7 +680,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "pitchX": -0.1,
                     "pitchY": 0.1,
@@ -734,7 +734,7 @@ export const builtInPresets = [
         "name": "Untimely Met",
         "config": [
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "pitchX": -1.01,
                     "pitchY": 0.25,
@@ -751,7 +751,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": 8.62,
                     "window": "box",
@@ -796,7 +796,7 @@ export const builtInPresets = [
         "name": "Ardor",
         "config": [
             {
-                "name": "Noise Mixer (GL)",
+                "name": "Noise Mixer",
                 "config": {
                     "frequency": 30.744329067236027,
                     "freqShift": -0.07,
@@ -831,7 +831,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Channel Mixer (GL)",
+                "name": "Channel Mixer",
                 "config": {
                     "colorSpace": '1',
                     "mixMatrix": [
@@ -866,7 +866,7 @@ export const builtInPresets = [
         "name": "Nickelodeon",
         "config": [
             {
-                "name": "Noise Mixer (GL)",
+                "name": "Noise Mixer",
                 "config": {
                     "frequency": 70.25175969985042,
                     "freqShift": 0.15,
@@ -913,7 +913,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "fract",
                     "pitchX": -1.41,
@@ -966,7 +966,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "fract",
                     "pitchX": -1.41,
@@ -1019,7 +1019,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Noise Mixer (GL)",
+                "name": "Noise Mixer",
                 "config": {
                     "frequency": 74.06700812523023,
                     "freqShift": -0.01,
@@ -1075,7 +1075,7 @@ export const builtInPresets = [
                 "tintStrength": 0.47
             }
         }, {
-            "name": "Noise Mixer (GL)",
+            "name": "Noise Mixer",
             "config": {
                 "frequency": 186.01893253979875,
                 "freqShift": -0.09,
@@ -1117,7 +1117,7 @@ export const builtInPresets = [
                     "name": "Invert",
                     "config": {"invert0": false, "invert1": true, "invert2": true, "mode": "lab"}
                 }, {
-                    "name": "Noise Mixer (GL)",
+                    "name": "Noise Mixer",
                     "config": {
                         "frequency": 28.355256795885165,
                         "freqShift": -0.05,
@@ -1147,7 +1147,7 @@ export const builtInPresets = [
                 }]
             },
             {
-                "name": "Noise Mixer (GL)",
+                "name": "Noise Mixer",
                 "config": {
                     "frequency": 84.52299235058047,
                     "freqShift": 0,
@@ -1186,7 +1186,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": 0,
@@ -1230,7 +1230,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Noise Mixer (GL)",
+                "name": "Noise Mixer",
                 "config": {
                     "frequency": 50,
                     "freqShift": 0,
@@ -1285,7 +1285,7 @@ export const builtInPresets = [
         "name": "Not Raining",
         "config": [
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -0.91,
@@ -1311,7 +1311,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": 5.74,
                     "window": "circle",
@@ -1325,7 +1325,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -1.23,
@@ -1351,7 +1351,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": 2.85,
                     "window": "box",
@@ -1365,7 +1365,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Perlin Distort (GL)",
+                "name": "Perlin Distort",
                 "config": {
                     "boundMode": "clamp",
                     "pitchX": -1.07,
@@ -1391,7 +1391,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Channel Mixer (GL)",
+                "name": "Channel Mixer",
                 "config": {
                     "mix1": [
                         0.83,
@@ -1422,7 +1422,7 @@ export const builtInPresets = [
         "name": "Powder",
         "config": [
             {
-                "name": "Posterize (GL)",
+                "name": "Posterize",
                 "config": {
                     "levels": 8,
                     "mode": "2",
@@ -1442,7 +1442,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Delay Line (GL)",
+                "name": "Delay Line",
                 "config": {
                     "delay": {
                         "value": 172.44,
@@ -1502,7 +1502,7 @@ export const builtInPresets = [
     {
         "name": "Conte Brush",
         "config": [{
-            "name": "Noise Mixer (GL)",
+            "name": "Noise Mixer",
             "config": {
                 "frequency": 44.734163413665485,
                 "freqShift": 0,
@@ -1518,7 +1518,7 @@ export const builtInPresets = [
                 "master": 0.73
             }
         }, {
-            "name": "Delay Line (GL)",
+            "name": "Delay Line",
             "config": {
                 "delay": 16.86,
                 "window": "box",
@@ -1547,7 +1547,7 @@ export const builtInPresets = [
                 "tintStrength": 0.01
             }
         }, {
-            "name": "Posterize (GL)",
+            "name": "Posterize",
             "config": {
                 "levels": 12,
                 "mode": "1",
@@ -1559,7 +1559,7 @@ export const builtInPresets = [
                 "c3": false
             }
         }, {
-            "name": "Perlin Distort (GL)",
+            "name": "Perlin Distort",
             "config": {
                 "boundMode": "clamp",
                 "pitchX": {

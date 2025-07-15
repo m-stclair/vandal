@@ -1,6 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendModeOpts,
+    BlendTargetEnum,
+    BlendTargetOpts,
+    ColorspaceEnum,
+    ColorspaceOpts
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/gridpattern.frag";
 const includePaths = {
@@ -20,9 +27,9 @@ export default {
         phaseY: 0.0,
         direction: "grid",
         mode: "binary",
-        BLENDMODE: 1,
-        blendTarget: '0',
-        COLORSPACE: 0,
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 0.5,
         invert: true,
         noiseScale: 0.01,
@@ -138,20 +145,20 @@ export default {
             type: "checkbox"
         },
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Blend Colorspace',
             type: 'Select',
             options: ColorspaceOpts
         },
         {key: "blendAmount", label: "Blend", type: "Range", min: 0, max: 1, step: 0.01},
         {
-            key: 'blendMode',
+            key: 'BLENDMODE',
             label: 'Blend Mode',
             type: 'Select',
             options: BlendModeOpts
         },
         {
-            key: 'blendTarget',
+            key: 'BLEND_CHANNEL_MODE',
             label: 'Blend Target',
             type: 'Select',
             options: BlendTargetOpts
@@ -193,8 +200,8 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            lineWidth, phaseX, phaseY, noiseScale, noiseAmount, direction, mode, blendMode, blendAmount,
-            colorSpace, invert, spacingFactor, skew, blendTarget, lumaMod, color,
+            lineWidth, phaseX, phaseY, noiseScale, noiseAmount, direction, mode, BLENDMODE, blendAmount,
+            COLORSPACE, invert, spacingFactor, skew, BLEND_CHANNEL_MODE, lumaMod, color,
             lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2
         } = resolveAnimAll(instance.config, t);
 
@@ -226,9 +233,9 @@ export default {
         const defines = {
             DIRECTION: {"vertical": 0, "horizontal": 1, "grid": 2}[direction],
             MODE: {"binary": 0, "sine": 1, "tri": 2, "saw": 3}[mode],
-            BLENDMODE: Number.parseInt(blendMode),
-            BLEND_CHANNEL_MODE: blendTarget,
-            COLORSPACE: Number.parseInt(colorSpace),
+            BLENDMODE: Number.parseInt(BLENDMODE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            COLORSPACE: Number.parseInt(COLORSPACE),
             INVERT: Number(invert),
             ADD_NOISE: Number(noiseAmount > 0),
             MOD_LUMA: Number((lumaMod !== 0) || (lumaThreshold !== 0 && lumaThreshold !== 1)),

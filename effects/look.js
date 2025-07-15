@@ -13,7 +13,7 @@ export default {
     defaultConfig: {
         exposure: 0.0,
         toneShoulder: -2,
-        toneCenter: 0.42,
+        toneCenter: 1,
         chromaWeight: 1.0,
         chromaFadeLow: -3,
         chromaFadeHigh: 2,

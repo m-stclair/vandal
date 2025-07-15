@@ -23,7 +23,7 @@ const fragSource = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Delay Line (GL)",
+    name: "Delay Line",
 
     defaultConfig: {
         delay: 32,
@@ -38,7 +38,8 @@ export default {
         COLORSPACE: 0,
         BLENDMODE: 1,
         blendAmount: 1,
-        blendTarget: '0'
+        blendTarget: '0',
+        jitter: 0
     },
 
     uiLayout: [
@@ -65,6 +66,7 @@ export default {
         {key: "shearY", label: "Shear (y)", type: "modSlider", min: -5, max: 5, step: 0.1},
         {key: "scaleX", label: "Scale (x)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
         {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
+        {key: "jitter", label: "Jitter", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
         {
             key: 'COLORSPACE',
@@ -90,7 +92,8 @@ export default {
         initGLEffect(instance, fragSource);
         const {
             delay, window, density, angle, falloff, shearX, shearY,
-            scaleX, scaleY, blendAmount, BLENDMODE, blendTarget, COLORSPACE
+            scaleX, scaleY, blendAmount, BLENDMODE, blendTarget, COLORSPACE,
+            jitter
         } = resolveAnimAll(instance.config, t);
         // TODO: write equivalent quit-fast option for GL
         // if (delay <= 0) return data;
@@ -114,6 +117,23 @@ export default {
         );
         weights = normalizeWeights(weights);
         taps = centerKernel(taps);
+        let [maxX, maxY, minX, minY] = [-Infinity, -Infinity, Infinity, Infinity];
+        for (let [x, y] of taps) {
+            maxX = maxX < x ? x : maxX;
+            minX = minX > x ? x : minX;
+            maxY = maxY < y ? y : maxY;
+            minY = minY > y ? y : minY;
+        }
+        for (let i = 0; i < taps.length; i++) {
+            const shiftX = Math.round(
+                (Math.random() - 0.5) * jitter * (maxX - minX) / taps.length
+            );
+            const shiftY = Math.round(
+                (Math.random() - 0.5) * jitter * (maxY - minY) / taps.length
+            );
+            taps[i] = [taps[i][0] + shiftX, taps[i][1] + shiftY];
+        }
+        // TODO: is there any reason not to just apply the affine transform here
         const rot = rotationMatrix2D(deg2rad(angle));
         const shear = shearMatrix2D(shearX, shearY);
         const scale = scaleMatrix2D(scaleX, scaleY);
@@ -146,10 +166,10 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Geometry",
-  tags: ["blur", "delay", "temporal", "webgl", "kernel", "animated"],
-  description: "Applies a multi-sample spatial delay using a configurable kernel on GPU. " +
-      "Capable of motion blur, kaleidoscoping, and echoic distortion.",
-  canAnimate: true,
-  realtimeSafe: true,
+    group: "Geometry",
+    tags: ["blur", "delay", "temporal", "webgl", "kernel", "animated"],
+    description: "Applies a multi-sample spatial delay using a configurable kernel on GPU. " +
+        "Capable of motion blur, kaleidoscoping, and echoic distortion.",
+    canAnimate: true,
+    realtimeSafe: true,
 };

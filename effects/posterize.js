@@ -1,6 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {ColorspaceOpts, PosterizeModeOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendModeOpts, BlendTargetEnum,
+    BlendTargetOpts,
+    ColorspaceEnum,
+    ColorspaceOpts, PosterizeEnum,
+    PosterizeModeOpts
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/posterizer.frag"
 const includePaths = {
@@ -13,13 +20,14 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Posterize (GL)",
+    name: "Posterize",
 
-    // TODO: expose blend type
     defaultConfig: {
         levels: 8,
-        mode: '1',
-        COLORSPACE: 0,
+        mode: PosterizeEnum.UNIFORM,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         mod: 0.5,
         c1: true,
@@ -30,7 +38,9 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {config} = instance;
-        const {blendAmount, mod, colorSpace, mode, levels, c1, c2, c3} = resolveAnimAll(config, t);
+        const {
+            blendAmount, mod, COLORSPACE, mode, levels,
+            c1, c2, c3, BLENDMODE, BLEND_CHANNEL_MODE} = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
@@ -41,12 +51,14 @@ export default {
             u_bayer_resolution: {type: "float", value: mod * mod},
         };
         const defines = {
-            COLORSPACE: Number.parseInt(colorSpace),
+            COLORSPACE: COLORSPACE,
+            BLENDMODE: BLENDMODE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             POSTERIZE_MODE: Number.parseInt(mode),
             POSTERIZE_LEVELS: levels,
             POSTERIZE_C1: Number(c1),
             POSTERIZE_C2: Number(c2),
-            POSTERIZE_C3: Number(c3)
+            POSTERIZE_C3: Number(c3),
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },
@@ -62,10 +74,22 @@ export default {
         },
         {key: "mod", label: "Modulator", type: "modSlider", min: 0, max: 1, step: 0.01},
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Colorspace',
             type: 'Select',
             options: ColorspaceOpts
+        },
+        {
+            key: 'BLENDMODE',
+            label: 'Blend Mode',
+            type: 'Select',
+            options: BlendModeOpts
+        },
+        {
+            key: 'BLEND_CHANNEL_MODE',
+            label: 'Blend Target',
+            type: 'Select',
+            options: BlendTargetOpts
         },
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},

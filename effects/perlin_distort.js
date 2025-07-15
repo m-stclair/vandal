@@ -11,7 +11,7 @@ const fragSource = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Perlin Distort (GL)",
+    name: "Perlin Distort",
 
     defaultConfig: {
         boundMode: "fract",

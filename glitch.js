@@ -11,8 +11,6 @@ import {
     clearRenderCache,
     setOriginalImage,
     setRenderedImage,
-    renderCacheSet,
-    renderCacheGet,
     setFilters,
     forEachEffect,
     clearConfigUI,
@@ -27,10 +25,9 @@ import {
     getEffectById,
     clearNormedImage,
     getNormedImage,
-    getNormLoadID,
-    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer, renderCache, rerollNormLoadID
+    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer, rerollNormLoadID
 } from "./state.js";
-import {formatFloatWidth, gid, hashObject, imageDataHash} from "./utils/helpers.js";
+import {formatFloatWidth, gid} from "./utils/helpers.js";
 import {buildUI} from "./ui_builder.js";
 import {effectRegistry} from "./registry.js";
 import {resolveAnim} from "./utils/animutils.js";
@@ -341,6 +338,7 @@ function renderEffectInStackUI(fx, i) {
     const header = document.createElement('div');
     header.className = 'effect-header';
     header.addEventListener('click', () => {
+        // TODO: this may become an element of the UI object?
         toggleEffectSelection(fx);
         renderStackUI();
     });
@@ -348,7 +346,6 @@ function renderEffectInStackUI(fx, i) {
     const labelWrapper = createLabelEditor(fx);
     const controlGroup = createControlGroup(
         fx, effectStack, i,
-        // configContainer
     );
     header.append(labelWrapper, controlGroup);
     card.appendChild(header);
@@ -552,6 +549,51 @@ async function drawBlackSquare(imgElement) {
     imgElement.src = canvas.toDataURL();
     setOriginalImage(imgElement);
 }
+
+const Dirty = {image: true, ui: true}
+const Lock = {image: false, ui: false}
+
+export const requestRender = () => Dirty.image = true;
+export const requestUIDraw = () => Dirty.ui = true;
+
+function watchRender() {
+    if (Lock.image || !Dirty.image) return;
+    Lock.image = true;
+    Dirty.image = false;
+    try {
+        renderImage()
+    } finally {
+        Lock.image = false;
+    }
+}
+
+function watchUI() {
+    if (Lock.ui || !Dirty.ui) return;
+    Lock.ui = true;
+    Dirty.ui = false;
+    try {
+        renderStackUI();
+    } finally {
+        Lock.ui = false;
+    }
+}
+
+function rafScheduler(func, name, registry) {
+    return () => {
+        func();
+        registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
+    }
+}
+
+const loopIDs = {};
+const renderLoop = rafScheduler(watchRender, "render", loopIDs);
+const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
+
+// uiLoop();
+// renderLoop();
+
+export const uiState = {}
+
 
 async function appSetup() {
     const stackHeader = document.getElementById("effectStackHeader")

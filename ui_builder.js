@@ -106,9 +106,6 @@ export function buildUI(instance, container, config, update, layout) {
                         scale: item.scale,
                         min: item.min,
                         max: item.max,
-                        step: item.step,
-                        steps: item.steps,
-                        scaleFactor: item.scaleFactor,
                         update: update,
                         subLabels: item.subLabels
                     });

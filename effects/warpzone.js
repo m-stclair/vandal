@@ -70,7 +70,7 @@ export default {
             u_zoneMin: {value: [xMin, yMin], type: "vec2"},
             u_zoneMax: {value: [xMax, yMax], type: "vec2"},
             u_param_a: {value: paramA, type: "float"},
-            u_param_b: {value: paramB, type: "float"},
+            u_param_b: {value: paramB * zoneSoftness, type: "float"},
             u_warpStrength: {value: warpStrength, type: "float"},
             u_warpAngle: {value: warpAngle, type: "float"},
             u_zoneAngle: {value: zoneAngle, type: "float"},

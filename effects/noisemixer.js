@@ -23,7 +23,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Noise Mixer (GL)",
+    name: "Noise Mixer",
     defaultConfig: {
         frequency: 50,
         freqShift: 0,

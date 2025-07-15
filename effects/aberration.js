@@ -1,6 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, ColorspaceOpts, PosterizeModeOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendModeOpts, BlendTargetEnum,
+    BlendTargetOpts,
+    ColorspaceEnum,
+    ColorspaceOpts,
+    PosterizeModeOpts
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/aberration.frag"
 const includePaths = {
@@ -15,8 +22,9 @@ export default {
     name: "Chromatic Aberration",
 
     defaultConfig: {
-        BLENDMODE: 1,
-        COLORSPACE: 0,
+        BLENDMODE: BlendModeEnum.MIX,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         rdx: 0, rdy: 0,
         gdx: 0, gdy: 0,
@@ -30,16 +38,22 @@ export default {
         {type: "modSlider", key: "bdx", label: "Channel 3 X", min: -50, max: 50, step: 1},
         {type: "modSlider", key: "bdy", label: "Channel 3 Y", min: -50, max: 50, step: 1},
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Shift Colorspace',
             type: 'Select',
             options: ColorspaceOpts
         },
         {
-            key: 'blendMode',
+            key: 'BLENDMODE',
             label: 'Blend Mode',
             type: 'Select',
             options: BlendModeOpts
+        },
+        {
+            key: 'BLEND_CHANNEL_MODE',
+            label: 'Blend Target',
+            type: 'Select',
+            options: BlendTargetOpts
         },
         {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
     ],
@@ -48,8 +62,8 @@ export default {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, colorSpace, blendMode, rdx, rdy,
-            gdx, gdy, bdx, bdy
+            blendAmount, COLORSPACE, BLENDMODE, rdx, rdy,
+            gdx, gdy, bdx, bdy, BLEND_CHANNEL_MODE
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -61,8 +75,9 @@ export default {
             u_shift2: {value: [bdx / width, bdy / height], "type": "vec2"},
         };
         const defines = {
-            COLORSPACE: colorSpace,
-            BLENDMODE: blendMode,
+            COLORSPACE: COLORSPACE,
+            BLENDMODE: BLENDMODE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

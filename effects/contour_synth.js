@@ -1,6 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendModeOpts,
+    BlendTargetEnum,
+    BlendTargetOpts,
+    ColorspaceEnum,
+    ColorspaceOpts
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/contour_synth.frag"
 const includePaths = {
@@ -12,7 +19,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Contour Synth (GL)",
+    name: "Contour Synth",
 
     defaultConfig: {
         freq: 2,
@@ -20,8 +27,9 @@ export default {
         phaseScale: 1,
         phaseOff: 0,
         blendAmount: 0.6,
-        BLENDMODE: 1,
-        blendTarget: '0',
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
         waveform: "Sine",
         spatialWaveform: "Bands"
     },
@@ -51,19 +59,19 @@ export default {
             options:["None", "Bands", "Checkerboard", "Radial", "Rings"]
         },
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Colorspace',
             type: 'Select',
             options: ColorspaceOpts
         },
         {
-            key: 'blendMode',
+            key: 'BLENDMODE',
             label: 'Blend Mode',
             type: 'Select',
             options: BlendModeOpts
         },
         {
-            key: 'blendTarget',
+            key: 'BLEND_CHANNEL_MODE',
             label: 'Blend Target',
             type: 'Select',
             options: BlendTargetOpts
@@ -96,12 +104,11 @@ export default {
             "Bands": 0, "Checkerboard": 1, "Radial": 2, "Rings": 3, "None": 4
         }[spatialWaveform]
         const defines = {
-            // COLORSPACE: Number.parseInt(colorSpace),
-            BLENDMODE: blendMode,
+            BLENDMODE: BLENDMODE,
+            COLORSPACE: COLORSPACE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             WAVEFORM_MODE: wavecode,
             SPATIAL_MODE: spacecode,
-            BLEND_CHANNEL_MODE: blendTarget,
-            COLORSPACE: colorSpace
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

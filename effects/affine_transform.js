@@ -9,7 +9,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Affine Transform (GL)",
+    name: "Affine Transform",
 
     defaultConfig: {
         angle: 0,

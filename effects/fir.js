@@ -72,10 +72,10 @@ export default {
 };
 
 export const effectMeta = {
-  group: "Geometry",
+  group: "Weird",
   tags: ["cpu", "filter", "convolution", "kernel"],
-  description: "Applies a general-purpose 2D FIR filter using a user-defined kernel. " +
-      "Useful for directional blur, edge enhancement, or abstract convolution effects.",
+  description: "Applies a general-purpose 2D FIR filter in data (_not pixel_) space."
+  + "Slow and may produce unrenderable transparency conditions.",
   canAnimate: false,
   realtimeSafe: false,  // heavy CPU convolution
 };

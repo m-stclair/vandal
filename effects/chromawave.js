@@ -130,7 +130,7 @@ export default {
             u_origin: {type: "vec2", value: [originX * width, originY * height]}
         };
         const defines = {
-            COLORSPACE:COLORSPACE,
+            COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: blendTarget,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,

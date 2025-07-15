@@ -130,7 +130,8 @@ void main() {
 #endif
     warpedColor = normLCH2SRGB(lch);
 #endif
-    outColor = vec4(
-    blendWithColorSpace(baseColor, warpedColor, u_blendamount), 1.0
+    vec3 blended = (
+        blendWithColorSpace(baseColor, warpedColor, u_blendamount)
     );
+    outColor = vec4(mix(baseColor, blended, mask), 1.0);
 }

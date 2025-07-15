@@ -13,7 +13,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Channel Mixer (GL)",
+    name: "Channel Mixer",
 
     defaultConfig: {
         mix1: [1, 0, 0],

@@ -2,12 +2,10 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts, BlendTargetEnum,
-    BlendTargetOpts,
+    BlendTargetEnum,
     ColorspaceEnum,
-    ColorspaceOpts,
-    PosterizeModeOpts
 } from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/aberration.frag"
 const includePaths = {
@@ -37,25 +35,7 @@ export default {
         {type: "modSlider", key: "gdy", label: "Channel 2 Y", min: -50, max: 50, step: 1},
         {type: "modSlider", key: "bdx", label: "Channel 3 X", min: -50, max: 50, step: 1},
         {type: "modSlider", key: "bdy", label: "Channel 3 Y", min: -50, max: 50, step: 1},
-        {
-            key: 'COLORSPACE',
-            label: 'Shift Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+        blendControls()
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {

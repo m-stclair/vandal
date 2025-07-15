@@ -1,13 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
-    BlendModeOpts,
-    BlendTargetOpts,
+    BlendModeEnum,
+    BlendTargetEnum,
     ColorspaceEnum,
-    ColorspaceOpts,
     ZoneShapeEnum,
-    ZoneShapeOpts
+
 } from "../utils/glsl_enums.js";
+import {blendControls, group, zoneControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/warpzone.glsl";
 const includePaths = {
@@ -25,10 +25,9 @@ export default {
 
     defaultConfig: {
         COLORSPACE: ColorspaceEnum.RGB,
-        BLENDMODE: 1,
+        BLENDMODE: BlendModeEnum.MIX,
         blendAmount: 1,
-        BLEND_CHANNEL_MODE: 0,
-        DEBUG_MASK: false,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         ZONESHAPE: ZoneShapeEnum.SUPERELLIPSE,
         zoneCX: 0.5,
         zoneSX: 0.6,
@@ -53,7 +52,7 @@ export default {
         const {
             BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, blendAmount,
             ZONESHAPE, zoneCX, zoneSX, zoneCY, zoneSY,
-            zoneSoftness, zoneEllipseN, DEBUG_MASK, paramA, WARPMODE,
+            zoneSoftness, zoneEllipseN, paramA, WARPMODE,
             warpStrength, WARPDRIVE_CHANNEL, WARPDRIVE_COLORSPACE,
             WARPDRIVE_MODE, PREBLEND_WARP_CHANNEL, paramB, warpAngle,
             zoneAngle
@@ -84,7 +83,6 @@ export default {
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ZONESHAPE: ZONESHAPE,
-            DEBUG_MASK: Number(DEBUG_MASK),
             WARPMODE: warpCode,
             WARPDRIVE_MODE: WARPDRIVE_MODE,
             WARPDRIVE_COLORSPACE: WARPDRIVE_COLORSPACE,
@@ -96,85 +94,94 @@ export default {
     },
 
     uiLayout: [
-        {type: "modSlider", key: "zoneCX", label: "Zone Center X", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneSX", label: "Zone Scale X", min: 0, max: 2, steps: 300},
-        {type: "modSlider", key: "zoneCY", label: "Zone Center Y", min: 0, max: 2, steps: 300},
-        {type: "modSlider", key: "zoneSY", label: "Zone Scale Y", min: 0, max: 2, steps: 200},
-        {type: "modSlider", key: "zoneSoftness", label: "Zone Softness", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneAngle", label: "Zone Angle", min: 0, max: Math.PI * 2, steps: 200},
-        {type: "modSlider", key: "zoneEllipseN", label: "Superellipse Shape Parameter", min: 0.9, max: 10, steps: 200},
-        {type: "modSlider", key: "warpAngle", label: "Warp Angle", min: 0, max: Math.PI * 2, steps: 200},
-        {
-            type: "select",
-            key: "ZONESHAPE",
-            label: "Zone Shape",
-            options: ZoneShapeOpts
-        },
-        {
-            type: "modSlider",
-            key: "warpStrength",
-            label: "Warp Strength",
-            min: -100,
-            max: 100,
-            steps: 200,
-        },
-        {key: 'paramA', label: 'Warp Parameter 1', type: 'modSlider', min: 0, max: 1, steps: 200},
-        {
-            type: "select",
-            key: "WARPMODE",
-            label: "Warp Mode",
-            options: ["shift", "sine", "noise", "lens"]
-        },
-        {type: "checkbox", key: "DEBUG_MASK", label: "Debug Mask"},
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
-        {
-            key: 'COLORSPACE',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
-        {
-            key: 'WARPDRIVE_MODE',
-            label: 'Warpdrive Mode',
-            type: 'Select',
-            options: [{'label': 'none', 'value': 0}, {'label': 'channeldrive', 'value': 1}]
-        },
-        {
-            key: 'WARPDRIVE_COLORSPACE',
-            label: 'Warpdrive Colorspace',
-            type: 'Select',
-            // TODO: ugly
-            options: [
-                {'label': 'RGB', 'value': ColorspaceEnum.RGB},
-                {'label': 'LCH', 'value': ColorspaceEnum.LCH},
-                {'label': 'HSL', 'value': ColorspaceEnum.HSL}
-            ]
-        },
-        {
-            key: 'WARPDRIVE_CHANNEL',
-            label: 'Warpdrive Channel',
-            type: 'Select',
-            options: [{'label': '1', 'value': 0}, {'label': '2', 'value': 1}, {'label': '3', 'value': 2}]
-        },
-        {key: 'paramB', label: 'Preblend Color Warp', type: 'modSlider', min: 0, max: 1, steps: 200},
-        {
-            key: 'PREBLEND_WARP_CHANNEL',
-            label: 'Preblend Color Warp Channel',
-            type: 'Select',
-            options: [{'label': 'Chroma', 'value': 1}, {'label': 'Hue', 'value': 2}]
-        }
+        zoneControls(),
+
+        group("Warp Settings", [
+            {
+                type: "modSlider",
+                key: "warpAngle",
+                label: "Warp Angle",
+                min: 0,
+                max: Math.PI * 2,
+                steps: 200
+            },
+            {
+                type: "modSlider",
+                key: "warpStrength",
+                label: "Warp Strength",
+                min: -100,
+                max: 100,
+                steps: 200
+            },
+            {
+                key: 'paramA',
+                label: 'Warp Parameter 1',
+                type: 'modSlider',
+                min: 0,
+                max: 1,
+                steps: 200
+            },
+            {
+                type: "select",
+                key: "WARPMODE",
+                label: "Warp Mode",
+                options: ["shift", "sine", "noise", "lens"]
+            }
+        ], {color: "#200010"}),
+
+        blendControls(),
+
+        group("Warpdrive Settings", [
+            {
+                key: 'WARPDRIVE_MODE',
+                label: 'Warpdrive Mode',
+                type: 'Select',
+                options: [
+                    {'label': 'none', 'value': 0},
+                    {'label': 'channeldrive', 'value': 1}
+                ]
+            },
+            {
+                key: 'WARPDRIVE_COLORSPACE',
+                label: 'Warpdrive Colorspace',
+                type: 'Select',
+                options: [
+                    {'label': 'RGB', 'value': ColorspaceEnum.RGB},
+                    {'label': 'LCH', 'value': ColorspaceEnum.LCH},
+                    {'label': 'HSL', 'value': ColorspaceEnum.HSL}
+                ]
+            },
+            {
+                key: 'WARPDRIVE_CHANNEL',
+                label: 'Warpdrive Channel',
+                type: 'Select',
+                options: [
+                    {'label': '1', 'value': 0},
+                    {'label': '2', 'value': 1},
+                    {'label': '3', 'value': 2}
+                ]
+            }
+        ], {color: "#001a1a"}),
+
+        group("Preblend Warp", [
+            {
+                key: 'paramB',
+                label: 'Preblend Color Warp',
+                type: 'modSlider',
+                min: 0,
+                max: 1,
+                steps: 200
+            },
+            {
+                key: 'PREBLEND_WARP_CHANNEL',
+                label: 'Preblend Color Warp Channel',
+                type: 'Select',
+                options: [
+                    {'label': 'Chroma', 'value': 1},
+                    {'label': 'Hue', 'value': 2}
+                ]
+            }
+        ], {color: "#1a001a"})
     ],
     initHook: fragSources.load,
     cleanupHook(instance) {

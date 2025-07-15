@@ -3,12 +3,10 @@ import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts, BlendTargetEnum, BlendTargetOpts,
-    ColorspaceOpts,
-    GateModeOpts,
+    BlendTargetEnum, ColorspaceEnum, GateModeEnum, GateModeOpts,
     ZoneShapeEnum,
-    ZoneShapeOpts
 } from "../utils/glsl_enums.js";
+import {blendControls, zoneControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/noisemixer.frag"
 const includePaths = {
@@ -30,15 +28,15 @@ export default {
         tint: [1, 1, 1],
         seed: 1,
         BLENDMODE: BlendModeEnum.MIX,
-        BLENDTARGET: BlendTargetEnum.ALL,
-        COLORSPACE: 0,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
         fc: [6, 15, 10],
         components: [0, 0, 1, 0, 0],
         blendAmount: 0.5,
         colormap: "none",
         threshold: 0,
         cutoff: 1,
-        gate: "none",
+        gate: GateModeEnum.NONE,
         burstThreshold: 0.1,
         burstFreq: 50,
         ZONESHAPE: ZoneShapeEnum.SUPERELLIPSE,
@@ -64,23 +62,37 @@ export default {
             length: 5
         },
         {key: "gate", label: "Use Gate", type: "Select", options: GateModeOpts},
-        {key: "threshold", label: "Gate Low", type: "modSlider", min: 0, max: 1, steps: 200},
-        {key: "cutoff", label: "Gate High", type: "modSlider", min: 0, max: 1, steps: 200},
-        {key: "burstThreshold", label: "Burst Threshold", type: "modSlider", min: 0, max: 1, steps: 200},
-        {key: "burstFreq", label: "Burst Frequency", type: "modSlider", min: 1, max: 5000, steps: 300, scale: "log"},
-        {key: "blendAmount", label: "Blend Amount", type: "Range", min: 0, max: 1, step: 0.01},
         {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
+            type: 'group',
+            label: 'Gate Settings',
+            kind: 'collapse',
+            color: "#002500",
+            showIf: {'key': 'gate', 'notEquals': GateModeEnum.NONE},
+            children: [
+                {key: "threshold", label: "Gate Low", type: "modSlider", min: 0, max: 1, steps: 200},
+                {key: "cutoff", label: "Gate High", type: "modSlider", min: 0, max: 1, steps: 200},
+                {
+                    key: "burstThreshold",
+                    label: "Burst Threshold",
+                    type: "modSlider",
+                    min: 0,
+                    max: 1,
+                    steps: 200,
+                    showIf: {'key': 'gate', 'equals': GateModeEnum.BURST}
+                },
+                {
+                    key: "burstFreq",
+                    label: "Burst Frequency",
+                    type: "modSlider",
+                    min: 1,
+                    max: 5000,
+                    steps: 300,
+                    scale: "log",
+                    showIf: {'key': 'gate', 'equals': GateModeEnum.BURST}
+                }
+            ],
         },
-       {
-            key: 'BLENDTARGET',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
+        blendControls(),
         {
             type: "select",
             key: "colormap",
@@ -94,39 +106,22 @@ export default {
             subLabels: () => ["C1", "C2", "C3"],
             min: 0,
             max: 1,
+            length: 3,
             step: 0.01,
-        },
-        {
-            key: 'COLORSPACE',
-            label: 'Blend Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
         },
         {key: "frequency", label: "Frequency", type: "Range", min: 1, max: 5000, steps: 300, scale: "log"},
         {
             key: "fc",
             label: "Fade Coefficients (Perlin)",
             type: "vector",
-            subLabels: () => ["F1", "F2", "F3"],
+            subLabels: ["F1", "F2", "F3"],
             min: 5,
             max: 20,
             step: 0.25,
         },
         {key: "freqShift", label: "Frequency Shift", type: "Range", min: -3.14, max: 3.14, steps: 200},
         {key: "APPLY_MASK", label: "Apply Mask", type: "checkbox"},
-        {
-            type: "select",
-            key: "ZONESHAPE",
-            label: "Zone Shape",
-            options: ZoneShapeOpts
-        },
-        {type: "modSlider", key: "zoneCX", label: "Zone Center X", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneSX", label: "Zone Scale X", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneCY", label: "Zone Center Y", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneSY", label: "Zone Scale Y", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneSoftness", label: "Zone Softness", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "zoneAngle", label: "Zone Angle", min: 0, max: Math.PI * 2, steps: 200},
-        {type: "modSlider", key: "zoneEllipseN", label: "Superellipse Shape Parameter", min: 0.9, max: 10, steps: 200},
+        {...zoneControls(), showIf: {'key': 'APPLY_MASK', 'equals': true}},
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources)

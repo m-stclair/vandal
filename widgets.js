@@ -1,6 +1,7 @@
 // widgets.js
 import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/helpers.js";
 import {clampAnimationParams} from "./utils/animutils.js";
+import {requestRender, requestUIDraw} from "./state.js";
 
 
 function makeLabeledInput(labelText, element) {
@@ -69,21 +70,84 @@ function makeSubSlider(labelText, initialValue, min, max, step = 0.01) {
     return {container, slider};
 }
 
-function makeSlider({
-                        key,
-                        label,
-                        value,
-                        min,
-                        max,
-                        step,
-                        scale,
-                        scaleFactor,
-                        steps,
-                        modulate = false,
-                        config,
-                        update,
-                        id
-                    }) {
+export function renderFoldoutToggle(state, label, onToggle) {
+    const button = document.createElement('button');
+    button.className = 'foldout-toggle';
+    button.textContent = (state.collapsed ? '▶' : '▼') + ' ' + label;
+    button.onclick = () => {
+        state.collapsed = !state.collapsed;
+        onToggle?.();
+    };
+    const div = document.createElement("div");
+    div.appendChild(button);
+    return div;
+}
+
+function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, config, key) {
+    const modFoldout = document.createElement("div");
+    modFoldout.classList.add("mod-foldout");
+    const modSelect = document.createElement("select");
+    ["none", "sine", "square", "saw"].forEach(type => {
+        const opt = document.createElement("option");
+        opt.value = opt.text = type;
+        modSelect.appendChild(opt);
+    });
+    const mod = config[key].mod;
+    modSelect.value = mod?.type ?? "none";
+    const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
+    const defaultRangeMode = mod?.rangeMode ?? "bipolar";
+    const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias, defaultRangeMode);
+    const depth = makeSubSlider("Depth", mod?.scale ?? safeDepth, 0, safeDepth);
+    const bias = makeSubSlider("Bias", mod?.offset ?? safeBias, min ?? 0, max ?? 1);
+    const freq = makeSubSlider("Rate", mod?.freq ?? 0.5, 0.01, 4, 0.01);
+    const rangeModeSelect = document.createElement("select");
+    ["bipolar", "unipolar"].forEach(mode => {
+        const opt = document.createElement("option");
+        opt.value = opt.text = mode;
+        rangeModeSelect.appendChild(opt);
+    });
+    rangeModeSelect.value = value?.mod?.rangeMode ?? "bipolar";
+    modFoldout.append(
+        makeLabeledInput("Type", modSelect),
+        makeLabeledInput("Depth", depth.container),
+        makeLabeledInput("Bias", bias.container),
+        makeLabeledInput("Rate", freq.container),
+        makeLabeledInput("Range", rangeModeSelect)
+    );
+
+    wrapper.appendChild(modFoldout);
+
+    const applyModState = (e) => {
+        e.stopPropagation();
+        const modType = modSelect.value;
+        const modulated = modType !== "none";
+        input.disabled = modulated;
+        wrapper.classList.toggle("modulated", modulated);
+        config[key] = {
+            value: parseFloat(applyScaling(input.value, input.scale, input.scaleFactor)),
+            mod: modulated ? {
+                type: modType,
+                freq: parseFloat(freq.slider.value),
+                phase: 0,
+                rangeMode: rangeModeSelect.value,
+                scale: parseFloat(depth.slider.value),
+                offset: parseFloat(bias.slider.value),
+            } : {type: "none"},
+        };
+        requestRender();
+    };
+
+    modSelect.addEventListener("change", applyModState);
+    [depth.slider, bias.slider, freq.slider, rangeModeSelect].forEach(el =>
+        el.addEventListener("input", applyModState)
+    );
+    return modFoldout;
+
+}
+
+function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
+    const {scale, min, max, step, steps, scaleFactor, key, label} = uiSpec;
+    const value = config[key]?.value || config[key];
     const wrapper = makeField();
     const row = document.createElement("div");
     row.classList.add("slider-row");
@@ -115,70 +179,26 @@ function makeSlider({
     row.append(input, valueLabel);
     wrapper.appendChild(row);
 
-    if (modulate) {
-        const modFoldout = document.createElement("details");
-        modFoldout.classList.add("mod-foldout");
-        modFoldout.open = false;
-        const summary = document.createElement("summary");
-        summary.textContent = "Animation";
-        modFoldout.appendChild(summary);
-
-        const modSelect = document.createElement("select");
-        ["none", "sine", "square", "saw"].forEach(type => {
-            const opt = document.createElement("option");
-            opt.value = opt.text = type;
-            modSelect.appendChild(opt);
-        });
-        modSelect.value = value?.mod?.type ?? "none";
-
-        const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
-        const defaultRangeMode = value?.mod?.rangeMode ?? "bipolar";
-        const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias, defaultRangeMode);
-
-        const depth = makeSubSlider("Depth", value?.mod?.scale ?? safeDepth, 0, safeDepth);
-        const bias = makeSubSlider("Bias", value?.mod?.offset ?? safeBias, min ?? 0, max ?? 1);
-        const freq = makeSubSlider("Rate", value?.mod?.freq ?? 0.5, 0.01, 4, 0.01);
-        const rangeModeSelect = document.createElement("select");
-        ["bipolar", "unipolar"].forEach(mode => {
-            const opt = document.createElement("option");
-            opt.value = opt.text = mode;
-            rangeModeSelect.appendChild(opt);
-        });
-        rangeModeSelect.value = value?.mod?.rangeMode ?? "bipolar";
-        modFoldout.append(
-            makeLabeledInput("Type", modSelect),
-            makeLabeledInput("Depth", depth.container),
-            makeLabeledInput("Bias", bias.container),
-            makeLabeledInput("Rate", freq.container),
-            makeLabeledInput("Range", rangeModeSelect)
+    if (canAnimate) {
+        const animUIState = fxUIState[key].animation;
+        if (!Object.keys(animUIState).includes("collapsed")) {
+            animUIState.collapsed = true;
+        }
+        const foldoutToggle = renderFoldoutToggle(
+            animUIState, "animation", requestUIDraw
         );
-
-        wrapper.appendChild(modFoldout);
-
-        const applyModState = (e) => {
-            e.stopPropagation();
-            const modType = modSelect.value;
-            const modulated = modType !== "none";
-            input.disabled = modulated;
-            wrapper.classList.toggle("modulated", modulated);
-            config[key] = {
-                value: parseFloat(applyScaling(input.value, input.scale, input.scaleFactor)),
-                mod: modulated ? {
-                    type: modType,
-                    freq: parseFloat(freq.slider.value),
-                    phase: 0,
-                    rangeMode: rangeModeSelect.value,
-                    scale: parseFloat(depth.slider.value),
-                    offset: parseFloat(bias.slider.value),
-                } : {type: "none"},
-            };
-            update();
-        };
-
-        modSelect.addEventListener("change", applyModState);
-        [depth.slider, bias.slider, freq.slider, rangeModeSelect].forEach(el =>
-            el.addEventListener("input", applyModState)
-        );
+        foldoutToggle.classList.add("animation-toggle")
+        wrapper.appendChild(foldoutToggle);
+        row.classList.add("has-animation-foldout")
+        if (!animUIState.collapsed) {
+            const foldout = renderAnimationFoldout(
+                animUIState, value, input, min, max, wrapper, config, key
+            );
+            wrapper.appendChild(foldout);
+        }
+        if ((config[key].mod) && (config[key].mod.type !== "none")) {
+            input.disabled = true;
+        }
     }
 
     input.addEventListener("input", (e) => {
@@ -193,29 +213,14 @@ function makeSlider({
                 mod: config[key]?.mod || {type: "none"},
             };
         }
-        update();
+        requestRender();
     });
-
     return wrapper;
 }
 
-function makeMatrixSlider({
-                              key,
-                              label,
-                              value,
-                              size = [3, 3], // rows x cols
-                              min = -1,
-                              max = 1,
-                              step = 0.01,
-                              scale,
-                              scaleFactor,
-                              steps,
-                              rowLabels = () => ["Row 1", "Row 2", "Row 3"],
-                              colLabels = () => ["X", "Y", "Z"],
-                              config,
-                              update,
-                              id
-                          }) {
+function makeMatrixSlider(id, config, uiSpec) {
+    let {key, min, max, step, rowLabels, colLabels, size} = uiSpec;
+    const value = config[key];
     const wrapper = makeField();
     wrapper.dataset.key = key;
     if (id) wrapper.dataset.fxId = id;
@@ -251,7 +256,7 @@ function makeMatrixSlider({
                 const newVal = parseFloat(slider.value);
                 config[key][row][col] = newVal;
                 valueLabel.textContent = formatFloatWidth(newVal);
-                update();
+                requestRender();
             });
 
             const cell = document.createElement("div");
@@ -272,20 +277,13 @@ function makeMatrixSlider({
     return wrapper;
 }
 
-function makeVectorSlider({
-                              key,
-                              label,
-                              value,
-                              length = 3,
-                              min = 0,
-                              max = 1,
-                              step = 0.01,
-                              subLabels = ["X", "Y", "Z"],
-                              config,
-                              update,
-                              id
-                          }) {
+function makeVectorSlider(id, config, uiSpec) {
+    let {key, label, length, subLabels, min, max, step} = uiSpec;
+    let value = config[key];
     subLabels = typeof subLabels === "function" ? subLabels(config) : subLabels
+    if (!length) {
+        length = subLabels.length;
+    }
     const wrapper = makeField();
     wrapper.dataset.key = key;
     if (id) wrapper.dataset.fxId = id;
@@ -313,7 +311,7 @@ function makeVectorSlider({
         slider.addEventListener("input", () => {
             config[key][i] = parseFloat(slider.value);
             valueLabel.textContent = formatFloatWidth(slider.value);
-            update();
+            requestRender();
         });
 
         const container = document.createElement("div");
@@ -330,7 +328,9 @@ function makeVectorSlider({
     return wrapper;
 }
 
-function Checkbox({key, label, value}) {
+function Checkbox(id, config, uiSpec) {
+    const {key, label} = uiSpec;
+    const value = config[key];
     const wrapper = makeField();
 
     const lElement = document.createElement('label');
@@ -355,7 +355,9 @@ function Checkbox({key, label, value}) {
     return wrapper;
 }
 
-function Select({key, label, options, value}) {
+function Select(id, config, uiSpec) {
+    const {key, label, options} = uiSpec;
+    const value = config[key];
     const wrapper = makeField();
 
     const lElement = document.createElement('label');
@@ -370,7 +372,7 @@ function Select({key, label, options, value}) {
         const o = document.createElement('option');
         o.value = val;
         o.textContent = lbl;
-        if (val === value) o.selected = true;
+        if (val === value || val === Number.parseInt(value)) o.selected = true;
         select.appendChild(o);
     }
 
@@ -388,12 +390,13 @@ function Select({key, label, options, value}) {
     return wrapper;
 }
 
-function ReferenceImage(key, labelText, instance, onChange) {
+function ReferenceImage(id, config, uiSpec, fx) {
+    const {key, label} = uiSpec;
     const container = document.createElement("div");
     container.className = "widget";
 
-    const label = document.createElement("label");
-    label.textContent = labelText || "Reference Image";
+    const labelElement = document.createElement("label");
+    labelElement.textContent = label || "Reference Image";
 
     const input = document.createElement("input");
     input.type = "file";
@@ -410,14 +413,13 @@ function ReferenceImage(key, labelText, instance, onChange) {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(imageBitmap, 0, 0);
         const fullImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        instance.auxiliaryCache.referenceImage = await downsampleImageData(fullImage);
-        instance.config[key] = imageDataHash(instance.auxiliaryCache.referenceImage);
+        fx.auxiliaryCache.referenceImage = await downsampleImageData(fullImage);
+        fx.config[key] = imageDataHash(fx.auxiliaryCache.referenceImage);
     })
-    container.appendChild(label);
+    container.appendChild(labelElement);
     container.appendChild(input);
     return container;
 }
-
 
 export default {
     formatFloatWidth,
@@ -427,10 +429,4 @@ export default {
     Select,
     Checkbox,
     ReferenceImage,
-    Range(opts) {
-        return makeSlider({...opts, modulate: false});
-    },
-    makeModSlider(opts) {
-        return makeSlider({...opts, modulate: true});
-    },
 };

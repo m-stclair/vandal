@@ -73,6 +73,7 @@ export default {
             key: "offset",
             label: "Offset",
             type: "vector",
+            length: 3,
             subLabels: (config) => colorSpaces[config.colorSpaceOut]?.channelLabels ?? ["C0", "C1", "C2"],
             min: -1,
             max: 1,

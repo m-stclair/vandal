@@ -1,5 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {group} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/perlin_distort.frag"
 const includePaths = {
@@ -31,37 +32,79 @@ export default {
     },
 
     uiLayout: [
-        {key: "seed", label: "Random Seed", type: "range", min: 1, max: 500, step: 1},
-        {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {key: "pitchX", label: "Grid Shift (X)", type: "modSlider", min: -2, max: 2, step: 0.01},
-        {key: "pitchY", label: "Grid Shift (Y)", type: "modSlider", min: -2, max: 2, step: 0.01},
-        {key: "freqX", label: "Noise Frequency (x)", type: "modSlider", min: 0, max: 90, steps: 250, scale: "log", scaleFactor: 1.1},
-        {key: "freqY", label: "Noise Frequency (y)", type: "modSlider", min: 0, max: 90, steps: 250, scale: "log", scaleFactor: 1.1},
-        {key: 'noiseMode', label: 'Noise Mode', type: 'Select', options: ['classic', 'blocks']},
-        {key: 'boundMode', label: 'Boundary Mode', type: 'Select', options: ['fract', 'free', 'clamp']},
-        {key: "rateDrive", label: "Spatial Modulation Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {key: "rate", label: "Spatial Modulation Frequency", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
-        {key: 'phase', label: 'Spatial Modulation Phase', type: 'vector', sublabels: () => ["X", "Y"], length: 2, min: 0, max: 1, step: 0.005},
-        {key: "fuzz", label: "Fuzz", type: "Range", min: 0, max: 100, step: 0.01},
-        {
-            key: "clampScale",
-            label: "Clamp Scale (for clamp mode)",
-            type: 'Range',
-            min: 0,
-            max: 3,
-            step: 0.05
-        },
-        {
-            key: "fc",
-            label: "Fade Coefficients",
-            type: "vector",
-            subLabels: () => ["C1", "C2", "C3"],
-            min: 5,
-            max: 20,
-            step: 0.25,
-        },
-    ],
+        group("Core Noise Settings", [
+            {key: "seed", label: "Random Seed", type: "range", min: 1, max: 500, step: 1},
+            {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
+            {
+                key: "freqX",
+                label: "Frequency (X)",
+                type: "modSlider",
+                min: 0,
+                max: 90,
+                steps: 250,
+                scale: "log",
+                scaleFactor: 1.1
+            },
+            {
+                key: "freqY",
+                label: "Frequency (Y)",
+                type: "modSlider",
+                min: 0,
+                max: 90,
+                steps: 250,
+                scale: "log",
+                scaleFactor: 1.1
+            },
+        ], {color: "#201020"}),
 
+        group("Grid Offset", [
+            {key: "pitchX", label: "Grid Shift (X)", type: "modSlider", min: -2, max: 2, step: 0.01},
+            {key: "pitchY", label: "Grid Shift (Y)", type: "modSlider", min: -2, max: 2, step: 0.01}
+        ], {color: "#201000"}),
+
+        group("Spatial Modulation", [
+            {key: "rate", label: "Modulation Frequency", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
+            {key: "rateDrive", label: "Modulation Strength", type: "modSlider", min: 0, max: 1, step: 0.01},
+            {
+                key: "phase",
+                label: "Modulation Phase",
+                type: "vector",
+                subLabels: () => ["X", "Y"],
+                length: 2,
+                min: 0,
+                max: 1,
+                step: 0.005
+            },
+            {key: "fuzz", label: "Fuzz", type: "Range", min: 0, max: 100, step: 0.01}
+        ], {color: "#001020"}),
+
+        group("Noise & Bounds", [
+            {key: 'noiseMode', label: 'Noise Mode', type: 'Select', options: ['classic', 'blocks']},
+            {key: 'boundMode', label: 'Boundary Mode', type: 'Select', options: ['fract', 'free', 'clamp']},
+            {
+                key: "clampScale",
+                label: "Clamp Scale (for clamp mode)",
+                type: 'Range',
+                min: 0,
+                max: 3,
+                step: 0.05,
+                showIf: {key: "boundMode", equals: "clamp"}
+            }
+        ], {color: "#202020"}),
+
+        group("Fade Shape", [
+            {
+                key: "fc",
+                label: "Fade Coefficients",
+                type: "vector",
+                subLabels: () => ["C1", "C2", "C3"],
+                length: 3,
+                min: 5,
+                max: 20,
+                step: 0.25
+            }
+        ], {color: "#100020"})
+    ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSource);
         const {

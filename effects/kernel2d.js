@@ -9,6 +9,7 @@ import {
     ColorspaceOpts,
 } from "../utils/glsl_enums.js";
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/kernel2d.glsl";
 const includePaths = {
@@ -41,32 +42,7 @@ export default {
         {type: "range", key: "kernelRadiusX", label: "Radius X", min: 1, max: 30, step: 1},
         {type: "range", key: "kernelRadiusY", label: "Radius Y", min: 1, max: 30, step: 1},
         {type: "modSlider", key: "kernelSoftness", label: "Softness", min: 1, max: 20, steps: 200},
-        {
-            key: "blendAmount",
-            label: "Blend Amount",
-            type: "Range",
-            min: 0,
-            max: 1,
-            step: 0.01
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: "COLORSPACE",
-            type: "select",
-            label: "Blend Colorspace",
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDTARGET',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
+        blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);

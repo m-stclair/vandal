@@ -1,6 +1,7 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/edgetrace.frag"
 const includePaths = {
@@ -15,27 +16,16 @@ export default {
     name: "Edge Trace",
 
     defaultConfig: {
-        BLENDMODE: 1,
-        COLORSPACE: 0,
+        BLENDMODE: BlendModeEnum.MIX,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         threshold: 0.35,
         tint: [1, 1, 1]
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Threshold", min: 0, max: 1, step: 0.01},
-        {
-            key: 'colorSpace',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'blendMode',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+        blendControls(),
         {
             key: "tint",
             label: "Tint",
@@ -51,7 +41,7 @@ export default {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, colorSpace, blendMode, threshold, tint
+            blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE, threshold, tint
         }= resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -60,11 +50,11 @@ export default {
             u_resolution: {type: "vec2", value: [width, height]},
             u_threshold: {type: "float", value: threshold},
             u_tint: {type: "vec3", value: tint},
-
         };
         const defines = {
-            COLORSPACE: Number.parseInt(colorSpace),
-            BLENDMODE: Number.parseInt(blendMode),
+            COLORSPACE: COLORSPACE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            BLENDMODE: BLENDMODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

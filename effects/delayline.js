@@ -10,7 +10,7 @@ import {MAX_TAPS} from "../utils/gl_config.js";
 import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {blendControls, group} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/delayline.frag"
 const includePaths = {
@@ -43,50 +43,63 @@ export default {
     },
 
     uiLayout: [
-        {key: "delay", label: "Delay (px)", type: "modSlider", min: 0, max: 200},
-        {key: "density", label: "Tap Density", type: "modSlider", min: 1, max: 8, step: 0.1},
+        // Core Controls
         {
-            type: "select",
-            key: "window",
-            label: "Window",
-            options: [
-                {value: "box", label: "Box"},
-                {value: "circle", label: "Circle"},
-                {value: "ring", label: "Ring"},
-            ]
+            key: "delay",
+            label: "Delay (px)",
+            type: "modSlider",
+            min: 0,
+            max: 200
         },
         {
-            key: "falloff",
-            label: "Falloff",
-            type: "select",
-            options: Object.keys(weightFns),
+            key: "density",
+            label: "Tap Density",
+            type: "modSlider",
+            min: 1,
+            max: 8,
+            step: 0.1
         },
-        {key: "angle", label: "Angle", type: "modSlider", min: -180, max: 180},
-        {key: "shearX", label: "Shear (x)", type: "modSlider", min: -5, max: 5, step: 0.1},
-        {key: "shearY", label: "Shear (y)", type: "modSlider", min: -5, max: 5, step: 0.1},
-        {key: "scaleX", label: "Scale (x)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
-        {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
-        {key: "jitter", label: "Jitter", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
-        {
-            key: 'COLORSPACE',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'blendTarget',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
+
+        // Kernel Shape Group
+        group("Kernel Shape", [
+            {
+                type: "select",
+                key: "window",
+                label: "Window",
+                options: [
+                    {value: "box", label: "Box"},
+                    {value: "circle", label: "Circle"},
+                    {value: "ring", label: "Ring"},
+                ]
+            },
+            {
+                key: "falloff",
+                label: "Falloff",
+                type: "select",
+                options: Object.keys(weightFns)
+            },
+            {
+                key: "jitter",
+                label: "Jitter",
+                type: "modSlider",
+                min: 0,
+                max: 1,
+                step: 0.01
+            }
+        ], {color: "#1a0000"}),
+
+        // Spatial Transform Group
+        group("Spatial Transform", [
+            {key: "angle", label: "Angle", type: "modSlider", min: -180, max: 180},
+            {key: "shearX", label: "Shear (x)", type: "modSlider", min: -5, max: 5, step: 0.1},
+            {key: "shearY", label: "Shear (y)", type: "modSlider", min: -5, max: 5, step: 0.1},
+            {key: "scaleX", label: "Scale (x)", type: "modSlider", min: 0.1, max: 3, step: 0.1},
+            {key: "scaleY", label: "Scale (y)", type: "modSlider", min: 0.1, max: 3, step: 0.1}
+        ], {color: "#001a00"}),
+
+        blendControls()
     ],
+
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSource);

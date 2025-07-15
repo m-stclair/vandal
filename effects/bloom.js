@@ -2,13 +2,11 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts,
     BlendTargetEnum,
-    BlendTargetOpts,
     ColorspaceEnum,
-    ColorspaceOpts,
 } from "../utils/glsl_enums.js";
 import {generateKernel, KernelTypeEnum} from "../utils/kernels.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/bloom.glsl"
 const includePaths = {
@@ -38,17 +36,33 @@ export default {
         chromaOffset: [1.1, 1.0, 0.9]
     },
     uiLayout: [
-        {type: "modSlider", key: "bloomThreshold", label: "Bloom Threshold", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "bloomSoftness", label: "Bloom Softness", min: 0, max: 1, steps: 200},
-        {type: "modSlider", key: "bloomStrength", label: "Bloom Strength", min: 0, max: 3, steps: 200},
         {
-            key: 'kernelName',
-            label: 'Bloom Kernel',
-            type: 'Select',
-            options: Object.values(KernelTypeEnum)
+            type: 'group',
+            label: 'Bloom Thresholding',
+            kind: 'collapse',
+            color: '#1a0020',
+            children: [
+                {type: "modSlider", key: "bloomThreshold", label: "Threshold", min: 0, max: 1, steps: 200},
+                {type: "modSlider", key: "bloomSoftness", label: "Softness", min: 0, max: 1, steps: 200},
+                {type: "modSlider", key: "bloomStrength", label: "Strength", min: 0, max: 3, steps: 200},
+            ]
         },
-        {type: "range", key: "kernelRadius", label: "Kernel Radius", min: 3, max: 30, step: 1},
-        {type: "modSlider", key: "kernelSoftness", label: "Kernel Softness", min: 1, max: 20, steps: 200},
+        {
+            type: 'group',
+            label: 'Kernel Settings',
+            kind: 'collapse',
+            color: '#001a1a',
+            children: [
+                {
+                    key: 'kernelName',
+                    label: 'Kernel Type',
+                    type: 'Select',
+                    options: Object.values(KernelTypeEnum)
+                },
+                {type: "range", key: "kernelRadius", label: "Radius", min: 3, max: 30, step: 1},
+                {type: "modSlider", key: "kernelSoftness", label: "Softness", min: 1, max: 20, steps: 200},
+            ]
+        },
         {
             key: 'BLOOM_MODE',
             label: 'Bloom Mode',
@@ -56,46 +70,30 @@ export default {
             options: [{'label': 'Luma', 'value': 0}, {'label': "Saturation", "value": 1}]
         },
         {
+            type: 'group',
+            label: 'Chroma Tail Settings',
+            kind: 'collapse',
+            color: '#1a002a',
+            showIf: {'key': 'BLOOM_CHROMA_TAIL', 'equals': true},
+            children: [
+                {
+                    key: "chromaOffset",
+                    label: "Chroma Tail Shape",
+                    type: "vector",
+                    length: 3,
+                    subLabels: ["R", "G", "B"],
+                    min: -10,
+                    max: 10,
+                    step: 0.01
+                }
+            ]
+        },
+        {
             key: 'BLOOM_CHROMA_TAIL',
-            label: 'Chroma Tail',
+            label: 'Enable Chroma Tail',
             type: 'Checkbox',
         },
-        {
-            key: "chromaOffset",
-            label: "Chroma Tail Shape",
-            type: "vector",
-            length: 3,
-            sublabels: ["R", "G", "B"],
-            min: -10,
-            max: 10,
-            steps: 200
-        },
-        {
-            key: "blendAmount",
-            label: "Blend Amount",
-            type: "Range",
-            min: 0,
-            max: 1,
-            step: 0.01
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: "COLORSPACE",
-            type: "select",
-            label: "Blend Colorspace",
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDTARGET',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
+        blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources)

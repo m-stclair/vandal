@@ -23,7 +23,6 @@ const effectFiles = [
     // "palette_debug.js",
     "reinhardTransfer.js",
     "contour_synth.js",
-    "contour_synth_OG.js",
     "fir.js",
     "delayline.js",
     "affine_transform.js",

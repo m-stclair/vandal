@@ -1,7 +1,12 @@
 import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendTargetEnum,
+    ColorspaceEnum
+} from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/colormap.frag";
 const includePaths = {
@@ -19,33 +24,29 @@ export default {
         colormap: "orange_teal",
         reverse: false,
         blendAmount: 1,
-        blendMode: 1
+        BLENDMODE: BlendModeEnum.MIX,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL
     },
     uiLayout: [
-        {
-            type: "select",
-            key: "colormap",
-            label: "Colormap",
-            options: Object.keys(colormaps)
-        },
-        {
-            type: "checkbox",
-            key: "reverse",
-            label: "Reverse",
-        },
-        {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {
-            key: 'blendMode',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-    ],
+    {
+        type: "select",
+        key: "colormap",
+        label: "Colormap",
+        options: Object.keys(colormaps)
+    },
+    {
+        type: "checkbox",
+        key: "reverse",
+        label: "Reverse",
+    },
+    blendControls()
+],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            reverse, blendMode, blendAmount, colormap
+            reverse, BLENDMODE, BLEND_CHANNEL_MODE, COLORMAP, blendAmount, colormap
         } = resolveAnimAll(instance.config, t);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
@@ -58,7 +59,11 @@ export default {
             width: LUTSIZE,
             height: 1
         };
-        const defines = { BLENDMODE: Number.parseInt(blendMode) };
+        const defines = {
+            BLENDMODE: BLENDMODE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            COLORMAP: COLORMAP
+        };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSources.load,

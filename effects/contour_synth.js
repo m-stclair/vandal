@@ -2,12 +2,10 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts,
     BlendTargetEnum,
-    BlendTargetOpts,
     ColorspaceEnum,
-    ColorspaceOpts
 } from "../utils/glsl_enums.js";
+import {blendControls, group} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/contour_synth.frag"
 const includePaths = {
@@ -31,61 +29,75 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         waveform: "Sine",
-        spatialWaveform: "Bands"
+        spatialWaveform: "Radial"
     },
     uiLayout: [
-        {
-            type: "modSlider", key: "freq", label: "Spatial Frequency",
-            min: 0, max: 5, step: 0.01
-        },
-        {
-            type: "modSlider", key: "freqScale", label: "Spatial Frequency Scale",
-            min: 0, max: 10, step: 0.25
-        },
-        {
-            type: "modSlider", key: "phaseOff", label: "Phase Offset",
-            min: -180, max: 180, step: 1
-        },
-        {
-            type: "modSlider", key: "phaseScale", label: "Phase Scale",
-            min: 0, max: 10, steps: 100, scale: "log", scaleFactor: 2
-        },
-        {
-            type: "Select", key: "waveform", label: "Waveform",
-            options:["Sine", "Saw", "Square", "Triangle"]
-        },
-        {
-            type: "Select", key: "spatialWaveform", label: "Spatial Mode",
-            options:["None", "Bands", "Checkerboard", "Radial", "Rings"]
-        },
-        {
-            key: 'COLORSPACE',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+        group("Waveform Modulation", [
+            {
+                type: "modSlider",
+                key: "phaseOff",
+                label: "Phase Offset",
+                min: -180,
+                max: 180,
+                step: 1
+            },
+            {
+                type: "modSlider",
+                key: "phaseScale",
+                label: "Phase Scale",
+                min: 0,
+                max: 10,
+                steps: 100,
+                scale: "log",
+                scaleFactor: 2
+            },
+            {
+                type: "Select",
+                key: "waveform",
+                label: "Waveform",
+                options: ["Sine", "Saw", "Square", "Tri"]
+            }
+        ], {color: "#110011"}),
 
+        {
+            type: "Select",
+            key: "spatialWaveform",
+            label: "Spatial Mode",
+            options: ["None", "Bands", "Checkerboard", "Radial", "Rings"]
+        },
+
+        group("Spatial Settings", [
+            {
+                type: "modSlider",
+                key: "freq",
+                label: "Spatial Frequency",
+                min: 0,
+                max: 5,
+                step: 0.01
+            },
+            {
+                type: "modSlider",
+                key: "freqScale",
+                label: "Spatial Frequency Scale",
+                min: 0,
+                max: 10,
+                step: 0.25
+            }
+        ], {
+            showIf: {key: "spatialWaveform", notEquals: "None"},
+            color: "#002011"
+        }),
+
+        blendControls()
     ],
+
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            freq, freqScale, phaseOff, phaseScale, blendAmount, blendMode,
-            waveform, spatialWaveform, blendTarget, colorSpace
+            freq, freqScale, phaseOff, phaseScale, blendAmount, BLENDMODE,
+            waveform, spatialWaveform, BLEND_CHANNEL_MODE, COLORSPACE
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -121,11 +133,11 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Synthesis",
-  tags: ["edges", "masking", "outline", "threshold"],
-  description: "Simple edge tracing via Sobel operator. Offers blend and " +
-      + "threshold control.",
-  backend: "gpu",
-  animated: true,
-  realtimeSafe: true,
+    group: "Synthesis",
+    tags: ["edges", "masking", "outline", "threshold"],
+    description: "Simple edge tracing via Sobel operator. Offers blend and " +
+        +"threshold control.",
+    backend: "gpu",
+    animated: true,
+    realtimeSafe: true,
 }

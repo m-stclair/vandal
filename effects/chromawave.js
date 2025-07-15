@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {blendControls, group} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/chromawave.frag"
 const includePaths = {
@@ -36,37 +36,48 @@ export default {
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Threshold", min: 0, max: 1, step: 0.01},
-        {type: "select", key: "cycleMode", label: "Cycle Mode", options: ["hue", "luma", "spatial"]},
-        {type: "modSlider", key: "hueShift", label: "Hue Shift", min: 0, max: 2, step: 0.01},
-        {type: "modSlider", key: "hueSpread", label: "Hue Spread", min: 0, max: 4, step: 0.05},
-        {type: "range", key: "saturation", label: "Saturation", min: 0, max: 100, step: 1},
-        {type: "range", key: "lightness", label: "Lightness", min: 0, max: 100, step: 1},
-        {type: "range", key: "bleed", label: "Bleed", min: 0, max: 1, step: 0.01},
-        {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
-        {type: "range", key: "bandingSteps", label: "Bands", min: 0, max: 5, step: 1},
-        {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01},
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+
         {
-            key: 'COLORSPACE',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
+            type: "select",
+            key: "cycleMode",
+            label: "Cycle Mode",
+            options: ["hue", "luma", "spatial"]
         },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'blendTarget',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
-        {type: "Select", key: "spatialPattern", label: "Spatial Pattern", options: ["radial", "horizontal", "vertical", "diagonal", "angle", "checker"]},
-        {type: "range", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
-        {type: "range", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01},
+
+        group("Hue Mapping", [
+            {type: "modSlider", key: "hueShift", label: "Hue Shift", min: 0, max: 2, step: 0.01},
+            {type: "modSlider", key: "hueSpread", label: "Hue Spread", min: 0, max: 4, step: 0.05},
+        ], {
+            color: "#20001a"
+        }),
+
+        group("Spatial Pattern", [
+            {
+                type: "Select",
+                key: "spatialPattern",
+                label: "Pattern",
+                options: ["radial", "horizontal", "vertical", "diagonal", "angle", "checker"]
+            },
+            {type: "range", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
+            {type: "range", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
+        ], {
+            showIf: {key: "cycleMode", equals: "spatial"},
+            color: "#001a20"
+        }),
+
+        group("Color Adjustments", [
+            {type: "range", key: "saturation", label: "Saturation", min: 0, max: 100, step: 1},
+            {type: "range", key: "lightness", label: "Lightness", min: 0, max: 100, step: 1},
+            {type: "range", key: "bleed", label: "Bleed", min: 0, max: 1, step: 0.01}
+        ], {color: "#1a1a00"}),
+
+        group("Waveform Controls", [
+            {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
+            {type: "range", key: "bandingSteps", label: "Bands", min: 0, max: 5, step: 1},
+            {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01}
+        ], {color: "#1a0000"}),
+
+        blendControls(),
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -150,11 +161,11 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Edge",
-  tags: ["edges", "masking", "outline", "threshold"],
-  description: "Simple edge tracing via Sobel operator. Offers blend and " +
-      + "threshold control.",
-  backend: "gpu",
-  animated: true,
-  realtimeSafe: true,
+    group: "Edge",
+    tags: ["edges", "masking", "outline", "threshold"],
+    description: "Simple edge tracing via Sobel operator. Offers blend and " +
+        +"threshold control.",
+    backend: "gpu",
+    animated: true,
+    realtimeSafe: true,
 }

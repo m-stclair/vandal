@@ -167,6 +167,7 @@ export default {
             key: "color",
             label: "Color",
             type: "vector",
+            length: 3,
             subLabels: ["R", "G", "B"],
             min: 0,
             max: 1,

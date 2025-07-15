@@ -478,8 +478,11 @@ button {
     display: flex;
     align-items: center;
     gap: 0.5em;
-   margin-bottom: 0.4em; /* space between slider and foldout */
-    /*width: 100%;*/
+    margin-bottom: 0.2em
+}
+
+.slider-row.has-animation-foldout {
+    margin-bottom: 0.1em
 }
 
 .slider {
@@ -495,23 +498,32 @@ button {
     color: #aaa;
 }
 
+.foldout-toggle {
+  background: none;
+  color: #fff;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 1.2em;
+  margin-bottom: 0.8em;
+}
+
+.animation-toggle .foldout-toggle {
+    font-size: 0.75em;
+    margin-bottom: 0.2em;
+}
+
+.foldout-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}
+
 .mod-foldout {
   margin-top: 0;             /* remove space before */
   margin-bottom: 0.6em;      /* space after to separate next control */
   padding-left: 1em;
   border-left: 2px solid #8884;
   font-size: 0.9em;
-}
-
-.mod-foldout summary {
-  cursor: pointer;
-  font-weight: 500;
-  color: #ccc;
-  margin-bottom: 0.4em;
-}
-
-.mod-foldout[open] summary {
-  color: #fff;
 }
 
 .mod-subfield {

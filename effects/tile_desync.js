@@ -1,6 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendModeOpts,
+    BlendTargetEnum,
+    BlendTargetOpts,
+    ColorspaceEnum,
+    ColorspaceOpts
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/tile_desync.frag"
 const includePaths = {
@@ -13,11 +20,12 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Tile Desync",
+    name: "Desync Tiles",
 
     defaultConfig: {
-        BLENDMODE: 1,
-        COLORSPACE: 0,
+        BLENDMODE: BlendModeEnum.MIX,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         tileCountX: 10,
         tileCountY: 10,
@@ -30,16 +38,22 @@ export default {
         {type: "modSlider", key: "tileCountY", label: "Tile Count Y", min: 1, max: 100, step: 1},
         {type: "modSlider", key: "offsetAmount", label: "Offset", min: 0, max: 1, step:0.005},
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Blend Colorspace',
             type: 'Select',
             options: ColorspaceOpts
         },
         {
-            key: 'blendMode',
+            key: 'BLENDMODE',
             label: 'Blend Mode',
             type: 'Select',
             options: BlendModeOpts
+        },
+        {
+            key: 'BLEND_CHANNEL_MODE',
+            label: 'Blend Target',
+            type: 'Select',
+            options: BlendTargetOpts
         },
         {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
     ],
@@ -48,8 +62,8 @@ export default {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, blendMode, offsetAmount, tileCountX,
-            tileCountY, seed, colorSpace
+            blendAmount, BLENDMODE, offsetAmount, tileCountX,
+            tileCountY, seed, COLORSPACE, BLEND_CHANNEL_MODE
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -61,8 +75,9 @@ export default {
             u_offsetamount: {type: "float", value: offsetAmount},
         };
         const defines = {
-            BLENDMODE: Number.parseInt(blendMode),
-            COLORSPACE: Number.parseInt(colorSpace)
+            BLENDMODE: BLENDMODE,
+            COLORSPACE: COLORSPACE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

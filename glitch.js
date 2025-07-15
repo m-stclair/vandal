@@ -1,40 +1,49 @@
 import {
     canvas,
-    defaultCtx, moveEffectInStack, placeholderOption,
+    defaultCtx,
     setupExportImage,
-    setupPaneDrag, setupPresetUI,
-    setupStaticButtons, setupVideoCapture, setupWindow
+    setupPaneDrag,
+    setupPresetUI,
+    setupStaticButtons,
+    setupVideoCapture,
+    setupWindow
 } from "./ui.js";
 
 import {
-    getOriginalImage,
-    clearRenderCache,
-    setOriginalImage,
-    setRenderedImage,
-    setFilters,
-    forEachEffect,
-    clearConfigUI,
-    flushEffectStack,
     addEffectToStack,
-    getEffectStack,
-    saveState,
-    loadState,
-    makeEffectInstance,
-    setResizedOriginalImage,
+    clearConfigUI,
+    clearNormedImage,
+    clearRenderCache,
+    Dirty,
+    flushEffectStack,
+    forEachEffect,
     getActiveEffects,
     getEffectById,
-    clearNormedImage,
+    getEffectStack,
     getNormedImage,
-    getSelectedEffectId, toggleEffectSelection, isSelectedEffect, renderer, rerollNormLoadID
+    getOriginalImage,
+    loadState,
+    Lock,
+    makeEffectInstance,
+    renderer,
+    requestRender,
+    requestUIDraw,
+    rerollNormLoadID,
+    saveState,
+    setFilters,
+    setOriginalImage,
+    setRenderedImage,
+    setResizedOriginalImage,
+    toggleEffectSelection, uiState
 } from "./state.js";
 import {formatFloatWidth, gid} from "./utils/helpers.js";
-import {buildUI} from "./ui_builder.js";
+import {renderStackUI} from "./ui_builder.js";
 import {effectRegistry} from "./registry.js";
 import {resolveAnim} from "./utils/animutils.js";
-import {listEffectPresets, getEffectPresetView, saveEffectPreset} from "./utils/presets.js";
 import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
-// DO NOT REMOVE THIS IMPORT!
-import {EffectPicker} from "./components/effectpicker.js";
+
+// noinspection ES6UnusedImports
+import {EffectPicker} from './components/effectpicker.js'
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -70,7 +79,7 @@ function resizeAndRedraw() {
     setRenderedImage(defaultCtx.getImageData(0, 0, w, h));
     setResizedOriginalImage(defaultCtx.getImageData(0, 0, w, h));
     clearNormedImage();
-    renderImage();
+    requestRender();
 }
 
 let capturer = null, capturing = false;
@@ -126,251 +135,6 @@ function updateVisualStyles(cvs = canvas) {
     setFilters(filters || 'none', cvs);
 }
 
-let rafPending = false;
-
-function debouncedRender() {
-    if (rafPending) return;
-    rafPending = true;
-
-    requestAnimationFrame(() => {
-        renderImage();
-        rafPending = false;
-    });
-}
-
-function createLabelEditor(fx) {
-    const label = document.createElement("span");
-    label.className = "effectLabel";
-    label.textContent = fx.label || fx.name;
-    label.contentEditable = false;
-    label.spellcheck = false;
-    label.addEventListener("click", (e) => {
-        if (label.classList.contains("editing")) {
-            e.stopPropagation();
-        }
-    });
-    label.addEventListener("focus", (e) => {
-        e.stopPropagation();
-        label.classList.add("editing");
-    });
-    label.addEventListener("blur", () => {
-        fx.label = label.textContent.trim();
-        label.contentEditable = false;
-        label.classList.remove("editing");
-    });
-    label.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            label.blur();
-        } else if (e.key === "Escape") {
-            e.preventDefault();
-            label.textContent = fx.label;
-            label.blur();
-        }
-    })
-
-    const pencil = document.createElement("button");
-    pencil.className = "editButton";
-    pencil.innerHTML = "✎"; // or use an SVG/icon font
-    pencil.title = "Rename effect";
-    pencil.addEventListener("click", (e) => {
-        e.stopPropagation();
-        label.contentEditable = true;
-        label.focus();
-    });
-
-    const presetDropdown = document.createElement('select');
-    presetDropdown.appendChild(placeholderOption("Preset"));
-    listEffectPresets(fx.name).forEach(name => {
-        const opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        presetDropdown.appendChild(opt);
-    });
-
-    presetDropdown.addEventListener('click', e => {
-        e.stopPropagation()
-    });
-
-
-    presetDropdown.addEventListener('change', e => {
-        e.stopPropagation()
-        const selected = e.target.value;
-        const preset = getEffectPresetView(fx.name, selected);
-        if (preset) {
-            Object.assign(fx.config, structuredClone(preset));
-            renderImage();
-        }
-    });
-
-    const savePresetBtn = document.createElement("button");
-    savePresetBtn.innerHTML = "💾"
-    savePresetBtn.className = "save-effect-preset-btn";
-    savePresetBtn.addEventListener('click', e => {
-        e.stopPropagation()
-        saveEffectPreset(fx.name, label.textContent, structuredClone(fx.config));
-        const newOpt = document.createElement('option');
-        newOpt.value = label.textContent;
-        newOpt.textContent = label.textContent;
-        presetDropdown.appendChild(newOpt);
-    });
-
-    const labelWrapper = document.createElement("div");
-    labelWrapper.className = "labelWrapper";
-    labelWrapper.append(label, pencil, presetDropdown, savePresetBtn);
-    return labelWrapper;
-}
-
-function createControlGroup(fx, effectStack, i) {
-    const enableToggle = document.createElement('input');
-    enableToggle.type = 'checkbox';
-    enableToggle.classList.add("enableToggle");
-    enableToggle.classList.add("effectToggle");
-    enableToggle.name = 'enable/disable'
-    enableToggle.checked = !fx.disabled;
-    enableToggle.title = 'Enable/Disable Effect';
-    enableToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-    enableToggle.addEventListener('change', () => {
-        fx.disabled = !enableToggle.checked;
-        renderImage();
-    });
-
-    const soloToggle = document.createElement("input");
-    soloToggle.type = "checkbox";
-    soloToggle.classList.add("soloToggle");
-    soloToggle.classList.add("effectToggle");
-    soloToggle.checked = fx.solo ?? false;
-    soloToggle.title = "Solo this effect";
-    soloToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-    soloToggle.addEventListener("change", () => {
-        const isNowSoloed = soloToggle.checked;
-
-        for (const fx of effectStack) {
-            fx.solo = false;
-        }
-        if (isNowSoloed) {
-            fx.solo = true;
-            fx.disabled = false;
-        } else {
-            fx.solo = false;
-        }
-        renderImage();
-    });
-
-    const upBtn = document.createElement("button");
-    upBtn.textContent = "↑";
-    upBtn.title = "Move up";
-    upBtn.disabled = i === 0;
-    upBtn.className = "effectButton"
-    upBtn.addEventListener("click", (e) => {
-        e.stopPropagation()
-        moveEffectInStack(effectStack, i, i - 1);
-        updateApp();
-    });
-
-    const downBtn = document.createElement("button");
-    downBtn.textContent = "↓";
-    downBtn.title = "Move down";
-    downBtn.disabled = i === effectStack.length - 1;
-    downBtn.className = "effectButton";
-    downBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        moveEffectInStack(effectStack, i, i + 1);
-        updateApp();
-    });
-
-    const dupBtn = document.createElement("button");
-    dupBtn.textContent = "⧉";
-    dupBtn.title = "Duplicate effect";
-    dupBtn.className = "effectButton";
-    dupBtn.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        const newFx = makeEffectInstance(effectRegistry[fx.name]);
-        await newFx.ready;
-        newFx.config = structuredClone(fx.config);
-        effectStack.splice(i + 1, 0, newFx);
-        updateApp();
-    });
-
-    const delBtn = document.createElement('button');
-    delBtn.textContent = '×';
-    delBtn.className = "effectButton";
-    delBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (fx.cleanupHook) {
-            fx.cleanupHook(fx);
-        }
-        effectStack.splice(i, 1);
-        clearRenderCache();
-        updateApp();
-    });
-
-    const controlGroup = document.createElement("div");
-    controlGroup.className = "controlGroup";
-    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, delBtn);
-    return controlGroup;
-}
-
-
-function decorateForSolo(card, fx, effectStack) {
-    const anySolo = effectStack.some(f => f.solo);
-    if (anySolo) {
-        card.classList.toggle("soloed", fx.solo);
-        card.classList.toggle("unsoloed", !fx.solo);
-    } else {
-        card.classList.remove("soloed", "unsoloed");
-    }
-}
-
-function renderEffectInStackUI(fx, i) {
-    const stackContainer = gid('effectStack');
-    // Main card container
-    const card = document.createElement('div');
-    card.className = 'effect-card';
-    if (fx.id === getSelectedEffectId()) {
-        card.classList.add('expanded');
-    }
-    // Header
-    const header = document.createElement('div');
-    header.className = 'effect-header';
-    header.addEventListener('click', () => {
-        // TODO: this may become an element of the UI object?
-        toggleEffectSelection(fx);
-        renderStackUI();
-    });
-    const effectStack = getEffectStack();
-    const labelWrapper = createLabelEditor(fx);
-    const controlGroup = createControlGroup(
-        fx, effectStack, i,
-    );
-    header.append(labelWrapper, controlGroup);
-    card.appendChild(header);
-    if (isSelectedEffect(fx)) {
-        const configContainer = document.createElement('div');
-        configContainer.className = 'effect-config';
-        buildUI(fx, configContainer, fx.config,
-            debouncedRender, fx.uiLayout);
-        card.appendChild(configContainer);
-    }
-    // addDragListener(card, fx, i);
-    decorateForSolo(card, fx, effectStack);
-    stackContainer.appendChild(card);
-}
-
-
-function renderStackUI() {
-    const stackContainer = gid('effectStack');
-    stackContainer.innerHTML = '';
-    const effectStack = getEffectStack();
-    for (let i = 0; i <= effectStack.length; i++) {
-        if (i >= effectStack.length) return;
-        renderEffectInStackUI(effectStack[i], i);
-    }
-}
 
 let freezeAnimationFlag = false;
 let rendering = false;
@@ -478,6 +242,7 @@ function tick(now) {
         const label = input.querySelector(".slider-value");
         label.textContent = formatFloatWidth(resolved);
     });
+    // TODO: this obviously has to work a _little_ differently.
     firePipeline(t);
     if (capturing && capturer) {
         capturer.capture(document.getElementById('glitchCanvas'));
@@ -511,11 +276,7 @@ function renderImage() {
     }
 }
 
-function updateApp() {
-    renderStackUI();
-    renderImage();
-}
-
+// TODO: big gun type situation
 function resetStack() {
     forEachEffect(
         (fx) => {
@@ -526,7 +287,8 @@ function resetStack() {
     flushEffectStack();
     clearRenderCache();
     clearConfigUI();
-    updateApp();
+    requestUIDraw();
+    requestRender();
 }
 
 async function addSelectedEffect(effectName) {
@@ -536,7 +298,8 @@ async function addSelectedEffect(effectName) {
     addEffectToStack(fx);
     toggleEffectSelection(fx);
     clearRenderCache()
-    updateApp();
+    requestUIDraw();
+    requestRender();
 }
 
 async function drawBlackSquare(imgElement) {
@@ -549,12 +312,6 @@ async function drawBlackSquare(imgElement) {
     imgElement.src = canvas.toDataURL();
     setOriginalImage(imgElement);
 }
-
-const Dirty = {image: true, ui: true}
-const Lock = {image: false, ui: false}
-
-export const requestRender = () => Dirty.image = true;
-export const requestUIDraw = () => Dirty.ui = true;
 
 function watchRender() {
     if (Lock.image || !Dirty.image) return;
@@ -572,7 +329,7 @@ function watchUI() {
     Lock.ui = true;
     Dirty.ui = false;
     try {
-        renderStackUI();
+        renderStackUI(getEffectStack(), uiState, gid('effectStack'));
     } finally {
         Lock.ui = false;
     }
@@ -585,14 +342,10 @@ function rafScheduler(func, name, registry) {
     }
 }
 
+
 const loopIDs = {};
 const renderLoop = rafScheduler(watchRender, "render", loopIDs);
 const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
-
-// uiLoop();
-// renderLoop();
-
-export const uiState = {}
 
 
 async function appSetup() {
@@ -628,12 +381,10 @@ async function appSetup() {
     )
     const toggleBar = document.getElementById('toggle-stack-bar');
     const effectStack = document.getElementById('effectStack');
-
     toggleBar.addEventListener('click', function () {
         effectStack.classList.toggle('collapsed');
         toggleBar.classList.toggle('collapsed');
     });
-
     await setupStaticButtons(
         handleUpload,
         addSelectedEffect,
@@ -641,10 +392,17 @@ async function appSetup() {
         loadState,
         effectRegistry,
         resetStack,
-        updateApp,
+        requestRender,
+        requestUIDraw,
         renderImage
     );
-    setupPresetUI(saveState, loadState, updateApp, effectRegistry);
+    setupPresetUI(
+        saveState,
+        loadState,
+        requestRender,
+        requestUIDraw,
+        effectRegistry
+    );
     setupExportImage(exportImage);
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
@@ -652,7 +410,8 @@ async function appSetup() {
     const imgElement = document.createElement('img');
     await drawBlackSquare(imgElement);
     resizeAndRedraw();
+    uiLoop();
+    renderLoop();
 }
 
 await appSetup();
-

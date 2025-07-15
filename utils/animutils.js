@@ -32,10 +32,11 @@ export const resolveAnimAll = (params, t) => valmap((p) => resolveAnim(p, t), pa
 
 export function clampAnimationParams(min, max, bias, rangeMode) {
     if (rangeMode === "unipolar") {
-        const safeDepth = max - bias;
-        return [bias, Math.max(0, safeDepth)];
+        const safeDepth = Math.abs(max - bias);
+        return [bias, max];
     } else {
-        const safeDepth = Math.min(bias - min, max - bias);
-        return [bias, Math.max(0, safeDepth)];
+        return [bias, max]
+        // const safeDepth = Math.min(Math.abs(bias - min), Math.abs(max - bias));
+        // return [bias, Math.max(0, safeDepth)];
     }
 }

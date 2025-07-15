@@ -63,7 +63,6 @@ export const defaultCtx = canvas.getContext("2d", {willReadFrequently: true});
 
 // top-level buttons
 const uploadButton = gid('upload');
-// const addEffectButton = gid('addEffectBtn');
 const saveBtn = gid("save-stack");
 const loadBtn = gid("load-stack");
 const clearBtn = gid("clear-stack");
@@ -72,14 +71,10 @@ const textarea = gid("stack-json");
 
 export function setupStaticButtons(
     handleUpload, addSelectedEffect, saveState,
-    loadState, registry, resetStack, update
+    loadState, registry, resetStack, requestRender,
+    requestUIDraw
 ) {
     uploadButton.addEventListener('change', handleUpload);
-
-
-    // addEffectButton.addEventListener(
-    //     'click', async () => await addSelectedEffect()
-    // );
     saveBtn.addEventListener("click", () => {
         textarea.value = saveState();
         navigator.clipboard?.writeText(textarea.value).then(() =>
@@ -88,11 +83,13 @@ export function setupStaticButtons(
     });
     loadBtn.addEventListener("click", () => {
         loadState(textarea.value, registry);
-        update();
+        requestUIDraw();
+        requestRender();
     });
     clearBtn.addEventListener("upclick", () => {
         resetStack();
-        update();
+        requestUIDraw();
+        requestRender();
     });
 }
 
@@ -190,14 +187,17 @@ function updatePresetSelect() {
     });
 }
 
-export function setupPresetUI(getState, loadState, updateApp, registry) {
+export function setupPresetUI(
+    getState, loadState, requestRender, requestUIDraw, registry
+) {
 
     document.getElementById('presetLoad').onclick = async () => {
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
             await loadState(getAppPresetView(name), registry, false);
         }
-        updateApp();
+        requestUIDraw();
+        requestRender();
     };
 
     document.getElementById('presetSave').onclick = () => {

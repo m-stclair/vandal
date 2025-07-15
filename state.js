@@ -214,3 +214,28 @@ export async function loadState(preset, registry, fromJSON=true) {
     }
 }
 
+export const Dirty = {image: true, ui: true}
+export const Lock = {image: false, ui: false}
+export const requestRender = () => Dirty.image = true;
+export const requestUIDraw = () => Dirty.ui = true;
+
+function DefaultDict(defaultFactory) {
+  return new Proxy({}, {
+    get(target, prop) {
+      if (!(prop in target)) {
+        target[prop] = defaultFactory();
+      }
+      return target[prop];
+    }
+  });
+}
+
+function NestingDictFactory() {
+    return () => DefaultDict(NestingDictFactory());
+}
+
+function NestingDict() {
+    return DefaultDict(NestingDictFactory());
+}
+
+export const uiState = NestingDict();

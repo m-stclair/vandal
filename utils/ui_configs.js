@@ -1,4 +1,4 @@
-import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts, ZoneShapeOpts} from "./glsl_enums.js";
+import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts, ZoneShapeEnum, ZoneShapeOpts} from "./glsl_enums.js";
 
 export function blendControls() {
     return {
@@ -21,7 +21,6 @@ export function zoneControls() {
         type: 'group',
         kind: 'collapse',
         label: 'Zone Settings',
-        color: '#002233',
         children: [
             {
                 type: "select",
@@ -29,20 +28,21 @@ export function zoneControls() {
                 label: "Zone Shape",
                 options: ZoneShapeOpts
             },
-            {type: "modSlider", key: "zoneCX", label: "Zone Center X", min: 0, max: 1, steps: 200},
-            {type: "modSlider", key: "zoneSX", label: "Zone Scale X", min: 0, max: 1, steps: 200},
-            {type: "modSlider", key: "zoneCY", label: "Zone Center Y", min: 0, max: 1, steps: 200},
-            {type: "modSlider", key: "zoneSY", label: "Zone Scale Y", min: 0, max: 1, steps: 200},
-            {type: "modSlider", key: "zoneSoftness", label: "Zone Softness", min: 0, max: 1, steps: 200},
-            {type: "modSlider", key: "zoneAngle", label: "Zone Angle", min: 0, max: Math.PI * 2, steps: 200},
+            {type: "modSlider", key: "zoneCX", label: "X", min: 0, max: 1, steps: 200},
+            {type: "modSlider", key: "zoneSX", label: "X Size", min: 0, max: 1, steps: 200},
+            {type: "modSlider", key: "zoneCY", label: "Y", min: 0, max: 1, steps: 200},
+            {type: "modSlider", key: "zoneSY", label: "Y Size", min: 0, max: 1, steps: 200},
             {
                 type: "modSlider",
                 key: "zoneEllipseN",
-                label: "Superellipse Shape Parameter",
+                label: "Shape",
                 min: 0.9,
                 max: 10,
-                steps: 200
+                steps: 200,
+                showIf: {"key": "ZONESHAPE", "equals": ZoneShapeEnum.SUPERELLIPSE}
             },
+            {type: "modSlider", key: "zoneSoftness", label: "Softness", min: 0, max: 1, steps: 200},
+            {type: "modSlider", key: "zoneAngle", label: "Angle", min: 0, max: Math.PI * 2, steps: 200},
         ]
     }
 }

@@ -22,7 +22,8 @@ uniform float u_uniform;
 uniform float u_perlin;
 uniform float u_simplex;
 uniform float u_gauss;
-uniform float u_pink;
+uniform float u_brown;
+uniform float u_value;
 uniform float u_worley;
 uniform vec3 u_tint;
 uniform float u_blendamount;
@@ -66,18 +67,12 @@ void main() {
 
     noiseVal += uniformNoise(uvs.x * uvs.y) * u_uniform;
 
-    float pVecs[4];
-    pVecs[0] = 1.0;
-    pVecs[1] = 0.0;
-    pVecs[2] = 0.0;
-    pVecs[3] = 1.0;
-
-//    noiseVal += perlinNoise2D(vec2(xScl, yScl), u_fc, pVecs, u_seed).x * u_perlin * 2.0;
-    noiseVal += cnoise(vec2(xScl, yScl)) * u_perlin * 1.3;
+    noiseVal += cnoise(vec2(xScl, yScl)) * u_perlin * 1.4;
     vec2 gradientOut = vec2(0.0, 0.0); // scratch space for periodic simplex noise algo
     noiseVal += psrdnoise(vec2(xScl, yScl), vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
     noiseVal += gaussianNoise(vec2(xScl, yScl)) * u_gauss;
-    noiseVal += pinkNoise(vec2(xScl, yScl)) * u_pink;
+    noiseVal += brownNoise(vec2(xScl, yScl)) * u_brown;
+    noiseVal += valueNoise(vec2(xScl, yScl)) * u_value;
     vec2 cellnoise = cellular(vec2(xScl, yScl)) * u_worley;
     noiseVal += (cellnoise.x + cellnoise.y) / 2.;
     noiseVal = clamp(noiseVal, 0.0, 1.0);
@@ -103,6 +98,12 @@ void main() {
     float burstField = snoise(burstUV + u_seed * 7.77);
 
 #elif BURST_MODTYPE == BURST_PSEUDO_PERLIN
+    float pVecs[4];
+    pVecs[0] = 1.0;
+    pVecs[1] = 0.0;
+    pVecs[2] = 0.0;
+    pVecs[3] = 1.0;
+
     float fc[3] = float[](6., 15., 10.);
     float burstField = perlinNoise2D(burstUV, fc, pVecs, u_seed * 7.77).x * 2.;
 
@@ -134,7 +135,7 @@ void main() {
 #if USE_CMAP == 0
     vec3 noisePx = noiseVal * u_tint;
 #else
-    vec3 noisePx = texture(u_cmap, vec2(clamp(noiseVal, 0.0, 1.0), 0.5)).rgb;
+    vec3 noisePx = texture(u_cmap, vec2(clamp(noiseVal, 0.0, 1.0), 0.5)).rgb * u_tint;
 #endif
     vec3 inColor = texture(u_image, uv).rgb;
 #if APPLY_MASK == 1

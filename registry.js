@@ -39,7 +39,8 @@ const effectFiles = [
     "warpzone.js",
     "bloom.js",
     "kernel2d.js",
-    "pseudosort.js"
+    "pseudosort.js",
+    "badTV.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

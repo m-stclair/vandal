@@ -99,7 +99,7 @@ select {
   background: #111; /* Deep black-violet */
   border: 1px solid #333;
   border-radius: 6px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   padding: 12px;
   ;
   color: #eee;
@@ -173,11 +173,11 @@ select {
 }
 
 .row-slider {
-  grid-template-columns: 4em 20px 0.9fr 4em;
+  grid-template-columns: 3em 10px 0.9fr 4em;
 }
 
 .row-slider.no-animate{
-  grid-template-columns: 4em 1fr 4em;
+  grid-template-columns: 4em 0.9fr 4em;
 }
 
 .row-select {
@@ -204,7 +204,7 @@ select {
 
 
 .field-row label {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #aaa;
 }
 
@@ -249,13 +249,13 @@ select {
 }
 
 .mod-icon {
-  margin-left: 6px;
   font-size: 0.85rem;
+  padding: 0;
   background: none;
   border: none;
   cursor: pointer;
   color: #888;
-  padding: 2px;
+  align-self: start;
 }
 .mod-icon:hover {
   color: #fff;

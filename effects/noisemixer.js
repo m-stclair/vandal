@@ -34,7 +34,7 @@ export default {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
-        components: [1, 0, 0, 0, 0, 0],
+        components: [0.5, 0, 0, 0, 0, 0.5, 0],
         blendAmount: 0.5,
         colormap: "none",
         threshold: 0,
@@ -67,14 +67,14 @@ export default {
                     key: "components",
                     label: "Noise Components",
                     type: "vector",
-                    subLabels: () => ["Uni", "Prl", "Smp", "Gsn", "Pnk", "Wly"],
+                    subLabels: () => ["Uni", "Prl", "Smp", "Gsn", "Val", "Brn", "Wly"],
                     min: 0,
                     max: 1,
                     step: 0.01,
-                    length: 6
+                    length: 7
                 },
                 {key: "frequency", label: "Frequency", type: "Range", min: 1, max: 5000, steps: 300, scale: "log"},
-                {key: "freqShift", label: "Frequency Shift", type: "Range", min: -3.14, max: 3.14, steps: 200},
+                {key: "freqShift", label: "X/Y", type: "Range", min: -1, max: 1, steps: 200},
             ]
         },
 
@@ -86,7 +86,7 @@ export default {
                 {key: "gate", label: "Use Gate", type: "Select", options: GateModeOpts},
                 {
                     key: "threshold",
-                    label: "Gate Low",
+                    label: "Low",
                     type: "modSlider",
                     min: 0,
                     max: 1,
@@ -95,7 +95,7 @@ export default {
                 },
                 {
                     key: "cutoff",
-                    label: "Gate High",
+                    label: "High",
                     type: "modSlider",
                     min: 0,
                     max: 1,
@@ -151,20 +151,27 @@ export default {
         },
         blendControls(),
         {
-            type: "select",
-            key: "colormap",
-            label: "Colormap",
-            options: ["none", ...Object.keys(colormaps)]
-        },
-        {
-            key: "tint",
-            label: "Tint",
-            type: "vector",
-            subLabels: () => ["C1", "C2", "C3"],
-            min: 0,
-            max: 1,
-            length: 3,
-            step: 0.01,
+            type: 'group',
+            label: 'Color',
+            kind: 'collapse',
+            children: [
+                {
+                    type: "select",
+                    key: "colormap",
+                    label: "Colormap",
+                    options: ["none", ...Object.keys(colormaps)]
+                },
+                {
+                    key: "tint",
+                    label: "Tint",
+                    type: "vector",
+                    subLabels: () => ["C1", "C2", "C3"],
+                    min: 0,
+                    max: 1,
+                    length: 3,
+                    step: 0.01,
+                },
+                ]
         },
         {key: "APPLY_MASK", label: "Apply Mask", type: "checkbox"},
         {...zoneControls(), showIf: {'key': 'APPLY_MASK', 'equals': true}},
@@ -181,8 +188,8 @@ export default {
         } = resolveAnimAll(instance.config, t);
         // TODO: this is wrong
         if (!components.some((c) => c)) return inputTex;
-        const [uniform, perlin, simplex, gauss, pink, worley] = components;
-        const noiseMax = pink + perlin + uniform + gauss + simplex + worley;
+        const [uniform, perlin, simplex, gauss, value, brown, worley] = components;
+        const noiseMax = brown + perlin + uniform + value + gauss + simplex + worley;
         const blendAmountC = (noiseMax < 1) ? Math.min(blendAmount, noiseMax) : blendAmount;
         let xMax = zoneCX + zoneSX / 2;
         let yMax = zoneCY + zoneSY / 2;
@@ -196,7 +203,8 @@ export default {
             u_perlin: {type: "float", value: perlin},
             u_gauss: {type: "float", value: gauss},
             u_uniform: {type: "float", value: uniform},
-            u_pink: {type: "float", value: pink},
+            u_brown: {type: "float", value: brown},
+            u_value: {type: "float", value: value},
             u_worley: {type: "float", value: worley},
             u_simplex: {type: "float", value: simplex},
             u_threshold: {type: "float", value: threshold},

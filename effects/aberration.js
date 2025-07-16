@@ -70,10 +70,11 @@ export default {
 }
 
 export const effectMeta = {
-    group: "Stylize",
+    group: "Color",
     tags: ["color", "shift", "displacement", "chromatic", "gpu"],
-    description: "Shifts color channels independently, in selectable colorspaces," +
-        "to create chromatic aberration, blur, and blend effect.",
+    description: "Applies independent shifts to color channels " +
+        "to create chromatic aberration, blur, and blend effects. Multiple " +
+        "colorspaces are available for shift application.",
     backend: "gpu",
     realtimeSafe: true,
     canAnimate: true

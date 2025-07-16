@@ -109,6 +109,7 @@ float gaussianNoise(vec2 p) {
     return z0;
 }
 
+// NOTE: just starts ringing way too fast
 // 1/f noise function (Pink noise)
 float pinkNoise(vec2 p) {
     float total = 0.0;
@@ -123,4 +124,58 @@ float pinkNoise(vec2 p) {
     }
 
     return total;
+}
+
+float hash(vec2 p) {
+    return fract(sin(dot(p ,vec2(127.1,311.7))) * 43758.5453123);
+}
+
+float brownNoise(vec2 uv) {
+    float sum = 0.0;
+    float amplitude = 1.0;
+    float scale = 1.0;
+    float total = 0.0;
+
+    // 1/f² weighting: each octave contributes more than the next
+    for (int i = 0; i < 5; i++) {
+        float n = gaussianNoise(uv * scale); // replace with your gaussianNoise(vec2) if desired
+        sum += n * amplitude;
+        total += amplitude;
+
+        scale *= 0.5;      // increase frequency
+        amplitude *= 2.0;  // inverse-square amplitude (≈1/f²)
+    }
+
+    return sum / total; // normalize
+}
+
+// Smoothstep interpolation
+float smoothstepInterp(float a, float b, float t) {
+    t = t * t * (3.0 - 2.0 * t);
+    return mix(a, b, t);
+}
+//
+//float rand(vec2 n) {
+//    return fract(sin(dot(n, vec2(41.0, 289.0))) * 43758.5453);
+//}
+
+float rand(vec2 p) {
+    vec3 p3  = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+// 2D value noise
+float valueNoise(vec2 uv) {
+    vec2 i = floor(uv);
+    vec2 f = fract(uv);
+
+    float a = rand(i);
+    float b = rand(i + vec2(1.0, 0.0));
+    float c = rand(i + vec2(0.0, 1.0));
+    float d = rand(i + vec2(1.0, 1.0));
+
+    float u = smoothstepInterp(a, b, f.x);
+    float v = smoothstepInterp(c, d, f.x);
+    return smoothstepInterp(u, v, f.y);
 }

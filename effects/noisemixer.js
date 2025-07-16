@@ -56,27 +56,52 @@ export default {
         burstModType: "simplex"
     },
     uiLayout: [
-        {key: "seed", label: "Seed", type: "modSlider", min: 1, max: 500, step: 1},
         {
-            key: "components",
-            label: "Noise Components",
-            type: "vector",
-            subLabels: () => ["Uniform", "Perlin", "Simplex", "Gaussian", "Pink", "Worley"],
-            min: 0,
-            max: 1,
-            step: 0.01,
-            length: 6
+            type: "group",
+            label: "Core Noise",
+            kind: 'collapse',
+            collapsed: false,
+            children: [
+                {key: "seed", label: "Seed", type: "modSlider", min: 1, max: 500, step: 1},
+                {
+                    key: "components",
+                    label: "Noise Components",
+                    type: "vector",
+                    subLabels: () => ["Uni", "Prl", "Smp", "Gsn", "Pnk", "Wly"],
+                    min: 0,
+                    max: 1,
+                    step: 0.01,
+                    length: 6
+                },
+                {key: "frequency", label: "Frequency", type: "Range", min: 1, max: 5000, steps: 300, scale: "log"},
+                {key: "freqShift", label: "Frequency Shift", type: "Range", min: -3.14, max: 3.14, steps: 200},
+            ]
         },
-        {key: "gate", label: "Use Gate", type: "Select", options: GateModeOpts},
+
         {
             type: 'group',
             label: 'Gate Settings',
             kind: 'collapse',
-            color: "#002500",
-            showIf: {'key': 'gate', 'notEquals': GateModeEnum.NONE},
             children: [
-                {key: "threshold", label: "Gate Low", type: "modSlider", min: 0, max: 1, steps: 200},
-                {key: "cutoff", label: "Gate High", type: "modSlider", min: 0, max: 1, steps: 200},
+                {key: "gate", label: "Use Gate", type: "Select", options: GateModeOpts},
+                {
+                    key: "threshold",
+                    label: "Gate Low",
+                    type: "modSlider",
+                    min: 0,
+                    max: 1,
+                    steps: 200,
+                    showIf: {'key': 'gate', 'notEquals': GateModeEnum.NONE},
+                },
+                {
+                    key: "cutoff",
+                    label: "Gate High",
+                    type: "modSlider",
+                    min: 0,
+                    max: 1,
+                    steps: 200,
+                    showIf: {'key': 'gate', 'notEquals': GateModeEnum.NONE},
+                },
                 {
                     key: "burstThreshold",
                     label: "Burst Threshold",
@@ -141,8 +166,6 @@ export default {
             length: 3,
             step: 0.01,
         },
-        {key: "frequency", label: "Frequency", type: "Range", min: 1, max: 5000, steps: 300, scale: "log"},
-        {key: "freqShift", label: "Frequency Shift", type: "Range", min: -3.14, max: 3.14, steps: 200},
         {key: "APPLY_MASK", label: "Apply Mask", type: "checkbox"},
         {...zoneControls(), showIf: {'key': 'APPLY_MASK', 'equals': true}},
     ],

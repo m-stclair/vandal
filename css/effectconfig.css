@@ -176,6 +176,10 @@ select {
   grid-template-columns: 4em 20px 0.9fr 4em;
 }
 
+.row-slider.no-animate{
+  grid-template-columns: 4em 1fr 4em;
+}
+
 .row-select {
   grid-template-columns: 140px 1fr;
 }

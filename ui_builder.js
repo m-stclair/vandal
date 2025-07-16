@@ -151,10 +151,10 @@ export function buildUI(instance, layout, fxUIState, container, drawTriggers, bu
             const trivialGroup = {classes: ["trivial=group"], children: trivialGroupAccum}
             buildGroup(instance, trivialGroup, fxUIState, container, drawTriggers);
             trivialGroupAccum = [];
+            buildGroup(instance, item, fxUIState, container, drawTriggers);
         } else if (item.type === "group") {
             buildGroup(instance, item, fxUIState, container, drawTriggers);
         } else {
-
             const [widget, foldout] = buildWidget(instance, item, fxUIState, drawTriggers);
             container.appendChild(widget);
             if (foldout) {

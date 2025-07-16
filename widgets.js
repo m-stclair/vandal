@@ -147,6 +147,9 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     const value = config[key]?.value || config[key];
     const wrapper = makeField();
     wrapper.classList.add("row-slider");
+    if (!canAnimate) {
+        wrapper.classList.add("no-animate");
+    }
     const row = document.createElement("div");
     row.classList.add("slider-wrapper");
     wrapper.dataset.key = key;

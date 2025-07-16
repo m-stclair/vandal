@@ -59,7 +59,7 @@ export default {
                 scale: "log",
                 scaleFactor: 1.1
             },
-        ], {color: "#201020"}),
+        ]),
 
         group("Grid Offset", [
             {key: "pitchX", label: "Grid Shift (X)", type: "modSlider", min: -2, max: 2, step: 0.01},

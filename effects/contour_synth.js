@@ -59,21 +59,22 @@ export default {
             }
         ], {color: "#110011"}),
 
-        {
-            type: "Select",
-            key: "spatialWaveform",
-            label: "Spatial Mode",
-            options: ["None", "Bands", "Checkerboard", "Radial", "Rings"]
-        },
 
         group("Spatial Settings", [
+            {
+                type: "Select",
+                key: "spatialWaveform",
+                label: "Spatial Mode",
+                options: ["None", "Bands", "Checkerboard", "Radial", "Rings"]
+            },
             {
                 type: "modSlider",
                 key: "freq",
                 label: "Spatial Frequency",
                 min: 0,
                 max: 5,
-                step: 0.01
+                step: 0.01,
+                showIf: {key: "spatialWaveform", notEquals: "None"},
             },
             {
                 type: "modSlider",
@@ -81,12 +82,12 @@ export default {
                 label: "Spatial Frequency Scale",
                 min: 0,
                 max: 10,
-                step: 0.25
+                step: 0.25,
+                showIf: {key: "spatialWaveform", notEquals: "None"},
             }
-        ], {
-            showIf: {key: "spatialWaveform", notEquals: "None"},
-            color: "#002011"
-        }),
+        ],
+            {color: "#002011"}
+        ),
 
         blendControls()
     ],

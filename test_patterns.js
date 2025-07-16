@@ -16,8 +16,10 @@ import {canvas, defaultCtx} from "./ui.js";
 
 export async function drawBlackSquare() {
     const imgElement = document.createElement('img');
-    canvas.width = 1024;
-    canvas.height = 1024;
+    const parent = canvas.parentElement;
+    canvas.width = parent.clientWidth;
+    canvas.height = parent.clientHeight;
+
     defaultCtx.fillStyle = 'black';
     defaultCtx.fillRect(0, 0, canvas.width, canvas.height);
     imgElement.src = canvas.toDataURL();
@@ -26,10 +28,11 @@ export async function drawBlackSquare() {
 }
 
 export async function drawRGBSquares() {
-    const canvas = gid("glitchCanvas")
+    const parent = canvas.parentElement;
+    canvas.width = parent.clientWidth;
+    canvas.height = parent.clientHeight;
+
     const imgElement = document.createElement('img');
-    canvas.width = 1024;
-    canvas.height = 1024;
   if (canvas.width <= 0 || canvas.height <= 0) {
     console.error("Invalid canvas size, unable to proceed with drawing.")
     return
@@ -57,9 +60,9 @@ export async function drawRGBSquares() {
 }
 
 export async function drawGrayscaleRamp() {
-    const canvas = gid("glitchCanvas")
-    canvas.width = 1024;
-    canvas.height = 1024;
+    const parent = canvas.parentElement;
+    canvas.width = parent.clientWidth;
+    canvas.height = parent.clientHeight;
 
     const imgElement = document.createElement('img');
     const grad = defaultCtx.createLinearGradient(0, 0, canvas.width, 0);
@@ -125,18 +128,17 @@ async function drawPattern(pattern) {
         //     await drawHueCycle();
         //     return;
     }
-    throw new  Error(`unknown pattern ${pattern}`)
+    throw new Error(`unknown pattern ${pattern}`)
 }
 
-function makeTestSelect() {
-    const testSelect = document.createElement("select");
+function populateTestSelect() {
+    const testSelect = gid("test-pattern-select");
     ["black", "rgb", "gray"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         testSelect.appendChild(opt);
     });
-    gid("topBar").appendChild(testSelect)
     testSelect.addEventListener("input", async () => await drawPattern(testSelect.value))
 }
 
-makeTestSelect();
+populateTestSelect()

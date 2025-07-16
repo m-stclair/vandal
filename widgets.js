@@ -14,7 +14,7 @@ function makeLabeledInput(labelText, element) {
 
 function makeField() {
     const wrapper = document.createElement("div");
-    wrapper.classList.add("ui-field");
+    wrapper.classList.add("field-row");
     return wrapper;
 }
 
@@ -57,7 +57,7 @@ function reverseScaling(value, scale, scaleFactor) {
 
 function makeSubSlider(labelText, initialValue, min, max, step = 0.01) {
     const container = document.createElement("div");
-    container.classList.add("sub-slider-container");
+    container.classList.add("mod-field");
     const label = document.createElement("span");
     label.textContent = labelText;
     const slider = document.createElement("input");
@@ -67,60 +67,60 @@ function makeSubSlider(labelText, initialValue, min, max, step = 0.01) {
     slider.step = step;
     slider.value = initialValue;
     container.append(label, slider);
-    return {container, slider};
+    return {container, slider}
 }
 
 export function renderFoldoutToggle(state, label, onToggle) {
     const button = document.createElement('button');
-    button.className = 'foldout-toggle';
+    button.classList.add('foldout-toggle', 'group-header');
     button.textContent = (state.collapsed ? '▶' : '▼') + ' ' + label;
     button.onclick = () => {
         state.collapsed = !state.collapsed;
         onToggle?.();
     };
-    const div = document.createElement("div");
-    div.appendChild(button);
-    return div;
+    return button;
 }
 
 function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, config, key) {
     const modFoldout = document.createElement("div");
-    modFoldout.classList.add("mod-foldout");
+    modFoldout.classList.add("mod-drawer");
+    const msWrapper = document.createElement("div");
+    msWrapper.className = "mod-field";
     const modSelect = document.createElement("select");
     ["none", "sine", "square", "saw"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         modSelect.appendChild(opt);
     });
+    msWrapper.appendChild(modSelect);
     const mod = config[key].mod;
     modSelect.value = mod?.type ?? "none";
     const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
-    const defaultRangeMode = mod?.rangeMode ?? "bipolar";
-    const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias, defaultRangeMode);
+    const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias);
     const depth = makeSubSlider("Depth", mod?.scale ?? safeDepth, 0, safeDepth);
     const bias = makeSubSlider("Bias", mod?.offset ?? safeBias, min ?? 0, max ?? 1);
     const freq = makeSubSlider("Rate", mod?.freq ?? 0.5, 0.01, 4, 0.01);
-    const rangeModeSelect = document.createElement("select");
-    ["bipolar", "unipolar"].forEach(mode => {
-        const opt = document.createElement("option");
-        opt.value = opt.text = mode;
-        rangeModeSelect.appendChild(opt);
-    });
-    rangeModeSelect.value = value?.mod?.rangeMode ?? "bipolar";
+    const modActions = document.createElement("div");
+    modActions.className = "mod-actions"
+    const modReset = document.createElement("button");
+    modReset.textContent = "⟳ Resync";
+    modReset.className = "mod-reset";
+    const modRemove = document.createElement("button");
+    modRemove.textContent = "❌ Remove";
+    modRemove.className = "mod-remove";
+    modActions.appendChild(modReset);
+    modActions.appendChild(modRemove);
     modFoldout.append(
-        makeLabeledInput("Type", modSelect),
-        makeLabeledInput("Depth", depth.container),
-        makeLabeledInput("Bias", bias.container),
-        makeLabeledInput("Rate", freq.container),
-        makeLabeledInput("Range", rangeModeSelect)
+        modSelect,
+        depth.container,
+        bias.container,
+        freq.container,
     );
-
-    wrapper.appendChild(modFoldout);
-
     const applyModState = (e) => {
         e.stopPropagation();
         const modType = modSelect.value;
         const modulated = modType !== "none";
+
         input.disabled = modulated;
         wrapper.classList.toggle("modulated", modulated);
         config[key] = {
@@ -129,16 +129,21 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
                 type: modType,
                 freq: parseFloat(freq.slider.value),
                 phase: 0,
-                rangeMode: rangeModeSelect.value,
                 scale: parseFloat(depth.slider.value),
                 offset: parseFloat(bias.slider.value),
             } : {type: "none"},
         };
-        requestRender();
+        if (modulated && animUIState.animating !== true) {
+            requestUIDraw();
+            requestRender();
+        } else if (!modulated && animUIState.animating === true) {
+            requestUIDraw();
+        }
+        animUIState.animating = modulated;
     };
 
     modSelect.addEventListener("change", applyModState);
-    [depth.slider, bias.slider, freq.slider, rangeModeSelect].forEach(el =>
+    [depth.slider, bias.slider, freq.slider].forEach(el =>
         el.addEventListener("input", applyModState)
     );
     return modFoldout;
@@ -149,8 +154,9 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     const {scale, min, max, step, steps, scaleFactor, key, label} = uiSpec;
     const value = config[key]?.value || config[key];
     const wrapper = makeField();
+    wrapper.classList.add("row-slider");
     const row = document.createElement("div");
-    row.classList.add("slider-row");
+    row.classList.add("slider-wrapper");
     wrapper.dataset.key = key;
     if (id) wrapper.dataset.fxId = id;
 
@@ -171,40 +177,51 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     input.name = key;
     input.classList.add("slider");
 
-    const valueLabel = document.createElement("span");
-    valueLabel.classList.add("slider-value");
-    valueLabel.style.marginLeft = "0.5em";
-    valueLabel.textContent = formatFloatWidth(applyScaling(input.value, input.scale, input.scaleFactor));
+    const valueInput = document.createElement("input");
+    valueInput.type = "number";
+    valueInput.classList.add("slider-value");
+    valueInput.name = `${key}-value`;
+    valueInput.value = input.value;
+    valueInput.min = input.min;
+    valueInput.max = input.max;
+    valueInput.step = input.step;
 
-    row.append(input, valueLabel);
+    row.append(input, valueInput);
     wrapper.appendChild(row);
 
+    let foldout = null;
     if (canAnimate) {
         const animUIState = fxUIState[key].animation;
         if (!Object.keys(animUIState).includes("collapsed")) {
             animUIState.collapsed = true;
         }
-        const foldoutToggle = renderFoldoutToggle(
-            animUIState, "animation", requestUIDraw
-        );
-        foldoutToggle.classList.add("animation-toggle")
-        wrapper.appendChild(foldoutToggle);
+        const foldoutButton = document.createElement("button");
+
+        foldoutButton.classList.add("mod-icon")
+        foldoutButton.textContent = "◔"
+        foldoutButton.title = "edit modulation"
+        foldoutButton.addEventListener("click", () => {
+            animUIState.collapsed = !animUIState.collapsed;
+            requestUIDraw();
+        })
+        lElement.appendChild(foldoutButton);
+        lElement.classList.add("label-with-mod")
         row.classList.add("has-animation-foldout")
         if (!animUIState.collapsed) {
-            const foldout = renderAnimationFoldout(
+            foldout = renderAnimationFoldout(
                 animUIState, value, input, min, max, wrapper, config, key
             );
-            wrapper.appendChild(foldout);
         }
         if ((config[key].mod) && (config[key].mod.type !== "none")) {
             input.disabled = true;
+            foldoutButton.classList.add("animating")
         }
     }
 
     input.addEventListener("input", (e) => {
         e.stopPropagation();
         const scaled = applyScaling(input.value, input.scale, input.scaleFactor);
-        valueLabel.textContent = formatFloatWidth(scaled);
+        valueInput.value = formatFloatWidth(scaled);
         if (typeof (config[key]) !== "object") {
             config[key] = scaled;
         } else {
@@ -215,7 +232,39 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
         }
         requestRender();
     });
-    return wrapper;
+
+    function valueUpdate() {
+        input.value = valueInput.value;
+        if (typeof (config[key]) !== "object") {
+            config[key] = input.value;
+        } else {
+            config[key] = {
+                value: input.value,
+                mod: config[key]?.mod || {type: "none"},
+            };
+        }
+        requestRender();
+    }
+
+    let prevValue = valueInput.value;
+    valueInput.addEventListener('input', () => {
+        const parsed = parseFloat(valueInput.value);
+        const delta = parsed - prevValue;
+        if (Math.abs(delta) === Number(valueInput.step)) {
+            prevValue = parsed;
+            valueUpdate();
+        }
+    });
+    valueInput.addEventListener('blur', () => {
+        valueUpdate();
+    });
+
+    valueInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            valueUpdate();
+        }
+    });
+    return [wrapper, foldout];
 }
 
 function makeMatrixSlider(id, config, uiSpec) {
@@ -260,7 +309,7 @@ function makeMatrixSlider(id, config, uiSpec) {
             });
 
             const cell = document.createElement("div");
-            cell.classList.add("sub-slider-container");
+            cell.classList.add("field-row");
 
             const colLabel = document.createElement("span");
             colLabel.textContent = colText[col] ?? `#${col}`;
@@ -293,35 +342,64 @@ function makeVectorSlider(id, config, uiSpec) {
     wrapper.appendChild(lElement);
 
     const row = document.createElement("div");
-    row.classList.add("vector-slider-row");
-
+    row.classList.add("field-row", "vector-vertical");
+    const stack = document.createElement("div");
+    stack.classList.add("vector-stack");
+    row.appendChild(stack);
     for (let i = 0; i < length; i++) {
+        const channel = document.createElement("div");
+        channel.classList.add("vec-row");
         const subLabel = subLabels[i] ?? `#${i}`;
         const slider = document.createElement("input");
+        slider.classList.add("vec-slider")
         slider.type = "range";
         slider.min = min;
         slider.max = max;
         slider.step = step;
         slider.value = value[i];
-
-        const valueLabel = document.createElement("span");
-        valueLabel.classList.add("slider-value");
-        valueLabel.textContent = formatFloatWidth(slider.value);
-
+        const valueInput = document.createElement("input");
+        valueInput.classList.add("vec-number");
+        valueInput.value = formatFloatWidth(slider.value);
+        // TODO: _god_ this is wordy and repetitive
         slider.addEventListener("input", () => {
             config[key][i] = parseFloat(slider.value);
-            valueLabel.textContent = formatFloatWidth(slider.value);
+            valueInput.value = formatFloatWidth(slider.value);
             requestRender();
         });
-
-        const container = document.createElement("div");
-        container.classList.add("sub-slider-container");
-
+        function valueUpdate() {
+            slider.value = valueInput.value;
+            if (typeof (config[key]) !== "object") {
+                config[key] = slider.value;
+            } else {
+                config[key] = {
+                    value: slider.value,
+                    mod: config[key]?.mod || {type: "none"},
+                };
+            }
+            requestRender();
+        }
+        let prevValue = valueInput.value;
+        valueInput.addEventListener('input', () => {
+            const parsed = parseFloat(valueInput.value);
+            const delta = parsed - prevValue;
+            if (Math.abs(delta) === Number(valueInput.step)) {
+                prevValue = parsed;
+                valueUpdate();
+            }
+        });
+        valueInput.addEventListener('blur', () => {
+            valueUpdate();
+        });
+        valueInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                valueUpdate();
+            }
+        });
         const labelEl = document.createElement("span");
+        labelEl.classList.add("vec-label")
         labelEl.textContent = subLabel;
-
-        container.append(labelEl, slider, valueLabel);
-        row.appendChild(container);
+        channel.append(labelEl, slider, valueInput);
+        stack.appendChild(channel);
     }
 
     wrapper.appendChild(row);
@@ -332,7 +410,7 @@ function Checkbox(id, config, uiSpec) {
     const {key, label} = uiSpec;
     const value = config[key];
     const wrapper = makeField();
-
+    wrapper.classList.add("row-toggle");
     const lElement = document.createElement('label');
     lElement.className = 'checkbox-label';
 
@@ -359,7 +437,7 @@ function Select(id, config, uiSpec) {
     const {key, label, options} = uiSpec;
     const value = config[key];
     const wrapper = makeField();
-
+    wrapper.classList.add("row-select")
     const lElement = document.createElement('label');
     lElement.textContent = label || key;
     wrapper.appendChild(lElement);
@@ -377,7 +455,7 @@ function Select(id, config, uiSpec) {
     }
 
     select.name = key;
-    lElement.appendChild(select);
+    wrapper.appendChild(select);
 
     Object.defineProperty(wrapper, 'value', {
         get: () => select.value

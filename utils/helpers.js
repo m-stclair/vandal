@@ -122,8 +122,6 @@ export function uuidv4() {
   }
 }
 
-export const nullish = (thing) => thing == null;
-
 export {gid, gen}
 
 export function formatFloatWidth(val, maxChars = 5) {

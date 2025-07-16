@@ -1,7 +1,7 @@
 import widgets, {renderFoldoutToggle} from "./widgets.js"
 import {moveEffectInStack, placeholderOption} from "./ui.js";
 import {
-    clearRenderCache,
+    clearRenderCache, flushEffectStack,
     getSelectedEffectId,
     isSelectedEffect,
     makeEffectInstance, requestRender, requestUIDraw,
@@ -14,26 +14,26 @@ import {getEffectPresetView, listEffectPresets, saveEffectPreset} from "./utils/
 // TODO, maybe: these don't handle cases in which a config entry is of the form {value: x, mod: {...}}.
 //  however, I don't think we ever want to make UI visibility contingent on an animated value!
 function isVisibilityDriver(key, configArray) {
-  return configArray.some(item => {
-    // Look at this item’s showIf
-    const clauses = Array.isArray(item.showIf) ? item.showIf : [item.showIf];
-    if (clauses.some(clause => clause?.key === key)) return true;
+    return configArray.some(item => {
+        // Look at this item’s showIf
+        const clauses = Array.isArray(item.showIf) ? item.showIf : [item.showIf];
+        if (clauses.some(clause => clause?.key === key)) return true;
 
-    // Recurse into children, if present
-    if (item.children) return isVisibilityDriver(key, item.children);
+        // Recurse into children, if present
+        if (item.children) return isVisibilityDriver(key, item.children);
 
-    return false;
-  });
+        return false;
+    });
 }
 
 function collectVisibilityDrivers(configArray, keyTriggersUIDraw) {
-  for (const item of configArray) {
-    const clauses = Array.isArray(item.showIf) ? item.showIf : [item.showIf];
-    for (const clause of clauses) {
-      if (clause?.key) keyTriggersUIDraw.add(clause.key);
+    for (const item of configArray) {
+        const clauses = Array.isArray(item.showIf) ? item.showIf : [item.showIf];
+        for (const clause of clauses) {
+            if (clause?.key) keyTriggersUIDraw.add(clause.key);
+        }
+        if (item.children) collectVisibilityDrivers(item.children, keyTriggersUIDraw);
     }
-    if (item.children) collectVisibilityDrivers(item.children, keyTriggersUIDraw);
-  }
 }
 
 
@@ -56,13 +56,13 @@ function shouldRender(item, config) {
 function buildWidget(instance, uiSpec, fxUIState, drawTriggers) {
     const {type, key} = uiSpec;
     const config = instance.config;
-    let widget;
+    let widget, foldout = null;
     switch (type.toLowerCase()) {
         case 'range':
             widget = widgets.makeSlider(instance.id, config, uiSpec, fxUIState);
             break;
         case 'modslider':
-            widget = widgets.makeSlider(instance.id, config, uiSpec, fxUIState, true);
+            [widget, foldout] = widgets.makeSlider(instance.id, config, uiSpec, fxUIState, true);
             break;
         case 'matrix':
             widget = widgets.makeMatrixSlider(instance.id, config, uiSpec, fxUIState)
@@ -93,52 +93,78 @@ function buildWidget(instance, uiSpec, fxUIState, drawTriggers) {
             requestUIDraw()
         });
     }
-    return widget;
+    return [widget, foldout];
 }
 
 function buildGroup(instance, group, fxUIState, container, drawTriggers) {
     const groupState = fxUIState[group.label];
-    if (!Object.keys(groupState).includes('collapsed')) {
-        if (group.collapsed === undefined) {
-            groupState.collapsed = true;
-        } else {
-            groupState.collapsed = group.collapsed;
-        }
+    const groupContents = document.createElement("div");
+    groupContents.classList.add("effect-group");
+    if (group.classes) {
+        groupContents.classList.add(...group.classes);
     }
-    // Make foldout toggle
-    const foldout = renderFoldoutToggle(groupState, group.label, requestUIDraw);
-    container.appendChild(foldout);
-    if (group?.color) {
-        foldout.style.backgroundColor = group.color;
-    }
+    groupContents.id = `${group.label}-${instance.id}`
 
+    if (group.kind === 'collapse') {
+        if (!Object.keys(groupState).includes('collapsed')) {
+            if (group.collapsed === undefined) {
+                groupState.collapsed = true;
+            } else {
+                groupState.collapsed = group.collapsed;
+            }
+        }
+        const foldout = renderFoldoutToggle(groupState, group.label, requestUIDraw);
+        groupContents.appendChild(foldout);
+        // if (group?.color) {
+        //     foldout.style.backgroundColor = group.color;
+        // }
+    } else {
+        groupState.collapsed = false;
+    }
     // Only build children if expanded
     if (!groupState.collapsed) {
         const inner = document.createElement('div');
         // TODO: style
         inner.className = 'group-contents';
-        buildUI(instance, group.children, fxUIState, inner, drawTriggers);
-        if (group?.color) {
-            inner.style.backgroundColor = group.color;
-        }
-        container.appendChild(inner);
+        buildUI(instance, group.children, fxUIState, inner, drawTriggers, true);
+        // if (group?.color) {
+        //     inner.style.backgroundColor = group.color;
+        // }
+        groupContents.appendChild(inner);
     }
+    container.appendChild(groupContents);
 }
 
 
-export function buildUI(instance, layout, fxUIState, container, drawTriggers) {
+export function buildUI(instance, layout, fxUIState, container, drawTriggers, buildingGroup = false) {
     container.innerHTML = '';
     if (drawTriggers === undefined) {
         drawTriggers = new Set();
         collectVisibilityDrivers(layout, drawTriggers);
     }
+    let trivialGroupAccum = []
     for (const item of layout) {
         if (!shouldRender(item, instance.config)) continue;
-        if (item.type === "group") {
+        if (!buildingGroup && item.type !== "group") {
+            trivialGroupAccum.push(item);
+        } else if (!buildingGroup && item.type === "group" && trivialGroupAccum.length > 0) {
+            const trivialGroup = {classes: ["trivial=group"], children: trivialGroupAccum}
+            buildGroup(instance, trivialGroup, fxUIState, container, drawTriggers);
+            trivialGroupAccum = [];
+        } else if (item.type === "group") {
             buildGroup(instance, item, fxUIState, container, drawTriggers);
         } else {
-            container.appendChild(buildWidget(instance, item, fxUIState, drawTriggers));
+
+            const [widget, foldout] = buildWidget(instance, item, fxUIState, drawTriggers);
+            container.appendChild(widget);
+            if (foldout) {
+                container.appendChild(foldout);
+            }
         }
+    }
+    if (trivialGroupAccum.length > 0) {
+        const trivialGroup = {classes: ["trivial-group"], children: trivialGroupAccum}
+        buildGroup(instance, trivialGroup, fxUIState, container, drawTriggers);
     }
 }
 
@@ -344,7 +370,6 @@ function renderEffectInStackUI(fx, i, effectStack, fxUIState, stackContainer) {
     const header = document.createElement('div');
     header.className = 'effect-header';
     header.addEventListener('click', () => {
-        // TODO: this may become an element of the UI object?
         toggleEffectSelection(fx);
         requestUIDraw();
     });
@@ -354,6 +379,7 @@ function renderEffectInStackUI(fx, i, effectStack, fxUIState, stackContainer) {
     );
     header.append(labelWrapper, controlGroup);
     card.appendChild(header);
+
     if (isSelectedEffect(fx)) {
         const configContainer = document.createElement('div');
         configContainer.className = 'effect-config';

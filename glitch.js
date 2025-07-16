@@ -5,7 +5,7 @@ import {
     setupPaneDrag,
     setupPresetUI,
     setupStaticButtons,
-    setupVideoCapture,
+    setupVideoCapture, setupVideoExportModal,
     setupWindow
 } from "./ui.js";
 
@@ -376,6 +376,7 @@ function watchRender() {
         setupExportImage(exportImage);
         setupVideoCapture(startCapture, stopCapture);
         setupPaneDrag();
+        setupVideoExportModal();
         setupWindow(resizeAndRedraw);
         await drawBlackSquare();
         resizeAndRedraw();

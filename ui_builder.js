@@ -59,7 +59,7 @@ function buildWidget(instance, uiSpec, fxUIState, drawTriggers) {
     let widget, foldout = null;
     switch (type.toLowerCase()) {
         case 'range':
-            widget = widgets.makeSlider(instance.id, config, uiSpec, fxUIState);
+            [widget, foldout] = widgets.makeSlider(instance.id, config, uiSpec, fxUIState);
             break;
         case 'modslider':
             [widget, foldout] = widgets.makeSlider(instance.id, config, uiSpec, fxUIState, true);

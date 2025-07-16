@@ -112,51 +112,51 @@ export function buildEffectSelect(effectGroups) {
 }
 
 export function initEffectBrowser(effectRegistry) {
-  const allTags = new Set();
-  Object.values(effectRegistry).forEach(entry => entry.meta.tags.forEach(tag => allTags.add(tag)));
+    const allTags = new Set();
+    Object.values(effectRegistry).forEach(entry => entry.meta.tags.forEach(tag => allTags.add(tag)));
 
-  const tagFilters = document.getElementById("tag-filters");
-  const effectList = document.getElementById("effect-list");
-  const searchInput = document.getElementById("searchInput");
-  let activeTags = new Set();
+    const tagFilters = document.getElementById("tag-filters");
+    const effectList = document.getElementById("effect-list");
+    const searchInput = document.getElementById("searchInput");
+    let activeTags = new Set();
 
-  function renderTags() {
-    tagFilters.innerHTML = "";
-    allTags.forEach(tag => {
-      const div = document.createElement("div");
-      div.textContent = tag;
-      div.className = "tag";
-      if (activeTags.has(tag)) div.classList.add("active");
-      div.onclick = () => {
-        if (activeTags.has(tag)) activeTags.delete(tag);
-        else activeTags.add(tag);
-        renderEffectList();
-        renderTags();
-      };
-      tagFilters.appendChild(div);
-    });
-  }
+    function renderTags() {
+        tagFilters.innerHTML = "";
+        allTags.forEach(tag => {
+            const div = document.createElement("div");
+            div.textContent = tag;
+            div.className = "tag";
+            if (activeTags.has(tag)) div.classList.add("active");
+            div.onclick = () => {
+                if (activeTags.has(tag)) activeTags.delete(tag);
+                else activeTags.add(tag);
+                renderEffectList();
+                renderTags();
+            };
+            tagFilters.appendChild(div);
+        });
+    }
 
-  function renderEffectList() {
-    const search = searchInput.value.toLowerCase();
-    effectList.innerHTML = "";
-    Object.values(effectRegistry).forEach(entry => {
-      const { name, meta } = entry;
-      const matchesSearch = name.toLowerCase().includes(search) || meta.description.toLowerCase().includes(search);
-      const matchesTags = [...activeTags].every(tag => meta.tags.includes(tag));
-      if (matchesSearch && matchesTags) {
-        const tile = document.createElement("div");
-        tile.className = "effect-tile";
-        tile.innerHTML = `<div class="effect-name">${name}</div><div class="effect-desc">${meta.description}</div>`;
-        tile.onclick = () => alert(`Selected: ${name}`);
-        effectList.appendChild(tile);
-      }
-    });
-  }
+    function renderEffectList() {
+        const search = searchInput.value.toLowerCase();
+        effectList.innerHTML = "";
+        Object.values(effectRegistry).forEach(entry => {
+            const {name, meta} = entry;
+            const matchesSearch = name.toLowerCase().includes(search) || meta.description.toLowerCase().includes(search);
+            const matchesTags = [...activeTags].every(tag => meta.tags.includes(tag));
+            if (matchesSearch && matchesTags) {
+                const tile = document.createElement("div");
+                tile.className = "effect-tile";
+                tile.innerHTML = `<div class="effect-name">${name}</div><div class="effect-desc">${meta.description}</div>`;
+                tile.onclick = () => alert(`Selected: ${name}`);
+                effectList.appendChild(tile);
+            }
+        });
+    }
 
-  searchInput.oninput = renderEffectList;
-  renderTags();
-  renderEffectList();
+    searchInput.oninput = renderEffectList;
+    renderTags();
+    renderEffectList();
 }
 
 // window setup (currently just resize trigger)
@@ -179,7 +179,7 @@ function updatePresetSelect() {
     const select = document.getElementById('presetSelect');
     select.innerHTML = '';
 
-    select.appendChild(placeholderOption("--- select preset ---"));
+    select.appendChild(placeholderOption("-- select preset --"));
     listAppPresets().sort().forEach((name) => {
         const opt = document.createElement('option');
         opt.textContent = name;
@@ -227,4 +227,27 @@ export function setupExportImage(exportImage) {
 export function setupVideoCapture(startCapture, stopCapture) {
     document.getElementById('startCapture').onclick = () => startCapture();
     document.getElementById('stopCaptureOverlay').onclick = stopCapture();
+}
+
+
+export function setupVideoExportModal() {
+    const modal = document.getElementById("exportControlsModal");
+    const openModalButton = document.getElementById("openExportControlsModal");
+    const closeModalButton = document.getElementById("closeExportControlsModal");
+
+    openModalButton.addEventListener("click", () => {
+        modal.style.display = "block";
+    });
+
+    closeModalButton.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+
+    window.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+
+
 }

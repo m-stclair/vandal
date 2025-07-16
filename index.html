@@ -17,18 +17,17 @@
 
 </div>
 
-<!--<div id="top-bar">-->
-<!--  <div class="row">-->
-<!--    <div class="file-io">-->
-<!--      <input type="file" id="upload" accept="image/*" />-->
-<!--      <button id ="exportImage">Export PNG</button>-->
-<!--        <select id="exportImageResolution">-->
-<!--        <option value="screen" selected>Screen-Res</option>-->
-<!--        <option value="full">Full-Res</option>-->
-<!--      </select>-->
-<!--      <button>Export Video</button>-->
-<!--    <details id="exportControls">-->
-<!--      <summary>🎞 Export Video</summary>-->
+<!--<div id="topBar">-->
+<!--  <input type="file" id="upload" accept="image/*" />-->
+<!--    ||-->
+<!--  <button id="exportImage">Export PNG</button>-->
+<!--  <select id="exportImageResolution">-->
+<!--    <option value="screen" selected>Screen</option>-->
+<!--    <option value="full">Full</option>-->
+<!--  </select>-->
+<!--    ||-->
+<!--  <details id="exportControls">-->
+<!--      <summary>Video</summary>-->
 <!--      <div class="export-group">-->
 <!--        <label>Duration:-->
 <!--          <input type="number" id="exportDuration" value="4" min="1" max="30" step="1">-->
@@ -49,66 +48,61 @@
 <!--        </div>-->
 <!--      </div>-->
 <!--    </details>-->
-<!--    </div>-->
-<!--  </div>-->
-
-<!--  <div class="row">-->
-<!--    <div class="preset-management">-->
-<!--      <label for="presetSelect">Preset:</label>-->
-<!--      <select id="presetSelect"></select>-->
-<!--      <button id="presetLoad">Load</button>-->
-<!--      <button id="presetSave">Save As…</button>-->
-<!--      <button id="presetDelete">Delete</button>-->
-<!--    </div>-->
-
-<!--    <div class="resolution-pattern">-->
-<!--      <label>Test Pattern:</label>-->
-<!--      <select id="test-pattern-select"></select>-->
-<!--    </div>-->
-<!--  </div>-->
+<!--    ||-->
+<!--  <select id="presetSelect"></select>-->
+<!--  <button id="presetLoad">Load</button>-->
+<!--  <button id="presetSave">Save</button>-->
+<!--  <button id="presetDelete">Delete</button>-->
+<!--    || -->
+<!--  <select id="test-pattern-select"></select>-->
 <!--</div>-->
-
 
 <div id="topBar">
   <input type="file" id="upload" accept="image/*" />
-  <button id="exportImage">📸 Export PNG</button>
+    ||
+  <button id="exportImage">PNG</button>
   <select id="exportImageResolution">
-    <option value="screen" selected>Screen-Res</option>
-    <option value="full">Full-Res</option>
+    <option value="screen" selected>Screen</option>
+    <option value="full">Full</option>
   </select>
-  <details id="exportControls">
-      <summary>🎞 Export Video</summary>
-      <div class="export-group">
-        <label>Duration:
-          <input type="number" id="exportDuration" value="4" min="1" max="30" step="1">
-        </label>
-        <label>FPS:
-          <input type="number" id="exportFPS" value="30" min="1" max="60">
-        </label>
-        <label>Format:
-          <select id="exportFormat">
-            <option value="webm">WebM</option>
-            <option value="gif">GIF</option>
-            <option value="png">PNG frames</option>
-          </select>
-        </label>
-        <div class="export-buttons">
-          <button id="startCapture">🎬 Start</button>
-          <button id="stopCapture" disabled>⏹ Stop</button>
-        </div>
-      </div>
-    </details>
-
-  <label for="presetSelect">Preset:</label>
+||
+  <button id="openExportControlsModal">Video</button>
+||
   <select id="presetSelect"></select>
   <button id="presetLoad">Load</button>
-  <button id="presetSave">Save As…</button>
+  <button id="presetSave">Save</button>
   <button id="presetDelete">Delete</button>
-  <label for="test-pattern-select">Test Pattern:</label>
-  <select id="test-pattern-select"></select>
-
+  ||
+    <select id="test-pattern-select"></select>
 </div>
 
+<!-- Modal Structure -->
+<div id="exportControlsModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" id="closeExportControlsModal">&times;</span>
+    <h2>Export Video Settings</h2>
+    <div class="export-group">
+      <label for="exportDuration">Duration:</label>
+      <input type="number" id="exportDuration" value="4" min="1" max="30" step="1">
+    </div>
+    <div class="export-group">
+      <label for="exportFPS">FPS:</label>
+      <input type="number" id="exportFPS" value="30" min="1" max="60">
+    </div>
+    <div class="export-group">
+      <label for="exportFormat">Format:</label>
+      <select id="exportFormat">
+        <option value="webm">WebM</option>
+        <option value="gif">GIF</option>
+        <option value="png">PNG frames</option>
+      </select>
+    </div>
+    <div class="export-buttons">
+      <button id="startCapture">🎬 Start</button>
+      <button id="stopCapture" disabled>⏹ Stop</button>
+    </div>
+  </div>
+</div>
 
 <div id="mainLayout">
     <div id="leftPane">

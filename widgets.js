@@ -1,16 +1,8 @@
-// widgets.js
 import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/helpers.js";
 import {clampAnimationParams} from "./utils/animutils.js";
 import {requestRender, requestUIDraw} from "./state.js";
 
 
-function makeLabeledInput(labelText, element) {
-    const wrapper = document.createElement("label");
-    wrapper.classList.add("mod-subfield");
-    wrapper.textContent = labelText;
-    wrapper.appendChild(element);
-    return wrapper;
-}
 
 function makeField() {
     const wrapper = document.createElement("div");

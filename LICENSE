@@ -33,5 +33,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-./shaders/includes/webgl-noise vendors https://github.com/ashima/webgl-noise/tree/master. 
-Its license is included in that directory.
+Some GLSL files in ./shaders/includes and ./shaders/includes/noises vendor shaders
+from other sources, copyright of various parties. Their licenses are available
+as attached headers to individual files.

@@ -358,6 +358,9 @@ function makeVectorSlider(id, config, uiSpec) {
         // TODO: _god_ this is wordy and repetitive
         slider.addEventListener("input", () => {
             config[key][i] = parseFloat(slider.value);
+            if (parseFloat(slider.value) === undefined) {
+                throw new Error('wtf');
+            }
             valueInput.value = formatFloatWidth(slider.value);
             requestRender();
         });

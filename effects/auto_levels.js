@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {statsProbe} from "./pseudo/statsprobe.js";
+import {statsProbe} from "./probes/statsprobe.js";
 import {webGLState} from "../utils/webgl_state.js";
 
 const shaderPath = "../shaders/auto_levels.frag";

@@ -19,7 +19,6 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @type {EffectModule} */
 export default {
     name: "Colormap",
-
     defaultConfig: {
         colormap: "orange_teal",
         reverse: false,
@@ -29,20 +28,19 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL
     },
     uiLayout: [
-    {
-        type: "select",
-        key: "colormap",
-        label: "Colormap",
-        options: Object.keys(colormaps)
-    },
-    {
-        type: "checkbox",
-        key: "reverse",
-        label: "Reverse",
-    },
-    blendControls()
-],
-
+        {
+            type: "select",
+            key: "colormap",
+            label: "Colormap",
+            options: Object.keys(colormaps)
+        },
+        {
+            type: "checkbox",
+            key: "reverse",
+            label: "Reverse",
+        },
+        blendControls()
+    ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {

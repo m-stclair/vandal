@@ -40,7 +40,8 @@ const effectFiles = [
     "bloom.js",
     "kernel2d.js",
     "pseudosort.js",
-    "badTV.js"
+    "badTV.js",
+    "palette_synth.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

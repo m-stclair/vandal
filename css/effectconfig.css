@@ -317,8 +317,8 @@ select {
 
 .vec-row {
   display: grid;
-  grid-template-columns: 24px 1fr 50px;
-  gap: 6px;
+  grid-template-columns: 0.3fr 0.7fr 50px;
+  gap: 10px;
   align-items: center;
 }
 

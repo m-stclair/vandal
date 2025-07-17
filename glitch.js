@@ -127,7 +127,7 @@ function updateRenderMsg(msg) {
     )
 }
 
-async function exportImage(resolution) {
+async function exportImage(resolusortion) {
     let exportCanvas = document.createElement("canvas");
 
     function getImg() {

@@ -68,9 +68,9 @@ export class webGLState {
         gl.attachShader(prog, fs);
         gl.linkProgram(prog);
         if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-          const info = gl.getProgramInfoLog(prog);
-          throw new Error(`Could not compile WebGL program. \n\n${info}`);
-         }
+            const info = gl.getProgramInfoLog(prog);
+            throw new Error(`Could not compile WebGL program. \n\n${info}`);
+        }
         this.last_defines = defines;
         return prog;
     }
@@ -143,6 +143,14 @@ export class webGLState {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                 UniformSetters[type](gl, loc, 1);
+            } else if (type === "UBO") {
+                const blockIndex = gl.getUniformBlockIndex(this.program, name);
+                // TODO: as above, probably terrible
+                const blockBinding = 0;
+                gl.uniformBlockBinding(this.program, blockIndex, blockBinding);
+                const ubo = gl.createBuffer();
+                gl.bindBufferBase(gl.UNIFORM_BUFFER, blockBinding, ubo);
+                gl.bufferData(gl.UNIFORM_BUFFER, value, gl.DYNAMIC_DRAW);
             } else {
                 UniformSetters[type](gl, loc, value);
             }

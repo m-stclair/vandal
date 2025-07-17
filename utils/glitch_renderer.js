@@ -48,7 +48,7 @@ export class GlitchRenderer {
         const shader = gl.createShader(type);
         const processed = preprocessGLSL(source, ppOptions);
 
-        console.log(processed);
+        // console.log(processed);
         console.log(ppOptions?.defines)
         gl.shaderSource(shader, processed);
         gl.compileShader(shader);
@@ -285,7 +285,7 @@ export class GlitchRenderer {
                     update['texture'] = fbo.texture;
                 }
                 const duration = performance.now() - start;
-                // console.log(`rendered ${fx.name}-${fx.id}, ${duration} ms`);
+                console.log(`rendered ${fx.name}-${fx.id}, ${duration} ms`);
             } else {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }

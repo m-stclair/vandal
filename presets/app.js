@@ -429,7 +429,7 @@ export const builtInPresets = [
                 "blendMode": "1",
                 "colorSpace": "1",
                 "fc": [6, 15, 10],
-                "components": [0.25, 0, 0.56, 0, 0],
+                "components": [0.25, 0, 0.56, 0, 0, 0, 0],
                 "blendAmount": 0.49,
                 "colormap": "aqua_pink",
                 "tintSpace": "RGB",
@@ -584,7 +584,9 @@ export const builtInPresets = [
                         0.03,
                         0.34,
                         0,
-                        0.05
+                        0.05,
+                        0,
+                        0
                     ],
                     "blur": 2
                 }
@@ -741,7 +743,9 @@ export const builtInPresets = [
                         0.44,
                         0,
                         0,
-                        0.39
+                        0.39,
+                        0,
+                        0
                     ],
                     "blur": 0
                 }
@@ -816,6 +820,8 @@ export const builtInPresets = [
                         0,
                         0.81,
                         0.23,
+                        0,
+                        0,
                         0,
                         0
                     ],
@@ -970,6 +976,8 @@ export const builtInPresets = [
                         0.25,
                         0.45,
                         0,
+                        0,
+                        0,
                         0
                     ],
                     "blendAmount": 0.5,
@@ -1039,6 +1047,7 @@ export const builtInPresets = [
                     0,
                     0,
                     0,
+                    0,
                     0
                 ],
                 "blendAmount": 0.38,
@@ -1090,7 +1099,7 @@ export const builtInPresets = [
                         "blendMode": "10",
                         "colorSpace": "0",
                         "fc": [6, 14.75, 10],
-                        "components": [0, 0, 0.73, 0, 0],
+                        "components": [0, 0, 0.73, 0, 0, 0, 0],
                         "blendAmount": 0.44,
                         "colormap": "none",
                         "tintSpace": "RGB",
@@ -1133,6 +1142,8 @@ export const builtInPresets = [
                         0,
                         0,
                         0.85,
+                        0,
+                        0,
                         0
                     ],
                     "blendAmount": 0.67,
@@ -1216,6 +1227,8 @@ export const builtInPresets = [
                         0,
                         0,
                         0.22,
+                        0,
+                        0,
                         0
                     ],
                     "blendAmount": 0.5,
@@ -1475,7 +1488,7 @@ export const builtInPresets = [
                 "blendMode": "1",
                 "colorSpace": "0",
                 "fc": [6, 15, 10],
-                "components": [0, 0, 0, 0, 1],
+                "components": [0, 0, 0, 1, 0, 0, 0],
                 "blendAmount": 0.41,
                 "colormap": "sunset",
                 "tintSpace": "HSV",
@@ -1644,6 +1657,7 @@ export const builtInPresets = [
           0,
           0,
           0.29,
+          0,
           0,
           0
         ],

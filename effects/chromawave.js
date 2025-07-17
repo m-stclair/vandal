@@ -24,6 +24,7 @@ export default {
         bleed: 0,
         COLORSPACE: 0,
         BLENDMODE: 1,
+        BLEND_CHANNEL_MODE: 0,
         blendAmount: 1,
         bandingSteps: 0,
         waveType: 0,
@@ -99,7 +100,7 @@ export default {
             originX,
             originY,
             spatialPattern,
-            blendTarget
+            BLEND_CHANNEL_MODE
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm, period;
@@ -143,7 +144,7 @@ export default {
         const defines = {
             COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,
-            BLEND_CHANNEL_MODE: blendTarget,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
             CHROMAWAVE_BLEED: Number(bleed > 0),
             USE_BANDING: Number(bandingSteps > 0),

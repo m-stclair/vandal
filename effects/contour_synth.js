@@ -70,7 +70,7 @@ export default {
             {
                 type: "modSlider",
                 key: "freq",
-                label: "Spatial Frequency",
+                label: "Spatial Freq",
                 min: 0,
                 max: 5,
                 step: 0.01,
@@ -79,7 +79,7 @@ export default {
             {
                 type: "modSlider",
                 key: "freqScale",
-                label: "Spatial Frequency Scale",
+                label: "Spatial Freq Scale",
                 min: 0,
                 max: 10,
                 step: 0.25,
@@ -135,9 +135,15 @@ export default {
 
 export const effectMeta = {
     group: "Synthesis",
-    tags: ["edges", "masking", "outline", "threshold"],
-    description: "Simple edge tracing via Sobel operator. Offers blend and " +
-        +"threshold control.",
+    tags: ["synth", "contour", "pattern", "topography"],
+    description: "A synthetic topography generator that overlays " +
+      "contour-line patterns by modulating spatial " +
+      "derivatives of luminance. Contour spacing and directionality are driven " +
+      "by waveforms or spatial fields, enabling results that range from " +
+      "stark monochrome etchings to vibrant interference textures to " +
+      "hallucinatory landscape modulations. Behaves like a hybrid between an " +
+      "edge detector, a terrain visualizer, and an FM synth. Also suitable " +
+      "as a standalone pattern generator.",
     backend: "gpu",
     animated: true,
     realtimeSafe: true,

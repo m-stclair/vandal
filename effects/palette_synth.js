@@ -277,9 +277,10 @@ export default {
 
 export const effectMeta = {
     group: "Color",
-    tags: ["color", "gpu"],
-    description: "Highly configurable neoclassical posterization with blending" +
-        "on multiple perceptual axes.",
+    tags: ["color", "gpu", "pallette", "posterize"],
+    description: "Highly configurable neoclassical posterization, controllable " +
+        "on multiple perceptual axes, useful for everything from utilitarian " +
+        "palette generation to brutal decimation to subtle lighting effects. ",
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,

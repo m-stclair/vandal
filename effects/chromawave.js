@@ -35,7 +35,7 @@ export default {
 
     },
     uiLayout: [
-        {type: "modSlider", key: "threshold", label: "Threshold", min: 0, max: 1, step: 0.01},
+        {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
 
         {
             type: "select",
@@ -163,8 +163,12 @@ export default {
 export const effectMeta = {
     group: "Edge",
     tags: ["edges", "masking", "outline", "threshold"],
-    description: "Simple edge tracing via Sobel operator. Offers blend and " +
-        +"threshold control.",
+    description: "Modulates color image using a synthetic hue gradient " +
+        "based on image-space coordinates, relative brightness, or hue self-modulation. " +
+        "Dark areas can be masked out. The hue field can radiate in various patterns, with " +
+        "optional interpolation toward the original hue. " +
+        "Useful for creating radiant overlays, ink-on-pastel, false-color maps, or psychedelic " +
+        "sunburst effects.",
     backend: "gpu",
     animated: true,
     realtimeSafe: true,

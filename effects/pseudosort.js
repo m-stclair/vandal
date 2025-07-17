@@ -128,8 +128,11 @@ export default {
 
 export const effectMeta = {
     group: "Glitch",
-    tags: ["sort", "webgl"],
-    description: "Sorts, kind of",
+    tags: ["sort", "webgl", "blur"],
+    description: "Applies a spatial warp to an image, optionally modulated by luma, hue, saturation, or" +
+        "a specified color channel. At some settings, works something like a very fast version " +
+        "of a classic pixel sort effect, but can also create a variety of blur, ghosting, and " +
+        "generally painterly effects.",
     canAnimate: true,
     realtimeSafe: true,
 };

@@ -41,7 +41,7 @@ export default {
             {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
             {
                 key: "freqX",
-                label: "Frequency (X)",
+                label: "Freq (X)",
                 type: "modSlider",
                 min: 0,
                 max: 90,
@@ -51,7 +51,7 @@ export default {
             },
             {
                 key: "freqY",
-                label: "Frequency (Y)",
+                label: "Freq (Y)",
                 type: "modSlider",
                 min: 0,
                 max: 90,
@@ -67,8 +67,8 @@ export default {
         ], {color: "#201000"}),
 
         group("Spatial Modulation", [
-            {key: "rate", label: "Modulation Frequency", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
-            {key: "rateDrive", label: "Modulation Strength", type: "modSlider", min: 0, max: 1, step: 0.01},
+            {key: "rate", label: "Mod Freq", type: "modSlider", min: 0, max: 100, steps: 200, scale: "log"},
+            {key: "rateDrive", label: "Mod Strength", type: "modSlider", min: 0, max: 1, step: 0.01},
             {
                 key: "phase",
                 label: "Modulation Phase",

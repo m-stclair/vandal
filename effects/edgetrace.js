@@ -24,7 +24,7 @@ export default {
         tint: [1, 1, 1]
     },
     uiLayout: [
-        {type: "modSlider", key: "threshold", label: "Threshold", min: 0, max: 1, step: 0.01},
+        {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
         blendControls(),
         {
             key: "tint",

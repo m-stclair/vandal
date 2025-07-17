@@ -42,8 +42,8 @@ export default {
             kind: 'collapse',
             color: '#1a0020',
             children: [
-                {type: "modSlider", key: "bloomThreshold", label: "Threshold", min: 0, max: 1, steps: 200},
-                {type: "modSlider", key: "bloomSoftness", label: "Softness", min: 0, max: 1, steps: 200},
+                {type: "modSlider", key: "bloomThreshold", label: "Thresh", min: 0, max: 1, steps: 200},
+                {type: "modSlider", key: "bloomSoftness", label: "Soft", min: 0, max: 1, steps: 200},
                 {type: "modSlider", key: "bloomStrength", label: "Strength", min: 0, max: 3, steps: 200},
             ]
         },

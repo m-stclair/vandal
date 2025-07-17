@@ -67,7 +67,7 @@ export default {
                     key: "components",
                     label: "Noise Components",
                     type: "vector",
-                    subLabels: () => ["Uni", "Prl", "Smp", "Gsn", "Val", "Brn", "Wly"],
+                    subLabels: () => ["Uniform", "Perlin", "Simplex", "Gaussian", "Value", "Brown", "Worley"],
                     min: 0,
                     max: 1,
                     step: 0.01,

@@ -161,8 +161,8 @@ export default {
 }
 
 export const effectMeta = {
-    group: "Edge",
-    tags: ["edges", "masking", "outline", "threshold"],
+    group: "Synthesis",
+    tags: ["color", "synth", "AM/FM", "threshold", "rainbow"],
     description: "Modulates color image using a synthetic hue gradient " +
         "based on image-space coordinates, relative brightness, or hue self-modulation. " +
         "Dark areas can be masked out. The hue field can radiate in various patterns, with " +

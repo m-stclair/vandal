@@ -8,6 +8,7 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
+
 const shaderPath = "../shaders/colormap.frag";
 const includePaths = {
     "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",

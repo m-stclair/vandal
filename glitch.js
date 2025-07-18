@@ -9,6 +9,8 @@ import {
     setupWindow
 } from "./ui.js";
 
+import "./tools/debugPane.js";
+
 import {
     addEffectToStack,
     clearConfigUI,
@@ -45,6 +47,7 @@ import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
 import {drawBlackSquare} from "./test_patterns.js";
+import {pdrInitializedFlag, initPDR, getPyodide, getFirstImage} from "./pdr.js";
 
 function handleUpload(e) {
     const file = e.target.files[0];
@@ -57,6 +60,39 @@ function handleUpload(e) {
     }
     clearRenderCache();
     img.src = URL.createObjectURL(file);
+}
+
+function pixelsToImage(pdrResult, callbackFactory) {
+    const {pixels, width, height} = pdrResult;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const clamped = new Uint8ClampedArray(pixels);
+    canvas.getContext('2d').putImageData(new ImageData(clamped, width, height), 0, 0);
+    const img = new Image();
+    if (callbackFactory) {
+        img.onload = callbackFactory(img);
+    }
+    img.src = canvas.toDataURL();
+    return img;
+}
+
+function glitchLoadCallbackFactory(self) {
+    return () => {
+        setOriginalImage(self);
+        resizeAndRedraw();
+    }
+}
+
+async function handlePDRUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const bytes = await file.arrayBuffer();
+    const pyodide = await getPyodide();
+    pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
+    await initPDR();
+    const result = await getFirstImage(file.name);
+    pixelsToImage(result, glitchLoadCallbackFactory);
 }
 
 
@@ -127,7 +163,7 @@ function updateRenderMsg(msg) {
     )
 }
 
-async function exportImage(resolusortion) {
+async function exportImage(resolution) {
     let exportCanvas = document.createElement("canvas");
 
     function getImg() {
@@ -357,6 +393,7 @@ function watchRender() {
         });
         await setupStaticButtons(
             handleUpload,
+            handlePDRUpload,
             addSelectedEffect,
             saveState,
             loadState,

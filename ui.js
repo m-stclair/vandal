@@ -63,6 +63,7 @@ export const defaultCtx = canvas.getContext("2d", {willReadFrequently: true});
 
 // top-level buttons
 const uploadButton = gid('upload');
+const uploadPDRButton = gid('pdr-upload');
 const saveBtn = gid("save-stack");
 const loadBtn = gid("load-stack");
 const clearBtn = gid("clear-stack");
@@ -70,11 +71,12 @@ const textarea = gid("stack-json");
 
 
 export function setupStaticButtons(
-    handleUpload, addSelectedEffect, saveState,
+    handleUpload, handlePDRUpload, addSelectedEffect, saveState,
     loadState, registry, resetStack, requestRender,
     requestUIDraw
 ) {
     uploadButton.addEventListener('change', handleUpload);
+    uploadPDRButton.addEventListener('change', async (e) => await handlePDRUpload(e));
     saveBtn.addEventListener("click", () => {
         textarea.value = saveState();
         navigator.clipboard?.writeText(textarea.value).then(() =>

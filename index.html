@@ -13,52 +13,15 @@
   <defs></defs>
 </svg>
 
-<div id="debug">
+<div id="debug-pane-root">
 
 </div>
 
-<!--<div id="topBar">-->
-<!--  <input type="file" id="upload" accept="image/*" />-->
-<!--    ||-->
-<!--  <button id="exportImage">Export PNG</button>-->
-<!--  <select id="exportImageResolution">-->
-<!--    <option value="screen" selected>Screen</option>-->
-<!--    <option value="full">Full</option>-->
-<!--  </select>-->
-<!--    ||-->
-<!--  <details id="exportControls">-->
-<!--      <summary>Video</summary>-->
-<!--      <div class="export-group">-->
-<!--        <label>Duration:-->
-<!--          <input type="number" id="exportDuration" value="4" min="1" max="30" step="1">-->
-<!--        </label>-->
-<!--        <label>FPS:-->
-<!--          <input type="number" id="exportFPS" value="30" min="1" max="60">-->
-<!--        </label>-->
-<!--        <label>Format:-->
-<!--          <select id="exportFormat">-->
-<!--            <option value="webm">WebM</option>-->
-<!--            <option value="gif">GIF</option>-->
-<!--            <option value="png">PNG frames</option>-->
-<!--          </select>-->
-<!--        </label>-->
-<!--        <div class="export-buttons">-->
-<!--          <button id="startCapture">🎬 Start</button>-->
-<!--          <button id="stopCapture" disabled>⏹ Stop</button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </details>-->
-<!--    ||-->
-<!--  <select id="presetSelect"></select>-->
-<!--  <button id="presetLoad">Load</button>-->
-<!--  <button id="presetSave">Save</button>-->
-<!--  <button id="presetDelete">Delete</button>-->
-<!--    || -->
-<!--  <select id="test-pattern-select"></select>-->
-<!--</div>-->
-
 <div id="topBar">
   <input type="file" id="upload" accept="image/*" />
+    ||
+  <label for="pdr-upload">pdr upload</label>
+  <input type="file" id="pdr-upload">
     ||
   <button id="exportImage">PNG</button>
   <select id="exportImageResolution">

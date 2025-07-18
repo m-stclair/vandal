@@ -2,8 +2,6 @@ import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/help
 import {clampAnimationParams} from "./utils/animutils.js";
 import {requestRender, requestUIDraw} from "./state.js";
 
-
-
 function makeField() {
     const wrapper = document.createElement("div");
     wrapper.classList.add("field-row");

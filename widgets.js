@@ -1,6 +1,7 @@
 import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/helpers.js";
 import {clampAnimationParams} from "./utils/animutils.js";
 import {requestRender, requestUIDraw} from "./state.js";
+import {createDualResponseSlider} from "./modslider.js";
 
 
 
@@ -47,18 +48,30 @@ function reverseScaling(value, scale, scaleFactor) {
     return value;
 }
 
-function makeSubSlider(labelText, initialValue, min, max, step = 0.01) {
+function makeSubSlider(labelText, initialValue, min, max, update) {
     const container = document.createElement("div");
     container.classList.add("mod-field");
-    const label = document.createElement("span");
-    label.textContent = labelText;
-    const slider = document.createElement("input");
-    slider.type = "range";
-    slider.min = min;
-    slider.max = max;
-    slider.step = step;
-    slider.value = initialValue;
-    container.append(label, slider);
+    const slider = createDualResponseSlider({
+      container: container,
+      label: labelText,
+      min: min,
+      max: max,
+      pivot: 0.2,
+      expLow: 3,
+      expHigh: 1.2,
+      units: " Hz",
+      format: v => v < 1 ? (1/v).toFixed(2) + " s" : v.toFixed(2),
+      onChange: update
+    });
+    // const label = document.createElement("span");
+    // label.textContent = labelText;
+    // const slider = document.createElement("input");
+    // slider.type = "range";
+    // slider.min = min;
+    // slider.max = max;
+    // slider.step = step;
+    // slider.value = initialValue;
+    // container.append(label, slider);
     return {container, slider}
 }
 
@@ -87,28 +100,9 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     msWrapper.appendChild(modSelect);
     const mod = config[key].mod;
     modSelect.value = mod?.type ?? "none";
-    const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
-    const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias);
-    const depth = makeSubSlider("Depth", mod?.scale ?? safeDepth, 0, safeDepth);
-    const bias = makeSubSlider("Bias", mod?.offset ?? safeBias, min ?? 0, max ?? 1);
-    const freq = makeSubSlider("Rate", mod?.freq ?? 0.5, 0.01, 4, 0.01);
-    const modActions = document.createElement("div");
-    modActions.className = "mod-actions"
-    const modReset = document.createElement("button");
-    modReset.textContent = "⟳ Resync";
-    modReset.className = "mod-reset";
-    const modRemove = document.createElement("button");
-    modRemove.textContent = "❌ Remove";
-    modRemove.className = "mod-remove";
-    modActions.appendChild(modReset);
-    modActions.appendChild(modRemove);
-    modFoldout.append(
-        modSelect,
-        depth.container,
-        bias.container,
-        freq.container,
-    );
-    const applyModState = (e) => {
+    // const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
+    // const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias);
+        const applyModState = (e, scaled) => {
         e.stopPropagation();
         const modType = modSelect.value;
         const modulated = modType !== "none";
@@ -135,9 +129,29 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     };
 
     modSelect.addEventListener("change", applyModState);
-    [depth.slider, bias.slider, freq.slider].forEach(el =>
-        el.addEventListener("input", applyModState)
+    // [depth.slider, bias.slider, freq.slider].forEach(el =>
+    //     el.addEventListener("input", applyModState)
+    // );
+    const depth = makeSubSlider("Depth", mod?.depth ?? 0, min, max, applyModState);
+    const bias = makeSubSlider("Bias", mod?.offset ?? 0, min ?? 0, max ?? 1, applyModState);
+    const freq = makeSubSlider("Rate", mod?.freq ?? 0.1, 0.005, 5, applyModState);
+    const modActions = document.createElement("div");
+    modActions.className = "mod-actions"
+    const modReset = document.createElement("button");
+    modReset.textContent = "⟳ Resync";
+    modReset.className = "mod-reset";
+    const modRemove = document.createElement("button");
+    modRemove.textContent = "❌ Remove";
+    modRemove.className = "mod-remove";
+    modActions.appendChild(modReset);
+    modActions.appendChild(modRemove);
+    modFoldout.append(
+        modSelect,
+        depth.container,
+        bias.container,
+        freq.container,
     );
+
     return modFoldout;
 
 }

@@ -54,7 +54,8 @@ export default {
             inputTex,
             width,
             height,
-            // NOTE: this is _target_ size. could end up smaller if empty bins.
+            // NOTE: this is _target_ size. could end up smaller if there
+            // are lots of empty bins.
             paletteSize,
             pWeights,
             useFurthest,

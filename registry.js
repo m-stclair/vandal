@@ -13,7 +13,7 @@ const effectFiles = [
     'tile_desync.js',
     'banded_flip.js',
     'colorshred.js',
-    'jointshred.js',
+    // 'jointshred.js',
     'edgetrace.js',
     'morphops_svg.js',
     // 'hillshade.js',

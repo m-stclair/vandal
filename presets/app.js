@@ -1939,6 +1939,408 @@ export const builtInPresets = [
         }
     ]
 },
+    {
+    "name": "Satflow",
+    "config": [
+        {
+            "name": "Affine Transform",
+            "config": {
+                "BLENDMODE": "10",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.39,
+                "chromaBoost": 1,
+                "angle": {
+                    "value": 0,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.14375353127783347,
+                        "phase": 0,
+                        "scale": 2.1599999999999966,
+                        "offset": 0
+                    }
+                },
+                "shearX": 0,
+                "shearY": 0,
+                "scaleX": {
+                    "value": 0.9754419586243441,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "scaleY": {
+                    "value": 0.9754419586243441,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "translateX": 0,
+                "translateY": 0,
+                "wrap": true
+            }
+        },
+        {
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "warpStrength": {
+                    "value": 3.45,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.0930204568902073,
+                        "phase": 0,
+                        "scale": -4.68,
+                        "offset": 0
+                    }
+                },
+                "directionStrength": {
+                    "value": 6.642623913567831,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.10868533648676124,
+                        "phase": 0,
+                        "scale": 14.5,
+                        "offset": 10
+                    }
+                },
+                "u_directionChannel": 4,
+                "magChannel": "5",
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": {
+                    "value": 0.065,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "threshHigh": 0.475,
+                "magGamma": 4.096394216229076,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10,
+                "chromaBoost": 1,
+                "directionChannel": "0"
+            }
+        }
+    ],
+
+},
+    {
+    "name": "Trapped in Ink",
+    "config": [
+        {
+            "name": "basis()",
+            "config": {
+                "mix1": [
+                    0.68,
+                    0.55,
+                    0
+                ],
+                "mix2": [
+                    0.31,
+                    -0.35,
+                    -0.18
+                ],
+                "mix3": [
+                    -0.07,
+                    0,
+                    1
+                ],
+                "offset": [
+                    -0.13,
+                    0.12,
+                    0.07
+                ],
+                "base1": [
+                    0.42,
+                    0.71,
+                    0.08
+                ],
+                "base2": [
+                    0,
+                    1,
+                    0.33
+                ],
+                "base3": [
+                    0,
+                    0,
+                    1
+                ],
+                "base1Space": "1",
+                "base2Space": 0,
+                "base3Space": 0,
+                "CC_DEBUG_MODE": 0,
+                "CC_DEBUG_CHANNEL": 0,
+                "workSpace": 1,
+                "lastValidBasis": [
+                    [
+                        0.5067602388992434,
+                        0.8566661181391971,
+                        0.09652575979033208
+                    ],
+                    [
+                        0.5601234448666801,
+                        -0.41230055034520147,
+                        0.7185192987635943
+                    ],
+                    [
+                        -0.655328762363949,
+                        0.3100506704030211,
+                        0.6887763025839173
+                    ]
+                ],
+                "lastValidInverse": [
+                    [
+                        0.5067602388992432,
+                        0.5601234448666801,
+                        -0.655328762363949
+                    ],
+                    [
+                        0.8566661181391972,
+                        -0.41230055034520163,
+                        0.3100506704030214
+                    ],
+                    [
+                        0.09652575979033212,
+                        0.7185192987635941,
+                        0.6887763025839172
+                    ]
+                ]
+            }
+        },
+        {
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": "4",
+                "blendAmount": 0.5,
+                "warpStrength": {
+                    "value": 5,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.006149956622611644,
+                        "phase": 0,
+                        "scale": 5,
+                        "offset": -4.8
+                    }
+                },
+                "directionStrength": 0.5129404142770122,
+                "u_directionChannel": 4,
+                "magChannel": 0,
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0.08,
+                "threshHigh": 0.595,
+                "magGamma": 1,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10,
+                "chromaBoost": 1,
+                "directionChannel": "2"
+            }
+        }
+    ]
+},
+    {
+        "name": "Take Me On",
+        "config": [
+            {
+                "name": "field()",
+                "config": {
+                    "weights": [
+                        2,
+                        0,
+                        0.75,
+                        0,
+                        0,
+                        -0.09
+                    ],
+                    "FIELD_SIGNAL_COMPRESSION_KNEE": 0.75,
+                    "FIELD_SIGNAL_NORMALIZE": false,
+                    "FIELD_HUE_H": 0,
+                    "FIELD_HUE_WIDTH": 0.3,
+                    "FIELD_HUE_CHROMA_BOOST": 1,
+                    "FIELD_CHROMA_EXP": 1,
+                    "FIELD_LIGHT_CENTER": {
+                        "value": 0.48,
+                        "mod": {
+                            "type": "none"
+                        }
+                    },
+                    "FIELD_LIGHT_WIDTH": 0.6238,
+                    "FIELD_DOT_VECTOR": [
+                        1,
+                        0,
+                        0
+                    ],
+                    "FIELD_DISPLAY_MODE": "5",
+                    "blendAmount": 1,
+                    "BLENDMODE": 1,
+                    "BLEND_CHANNEL_MODE": 0,
+                    "COLORSPACE": 0,
+                    "FIELD_TINT_COLOR": [
+                        0.6,
+                        0.3,
+                        0.2
+                    ],
+                    "FIELD_EDGE_CENTER": 0.5,
+                    "FIELD_EDGE_WIDTH": 0.1,
+                    "FIELD_CHROMA_BOOST_MULT": 2.225,
+                    "FIELD_LIGHT_DIR": [
+                        0.25,
+                        0.75
+                    ],
+                    "FIELD_LIGHT_Z": 1.5,
+                    "FIELD_HUE1_CENTER": {
+                        "value": 0.195,
+                        "mod": {
+                            "type": "none"
+                        }
+                    },
+                    "FIELD_HUE1_WIDTH": 0.1,
+                    "FIELD_HUE2_CENTER": 0.8,
+                    "FIELD_HUE2_WIDTH": 0.1,
+                    "FIELD_HUE_GRAD_CHROMA_GAMMA": 1
+                }
+            },
+            {
+                "name": "flow()",
+                "config": {
+                    "BLENDMODE": 1,
+                    "BLEND_CHANNEL_MODE": 0,
+                    "COLORSPACE": "4",
+                    "blendAmount": 0.5,
+                    "warpStrength": {
+                        "value": 5,
+                        "mod": {
+                            "type": "hold",
+                            "freq": 8.883026,
+                            "phase": 0,
+                            "scale": 5,
+                            "offset": -0.6299999999999999
+                        }
+                    },
+                    "directionStrength": 0.5129404142770122,
+                    "u_directionChannel": 4,
+                    "magChannel": 0,
+                    "directionPolarity": false,
+                    "magPolarity": false,
+                    "threshLow": 0,
+                    "threshHigh": 1,
+                    "magGamma": 0.010000000000000009,
+                    "kernelName": "gaussian",
+                    "kernelRadiusX": 3,
+                    "kernelRadiusY": 3,
+                    "kernelSoftness": 10,
+                    "chromaBoost": 1,
+                    "directionChannel": "1"
+                }
+            }
+        ]
+    },
+        {
+    "name": "Light and Shadow",
+    "config": [
+        {
+            "name": "Noise Mixer",
+            "config": {
+                "frequency": 9.563907508300666,
+                "freqShift": 0.09,
+                "tint": [
+                    1,
+                    1,
+                    1
+                ],
+                "seed": {
+                    "value": 1,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.3,
+                        "phase": 0,
+                        "scale": 500,
+                        "offset": 249.5
+                    }
+                },
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "components": [
+                    0,
+                    0.07,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "blendAmount": 0.02,
+                "colormap": "none",
+                "threshold": 0,
+                "cutoff": 1,
+                "gate": 0,
+                "burstThreshold": 0.1,
+                "burstFreq": 100,
+                "burstTheta": 0.52,
+                "burstDTheta": 0,
+                "ZONESHAPE": 2,
+                "zoneCX": 0.5,
+                "zoneSX": 0.6,
+                "zoneCY": 0.5,
+                "zoneSY": 0.6,
+                "zoneEllipseN": 2,
+                "zoneSoftness": 0.1,
+                "zoneAngle": 0,
+                "APPLY_MASK": false,
+                "burstModType": "simplex"
+            }
+        },
+        {
+            "name": "Palette Synth",
+            "config": {
+                "paletteSize": 26,
+                "weightL": 1.1,
+                "cycleOffset": 0,
+                "softness": 1.2,
+                "blendK": 3,
+                "useFurthest": true,
+                "lumaWeight": {
+                    "value": 0.49,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "chromaWeight": {
+                    "value": 1.31,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.15,
+                        "phase": 0,
+                        "scale": 1.22,
+                        "offset": 1.55
+                    }
+                },
+                "hueWeight": {
+                    "value": 0.36,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "doMerge": true,
+                "assignMode": "blend",
+                "blendAmount": 1,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0
+            }
+        }
+    ]
+}
 
 
 

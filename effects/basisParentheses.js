@@ -4,7 +4,7 @@ import {ColorspaceEnum, ColorspaceOpts, makeEnum} from "../utils/glsl_enums.js";
 import {BasisConstructionError, gramSchmidt3, invertMat3} from "../utils/ortho.js";
 import {convertAxisVector} from "../utils/colorutils.js";
 
-const shaderPath = "../shaders/ccs_rotation.frag"
+const shaderPath = "../shaders/basis_parentheses.frag"
 const includePaths = {
     'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
     'blend.glsl': '../shaders/includes/blend.glsl',

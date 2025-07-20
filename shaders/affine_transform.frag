@@ -24,9 +24,13 @@ void main() {
     transformed = u_affine * offset + center + u_offset;
   }
   outColor = vec4(
+  clamp(
     blendWithColorSpace(
       texture(u_image, uv).rgb, texture(u_image, transformed).rgb, u_blendamount
     ),
+    0.,
+    1.
+  ),
     1.0
 );
 }

@@ -14,6 +14,13 @@ float uniformNoise(float x) {
     return fract(sin(x * 12.9898 + 78.233) * 43758.5453);
 }
 
+vec2 hash2d_uv(vec2 uv) {
+    // Large irrational multipliers reduce grid alignment
+    const vec2 k = vec2(127.1, 311.7);
+    float n = sin(dot(uv, k)) * 43758.5453;
+    return fract(vec2(n, n * 1.2154));
+}
+
 vec2 grad(float ix, float iy, float seed) {
     float h = hash(ix, iy, seed);
     float angle = h * 6.2831853;

@@ -56,7 +56,7 @@ export default {
             return;
         }
         const probe = instance.probe;
-        const channelBounds = probe.analyze(
+        const {channelBounds} = probe.analyze(
             probe,
             inputTex,
             width,

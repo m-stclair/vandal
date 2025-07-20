@@ -7,8 +7,8 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 export const statsProbe = {
     config: {
-        resolution: 128,
-        numBins: 256,
+        resolution: 92,
+        numBins: 184,
     },
     analyze(
         probe,
@@ -79,7 +79,10 @@ export const statsProbe = {
                 lowIx / scale + vMin, highIx / scale + vMin
             ]);
         }
-        return boundsOut;
+        return {
+            channelBounds: boundsOut,
+            histograms: hists
+        };
     },
     initHook: fragSources.load
 }

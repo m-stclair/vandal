@@ -1,5 +1,19 @@
-import {shred} from "../utils/shredutils.js";
-import {hist1D, val2Bin} from "../utils/mathutils.js";
+import {resolveAnimAll} from "../utils/animutils.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {makeEnum} from "../utils/glsl_enums.js";
+
+const shaderPath = "../shaders/colorshred.frag";
+const includePaths = {
+    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
+    "noise.glsl": "../shaders/includes/noise.glsl"
+};
+const fragSources = loadFragSrcInit(shaderPath, includePaths);
+
+const {
+    enum: SModeEnum,
+    names: SModeNames,
+    options: SModeOpts
+} = makeEnum(['DISJOINT', 'JOINT', 'PRESERVE_LUMA']);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -7,57 +21,79 @@ export default {
     name: "Colorshred",
 
     defaultConfig: {
-        density: 0.2,
-        flip: false
+        mode: SModeEnum.DISJOINT,
+        density: 0.1,
+        chromaThreshold: 0,
+        INVERT_CHROMA_THRESHOLD: false
     },
 
-    apply(instance, data, _width, _height, _t) {
-        const {density} = instance.config;
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSources);
+        const {
+            mode, density, chromaThreshold, INVERT_CHROMA_THRESHOLD
+        } = resolveAnimAll(instance.config, t);
 
-        // Separate channels
-        const channels = [[], [], []]; // R, G, B
-
-        for (let i = 0; i < data.length; i += 4) {
-            channels[0].push(data[i]);
-            channels[1].push(data[i + 1]);
-            channels[2].push(data[i + 2]);
-        }
-
-        // Shred each channel
-        const shredded = channels.map(channel => {
-            const binsToReplace = new Set;
-            const counts = new Map(hist1D(channel, 512, 0, 1).entries());
-            for (let b = 0; b < 512; b++) {
-                if (Math.random() < density) {
-                    binsToReplace.add(b);
-                }
-            }
-            const binIxs = channel.map((v) => val2Bin(v, 0, 512));
-            return shred(binIxs, binsToReplace, counts).map((v) => v / 512);
-        });
-
-        const result = new Float32Array(data.length);
-        // Reassemble into RGBA
-        for (let i = 0, j = 0; i < data.length; i += 4, j++) {
-            result[i] = shredded[0][j];
-            result[i + 1] = shredded[1][j];
-            result[i + 2] = shredded[2][j];
-            result[i + 3] = data[i + 3]; // preserve alpha
-        }
-        return result
+        /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
+        /** @type {UniformSpec} */
+        const uniformSpec = {
+            u_resolution: {value: [width, height], type: "vec2"},
+            u_density: {value: density, type: "float"},
+            u_chromaThreshold: {value: chromaThreshold, type: "float"}
+        };
+        const defines = {
+            SHRED_COLOR_MODE: mode,
+            CHROMA_THRESHOLDING: Number(INVERT_CHROMA_THRESHOLD ? chromaThreshold < 1 : chromaThreshold > 0),
+            INVERT_CHROMA_THRESHOLD: Number(INVERT_CHROMA_THRESHOLD)
+        };
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
 
+    async initHook(fx, renderer) {
+        await fragSources.load();
+    },
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true,
     uiLayout: [
-        {type: "modSlider", key: "density", label: "Density", min: 0, max: 1, step: 0.02},
-        {type: "checkbox", key: "flip", label: "Flip"}
+        // only have percentile, might not even want others, they suck here
+        {
+            key: "mode",
+            label: "Mode ",
+            type: "select",
+            options: SModeOpts
+        },
+        {
+            type: "modSlider",
+            key: "density",
+            label: "Density",
+            min: 0,
+            max: 1,
+            step: 0.01
+        },
+        {
+            type: "modSlider",
+            key: "chromaThreshold",
+            label: "Chroma Threshold",
+            min: 0,
+            max: 1,
+            step: 0.01
+        },
+        {
+            type: "checkbox",
+            key: "INVERT_CHROMA_THRESHOLD",
+            label: "Invert Chroma Threshold",
+        },
     ]
 }
 
 export const effectMeta = {
-  group: "Glitch",
-  tags: ["color", "displacement", "glitch", "stripe"],
-  description: "Probabilistically rebins in RGB space to create aggressive colored noise.",
-  canAnimate: true,
-  realtimeSafe: false,  // multiple histogram + sampler passes
+    group: "Glitch",
+    tags: ["noise", "gpu"],
+    description: "Applies color-frequency-sensitive noise to the image, " +
+        "changing its spatial distribution with little effect on overall channel distribution.",
+    backend: "gpu",
+    canAnimate: true,
+    realtimeSafe: true,
 };
-

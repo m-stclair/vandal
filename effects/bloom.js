@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation
 } from "../utils/glsl_enums.js";
 import {generateKernel, KernelTypeEnum} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
@@ -116,7 +116,7 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            BLEND_CHANNEL_MODE: BLENDTARGET,
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLENDTARGET,
             KERNEL_SIZE: kernel.length,
             BLOOM_MODE: BLOOM_MODE,
             BLOOM_CHROMA_TAIL: Number(BLOOM_CHROMA_TAIL)

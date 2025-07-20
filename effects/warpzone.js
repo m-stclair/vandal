@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
     ZoneShapeEnum,
 
 } from "../utils/glsl_enums.js";
@@ -80,7 +80,7 @@ export default {
 
         const defines = {
             COLORSPACE: COLORSPACE,
-            BLENDMODE: BLENDMODE,
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ZONESHAPE: ZONESHAPE,
             WARPMODE: warpCode,

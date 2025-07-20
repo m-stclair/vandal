@@ -47,21 +47,48 @@ vec3 lab2rgb(vec3 lab) {
 
 
 vec3 rgb2hsv(vec3 c) {
-    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
-    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float Cmax = max(max(c.r, c.g), c.b);
+    float Cmin = min(min(c.r, c.g), c.b);
+    float delta = Cmax - Cmin;
 
-    float d = q.x - min(q.w, q.y);
-    float e = 1e-10;
-    return vec3(abs((q.w - q.y)/(6.0*d + e)), d/(q.x + e), q.x);
+    float h = 0.0;
+    if (delta > 0.00001) {
+        if (Cmax == c.r) {
+            h = mod((c.g - c.b) / delta, 6.0);
+        } else if (Cmax == c.g) {
+            h = ((c.b - c.r) / delta) + 2.0;
+        } else {
+            h = ((c.r - c.g) / delta) + 4.0;
+        }
+        h /= 6.0;
+    }
+
+    float s = Cmax == 0.0 ? 0.0 : delta / Cmax;
+    float v = Cmax;
+
+    return vec3(h, s, v);
 }
-
 
 vec3 hsv2rgb(vec3 c) {
-    vec3 p = abs(fract(c.xxx + vec3(0.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
-    vec3 rgb = c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
-    return rgb;
+    float h = fract(c.x) * 6.0;
+    float s = c.y;
+    float v = c.z;
+
+    float i = floor(h);
+    float f = h - i;
+
+    float p = v * (1.0 - s);
+    float q = v * (1.0 - s * f);
+    float t = v * (1.0 - s * (1.0 - f));
+
+    if (i == 0.0) return vec3(v, t, p);
+    if (i == 1.0) return vec3(q, v, p);
+    if (i == 2.0) return vec3(p, v, t);
+    if (i == 3.0) return vec3(p, q, v);
+    if (i == 4.0) return vec3(t, p, v);
+    return vec3(v, p, q); // i == 5.0
 }
+
 
 vec3 hsl2rgb(vec3 c) {
     float h = c.x, s = c.y, l = c.z;
@@ -172,10 +199,10 @@ vec3 denormalizeLab(vec3 labn) {
     return vec3(labn.x * 100.0, labn.y * 255.0 - 128.0, labn.z * 255.0 - 128.0);
 }
 vec3 normalizeLCH(vec3 lch) {
-    return vec3(lch.x / 100.0, lch.y / 150.0, lch.z / 360.0);
+    return vec3(lch.x / 100.0, lch.y / 150.0, lch.z / 6.2832);
 }
 vec3 denormalizeLCH(vec3 lchn) {
-    return vec3(lchn.x * 100.0, lchn.y * 150.0, lchn.z * 360.0);
+    return vec3(lchn.x * 100.0, lchn.y * 150.0, lchn.z * 6.2832);
 }
 
 vec3 srgb2NormLab(vec3 srgb) {
@@ -211,8 +238,6 @@ float luminance(vec3 rgb) {
     return dot(rgb, vec3(0.2126, 0.7152, 0.0722));
 }
 
-
-
 #define COLORSPACE_RGB 0
 #define COLORSPACE_LAB 1
 #define COLORSPACE_LCH 2
@@ -221,48 +246,94 @@ float luminance(vec3 rgb) {
 #define COLORSPACE_YCBCR 5
 #define COLORSPACE_HSL 6
 
-
 #ifndef COLORSPACE
 #define COLORSPACE COLORSPACE_RGB
 #endif
 
-vec3 extractColor(vec3 srgb) {
-#if COLORSPACE == COLORSPACE_RGB
-    return srgb;
-#elif COLORSPACE == COLORSPACE_LAB
-    return srgb2NormLab(srgb);
-#elif COLORSPACE == COLORSPACE_HSV
-    return rgb2hsv(srgb);
-#elif COLORSPACE == COLORSPACE_LCH
-    return srgb2NormLCH(srgb);
-#elif COLORSPACE == COLORSPACE_OPPONENT
-    return srgb2Opponent(srgb);
-#elif COLORSPACE == COLORSPACE_YCBCR
-    return rgb2ycbcr(srgb);
-#elif COLORSPACE == COLORSPACE_HSL
-    return srgb2HSL(srgb);
-#else
-    return srgb;
+#ifndef APPLY_CHROMA_BOOST
+#define APPLY_CHROMA_BOOST 0
 #endif
+
+#if APPLY_CHROMA_BOOST == 1
+uniform float u_chromaBoost;
+
+vec3 applyChromaBoost(vec3 c) {
+#if COLORSPACE == COLORSPACE_LCH
+    c.y *= pow(c.y, 0.2) * u_chromaBoost;
+    return c;
+#elif COLORSPACE == COLORSPACE_LAB
+    float chroma = length(c.yz); // a and b
+    vec2 chromaVec = normalize(c.yz);
+    chroma = pow(chroma, 0.8) * u_chromaBoost;
+    return vec3(c.x, chroma * chromaVec);
+#else
+    return c;
+#endif
+}
+#endif
+
+
+vec3 extractColor(vec3 srgb) {
+    vec3 extracted;
+#if COLORSPACE == COLORSPACE_RGB
+    extracted = srgb;
+#elif COLORSPACE == COLORSPACE_LAB
+    extracted = srgb2NormLab(srgb);
+#elif COLORSPACE == COLORSPACE_HSV
+    extracted = rgb2hsv(srgb);
+#elif COLORSPACE == COLORSPACE_LCH
+    extracted = srgb2NormLCH(srgb);
+#elif COLORSPACE == COLORSPACE_OPPONENT
+    extracted = srgb2Opponent(srgb);
+#elif COLORSPACE == COLORSPACE_YCBCR
+    extracted = rgb2ycbcr(srgb);
+#elif COLORSPACE == COLORSPACE_HSL
+    extracted = srgb2HSL(srgb);
+#else
+    extracted = srgb;
+#endif
+
+#if APPLY_CHROMA_BOOST == 1
+    extracted = applyChromaBoost(extracted);
+#endif
+    return extracted;
 }
 
 vec3 encodeColor(vec3 color) {
+    vec3 encoded;
 #if COLORSPACE == COLORSPACE_RGB
-    return color;
+    encoded = color;
 #elif COLORSPACE == COLORSPACE_LAB
-    return normLab2SRGB(color);
+    encoded = normLab2SRGB(color);
 #elif COLORSPACE == COLORSPACE_HSV
-    return hsv2rgb(color);
+    encoded = hsv2rgb(color);
 #elif COLORSPACE == COLORSPACE_LCH
-    return normLCH2SRGB(color);
+    encoded = normLCH2SRGB(color);
 #elif COLORSPACE == COLORSPACE_OPPONENT
-    return opponent2SRGB(color);
+    encoded = opponent2SRGB(color);
 #elif COLORSPACE == COLORSPACE_YCBCR
-    return ycbcr2rgb(color);
+    encoded = ycbcr2rgb(color);
 #elif COLORSPACE == COLORSPACE_HSL
-    return hsl2SRGB(color);
+    encoded = hsl2SRGB(color);
 #else
-    return color;
+    encoded = color;
 #endif
+    return encoded;
 }
 
+vec3 computeColorHeat(vec3 inColor) {
+    // Derivative magnitude
+    vec3 dx = dFdx(inColor);
+    vec3 dy = dFdy(inColor);
+    float derivMag = length(dx) + length(dy);
+    float edge = smoothstep(0.05, 0.2, derivMag);
+
+    // Clipping strength
+    float over = max(0.0, max(inColor.r - 1.0, max(inColor.g - 1.0, inColor.b - 1.0)));
+    float under = max(0.0, max(-inColor.r, max(-inColor.g, -inColor.b)));
+    float clip = smoothstep(0.0, 0.1, clamp(over + under, 0.0, 1.0));
+
+    // Combine: red-yellow-white spectrum
+    float alert = max(edge, clip);
+    return mix(inColor, vec3(1.0, 1.0 - alert, 1.0 - alert), alert);
+}

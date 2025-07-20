@@ -119,5 +119,5 @@ vec4 chromawave(vec2 uv) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    outColor = chromawave(uv);
+    outColor = clamp(chromawave(uv), 0., 1.);
 }

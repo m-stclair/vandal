@@ -1,9 +1,12 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {group} from "../utils/ui_configs.js";
+import {blendControls, group} from "../utils/ui_configs.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/perlin_distort.frag"
 const includePaths = {
+    'blend.glsl': "../shaders/includes/blend.glsl",
+    'colorconvert.glsl': "../shaders/includes/colorconvert.glsl",
     'noise.glsl': "../shaders/includes/noise.glsl",
     'classicnoise2D.glsl': "../shaders/includes/noises/classicnoise2D.glsl",
     'cellular2D.glsl': "../shaders/includes/noises/cellular2D.glsl",
@@ -32,7 +35,12 @@ export default {
         phase: [0, 0],
         fuzz: 0,
         noiseMode: "pseudo",
-        clampScale: 1
+        clampScale: 1,
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1,
+        blendAmount: 1,
     },
 
     uiLayout: [
@@ -116,14 +124,16 @@ export default {
                 step: 1,
                 showIf: {key: "noiseMode", equals: "periodic"}
             }
-        ], {color: "#202020"}),
+        ]),
+        blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSource);
         const {
             pitchX, pitchY, freqX, freqY, phase,
             seed, depth, boundMode, rate, rateDrive, fuzz,
-            noiseMode, clampScale, reps, fc
+            noiseMode, clampScale, reps, fc, BLENDMODE, COLORSPACE,
+            blendAmount, BLEND_CHANNEL_MODE, chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
@@ -142,12 +152,18 @@ export default {
             u_fuzz: {value: fuzz / 500, type: "float"},
             u_clampscale: {value: clampScale, type: "float"},
             u_reps: {value: reps, type: "vec2"},
-            u_fc: {value: fc, type: "floatArray"}
+            u_fc: {value: fc, type: "floatArray"},
+            u_blendAmount: {value: blendAmount, type: "float"},
+            u_chromaBoost: {value: chromaBoost, type: "float"},
         };
         const defines = {
             NOISEMODE: modeCode,
-            BOUNDMODE: boundCode
-        }
+            BOUNDMODE: boundCode,
+            BLENDMODE: BLENDMODE,
+            COLORSPACE: COLORSPACE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE)
+        };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSource.load,

@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation
 } from "../utils/glsl_enums.js";
 import {blendControls, group} from "../utils/ui_configs.js";
 
@@ -119,7 +119,7 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             WAVEFORM_MODE: wavecode,
             SPATIAL_MODE: spacecode,
         }

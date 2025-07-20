@@ -5,7 +5,7 @@ import {
     BlendModeOpts,
     BlendTargetEnum,
     BlendTargetOpts,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
     ColorspaceOpts
 } from "../utils/glsl_enums.js";
 

@@ -11,6 +11,7 @@ import {weightFns} from "../utils/weightings.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
+import {hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/delayline.frag"
 const includePaths = {
@@ -39,7 +40,8 @@ export default {
         BLENDMODE: 1,
         blendAmount: 1,
         blendTarget: '0',
-        jitter: 0
+        jitter: 0,
+        chromaBoost: 0
     },
 
     uiLayout: [
@@ -106,7 +108,7 @@ export default {
         const {
             delay, window, density, angle, falloff, shearX, shearY,
             scaleX, scaleY, blendAmount, BLENDMODE, BLEND_CHANNEL_MODE, COLORSPACE,
-            jitter
+            jitter, chromaBoost
         } = resolveAnimAll(instance.config, t);
         // TODO: write equivalent quit-fast option for GL
         // if (delay <= 0) return data;
@@ -160,10 +162,12 @@ export default {
             u_offsets: {value: new Float32Array(taps.flat()), type: "vec2"},
             u_weights: {value: new Float32Array(weights), type: "floatArray"},
             u_transformMatrix: {value: affine, type: "mat2"},
-            u_blendamount: {value: blendAmount, type: "float"}
+            u_blendamount: {value: blendAmount, type: "float"},
+            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }

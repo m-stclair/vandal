@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
@@ -26,7 +26,8 @@ export default {
         blendAmount: 1,
         rdx: 0, rdy: 0,
         gdx: 0, gdy: 0,
-        bdx: 0, bdy: 0
+        bdx: 0, bdy: 0,
+
     },
     uiLayout: [
         {type: "modSlider", key: "rdx", label: "Channel 1 X", min: -50, max: 50, step: 1},
@@ -56,6 +57,7 @@ export default {
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }

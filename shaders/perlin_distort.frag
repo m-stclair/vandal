@@ -5,6 +5,8 @@ precision mediump float;
 #include "noisenums.glsl"
 #include "noise.glsl"
 #include "classicnoise2D.glsl"
+#include "colorconvert.glsl"
+#include "blend.glsl"
 
 uniform sampler2D u_image;
 uniform vec2 u_pitch;
@@ -21,10 +23,12 @@ uniform float u_fuzz;
 uniform int u_noisemode;
 uniform float u_clampscale;
 uniform vec2 u_reps;
+uniform float u_blendAmount;
 out vec4 outColor;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy) / u_resolution;
+    vec2 uv0 = uv;
     if (u_ratedrive > 0.) {
         uv = uv * (1. - u_ratedrive) + sin(uv * u_rate + u_phase * 6.2831853) * u_ratedrive;
     }
@@ -51,5 +55,8 @@ void main() {
 #if BOUNDMODE == 0
     uv = fract(uv);
 #endif
-    outColor = texture(u_image, uv);
+    outColor = vec4(
+        blendWithColorSpace(texture(u_image, uv0).rgb, texture(u_image, uv).rgb, u_blendAmount),
+        1.0
+    );
 }

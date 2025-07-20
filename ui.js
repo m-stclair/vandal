@@ -248,6 +248,19 @@ export function setupVideoExportModal() {
             modal.style.display = "none";
         }
     });
-
-
 }
+
+const dropZone = document.getElementById('drop-zone-fullscreen');
+
+// const fileInput = document.getElementById('file-input');
+
+export function setupDragAndDrop(handleUpload) {
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => {
+      e.preventDefault();
+      const files = Array.from(e.dataTransfer.files)
+        .filter(f => f.type.startsWith('image/'));
+      handleUpload(files[0]);
+    });
+}
+

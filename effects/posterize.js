@@ -4,7 +4,7 @@ import {
     BlendModeEnum,
     BlendModeOpts, BlendTargetEnum,
     BlendTargetOpts,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
     ColorspaceOpts, PosterizeEnum,
     PosterizeModeOpts
 } from "../utils/glsl_enums.js";
@@ -52,7 +52,7 @@ export default {
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-            BLENDMODE: BLENDMODE,
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             POSTERIZE_MODE: Number.parseInt(mode),
             POSTERIZE_LEVELS: levels,

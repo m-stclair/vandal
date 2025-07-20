@@ -1,4 +1,11 @@
-import {BlendModeOpts, BlendTargetOpts, ColorspaceOpts, ZoneShapeEnum, ZoneShapeOpts} from "./glsl_enums.js";
+import {
+    BlendModeOpts,
+    BlendTargetOpts,
+    ColorspaceEnum,
+    ColorspaceOpts,
+    ZoneShapeEnum,
+    ZoneShapeOpts
+} from "./glsl_enums.js";
 
 export function blendControls() {
     return {
@@ -11,7 +18,23 @@ export function blendControls() {
                 {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
                 {key: 'BLENDMODE', label: 'Blend Mode', type: 'Select', options: BlendModeOpts},
                 {key: 'COLORSPACE', label: 'Blend Colorspace', type: 'Select', options: ColorspaceOpts},
-                {key: 'BLEND_CHANNEL_MODE', label: 'Blend Target', type: 'Select', options: BlendTargetOpts}
+                {key: 'BLEND_CHANNEL_MODE', label: 'Blend Target', type: 'Select', options: BlendTargetOpts},
+                {
+                    key: "chromaBoost",
+                    label: 'Chroma Boost',
+                    type: 'modSlider',
+                    min: 0,
+                    max: 4,
+                    steps: 200,
+                    // ugh
+                    showIf: [
+                        {key: "COLORSPACE", notEquals: ColorspaceEnum.RGB},
+                        {key: "COLORSPACE", notEquals: ColorspaceEnum.HSV},
+                        {key: "COLORSPACE", notEquals: ColorspaceEnum.HSL},
+                        {key: "COLORSPACE", notEquals: ColorspaceEnum.Opponent},
+                        {key: "COLORSPACE", notEquals: ColorspaceEnum.YCbCr},
+                    ]
+                }
             ]
         }
 }

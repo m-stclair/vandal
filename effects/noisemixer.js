@@ -3,7 +3,7 @@ import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendTargetEnum, ColorspaceEnum, GateModeEnum, GateModeOpts,
+    BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation, GateModeEnum, GateModeOpts,
     ZoneShapeEnum,
 } from "../utils/glsl_enums.js";
 import {blendControls, zoneControls} from "../utils/ui_configs.js";
@@ -53,7 +53,9 @@ export default {
         zoneSoftness: 0.1,
         zoneAngle: 0,
         APPLY_MASK: false,
-        burstModType: "simplex"
+        burstModType: "simplex",
+        shiftX: 0,
+        shiftY: 0
     },
     uiLayout: [
         {
@@ -225,7 +227,7 @@ export default {
             BLENDMODE: BLENDMODE,
             USE_CMAP: colormap === "none" ? 0 : 1,
             COLORSPACE: COLORSPACE,
-            GATE_MODE: gate,
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            GATE_MODE: gate,
             USE_WINDOW: Number(cutoff < 1),
             ZONESHAPE: ZONESHAPE,
             APPLY_MASK: Number(APPLY_MASK),

@@ -1,6 +1,6 @@
 import {
     canvas,
-    defaultCtx,
+    defaultCtx, setupDragAndDrop,
     setupExportImage,
     setupPaneDrag,
     setupPresetUI,
@@ -36,6 +36,7 @@ import {
     toggleEffectSelection,
     uiState
 } from "./state.js";
+import "./tools/debugPane.js";
 import {formatFloatWidth, gid} from "./utils/helpers.js";
 import {renderStackUI} from "./ui_builder.js";
 import {effectRegistry} from "./registry.js";
@@ -47,7 +48,12 @@ import {EffectPicker} from './components/effectpicker.js'
 import {drawBlackSquare} from "./test_patterns.js";
 
 function handleUpload(e) {
-    const file = e.target.files[0];
+    let file;
+    if (!(e instanceof File)) {
+        file = e.target.files[0];
+    } else {
+        file = e;
+    }
     if (!file) return;
 
     const img = new Image();
@@ -373,6 +379,7 @@ function watchRender() {
             requestUIDraw,
             effectRegistry
         );
+        setupDragAndDrop(handleUpload);
         setupExportImage(exportImage);
         setupVideoCapture(startCapture, stopCapture);
         setupPaneDrag();

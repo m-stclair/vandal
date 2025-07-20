@@ -1,7 +1,7 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/edgetrace.frag"
 const includePaths = {
@@ -42,7 +42,7 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE, threshold, tint
-        }= resolveAnimAll(config, t);
+        } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
@@ -53,6 +53,7 @@ export default {
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             BLENDMODE: BLENDMODE
         }
@@ -67,11 +68,11 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Edge",
-  tags: ["edges", "masking", "outline", "threshold"],
-  description: "Simple edge tracing via Sobel operator. Offers blend and " +
-      + "threshold control.",
-  backend: "gpu",
-  animated: true,
-  realtimeSafe: true,
+    group: "Edge",
+    tags: ["edges", "masking", "outline", "threshold"],
+    description: "Simple edge tracing via Sobel operator. Offers blend and " +
+        +"threshold control.",
+    backend: "gpu",
+    animated: true,
+    realtimeSafe: true,
 }

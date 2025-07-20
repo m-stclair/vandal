@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {ColorspaceEnum, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {ColorspaceEnum, hasChromaBoostImplementation, ColorspaceOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/channelmixer.frag"
 const includePaths = {

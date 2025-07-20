@@ -105,3 +105,33 @@ export const {
     'HORIZONTAL'
 ]);
 
+export const {
+    enum: DebugModeEnum,
+    names: DebugModeNames,
+    options: DebugModeOpts
+} = makeEnum([
+    'MODE_UV_GRADIENT',
+    'MODE_TEXEL_CHECKER',
+    'MODE_LINEAR_INDEX',
+    'MODE_PIXEL_GRID',
+    'MODE_CENTER_DEVIATION',
+    'MODE_OOB_NAN_HIGHLIGHT',
+    'MODE_COLOR_CHECK'
+])
+
+export const {
+    enum: DebugColorModeEnum,
+    names: DebugColorModeNames,
+    options: DebugColorModeOpts
+} = makeEnum([
+    'COLOR_MODE_CHANNEL',
+    'COLOR_MODE_SPACE',
+    'COLOR_MODE_ROUND_TRIP',
+    'COLOR_MODE_DERIV',
+    'COLOR_MODE_CLIP',
+    'COLOR_MODE_HEAT'
+])
+
+export function hasChromaBoostImplementation(cspace) {
+    return [ColorspaceEnum.LCH, ColorspaceEnum.Lab].includes(cspace)
+}

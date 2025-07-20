@@ -41,7 +41,10 @@ const effectFiles = [
     "kernel2d.js",
     "pseudosort.js",
     "badTV.js",
-    "palette_synth.js"
+    "palette_synth.js",
+    "debug.js",
+    "ccs_rotation.js",
+    "ccs_field_dev.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

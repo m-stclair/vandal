@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
@@ -174,7 +174,7 @@ export default {
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-            BLENDMODE: BLENDMODE,
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             TEARMODE: {'wave': 0, 'jump': 1, 'band': 2, 'chunk': 3, 'ghost': 4}[tearMode]
         }

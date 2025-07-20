@@ -1,8 +1,6 @@
 import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/helpers.js";
 import {clampAnimationParams} from "./utils/animutils.js";
 import {requestRender, requestUIDraw} from "./state.js";
-import {createDualResponseSlider} from "./modslider.js";
-
 
 
 function makeField() {
@@ -48,32 +46,81 @@ function reverseScaling(value, scale, scaleFactor) {
     return value;
 }
 
-function makeSubSlider(labelText, initialValue, min, max, update) {
-    const container = document.createElement("div");
-    container.classList.add("mod-field");
-    const slider = createDualResponseSlider({
-      container: container,
-      label: labelText,
-      min: min,
-      max: max,
-      pivot: 0.2,
-      expLow: 3,
-      expHigh: 1.2,
-      units: " Hz",
-      format: v => v < 1 ? (1/v).toFixed(2) + " s" : v.toFixed(2),
-      onChange: update
-    });
-    // const label = document.createElement("span");
-    // label.textContent = labelText;
-    // const slider = document.createElement("input");
-    // slider.type = "range";
-    // slider.min = min;
-    // slider.max = max;
-    // slider.step = step;
-    // slider.value = initialValue;
-    // container.append(label, slider);
-    return {container, slider}
+function dualZoneRemap(x, pivot = 0.25, expLow = 2.5, expHigh = 1.0) {
+    if (x < pivot) {
+        return Math.pow(x / pivot, expLow) * pivot;
+    } else {
+        return pivot + (1 - pivot) * Math.pow((x - pivot) / (1 - pivot), expHigh);
+    }
 }
+
+
+function createDualResponseSlider({
+                                      container,
+                                      label = "Param",
+                                      min = 0, max = 1,
+                                      pivot = 0.5,
+                                      expLow = 5,
+                                      expHigh = 1.0,
+                                      initial = 0.1,
+                                      units = "",
+                                      format = v => v.toFixed(3)
+                                  }) {
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.gap = "0.5em";
+
+    const labelEl = document.createElement("span");
+    labelEl.textContent = label;
+
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = 0;
+    slider.max = 1;
+    slider.step = 0.001;
+    slider.value = initial;
+
+    const valueDisplay = document.createElement("span");
+
+    let listeners = [];
+
+    const update = () => {
+        const raw = parseFloat(slider.value);
+        const mapped = dualZoneRemap(raw, pivot, expLow, expHigh);
+        const scaled = min + mapped * (max - min);
+        valueDisplay.textContent = format(scaled) + units;
+        listeners.forEach(fn => fn(scaled));
+    };
+
+    slider.addEventListener("input", update);
+    update();
+
+    wrapper.appendChild(labelEl);
+    wrapper.appendChild(slider);
+    wrapper.appendChild(valueDisplay);
+    container.appendChild(wrapper);
+
+    return {
+        getValue: () => {
+            const raw = parseFloat(slider.value);
+            const mapped = dualZoneRemap(raw, pivot, expLow, expHigh);
+            return min + mapped * (max - min);
+        },
+        setValue: (scaled) => {
+            const mapped = (scaled - min) / (max - min);
+            // Note: we don't attempt to inverse dualZoneRemap here — it's one-way
+            console.warn("setValue is imprecise; reverse remap not implemented");
+        },
+        onChange: fn => {
+            listeners.push(fn);
+        },
+        position: () => {
+            return Number.parseFloat(slider.value);
+        }
+    };
+}
+
 
 export function renderFoldoutToggle(state, label, onToggle) {
     const button = document.createElement('button');
@@ -92,7 +139,7 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     const msWrapper = document.createElement("div");
     msWrapper.className = "mod-field";
     const modSelect = document.createElement("select");
-    ["none", "sine", "square", "saw"].forEach(type => {
+    ["none", "sine", "square", "saw", "hold", "impulse", "walk"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         modSelect.appendChild(opt);
@@ -102,39 +149,7 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     modSelect.value = mod?.type ?? "none";
     // const defaultBias = parseFloat(applyScaling((input.max - input.min) / 2, input.scale, input.scaleFactor));
     // const [safeBias, safeDepth] = clampAnimationParams(min ?? 0, max ?? 1, defaultBias);
-        const applyModState = (e, scaled) => {
-        e.stopPropagation();
-        const modType = modSelect.value;
-        const modulated = modType !== "none";
 
-        input.disabled = modulated;
-        wrapper.classList.toggle("modulated", modulated);
-        config[key] = {
-            value: parseFloat(applyScaling(input.value, input.scale, input.scaleFactor)),
-            mod: modulated ? {
-                type: modType,
-                freq: parseFloat(freq.slider.value),
-                phase: 0,
-                scale: parseFloat(depth.slider.value),
-                offset: parseFloat(bias.slider.value),
-            } : {type: "none"},
-        };
-        if (modulated && animUIState.animating !== true) {
-            requestUIDraw();
-            requestRender();
-        } else if (!modulated && animUIState.animating === true) {
-            requestUIDraw();
-        }
-        animUIState.animating = modulated;
-    };
-
-    modSelect.addEventListener("change", applyModState);
-    // [depth.slider, bias.slider, freq.slider].forEach(el =>
-    //     el.addEventListener("input", applyModState)
-    // );
-    const depth = makeSubSlider("Depth", mod?.depth ?? 0, min, max, applyModState);
-    const bias = makeSubSlider("Bias", mod?.offset ?? 0, min ?? 0, max ?? 1, applyModState);
-    const freq = makeSubSlider("Rate", mod?.freq ?? 0.1, 0.005, 5, applyModState);
     const modActions = document.createElement("div");
     modActions.className = "mod-actions"
     const modReset = document.createElement("button");
@@ -145,15 +160,70 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     modRemove.className = "mod-remove";
     modActions.appendChild(modReset);
     modActions.appendChild(modRemove);
-    modFoldout.append(
-        modSelect,
-        depth.container,
-        bias.container,
-        freq.container,
-    );
+    modFoldout.append(modSelect)
+    // [depth.slider, bias.slider, freq.slider].forEach(el =>
+    //     el.addEventListener("input", applyModState)
+    // );
+    const depth = createDualResponseSlider({
+        container: modFoldout,
+        label: "Depth",
+        initial: typeof animUIState.depthValue === 'number' ? animUIState.depthValue : 0.2,
+        min: min,
+        max: max,
+        expLow: 3
+    });
+    const bias = createDualResponseSlider({
+        container: modFoldout,
+        label: "Bias",
+        initial: typeof animUIState.biasValue === 'number' ? animUIState.biasValue : 0.5,
+        min: min,
+        max: max,
+        // i.e., this one's not really dual-zone
+        expLow: 1,
+        expHigh: 1
+    });
+    const freq = createDualResponseSlider({
+        container: modFoldout,
+        label: "Rate",
+        initial: typeof animUIState.freqValue === 'number' ? animUIState.freqValue : 0.5,
+        min: 0.002,
+        max: 9,
+        expLow: 6
+    });
+    const applyModState = () => {
+        // e.stopPropagation();
+        const modType = modSelect.value;
+        const modulated = modType !== "none";
 
+        input.disabled = modulated;
+        wrapper.classList.toggle("modulated", modulated);
+        config[key] = {
+            value: parseFloat(applyScaling(input.value, input.scale, input.scaleFactor)),
+            mod: modulated ? {
+                type: modType,
+                freq: freq.getValue(),
+                phase: 0,
+                scale: depth.getValue(),
+                offset: bias.getValue(),
+            } : {type: "none"}
+        };
+        // NOTE: these are slider positions in the UI,
+        //  not parameter values.
+        animUIState.freqValue = freq.position();
+        animUIState.depthValue = depth.position();
+        animUIState.biasValue = bias.position();
+        if (modulated && animUIState.animating !== true) {
+            requestUIDraw();
+            requestRender();
+        } else if (!modulated && animUIState.animating === true) {
+            requestUIDraw();
+        }
+        animUIState.animating = modulated;
+    };
+    modSelect.addEventListener("change", applyModState);
+
+    [depth, bias, freq].forEach((s) => s.onChange(applyModState));
     return modFoldout;
-
 }
 
 function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
@@ -221,7 +291,7 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
                 animUIState, value, input, min, max, wrapper, config, key
             );
         }
-        if ((config[key].mod) && (config[key].mod.type !== "none")) {
+        if ((config[key]?.mod) && (config[key].mod.type !== "none")) {
             input.disabled = true;
             foldoutButton.classList.add("animating")
         }
@@ -378,18 +448,20 @@ function makeVectorSlider(id, config, uiSpec) {
             valueInput.value = formatFloatWidth(slider.value);
             requestRender();
         });
+
         function valueUpdate() {
             slider.value = valueInput.value;
             if (typeof (config[key]) !== "object") {
-                config[key] = slider.value;
+                config[key][i] = parseFloat(slider.value);
             } else {
-                config[key] = {
-                    value: slider.value,
+                config[key][i] = {
+                    value: parseFloat(slider.value),
                     mod: config[key]?.mod || {type: "none"},
                 };
             }
             requestRender();
         }
+
         let prevValue = valueInput.value;
         valueInput.addEventListener('input', () => {
             const parsed = parseFloat(valueInput.value);

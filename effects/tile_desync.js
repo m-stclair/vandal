@@ -5,7 +5,7 @@ import {
     BlendModeOpts,
     BlendTargetEnum,
     BlendTargetOpts,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
     ColorspaceOpts
 } from "../utils/glsl_enums.js";
 
@@ -77,7 +77,7 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

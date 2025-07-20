@@ -1,4 +1,3 @@
-// Example GPU effect module using GlitchRenderer pipeline
 import {UniformSetters, checkTexture, checkFrameBuffer} from "./gl.js";
 
 export class webGLState {

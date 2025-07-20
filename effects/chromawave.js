@@ -1,6 +1,7 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
+import {hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/chromawave.frag"
 const includePaths = {
@@ -47,7 +48,16 @@ export default {
 
         group("Hue Mapping", [
             {type: "modSlider", key: "hueShift", label: "Hue Shift", min: 0, max: 2, step: 0.01},
-            {type: "modSlider", key: "hueSpread", label: "Hue Spread", min: 0, max: 4, step: 0.05},
+            {
+                type: "modSlider",
+                key: "hueSpread",
+                label: "Hue Spread",
+                min: 0,
+                max: 10,
+                steps: 200,
+                scale: "log",
+                scaleFactor: 3
+            },
         ], {
             color: "#20001a"
         }),
@@ -100,7 +110,8 @@ export default {
             originX,
             originY,
             spatialPattern,
-            BLEND_CHANNEL_MODE
+            BLEND_CHANNEL_MODE,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm, period;
@@ -139,10 +150,12 @@ export default {
             u_lightNorm: {type: "float", value: lightNorm},
             u_duty: {type: "float", value: dutyCycle},
             u_bandingSteps: {type: "float", value: bandingSteps},
-            u_origin: {type: "vec2", value: [originX * width, originY * height]}
+            u_origin: {type: "vec2", value: [originX * width, originY * height]},
+            u_chromaBoost: {type: "float", value: chromaBoost}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,

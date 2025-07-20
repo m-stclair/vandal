@@ -225,6 +225,28 @@ export function hsv2Rgb(h, s, v) {
     return [r, g, b];
 }
 
+function sRGB2Linear(channel) {
+  return channel <= 0.04045
+    ? channel / 12.92
+    : Math.pow((channel + 0.055) / 1.055, 2.4);
+}
+
+function sRGBVec2Linear(rgb) {
+  return rgb.map(sRGB2Linear);
+}
+
+function linear2SRGB(channel) {
+  return channel <= 0.0031308
+    ? 12.92 * channel
+    : 1.055 * Math.pow(channel, 1/2.4) - 0.055;
+}
+
+function linearVec2SRGB(rgb) {
+  return rgb.map(linear2SRGB);
+}
+
+
+// TODO: fill this out and use it consistently
 export const colorSpaces = {
     rgb: {
         label: "RGB",
@@ -251,3 +273,49 @@ export const colorSpaces = {
         channelLabels: ["L", "a", "b"],
     },
 };
+
+
+// TODO: this and the previous object should not be
+//  separate and contradictory
+export function convertAxisVector(vec, from, to = 'LAB') {
+  if (from === to) return vec;
+
+  if (from === 'sRGB' && to === 'LAB') {
+    const linear = sRGBVec2Linear(vec);
+    return rgb2Lab(...linear);
+  }
+
+  if (from === 'HSV' && to === 'LAB') {
+    const rgb = hsv2Rgb(...vec);
+    const linear = sRGBVec2Linear(rgb);
+    return rgb2Lab(...linear);
+  }
+
+  throw new Error(`No conversion from ${from} to ${to}`);
+}
+
+
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
+
+function hueAffinity(color, targetHueRad, widthRad = 0.3, chromaWeightExp = 1.0) {
+  // Assume `color` is in Lab, with hue = atan2(b, a)
+  const a = color[1];
+  const b = color[2];
+  const hue = Math.atan2(b, a);
+  const chroma = Math.hypot(a, b);
+
+  // Shortest angular distance
+  const d = Math.abs(((hue - targetHueRad + Math.PI) % (2 * Math.PI)) - Math.PI);
+
+  // Smooth falloff (can swap with Gaussian or raised cosine)
+  const hueFalloff = smoothstep(widthRad, 0.0, d);
+
+  // Optional chroma shaping
+  const chromaWeight = Math.pow(chroma, chromaWeightExp);
+
+  return hueFalloff * chromaWeight;
+}

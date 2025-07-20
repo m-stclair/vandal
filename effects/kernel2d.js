@@ -5,7 +5,7 @@ import {
     BlendModeOpts,
     BlendTargetEnum,
     BlendTargetOpts,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
     ColorspaceOpts,
 } from "../utils/glsl_enums.js";
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
@@ -48,7 +48,7 @@ export default {
         initGLEffect(instance, fragSources);
         let {
             kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness,
-            BLENDMODE, COLORSPACE, BLENDTARGET, blendAmount
+            BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, blendAmount
         } = resolveAnimAll(instance.config, t);
 
         const MAX_KERNEL_SIZE = 255;
@@ -67,7 +67,7 @@ export default {
             KERNEL_SIZE: kernelInfo.kernel.length,
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            BLEND_CHANNEL_MODE: BLENDTARGET
+APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         };
 
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);

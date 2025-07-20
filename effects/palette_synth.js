@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {pcaProbe} from "./probes/pcaprobe.js";
 import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/palette_synth.frag";
 const includePaths = {
@@ -97,6 +97,7 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ASSIGNMODE: {"nearest": 0, "hue": 1, "blend": 2}[assignMode],
             SHOW_PALETTE: {"none": 0, "bars": 1, "strip": 2}[showPalette]
@@ -169,7 +170,7 @@ export default {
                     max: 3,
                     step: 0.01
                 },
-                                {
+                {
                     key: "pWeights",
                     label: "Weights",
                     type: "vector",

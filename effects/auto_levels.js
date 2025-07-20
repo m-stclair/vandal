@@ -7,7 +7,7 @@ const shaderPath = "../shaders/auto_levels.frag";
 const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
-//
+
 async function makeProbe(fx, renderer) {
     const prb = {
         config: structuredClone(statsProbe.config),

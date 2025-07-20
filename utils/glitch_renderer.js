@@ -222,6 +222,10 @@ export class GlitchRenderer {
             this.inputTexture = currentTex;
             clearRenderCache();
             this.clearEffectBuffers();
+            getEffectStack().forEach((fx) => {
+                if (!fx.glState) return;
+                fx.glState.last_uniforms = {};
+            });
         }
         this.lastLoadID = loadId;
         const effects = getEffectStack();
@@ -242,7 +246,8 @@ export class GlitchRenderer {
             const isGPU = fx.isGPU;
             const timeChanged = cacheEntry?.lastT !== t;
             animationUpdate = animationUpdate ? animationUpdate : isModulating(fx) && timeChanged;
-            hashChain += hashObject(fx.config) + fx.id;
+            const configHash = hashObject(fx.config);
+            hashChain += configHash + fx.id;
             if (isModulating(fx)) hashChain += `-${t}`;
             const hashChanged = (
                 !cacheEntry
@@ -280,6 +285,9 @@ export class GlitchRenderer {
                         throw new Error("GL effect not attached to this renderer")
                     }
                     const fbo = this.getEffectFBO(fx.id, width, height);
+                    if (fx.glState) {
+                        fx.glState.uniformsDirty = !(configHash === renderCacheGet(fx.id)?.configHash);
+                    }
                     fx.apply(fx, input, width, height, t, fbo);
                     update['texture'] = fbo.texture;
                 }
@@ -289,7 +297,8 @@ export class GlitchRenderer {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }
             lastCacheEntry = {
-                config: structuredClone(fx.config),
+                // config: structuredClone(fx.config),
+                configHash: configHash,
                 disabled: fx.disabled,
                 hashChain: hashChain,
                 lastT: t,

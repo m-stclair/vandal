@@ -8,7 +8,8 @@ export class webGLState {
         this.name = name;
         this.id = id;
         this.includeMap = null;
-        this.last_defines = null;
+        this.last_defines = {};
+        this.last_uniforms = {};
     }
 
     get gl() {
@@ -115,6 +116,7 @@ export class webGLState {
         checkTexture(gl, inputTex);
         checkTexture(gl, outputFBO.texture);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
+        this.last_uniforms = uniformSpec;
     }
 
     uploadUniforms(uniformSpec) {
@@ -142,7 +144,10 @@ export class webGLState {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                 UniformSetters[type](gl, loc, 1);
-            } else if (type === "UBO") {
+                return;
+            }
+            if (this.last_uniforms[name] === value) return;
+            if (type === "UBO") {
                 const blockIndex = gl.getUniformBlockIndex(this.program, name);
                 // TODO: as above, probably terrible
                 const blockBinding = 0;

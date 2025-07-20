@@ -63,5 +63,5 @@ vec3 applyLook(vec3 srgb) {
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec4 pix = texture(u_image, uv);
-    outColor = vec4(applyLook(pix.rgb), pix.a);
+    outColor = vec4(clamp(applyLook(pix.rgb), 0., 1.), pix.a);
 }

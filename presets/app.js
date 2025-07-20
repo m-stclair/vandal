@@ -1855,8 +1855,8 @@ export const builtInPresets = [
         }
     ]
 },
-    {"name":"Line Ghosts","config":[{"name":"2D Kernel","config":{"BLENDMODE":"8","BLENDTARGET":0,"COLORSPACE":"0","blendAmount":1,"kernelName":"impulse","kernelRadiusX":8,"kernelRadiusY":9,"kernelSoftness":6.605}},{"name":"Pseudosort","config":{"BLENDMODE":"4","BLEND_CHANNEL_MODE":"4","COLORSPACE":"2","blendAmount":1,"warpStrength":-0.73,"directionAngle":-1.4451326206513,"modAmount":0.405,"driverChannel":"5","modulatorChannel":"0","driverPolarity":false,"modulatorPolarity":true,"threshLow":0.17,"threshHigh":0.4,"driverGamma":0.7583998736407089,"flatThreshold":false}}]},
-    {"name":"Lessening","config":[{"name":"Posterize","config":{"levels":8,"mode":"2","COLORSPACE":"4","BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"blendAmount":1,"mod":0.5,"c1":true,"c2":true,"c3":true}},{"name":"Pseudosort","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"warpStrength":-0.21,"directionAngle":-0.534070751110264,"modAmount":0,"driverChannel":"1","modulatorChannel":"5","driverPolarity":true,"modulatorPolarity":false,"threshLow":0.535,"threshHigh":0.945,"driverGamma":1.1414812755524588,"flatThreshold":true}}]},
+    {"name":"Line Ghosts","config":[{"name":"2D Kernel","config":{"BLENDMODE":"8","BLENDTARGET":0,"COLORSPACE":"0","blendAmount":1,"kernelName":"impulse","kernelRadiusX":8,"kernelRadiusY":9,"kernelSoftness":6.605}},{"name":"flow()","config":{"BLENDMODE":"4","BLEND_CHANNEL_MODE":"4","COLORSPACE":"2","blendAmount":1,"warpStrength":-0.73,"directionAngle":-1.4451326206513,"modAmount":0.405,"driverChannel":"5","modulatorChannel":"0","driverPolarity":false,"modulatorPolarity":true,"threshLow":0.17,"threshHigh":0.4,"driverGamma":0.7583998736407089,"flatThreshold":false}}]},
+    {"name":"Lessening","config":[{"name":"Posterize","config":{"levels":8,"mode":"2","COLORSPACE":"4","BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"blendAmount":1,"mod":0.5,"c1":true,"c2":true,"c3":true}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"warpStrength":-0.21,"directionAngle":-0.534070751110264,"modAmount":0,"driverChannel":"1","modulatorChannel":"5","driverPolarity":true,"modulatorPolarity":false,"threshLow":0.535,"threshHigh":0.945,"driverGamma":1.1414812755524588,"flatThreshold":true}}]},
     {"name":"Gray Goo","config":[{"name":"Look","config":{"exposure":3.8,"toneShoulder":-1.7,"toneCenter":0.27,"chromaWeight":3.16,"chromaFadeLow":-3.9,"chromaFadeHigh":2.9,"tintAxis":[1.27,0.57,0],"tintStrength":0}},{"name":"Delay Line","config":{"delay":68.45,"window":"ring","falloff":"uniform","density":2.1,"angle":7.72,"shearX":-1.7,"shearY":-3,"scaleX":2.4,"scaleY":1,"COLORSPACE":"6","BLENDMODE":"10","blendAmount":1,"blendTarget":"0","jitter":0.11,"BLEND_CHANNEL_MODE":"2"}}]},
     {"name":"Fog Glitch","config":[{"name":"Colorshred","config":{"density":0.2,"flip":false}},{"name":"Desync Tiles","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"tileCountX":50,"tileCountY":50,"offsetAmount":0.05,"seed":10}},{"name":"2D Kernel","config":{"BLENDMODE":1,"BLENDTARGET":0,"COLORSPACE":0,"blendAmount":1,"kernelName":"gaussian","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":3.85}}]},
     {
@@ -1878,7 +1878,7 @@ export const builtInPresets = [
             }
         },
         {
-            "name": "Pseudosort",
+            "name": "flow()",
             "config": {
                 "BLENDMODE": "1",
                 "BLEND_CHANNEL_MODE": "1",

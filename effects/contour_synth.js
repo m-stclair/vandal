@@ -98,7 +98,8 @@ export default {
         const {config} = instance;
         const {
             freq, freqScale, phaseOff, phaseScale, blendAmount, BLENDMODE,
-            waveform, spatialWaveform, BLEND_CHANNEL_MODE, COLORSPACE
+            waveform, spatialWaveform, BLEND_CHANNEL_MODE, COLORSPACE,
+            chromaBoost
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -108,7 +109,8 @@ export default {
             u_freq: {type: "float", value: freq},
             u_freqScale: {type: "float", value: freqScale},
             u_phaseOff: {type: "float", value: phaseOff * Math.PI / 180},
-            u_phaseScale: {type: "float", value: phaseScale}
+            u_phaseScale: {type: "float", value: phaseScale},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const wavecode = {
             "Sine": 0, "Saw": 1, "Square": 2, "Tri": 3
@@ -119,7 +121,8 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             WAVEFORM_MODE: wavecode,
             SPATIAL_MODE: spacecode,
         }

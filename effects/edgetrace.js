@@ -21,7 +21,8 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         threshold: 0.35,
-        tint: [1, 1, 1]
+        tint: [1, 1, 1],
+        chromaBoost: 1
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
@@ -41,7 +42,8 @@ export default {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE, threshold, tint
+            blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE, threshold, tint,
+            chromaBoost
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -50,6 +52,7 @@ export default {
             u_resolution: {type: "vec2", value: [width, height]},
             u_threshold: {type: "float", value: threshold},
             u_tint: {type: "vec3", value: tint},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             COLORSPACE: COLORSPACE,

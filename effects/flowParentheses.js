@@ -9,7 +9,7 @@ import {
 import {blendControls} from "../utils/ui_configs.js";
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
 
-const shaderPath = "../shaders/pseudosort.glsl"
+const shaderPath = "../shaders/flow_parentheses.glsl"
 const includePaths = {
     'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
     'blend.glsl': '../shaders/includes/blend.glsl',
@@ -32,7 +32,7 @@ const {
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Pseudosort",
+    name: "flow()",
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
@@ -50,7 +50,8 @@ export default {
         kernelName: "gaussian",
         kernelRadiusX: 3,
         kernelRadiusY: 3,
-        kernelSoftness: 10
+        kernelSoftness: 10,
+        chromaBoost: 1
 
     },
     uiLayout: [
@@ -132,7 +133,7 @@ export default {
             magPolarity, threshLow, threshHigh, magGamma,
             flatThreshold, directionStrength,
             kernelName, kernelRadiusX, kernelRadiusY,
-            kernelSoftness,
+            kernelSoftness, chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         const MAX_KERNEL_SIZE = 255;
@@ -157,11 +158,13 @@ export default {
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             u_kernelWidth: {type: "int", value: kernelInfo.width},
             u_kernelHeight: {type: "int", value: kernelInfo.height},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             KERNEL_SIZE: kernelInfo.kernel.length,
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
@@ -175,12 +178,11 @@ APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_C
 };
 
 export const effectMeta = {
-    group: "Glitch",
-    tags: ["sort", "webgl", "blur"],
-    description: "Applies a spatial warp to an image, optionally modulated by luma, hue, saturation, or" +
-        "a specified color channel. At some settings, works something like a very fast version " +
-        "of a classic pixel sort effect, but can also create a variety of blur, ghosting, and " +
-        "generally painterly effects.",
+    group: "Operators",
+    tags: ["sort", "webgl", "blur", "paint"],
+    description: "Ink in water, hourglass sandlight, dissection, pixel clouds. " +
+        "Applies a spatial displacement field to an image, with rotation and magnitude " +
+        "separately modulated by luma, hue, saturation, or specified color channels. ",
     canAnimate: true,
     realtimeSafe: true,
 };

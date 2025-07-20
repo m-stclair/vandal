@@ -27,6 +27,7 @@ export default {
         BLENDTARGET: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 1,
+        chromaBoost: 1,
         kernelName: "gaussian",
         kernelRadiusX: 3,
         kernelRadiusY: 3,
@@ -48,28 +49,31 @@ export default {
         initGLEffect(instance, fragSources);
         let {
             kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness,
-            BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, blendAmount
+            BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, blendAmount,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         const MAX_KERNEL_SIZE = 255;
             let kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
             if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
                 kernelInfo = subsampleKernel2D(kernelInfo.kernel, kernelInfo.width, kernelInfo.height, MAX_KERNEL_SIZE);
-            }        const uniformSpec = {
+            }
+            const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             u_kernelWidth: {type: "int", value: kernelInfo.width},
             u_kernelHeight: {type: "int", value: kernelInfo.height},
-            u_blendamount: {type: "float", value: blendAmount}
+            u_blendamount: {type: "float", value: blendAmount},
+            u_chromaBoost: {type: "float", value: chromaBoost}
         };
 
         const defines = {
             KERNEL_SIZE: kernelInfo.kernel.length,
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         };
-
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSources.load,

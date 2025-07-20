@@ -21,6 +21,7 @@ export default {
     name: "Colormap",
     defaultConfig: {
         colormap: "orange_teal",
+        chromaBoost: 1,
         reverse: false,
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,
@@ -44,12 +45,14 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            reverse, BLENDMODE, BLEND_CHANNEL_MODE, COLORMAP, blendAmount, colormap
+            reverse, BLENDMODE, BLEND_CHANNEL_MODE, COLORMAP, blendAmount,
+            colormap, chromaBoost
         } = resolveAnimAll(instance.config, t);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_reverse: {value: reverse, type: "float"}
+            u_reverse: {value: reverse, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         uniformSpec["u_cmap"] = {
             value: instance.glState.getOrCreateLUT(colormap, cmapLuts[colormap]),

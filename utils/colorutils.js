@@ -1,3 +1,5 @@
+import {ColorspaceEnum} from "./glsl_enums.js";
+
 export function hex2Rgb(hex) {
     hex = hex.replace('#', '');
     const bigint = parseInt(hex, 16);
@@ -277,21 +279,32 @@ export const colorSpaces = {
 
 // TODO: this and the previous object should not be
 //  separate and contradictory
-export function convertAxisVector(vec, from, to = 'LAB') {
-  if (from === to) return vec;
+export function convertAxisVector(vec, from, to = ColorspaceEnum.Lab) {
+    // TODO: ugh, this should happen at a higher level
+    from = Number(from);
+    to = Number(to);
+    if (from === to) return vec;
 
-  if (from === 'sRGB' && to === 'LAB') {
-    const linear = sRGBVec2Linear(vec);
-    return rgb2Lab(...linear);
-  }
-
-  if (from === 'HSV' && to === 'LAB') {
-    const rgb = hsv2Rgb(...vec);
-    const linear = sRGBVec2Linear(rgb);
-    return rgb2Lab(...linear);
-  }
-
-  throw new Error(`No conversion from ${from} to ${to}`);
+    let inVec;
+    if (from === ColorspaceEnum.RGB) {
+        inVec = vec;
+    }
+    if (from === ColorspaceEnum.HSV) {
+        inVec = hsv2Rgb(...vec);
+    }
+    if (from === ColorspaceEnum.Lab) {
+        inVec = linearVec2SRGB(lab2Rgb(...vec));
+    }
+    if (to === ColorspaceEnum.HSV) {
+        return rgb2Hsv(...inVec);
+    }
+    if (to === ColorspaceEnum.Lab) {
+        return rgb2Lab(...sRGBVec2Linear(inVec));
+    }
+    if (to === ColorspaceEnum.RGB) {
+        return vec
+    }
+    throw new Error(`No conversion from ${from} to ${to}`);
 }
 
 

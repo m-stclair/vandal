@@ -61,7 +61,9 @@ vec4 chromawave(vec2 uv) {
     vec3 srgb = texture(u_image, uv).rgb;
     float luma = dot(srgb, vec3(0.299, 0.587, 0.114));
     if (luma < u_threshold) {
-        return vec4(0.0, 0.0, 0.0, 1.0);
+        return vec4(
+           blendWithColorSpace(srgb, vec3(0.0, 0.0, 0.0), u_blendamount), 1.
+        );
     }
 
     vec3 inHSL = srgb2HSL(srgb);
@@ -84,11 +86,9 @@ vec4 chromawave(vec2 uv) {
 #elif SPATIAL_PATTERN == 3
     spatialSignal = dot(delta, normalize(vec2(1.0, 1.0)));
 #elif SPATIAL_PATTERN == 4
-    spatialSignal = fract(atan(delta.y / u_spreadNorm, delta.x / u_spreadNorm)) * (delta.x + delta.y);  // Consider normalizing or wrapping
+    spatialSignal = fract(atan(delta.y / u_spreadNorm, delta.x / u_spreadNorm)) * (delta.x + delta.y);
 #elif SPATIAL_PATTERN == 5
-    float scale = 100.;  // cells per screen (or invert for px size)
-//    vec2 grid = floor(fract(delta.x * delta.y)) * (delta.x + delta.y);
-//    spatialSignal = mod(grid.x + grid.y, 2.0);  // checkerboard 0 or 1
+    float scale = 100.;
     spatialSignal = (sin(delta.x / 20. / u_spreadNorm) + sin(delta.y / 20. / u_spreadNorm)) * (delta.x + delta.y);
 #else
     spatialSignal = length(delta);  // fallback

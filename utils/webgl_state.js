@@ -1,4 +1,5 @@
 import {UniformSetters, checkTexture, checkFrameBuffer} from "./gl.js";
+import {isEqual} from "./helpers.js";
 
 export class webGLState {
     constructor(renderer, name, id) {
@@ -51,7 +52,7 @@ export class webGLState {
         if (!defines) return false;
         if (!this.last_defines) return true;
         for (let k of Object.keys(defines)) {
-            if (defines[k] !== this.last_defines[k]) return true;
+            if (!(isEqual(defines[k], this.last_defines[k]))) return true;
         }
         return false;
     }
@@ -146,7 +147,8 @@ export class webGLState {
                 UniformSetters[type](gl, loc, 1);
                 return;
             }
-            if (this.last_uniforms[name] === value) return;
+
+            if (isEqual(this.last_uniforms[name], value)) return;
             if (type === "UBO") {
                 const blockIndex = gl.getUniformBlockIndex(this.program, name);
                 // TODO: as above, probably terrible

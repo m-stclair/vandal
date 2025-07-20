@@ -42,6 +42,7 @@ export default {
         channelPhase1: 0,
         channelPhase2: 0,
         color: [1, 1, 1],
+        chromaBoost: 1
     },
     uiLayout: [
         {
@@ -203,7 +204,8 @@ export default {
         const {
             lineWidth, phaseX, phaseY, noiseScale, noiseAmount, direction, mode, BLENDMODE, blendAmount,
             COLORSPACE, invert, spacingFactor, skew, BLEND_CHANNEL_MODE, lumaMod, color,
-            lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2
+            lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -229,6 +231,7 @@ export default {
                 ],
                 type: "vec3"
             },
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         // console.log(uniformSpec);
         const defines = {

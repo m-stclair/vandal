@@ -24,7 +24,7 @@ export function blendControls() {
                     label: 'Chroma Boost',
                     type: 'modSlider',
                     min: 0,
-                    max: 4,
+                    max: 2.5,
                     steps: 200,
                     // ugh
                     showIf: [

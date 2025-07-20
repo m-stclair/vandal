@@ -35,7 +35,8 @@ export default {
         chunks: 20,
         tearMode: "band",
         ghostOffset: 0.05,
-        noiseAmount: 0.5
+        noiseAmount: 0.5,
+        chromaBoost: 1
     },
     uiLayout: [
         {
@@ -154,7 +155,7 @@ export default {
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE,
             flickerAmount, tearAmount, jitter, t_, bias, scale, seed, chunks,
-            tearMode, ghostOffset, noiseAmount
+            tearMode, ghostOffset, noiseAmount, chromaBoost
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -170,11 +171,13 @@ export default {
             "u_mod.blendAmount": {type: "float", value: blendAmount},
             "u_tear.amount": {type: "float", value: tearAmount * 0.15},
             "u_tear.chunks": {type: "float", value: chunks},
-            "u_tear.ghostOffset": {type: "float", value: ghostOffset}
+            "u_tear.ghostOffset": {type: "float", value: ghostOffset},
+            u_chromaBoost: {type: "float", value: chromaBoost}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLENDMODE: BLENDMODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             TEARMODE: {'wave': 0, 'jump': 1, 'band': 2, 'chunk': 3, 'ghost': 4}[tearMode]
         }

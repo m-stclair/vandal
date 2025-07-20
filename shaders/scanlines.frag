@@ -20,5 +20,5 @@ void main() {
     vec4 pixel = texture(u_image, uv);
     float line = sin((uv.y + u_phase) * u_spacing * 3.1415);
     float modulator = mix(1.0, line * 0.5 + 0.5, u_intensity);
-    outColor = vec4(applyBlend(pixel.rgb, vec3(modulator), u_blendamount), pixel.a);
+    outColor = vec4(blendWithColorSpace(pixel.rgb, vec3(modulator), u_blendamount), pixel.a);
 }

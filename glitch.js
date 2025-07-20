@@ -133,7 +133,7 @@ function updateRenderMsg(msg) {
     )
 }
 
-async function exportImage(resolusortion) {
+async function exportImage(resolution) {
     let exportCanvas = document.createElement("canvas");
 
     function getImg() {
@@ -223,7 +223,12 @@ function tick(now) {
         const key = input.dataset.key;
         const fxId = input.dataset.fxId;
         const fx = getEffectById(fxId);
-        if (fx === null) throw new Error("Effect matching control is missing")
+        if (fx === null) {
+            // this generally represents a harmless race condition -- the effect was
+            // deleted after resolving querySelectorAll() and can no longer be
+            // animated. Treat it as a very soft fault.
+            return;
+        }
         const resolved = resolveAnim(fx.config[key], t);
         const label = input.querySelector(".slider-value");
         label.textContent = formatFloatWidth(resolved);

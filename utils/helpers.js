@@ -154,3 +154,36 @@ export function assertHas(obj, key, context = "") {
   }
   return obj[key]; // enables chaining
 }
+
+/**
+ * Deep-equals for primitives, Arrays, and TypedArrays.
+ * @param {*} a
+ * @param {*} b
+ * @returns {boolean}
+ */
+export function isEqual(a, b) {
+  // identical or both NaN
+  if (a === b || (Number.isNaN(a) && Number.isNaN(b))) return true;
+  // must be same “class”
+  if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
+    return false;
+  }
+  // Arrays
+  if (Array.isArray(a)) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (!isEqual(a[i], b[i])) return false;
+    }
+    return true;
+  }
+  // TypedArrays (excludes DataView)
+  if (ArrayBuffer.isView(a) && !(a instanceof DataView)) {
+    if (a.constructor !== b.constructor || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+  // everything else must have been === already
+  return false;
+}

@@ -7,7 +7,11 @@ uniform vec2 u_resolution;
 uniform vec2 u_offset;
 uniform mat2 u_affine;
 uniform int u_wrap;
+uniform float u_blendamount;
 out vec4 outColor;
+
+#include "colorconvert.glsl"
+#include "blend.glsl"
 
 void main() {
   vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
@@ -19,5 +23,10 @@ void main() {
   } else {
     transformed = u_affine * offset + center + u_offset;
   }
-  outColor = texture(u_image, transformed);
+  outColor = vec4(
+    blendWithColorSpace(
+      texture(u_image, uv).rgb, texture(u_image, transformed).rgb, u_blendamount
+    ),
+    1.0
+);
 }

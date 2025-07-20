@@ -133,5 +133,7 @@ export const {
 ])
 
 export function hasChromaBoostImplementation(cspace) {
-    return [ColorspaceEnum.LCH, ColorspaceEnum.Lab].includes(cspace)
+    // TODO: this conversion shouldn't happen here
+    cspace = Number(cspace);
+    return Number([ColorspaceEnum.LCH, ColorspaceEnum.Lab].includes(cspace))
 }

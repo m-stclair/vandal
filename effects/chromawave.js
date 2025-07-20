@@ -27,13 +27,13 @@ export default {
         BLENDMODE: 1,
         BLEND_CHANNEL_MODE: 0,
         blendAmount: 1,
+        chromaBoost: 1,
         bandingSteps: 0,
         waveType: 0,
         dutyCycle: 0.5,
         originX: 0.5,
         originY: 0.5,
         spatialPattern: "radial",
-        blendTarget: '0'
 
     },
     uiLayout: [

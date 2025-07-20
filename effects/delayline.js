@@ -41,7 +41,8 @@ export default {
         blendAmount: 1,
         blendTarget: '0',
         jitter: 0,
-        chromaBoost: 0
+        chromaBoost: 1,
+        BLEND_CHANNEL_MODE: 0
     },
 
     uiLayout: [

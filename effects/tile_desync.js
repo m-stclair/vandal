@@ -31,6 +31,7 @@ export default {
         tileCountY: 10,
         offsetAmount: 0.1,
         seed: 0,
+        chromaBoost: 1
     },
     uiLayout: [
         {type: "modSlider", key: "seed", label: "Seed", min: 1, max: 500, step: 1},
@@ -63,7 +64,7 @@ export default {
         const {config} = instance;
         const {
             blendAmount, BLENDMODE, offsetAmount, tileCountX,
-            tileCountY, seed, COLORSPACE, BLEND_CHANNEL_MODE
+            tileCountY, seed, COLORSPACE, BLEND_CHANNEL_MODE, chromaBoost
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -73,11 +74,13 @@ export default {
             u_tilecount: {type: "vec2", value: [tileCountX, tileCountY]},
             u_seed: {type: "float", value: seed},
             u_offsetamount: {type: "float", value: offsetAmount},
+            u_chromaBoost: {type: "float", value: chromaBoost}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

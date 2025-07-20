@@ -20,7 +20,7 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 1,
-        chromaBoost: 0
+        chromaBoost: 1
     },
     uiLayout: [
         {type: 'modSlider', key: "blockSize", label: "Block Size", min: 1, max: 64, step: 1},

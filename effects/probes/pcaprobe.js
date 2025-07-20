@@ -1,6 +1,7 @@
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {subsampleTexture} from "./probeutils.js";
 import {clamp} from "../../utils/mathutils.js";
+import {ColorspaceEnum} from "../../utils/glsl_enums.js";
 
 const shaderPath = "../shaders/pcaprobe.frag"
 const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
@@ -207,7 +208,7 @@ function computePCA(data) {
     };
 }
 
-function pcaToLab(pcaVec, mean, basis) {
+function pcaToColor(pcaVec, mean, basis) {
     return inverseProject(pcaVec, mean, basis);
 }
 
@@ -368,11 +369,9 @@ function labHueAngle(a, b) {
     return Math.atan2(b, a); // [-PI, PI]
 }
 
-function lightnessHueSort(c1, c2) {
+function lightnessSort(c1, c2) {
+    // TODO: extend
     return c1[0] - c2[0];
-    const l1 = c1[0], l2 = c2[0];
-    if (Math.abs(l1 - l2) > 0.05) return l1 - l2;
-    return labHueAngle(c1[1], c1[2]) - labHueAngle(c2[1], c2[2]);
 }
 
 function histogram3d(N, pcaCoords, resolution) {
@@ -428,46 +427,41 @@ export const pcaProbe = {
         useFurthest,
         refinementStrategy,
         usePCA,
-        balanceParams
+        balanceParams,
+        COLORSPACE
     ) {
-        initGLEffect(probe, fragSources);
+        initGLEffect(probe, fragSources, {COLORSPACE: ColorspaceEnum.Lab});
         const gl = probe.glState.gl;
         const {tempBuffer, numPixels, outData} = subsampleTexture(
             probe, width, height, gl, inputTexture
         );
-
-        const pca = computePCA(outData);
+        let pca = null;
         const points = [];
         const N = outData.length / 4;
         for (let i = 0; i < N; i++) {
             points.push([outData[i], outData[i + 1], outData[i + 2]])
         }
-
         const resolution = 16;
-
         let coords;
         if (usePCA) {
-             coords = batchProject(points, pca.mean, pca.components);
+            pca = computePCA(outData);
+            coords = batchProject(points, pca.mean, pca.components);
         } else {
             coords = points;
         }
         coords = applyBalanceParams(coords, balanceParams);
         const {bins, counts} = histogram3d(N, coords, resolution);
-
-        let labBins;
+        let colorBins;
         if (usePCA) {
-            labBins = bins.map(p => pcaToLab(p, pca.mean, pca.components));
+            colorBins = bins.map(p => pcaToColor(p, pca.mean, pca.components));
         } else {
-            labBins = bins;
+            colorBins = bins;
         }
-
-        const labBinsCount = labBins.map(([L, a, b], i) => [L, a, b, counts[i]]);
-        const mergedBins = refineCentroids(labBinsCount, paletteSize, pWeights, useFurthest, refinementStrategy);
+        const colorBinsCount = colorBins.map(([X, Y, Z], i) => [X, Y, Z, counts[i]]);
+        const mergedBins = refineCentroids(colorBinsCount, paletteSize, pWeights, useFurthest, refinementStrategy);
         const totalPx = mergedBins.reduce((v, b) => v + b[3], 0);
         mergedBins.forEach((b) => b[3] = b[3] / totalPx);
-        mergedBins.sort((c1, c2) => labHueAngle(c1[1], c1[2]) - labHueAngle(c2[1], c2[2]));
-        mergedBins.sort(lightnessHueSort);
-
+        mergedBins.sort(lightnessSort);
         return {
             pca: pca,
             palette: mergedBins

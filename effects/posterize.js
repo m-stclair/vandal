@@ -32,14 +32,15 @@ export default {
         mod: 0.5,
         c1: true,
         c2: true,
-        c3: true
+        c3: true,
+        chromaBoost: 1
     },
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, mod, COLORSPACE, mode, levels,
+            blendAmount, mod, COLORSPACE, mode, levels, chromaBoost,
             c1, c2, c3, BLENDMODE, BLEND_CHANNEL_MODE} = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -49,10 +50,12 @@ export default {
             u_logbase: {type: "float", value: mod * 4 + 1},
             u_bias: {type: "float", value: mod / 2 + 0.1},
             u_bayer_resolution: {type: "float", value: mod * mod},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLENDMODE: BLENDMODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             POSTERIZE_MODE: Number.parseInt(mode),
             POSTERIZE_LEVELS: levels,

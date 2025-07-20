@@ -39,7 +39,8 @@ export default {
             paletteSize, pWeights, cycleOffset, softness, blendK, useFurthest,
             lumaWeight, chromaWeight, hueWeight, BLENDMODE,
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
-            usePCA, showPalette, refinementStrategy, balanceParamVec
+            usePCA, showPalette, refinementStrategy, balanceParamVec,
+            chromaBoost
         } = resolveAnimAll(instance.config, t)
         const balanceParams = {
             'chromaBoost': balanceParamVec[0],
@@ -64,7 +65,6 @@ export default {
             balanceParams
         );
         palette = palette.slice(0, paletteSize);
-        // add std140 padding
         const MAX_SIZE = 256;
         const padded = new Float32Array(MAX_SIZE * 4);
 
@@ -74,11 +74,6 @@ export default {
             padded[i * 4 + 2] = palette[i][2];
             padded[i * 4 + 3] = palette[i][3];  // 'bin' weight
         }
-
-
-        // const [comp1, comp2, comp3] = pca.components;
-        // const stddev = pca.variances.map(Math.sqrt);
-        // const pcaStretch = [1 / stddev[0], 1 / stddev[1], 1 / stddev[2]];
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
@@ -93,6 +88,7 @@ export default {
             u_chromaWeight: {value: chromaWeight, type: "float"},
             u_hueWeight: {value: hueWeight, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             BLENDMODE: BLENDMODE,
@@ -102,8 +98,6 @@ export default {
             ASSIGNMODE: {"nearest": 0, "hue": 1, "blend": 2}[assignMode],
             SHOW_PALETTE: {"none": 0, "bars": 1, "strip": 2}[showPalette]
         }
-        console.log(uniformSpec);
-        console.log(defines);
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
 
@@ -272,8 +266,8 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         showPalette: "none",
         balanceParamVec: [1, 1, 0, 0, 1],
-        refinementStrategy: "k-means"
-
+        refinementStrategy: "k-means",
+        chromaBoost: 1
     }
 }
 

@@ -38,7 +38,6 @@ export default {
             u_invert1: {value: Number(invert1), type: "float"},
             u_invert2: {value: Number(invert2), type: "float"}
         };
-        console.log(uniformSpec);
         const defines = { COLORSPACE: Number.parseInt(colorSpace) };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },

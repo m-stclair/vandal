@@ -28,18 +28,16 @@ const {
     'STRENGTH',
     'ATTENUATE',
     'TINT',
-    'BLEND',
     'CHROMA_BOOST',
     'HILLSHADE',
     'EDGE',
-    'HUE_CURL'
 ]);
 
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Field Dev",
+    name: "field()",
 
     defaultConfig: {
         weights: [0, 0, 0, 0, 0, 1],
@@ -116,6 +114,7 @@ export default {
         const uniforms = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {type: "float", value: blendAmount},
+            u_chromaBoost: {type: "float", value: chromaBoost},
             u_FIELD_HUE_WEIGHT: {type: "float", value: hw},
             u_FIELD_HUE_H: {type: "float", value: FIELD_HUE_H / (2 * Math.PI)},
             u_FIELD_HUE_WIDTH: {type: "float", value: FIELD_HUE_WIDTH},
@@ -141,11 +140,7 @@ export default {
             u_FIELD_HUE2_WIDTH: {type: "float", value: FIELD_HUE2_WIDTH},
             u_FIELD_HUE_GRAD_WEIGHT: {type: "float", value: hgw},
             u_FIELD_HUE_GRAD_CHROMA_GAMMA: {type: "float", value: FIELD_HUE_GRAD_CHROMA_GAMMA},
-            u_FIELD_HUE_CURL_WEIGHT: {type: "float", value: hcw},
-
-
         };
-        console.log(FIELD_LIGHT_DIR);
         const defines = {
             FIELD_DISPLAY_MODE: FIELD_DISPLAY_MODE,
             BLENDMODE: BLENDMODE,
@@ -168,7 +163,7 @@ export default {
                     key: "weights",
                     label: "",
                     subLabels: ["Hue", "Chroma", "Luma Band", "Direction",
-                        "Hue Filter", "Hue Gradient", "Hue Curl"],
+                        "Hue Filter", "Hue Gradient"],
                     min: -1,
                     max: 2,
                     step: 0.01
@@ -269,10 +264,7 @@ export default {
                     steps: 200,
                     showIf: {key: "FIELD_DISPLAY_MODE", equals: FieldDisplayModeEnum.HILLSHADE}
                 }
-
-
             ],
-
         },
         {
             type: 'group', label: 'Component Controls', kind: 'collapse', children: [
@@ -384,10 +376,12 @@ export default {
 }
 
 export const effectMeta = {
-    group: "Color",
+    group: "Operators",
     tags: ["color", "mix"],
-    description: "custom colour field dev thange.",
-    canAnimate: false,
+    description: "Sculpts perceptual field functions across color dimensions, " +
+        "then turns them into structure. Modulation, contour, displacement, " +
+        "pseudo-lighting. Visual property extractor.",
+    canAnimate: true,
     realtimeSafe: true,
 };
 

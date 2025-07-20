@@ -1,9 +1,14 @@
 import {deg2rad, rotationMatrix2D, shearMatrix2D, scaleMatrix2D, multiplyMat2} from "../utils/mathutils.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/affine_transform.frag"
-const includePaths = {};
+const includePaths = {
+    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
+    'blend.glsl': '../shaders/includes/blend.glsl',
+};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -12,6 +17,11 @@ export default {
     name: "Affine Transform",
 
     defaultConfig: {
+        BLENDMODE: BlendModeEnum.MIX,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        blendAmount: 1,
+        chromaBoost: 1,
         angle: 0,
         shearX: 0,
         shearY: 0,
@@ -19,7 +29,8 @@ export default {
         scaleY: 1,
         translateX: 0,
         translateY: 0,
-        wrap: false
+        wrap: false,
+
     },
 
     uiLayout: [
@@ -48,7 +59,8 @@ export default {
         {key: "shearY", label: "Shear Y", type: "modSlider", min: -3, max: 3, step: 0.02},
         {key: "translateX", label: "Translate X", type: "modSlider", min: -1, max: 1, step: 0.01},
         {key: "translateY", label: "Translate Y", type: "modSlider", min: -1, max: 1, step: 0.01},
-        {key: "wrap", label: "Wrap", type: "checkbox"}
+        {key: "wrap", label: "Wrap", type: "checkbox"},
+        blendControls()
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -61,7 +73,12 @@ export default {
             scaleY,
             translateX,
             translateY,
-            wrap
+            wrap,
+            blendAmount,
+            COLORSPACE,
+            BLENDMODE,
+            chromaBoost,
+            BLEND_CHANNEL_MODE
         } = resolveAnimAll(instance.config, t);
 
         const rot = rotationMatrix2D(deg2rad(angle));
@@ -76,8 +93,16 @@ export default {
             u_affine: {value: affine, type: "mat2"},
             u_offset: {value: [translateX, translateY], type: "vec2"},
             u_wrap: {value: wrap, type: "bool"},
+            u_chromaBoost: {value: chromaBoost, type: "float"},
+            u_blendamount: {type: "float", value: blendAmount},
         }
-        instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
+        const defines = {
+            COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLENDMODE: BLENDMODE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
+        }
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSources.load,
     cleanupHook(instance) {
@@ -88,10 +113,9 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Geometry",
-  tags: ["webgl", "geometry", "transform", "realtime"],
-  description: "Applies a GPU-accelerated affine transformation using a " +
-      "configurable matrix.",
-  canAnimate: true,
-  realtimeSafe: true,
+    group: "Geometry",
+    tags: ["webgl", "geometry", "zoom", "shift", "crop", "rotate", "transform", "realtime"],
+    description: "Zoom, rotate, spin, shear, shift, squeeze, crop, stretch, etc.",
+    canAnimate: true,
+    realtimeSafe: true,
 }

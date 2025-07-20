@@ -1,6 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeOpts} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendModeOpts,
+    BlendTargetEnum,
+    ColorspaceEnum,
+    hasChromaBoostImplementation
+} from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/scanlines.frag";
 const includePaths = {
@@ -18,31 +25,38 @@ export default {
         intensity: 0.5,
         phase: 0,
         blendAmount: 1,
-        blendMode: '5'
+        BLENDMODE: BlendModeEnum.SOFT_LIGHT,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1
+
     },
     uiLayout: [
         {type: "modSlider", key: "lineSpacing", label: "Line Spacing", min: 25, max: 1000, step: 5},
         {type: "modSlider", key: "phase", label: "Phase", min: -1, max: 1, step: 0.01},
         {type: "modSlider", key: "intensity", label: "Intensity", min: 0.1, max: 1, step: 0.1},
-        {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {
-            key: 'blendMode',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
+        blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
-        const {lineSpacing, intensity, phase, blendAmount, blendMode} = resolveAnimAll(instance.config, t);
+        const {
+            lineSpacing, intensity, phase, blendAmount, BLENDMODE,
+            BLEND_CHANNEL_MODE, COLORSPACE, chromaBoost
+        } = resolveAnimAll(instance.config, t);
         initGLEffect(instance, fragSources);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_phase: {value: phase * Math.PI, type: "float"},
             u_intensity: {value: intensity, type: "float"},
             u_spacing: {value: lineSpacing, type: "float"},
-            u_blendamount: {value: blendAmount, type: "float"}
+            u_blendamount: {value: blendAmount, type: "float"},
+            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
-        const defines = { BLENDMODE: Number.parseInt(blendMode) };
+        const defines = {
+            BLENDMODE: BLENDMODE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            COLORSPACE: COLORSPACE,
+        };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSources.load,

@@ -45,7 +45,7 @@ export default {
         WARPDRIVE_CHANNEL: 2,
         zoneAngle: 0,
         warpAngle: 0,
-
+        chromaBoost: 1
     },
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
@@ -55,7 +55,7 @@ export default {
             zoneSoftness, zoneEllipseN, paramA, WARPMODE,
             warpStrength, WARPDRIVE_CHANNEL, WARPDRIVE_COLORSPACE,
             WARPDRIVE_MODE, PREBLEND_WARP_CHANNEL, paramB, warpAngle,
-            zoneAngle
+            zoneAngle, chromaBoost
         } = resolveAnimAll(instance.config, t);
         let xMax = zoneCX + zoneSX / 2;
         let yMax = zoneCY + zoneSY / 2;
@@ -73,6 +73,7 @@ export default {
             u_warpStrength: {value: warpStrength, type: "float"},
             u_warpAngle: {value: warpAngle, type: "float"},
             u_zoneAngle: {value: zoneAngle, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const warpCode = {
             "shift": 0, "sine": 1, "noise": 2, "lens": 3
@@ -80,7 +81,8 @@ export default {
 
         const defines = {
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            BLENDMODE: BLENDMODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ZONESHAPE: ZONESHAPE,
             WARPMODE: warpCode,

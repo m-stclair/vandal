@@ -38,8 +38,6 @@ uniform float u_FIELD_HUE2_WIDTH;
 uniform float u_FIELD_HUE_GRAD_WEIGHT;
 uniform float u_FIELD_HUE_GRAD_CHROMA_GAMMA;
 
-uniform float u_FIELD_HUE_CURL_WEIGHT;
-
 uniform float u_FIELD_SIGNAL_COMPRESSION_KNEE;
 
 #include "colorconvert.glsl";
@@ -50,11 +48,9 @@ uniform float u_FIELD_SIGNAL_COMPRESSION_KNEE;
 #define FIELD_DISPLAY_MODE_STRENGTH 0
 #define FIELD_DISPLAY_MODE_ATTENUATE 1
 #define FIELD_DISPLAY_MODE_TINT 2
-#define FIELD_DISPLAY_MODE_BLEND 3
-#define FIELD_DISPLAY_MODE_CHROMA_BOOST 4
-#define FIELD_DISPLAY_MODE_HILLSHADE 5
-#define FIELD_DISPLAY_MODE_EDGE 6
-#define FIELD_DISPLAY_MODE_HUE_CURL 7
+#define FIELD_DISPLAY_MODE_CHROMA_BOOST 3
+#define FIELD_DISPLAY_MODE_HILLSHADE 4
+#define FIELD_DISPLAY_MODE_EDGE 5
 
 #ifndef FIELD_DISPLAY_MODE
 #define FIELD_DISPLAY_MODE FIELD_DISPLAY_MODE_STRENGTH
@@ -68,7 +64,7 @@ float lightnessFalloff(vec3 lch, float centerL, float width) {
 }
 
 float chromaField(vec3 lch, float exponent) {
-    return pow(lch.y, exponent); // chroma^exp
+    return pow(lch.y, exponent);
 }
 
 float hueAffinity(vec3 lch, float targetHue, float width, float chromaBoost) {
@@ -80,27 +76,21 @@ float hueAffinity(vec3 lch, float targetHue, float width, float chromaBoost) {
     return smoothstep(width, 0.0, abs(delta)) * pow(chroma, chromaBoost);
 }
 
-vec3 applyCrazyEffect(vec3 color) {
-    return color;
-}
-
-
-
 float hueBandpass(vec3 lch, float targetHue, float width) {
     float delta = lch.z - targetHue;
     if (delta > PI)  delta -= TWO_PI;
     if (delta < -PI) delta += TWO_PI;
     float d = abs(delta);
-    return smoothstep(width, 0.0, d); // or step version for hard band
+    return smoothstep(width, 0.0, d);
 }
 
 float lchDirectionDot(vec3 lch, vec3 dir) {
-    return dot(normalize(lch), dir); // or unnormalized for strength
+    return dot(normalize(lch), dir);
 }
 
 float angleDiff(float a, float b) {
     float d = a - b;
-    return mod(d + PI, TWO_PI) - PI;  // signed shortest angular distance
+    return mod(d + PI, TWO_PI) - PI;
 }
 
 float applyHueFilter(vec3 lch, float h1c, float h1w, float h2c, float h2w) {
@@ -147,11 +137,11 @@ FieldSample sampleField(vec2 uv) {
                                                          u_FIELD_HUE2_CENTER, u_FIELD_HUE2_WIDTH);
     signal += u_FIELD_HUE_GRAD_WEIGHT * computeHueGradMag(uv, lch);
 
-    signal = max(signal, 0.0);  // skip negative values for now unless explicitly allowed
+    signal = max(signal, 0.0);
 #if FIELD_SIGNAL_NORMALIZE == 1
     float norm = u_FIELD_HUE_WEIGHT + u_FIELD_CHROMA_WEIGHT + u_FIELD_LIGHT_WEIGHT
                  + u_FIELD_DOT_WEIGHT + u_FIELD_HUE_FILTER_WEIGHT;
-    signal /= max(norm, 1e-5);  // protect from divide-by-zero
+    signal /= max(norm, 1e-5);
 #endif
     signal = signal / (signal + u_FIELD_SIGNAL_COMPRESSION_KNEE); 
     return FieldSample(lch, srgb, uv, signal, lch.z * TWO_PI);
@@ -174,16 +164,12 @@ void main() {
 #elif FIELD_DISPLAY_MODE == FIELD_DISPLAY_MODE_TINT
     rep = mix(inColor, u_FIELD_TINT_COLOR, samp.signal);
 
-#elif FIELD_DISPLAY_MODE == FIELD_DISPLAY_MODE_BLEND
-    vec3 altColor = applyCrazyEffect(inColor);  // TODO: currently just identity function
-    rep = mix(inColor, altColor, samp.signal);
-
 #elif FIELD_DISPLAY_MODE == FIELD_DISPLAY_MODE_CHROMA_BOOST
     samp.lch.y *= mix(1.0, 2.0, samp.signal);
     rep = normLCH2SRGB(samp.lch);
 
 #elif FIELD_DISPLAY_MODE == FIELD_DISPLAY_MODE_HILLSHADE
-    float eps = 1.0 / u_resolution.x;  // or set explicitly
+    float eps = 1.0 / u_resolution.x;
     float dx = (
         sampleField(uv + vec2(eps, 0.)).signal
         - sampleField(uv - vec2(eps, 0.)).signal
@@ -197,22 +183,11 @@ void main() {
     vec3 lightDir = normalize(vec3(u_FIELD_LIGHT_DIR, u_FIELD_LIGHT_Z));
     float shade = 1. - dot(normal, lightDir);
     rep = vec3(clamp(shade, 0.0, 1.0));
-//    rep = vec3(u_FIELD_LIGHT_DIR, 0.);
-//    outColor = vec4(shade, 0., 0., 1.);
-//    return;
 
 #elif FIELD_DISPLAY_MODE == FIELD_DISPLAY_MODE_EDGE
     float edge = smoothstep(u_FIELD_EDGE_CENTER - u_FIELD_EDGE_WIDTH, u_FIELD_EDGE_CENTER, samp.signal) -
                smoothstep(u_FIELD_EDGE_CENTER, u_FIELD_EDGE_CENTER + u_FIELD_EDGE_WIDTH, samp.signal);
     rep = vec3(edge);
-
-#elif FIELD_DISPLAY_MODE == FIELD_DISPLAY_MODE_HUE_CURL
-    float hueRad = samp.hueRad;
-    vec2 F = vec2(cos(hueRad), sin(hueRad));
-    Vec2FieldDiffs hueFlow = computeVec2FieldDiffs(F);
-    float value = hueFlow.curl * u_FIELD_HUE_CURL_WEIGHT;
-    rep = vec3(value * 0.5 + 0.5);
-
 #else
     outColor = vec4(1.0, 0.0, 1.0, 1.0);  // fallback for debugging
     return;

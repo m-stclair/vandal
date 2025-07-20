@@ -186,7 +186,8 @@ export default {
             threshold, cutoff, gate, burstThreshold, burstFreq,
             ZONESHAPE, zoneCX, zoneSX, zoneCY, zoneSY,
             zoneSoftness, zoneEllipseN, zoneAngle, APPLY_MASK,
-            BLEND_CHANNEL_MODE, burstTheta, burstDTheta, burstModType
+            BLEND_CHANNEL_MODE, burstTheta, burstDTheta, burstModType,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
         // TODO: this is wrong
         if (!components.some((c) => c)) return inputTex;
@@ -215,6 +216,7 @@ export default {
             u_burstThreshold: {type: "float", value: burstThreshold},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmountC, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
             u_zoneSoftness: {value: zoneSoftness, type: "float"},
             u_zoneEllipseN: {value: zoneEllipseN, type: "float"},
             u_zoneMin: {value: [xMin, yMin], type: "vec2"},
@@ -227,7 +229,8 @@ export default {
             BLENDMODE: BLENDMODE,
             USE_CMAP: colormap === "none" ? 0 : 1,
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            GATE_MODE: gate,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            GATE_MODE: gate,
             USE_WINDOW: Number(cutoff < 1),
             ZONESHAPE: ZONESHAPE,
             APPLY_MASK: Number(APPLY_MASK),

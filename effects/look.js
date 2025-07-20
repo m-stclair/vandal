@@ -83,7 +83,7 @@ export default {
                 max: 2,
                 step: 0.01
             }
-        ], {color: "#201000"}),
+        ]),
 
         group("Chroma Rolloff", [
             {
@@ -110,7 +110,7 @@ export default {
                 max: 6,
                 step: 0.1
             }
-        ], {color: "#001020"}),
+        ]),
 
         group("Tint", [
             {
@@ -130,7 +130,7 @@ export default {
                 max: 2,
                 step: 0.01
             }
-        ], {color: "#200020"})
+        ])
     ]
 
 }
@@ -139,7 +139,7 @@ export const effectMeta = {
     group: "Utility",
     tags: ["color", "brightness", "contrast", "saturation", "chroma",
         "exposure", "warm", "lut", "chroma", "luma", "cool", "tint"],
-    description: "Adjusts luma, chroma, tone, and tint. Kind of like a " +
+    description: "Adjusts luma, chroma, tone, and tint, like a " +
         "procedurally-generated LUT. You might want this instead of B/C/S.",
     backend: "gpu",
     canAnimate: true,

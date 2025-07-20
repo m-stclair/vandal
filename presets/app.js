@@ -2565,7 +2565,6 @@ export const builtInPresets = [
                     "burstModType": "simplex"
                 }
 
-            }],
             },
             {
                 "name": "Palette Synth",
@@ -2606,6 +2605,8 @@ export const builtInPresets = [
                     "COLORSPACE": 0
                 }
             },
+        ]
+    },
             {
                 "name": "The Night Has a Thousand Eyes",
                 "config": [

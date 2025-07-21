@@ -34,6 +34,7 @@ export default {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1,
         components: [0.5, 0, 0, 0, 0, 0.5, 0],
         blendAmount: 0.5,
         colormap: "none",
@@ -249,7 +250,9 @@ export default {
     },
     initHook: fragSources.load,
     cleanupHook(instance) {
-        instance.glState.renderer.deleteEffectFBO(instance.id);
+        if (instance.glState?.renderer) {
+            instance.glState.renderer.deleteEffectFBO(instance.id);
+        }
     },
     glState: null,
     isGPU: true

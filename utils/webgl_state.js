@@ -33,9 +33,14 @@ export class webGLState {
         if (!this.fragSrc) {
             throw new Error(`${this.name}-${this.id} GL init called with unloaded frag source`)
         }
+        if (this.fragSrc instanceof Promise || Object.values(this.includeMap).some((x) => x instanceof Promise)) {
+            // We're going too fast! Soft fault.
+            return false;
+        }
         this.program = this.buildProgram(defines);
         this.uniforms = this.getUniformLocations(this.program);
         this.initialized = true;
+        return true;
     }
 
     allocateTexture(format, width, height, buffer) {
@@ -88,7 +93,11 @@ export class webGLState {
     }
 
     renderGL(inputTex, outputFBO, uniformSpec, defines) {
-        if (!this.initialized) this.init(defines);
+        if (!this.initialized) {
+            // this should always mean the frag source isn't ready yet --
+            // machine gun preset loading or something. soft fault, skip a frame.
+            if(!this.init(defines)) return inputTex;
+        }
         const gl = this.gl;
         // this will result in a double compilation on the very first frame
         // in some cases, which is probably not a huge deal.

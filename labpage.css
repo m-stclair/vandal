@@ -121,6 +121,10 @@ width: fit-content;
   min-width: 8em;
 }
 
+#freezeAnimation.frozen {
+    background: #d22;
+}
+
 
 #exportControls {
   background: #222;

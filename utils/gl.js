@@ -33,8 +33,12 @@ export function initGLEffect(instance, fragSource) {
     if (!instance.glState) {
         throw new Error("Can't call apply() before assigning a webGLState")
     }
-    instance.glState.fragSrc = fragSource.src;
-    instance.glState.includeMap = fragSource.includeMap;
+    if (!instance.glState.fragSrc) {
+        instance.glState.fragSrc = fragSource.src;
+    }
+    if (!instance.glState.includeMap) {
+        instance.glState.includeMap = fragSource.includeMap;
+    }
 }
 
 // TODO: some bug somewhere related to bareword substitution

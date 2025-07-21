@@ -1,24 +1,25 @@
 import {
     canvas,
-    defaultCtx, pruneForMobile, setupDragAndDrop,
+    defaultCtx,
+    pruneForMobile,
+    setupDragAndDrop,
     setupExportImage,
     setupPaneDrag,
     setupPresetUI,
     setupStaticButtons,
-    setupVideoCapture, setupVideoExportModal,
+    setupVideoCapture,
+    setupVideoExportModal,
     setupWindow
 } from "./ui.js";
 
 import {
     addEffectToStack,
-    clearConfigUI,
     clearRenderCache,
     Dirty,
-    flushEffectStack,
-    forEachEffect,
     getActiveEffects,
     getEffectById,
     getEffectStack,
+    getAnimationFrozen,
     getNormedImage,
     getOriginalImage,
     loadState,
@@ -28,9 +29,11 @@ import {
     requestRender,
     requestUIDraw,
     rerollNormLoadID,
+    resetStack,
     resizeAndRedraw,
     saveState,
     setFilters,
+    setFreezeAnimationFlag,
     setOriginalImage,
     setRenderedImage,
     toggleEffectSelection,
@@ -45,7 +48,7 @@ import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
-import {drawPattern, drawSquare} from "./test_patterns.js";
+import {drawPattern} from "./test_patterns.js";
 import {getAppPresetView} from "./utils/presets.js";
 
 function handleUpload(e) {
@@ -121,7 +124,6 @@ function updateVisualStyles(cvs = canvas) {
 }
 
 
-let freezeAnimationFlag = false;
 let rendering = false;
 
 function updateRenderMsg(msg) {
@@ -178,7 +180,7 @@ async function exportImage(resolution) {
         exportCanvas = null;
         eCtx = null;
         clearRenderCache();
-        freezeAnimationFlag = false;
+        setFreezeAnimationFlag(false);
         rerollNormLoadID();  // to trigger framebuffer invalidation
     }
 
@@ -198,7 +200,7 @@ async function exportImage(resolution) {
     }
 
     try {
-        freezeAnimationFlag = true;
+        setFreezeAnimationFlag(true);
         clearRenderCache();
         // updateRenderMsg("setting up");
         // document.getElementById("stopCaptureOverlay").style.display = "none"
@@ -216,10 +218,16 @@ const isAnimationActive = () => getEffectStack().some(fx => isModulating(fx))
 
 let animating = false;
 let startTime = null;
+let timePhase = 0;
 
-function tick(now) {
-    if (!animating || freezeAnimationFlag) return;
-    const t = (now - startTime) / 1000;
+function tick() {
+    if (!animating) return;
+    if  (getAnimationFrozen()) {
+        requestAnimationFrame(tick);
+        return;
+    }
+    timePhase += 60 / 1000;
+
     document.querySelectorAll(".modulated").forEach(input => {
         const key = input.dataset.key;
         const fxId = input.dataset.fxId;
@@ -235,7 +243,7 @@ function tick(now) {
         label.textContent = formatFloatWidth(resolved);
     });
     // TODO: this obviously has to work a _little_ differently.
-    firePipeline(t);
+    firePipeline(timePhase);
     if (capturing && capturer) {
         capturer.capture(document.getElementById('glitchCanvas'));
         frameCounter++;
@@ -266,21 +274,6 @@ function renderImage() {
     } else if (!animShouldBeRunning && animating) {
         animating = false;
     }
-}
-
-// TODO: big gun type situation
-function resetStack() {
-    forEachEffect(
-        (fx) => {
-            if (fx.cleanupHook) {
-                fx.cleanupHook(fx.id);
-            }
-        })
-    flushEffectStack();
-    clearRenderCache();
-    clearConfigUI();
-    requestUIDraw();
-    requestRender();
 }
 
 async function addSelectedEffect(effectName) {
@@ -381,6 +374,7 @@ async function appSetup() {
     setupPresetUI(
         saveState,
         loadState,
+        resetStack,
         requestRender,
         requestUIDraw,
         effectRegistry

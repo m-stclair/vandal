@@ -468,7 +468,7 @@ export const builtInPresets = [
                 "freqShift": -0.15,
                 "tint": [1, 1, 1],
                 "seed": 208,
-                "blendMode": "1",
+                "BLENDMODE": "1",
                 "colorSpace": "1",
                 "fc": [6, 15, 10],
                 "components": [0.25, 0, 0.56, 0, 0, 0, 0],
@@ -615,7 +615,7 @@ export const builtInPresets = [
                     "frequency": 115.95100609902991,
                     "freqShift": 0.05,
                     "seed": 161,
-                    "blendMode": "10",
+                    "BLENDMODE": "10",
                     "fc": [
                         6,
                         15,
@@ -774,7 +774,7 @@ export const builtInPresets = [
                     "frequency": 30.744329067236027,
                     "freqShift": -0.07,
                     "seed": 280,
-                    "blendMode": "soft light",
+                    "BLENDMODE": "soft light",
                     "fc": [
                         5,
                         13.75,
@@ -831,7 +831,7 @@ export const builtInPresets = [
                         0,
                         0
                     ],
-                    "blendMode": 1,
+                    "BLENDMODE": 1,
                     "blendAmount": 0.8
                 }
             }
@@ -851,7 +851,7 @@ export const builtInPresets = [
                         0.42
                     ],
                     "seed": 314,
-                    "blendMode": "10",
+                    "BLENDMODE": "10",
                     "tintSpace": "HSV",
                     "fc": [
                         7,
@@ -1006,7 +1006,7 @@ export const builtInPresets = [
                         1
                     ],
                     "seed": 374,
-                    "blendMode": "9",
+                    "BLENDMODE": "9",
                     "colorSpace": "0",
                     "fc": [
                         5.75,
@@ -1188,40 +1188,6 @@ export const builtInPresets = [
         }]
     },
     {
-        "name": "Noise Mixer",
-        "config": {
-            "frequency": 84.52299235058047,
-            "freqShift": 0,
-            "tint": [
-                0.56,
-                0.42,
-                0.28
-            ],
-            "seed": 242,
-            "blendMode": "8",
-            "colorSpace": "0",
-            "fc": [
-                6,
-                15,
-                10
-            ],
-            "components": [
-                0,
-                0,
-                0,
-                0.85,
-                0,
-                0,
-                0
-            ],
-            "blendAmount": 0.67,
-            "colormap": "none",
-            "tintSpace": "HSV",
-            "master": 0.23
-        }
-    },
-
-    {
         "name": "Puzzling",
         "config": [
             {
@@ -1382,7 +1348,7 @@ export const builtInPresets = [
                         0.42
                     ],
                     "seed": 321,
-                    "blendMode": "9",
+                    "BLENDMODE": "9",
                     "colorSpace": "0",
                     "fc": [
                         6,
@@ -1858,7 +1824,7 @@ export const builtInPresets = [
                 "freqShift": 0,
                 "tint": [0.56, 0.42, 0.28],
                 "seed": 297,
-                "blendMode": "1",
+                "BLENDMODE": "1",
                 "colorSpace": "0",
                 "fc": [6, 15, 10],
                 "components": [0, 0, 0, 1, 0, 0, 0],
@@ -2391,7 +2357,6 @@ export const builtInPresets = [
                         1,
                         1
                     ],
-                    "blendMode": "1",
                     "blendTarget": "0",
                     "colorSpace": "0"
                 }

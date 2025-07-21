@@ -60,6 +60,17 @@ export function filterEffectStack(func) {
     effectStack = effectStack.filter(func);
 }
 
+let freezeAnimationFlag = false;
+let freezeAnimationButtonFlag = false;
+export const getAnimationFrozen = () => {
+    return freezeAnimationFlag || freezeAnimationButtonFlag;
+}
+export const setFreezeAnimationFlag = (v) => freezeAnimationFlag = v;
+export const setFreezeAnimationButtonFlag = (v) => {
+    freezeAnimationButtonFlag = v;
+}
+
+
 export function flushEffectStack() {
     effectStack.length = 0;
 }
@@ -154,14 +165,6 @@ export function clearNormedImage() {
 
 export function setFilters(filters, cvs=canvas) {
     cvs.style.filter = filters;
-}
-
-// config UI clearing
-
-const configContainer = gid("configForm");
-
-export function clearConfigUI() {
-    configContainer.innerHTML = '';
 }
 
 export function makeEffectInstance(mod) {
@@ -266,3 +269,21 @@ export function resizeAndRedraw() {
     requestRender();
 }
 
+// TODO: big gun type situation
+export function resetStack() {
+    setFreezeAnimationFlag(true);
+    try {
+        forEachEffect(
+            (fx) => {
+                if (fx.cleanupHook) {
+                    fx.cleanupHook(fx);
+                }
+            })
+        flushEffectStack();
+        clearRenderCache();
+        requestUIDraw();
+        requestRender();
+    } finally {
+        setFreezeAnimationFlag(false);
+    }
+}

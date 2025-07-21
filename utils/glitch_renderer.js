@@ -61,7 +61,7 @@ export class GlitchRenderer {
     compileVertexShader() {
         this.vertexShader = this.compile(this.gl.VERTEX_SHADER,
             `#version 300 es
-          in vec2 a_position;
+          in vec2 a_position;   
           out vec2 v_texCoord;
           void main() {
             v_texCoord = 0.5 * (a_position + 1.0);

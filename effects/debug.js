@@ -89,6 +89,6 @@ export const effectMeta = {
     tags: ["debug"],
     description: "Tool to check for glitches in and properties of various " +
         "space and color properties",
-    canAnimate: true,
-    realtimeSafe: true,
+    canAnimate: false,
+    realtimeSafe: false,
 };

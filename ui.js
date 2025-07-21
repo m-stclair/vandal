@@ -7,6 +7,9 @@ import {
     updateAppPresets,
 } from "./utils/presets.js";
 import {populateTestSelect} from "./test_patterns.js";
+import {randomizeEffectStack} from "./utils/randomizer.js";
+// TODO: messy messy
+import {setFreezeAnimationButtonFlag} from "./state.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");
@@ -87,6 +90,14 @@ export function setupStaticButtons(
         requestUIDraw();
         requestRender();
     });
+    const freezeBtn = gid("freezeAnimation")
+    freezeBtn.addEventListener("click",
+        () => {
+            freezeBtn.classList.toggle("frozen");
+            setFreezeAnimationButtonFlag(freezeBtn.classList.contains("frozen"))
+        }
+    )
+    // gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
 }
 
 
@@ -186,10 +197,11 @@ function updatePresetSelect() {
 }
 
 export function setupPresetUI(
-    getState, loadState, requestRender, requestUIDraw, registry
+    getState, loadState, resetStack, requestRender, requestUIDraw, registry
 ) {
 
     document.getElementById('presetSelect').addEventListener("change", async () => {
+        resetStack();
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
             await loadState(getAppPresetView(name), registry, false);
@@ -299,15 +311,11 @@ export function pruneForMobile(exportImage, loadState, registry,
     document.getElementById('exportImage').onclick = () => {
         exportImage("full");
     };
-    // console.log('boop');
     populateTestSelect();
     gid("dragBar").remove();
     topBar.classList.add('mobile');
     gid("captureOverlay").remove();
-    // gid("debug-pane-root").remove();
     gid("mainLayout").style.maxHeight = "80vh";
     gid("mobile-topbar-target").appendChild(topBar);
-    // const uploadButton = gid('upload');
-    // uploadButton.addEventListener('change', handleUpload);
 }
 

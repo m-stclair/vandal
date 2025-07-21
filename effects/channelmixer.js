@@ -20,7 +20,7 @@ export default {
         mix2: [0, 1, 0],
         mix3: [0, 0, 1],
         offset: [0, 0, 0],
-        colorSpace: ColorspaceEnum.Lab
+        COLORSPACE: ColorspaceEnum.Lab
     },
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -37,7 +37,7 @@ export default {
             u_offset: {type: "vec3", value: resolved.offset},
         };
         const defines = {
-            COLORSPACE: Number.parseInt(resolved.colorSpace)
+            COLORSPACE: Number.parseInt(resolved.COLORSPACE)
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },
@@ -80,7 +80,7 @@ export default {
             step: 0.01,
         },
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Colorspace',
             type: 'Select',
             options: ColorspaceOpts

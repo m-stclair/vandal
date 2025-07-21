@@ -49,6 +49,7 @@ export default {
             'balanceShift': balanceParamVec[3],
             'paletteGamma': balanceParamVec[4]
         }
+        let pSize = Math.floor(paletteSize);  // just sanitizing
         const probe = instance.probe;
         let {pca, palette} = probe.analyze(
             probe,
@@ -57,7 +58,7 @@ export default {
             height,
             // NOTE: this is _target_ size. could end up smaller if there
             // are lots of empty bins.
-            paletteSize,
+            pSize,
             pWeights,
             useFurthest,
             refinementStrategy,
@@ -280,4 +281,5 @@ export const effectMeta = {
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {"showPalette": {"always": "none"}}
 };

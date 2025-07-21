@@ -242,5 +242,6 @@ export const effectMeta = {
         "mint-brick-aubergine? Go ahead.",
     canAnimate: false,
     realtimeSafe: true,
+    parameterHints: {"CC_DEBUG_MODE": {"always": CCDebugEnum.CC_DEBUG_NONE}}
 };
 

@@ -238,7 +238,7 @@ function tick() {
             // animated. Treat it as a very soft fault.
             return;
         }
-        const resolved = resolveAnim(fx.config[key], t);
+        const resolved = resolveAnim(fx.config[key], timePhase);
         const label = input.querySelector(".slider-value");
         label.textContent = formatFloatWidth(resolved);
     });

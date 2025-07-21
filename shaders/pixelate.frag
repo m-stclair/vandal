@@ -24,7 +24,7 @@ void main() {
         texture(u_image, pixelUV(uv, u_resolution, u_blocksize)).rgb,
         u_blendamount
     );
-    outColor = vec4(blended, 1.0);
+    outColor = clamp(vec4(blended, 1.0), 0., 1.);
 }
 
 

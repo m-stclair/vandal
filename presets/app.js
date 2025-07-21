@@ -1909,12 +1909,11 @@ export const builtInPresets = [
                 "depth": {
                     "value": 0.5,
                     "mod": {
-                        "type": "saw",
-                        "freq": 1.52,
+                        "type": "sine",
+                        "freq": 0.06,
                         "phase": 0,
-                        "rangeMode": "unipolar",
-                        "scale": 0.42,
-                        "offset": 0.03
+                        "scale": 1,
+                        "offset": 0.1
                     }
                 },
                 "rate": 0.7398770712450367,

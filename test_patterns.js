@@ -176,10 +176,10 @@ async function drawPattern(pattern) {
 }
 
 
-function populateTestSelect() {
+export function populateTestSelect() {
     const testSelect = gid("test-pattern-select");
-    testSelect.appendChild(placeholderOption("-- select pattern --"));
-    ["black", "rgb", "gray", "wheel", "spiral", "sinusoid", "hypertrochoid"].forEach(type => {
+    testSelect.appendChild(placeholderOption("-- pattern --"));
+    ["black", "rgb", "gray", "wheel", "spiral", "sinusoid"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         testSelect.appendChild(opt);

@@ -6,6 +6,7 @@ import {
     deleteUserPreset,
     updateAppPresets,
 } from "./utils/presets.js";
+import {populateTestSelect} from "./test_patterns.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");
@@ -62,7 +63,6 @@ export const defaultCtx = canvas.getContext("2d", {willReadFrequently: true});
 
 
 // top-level buttons
-const uploadButton = gid('upload');
 const saveBtn = gid("save-stack");
 const loadBtn = gid("load-stack");
 const clearBtn = gid("clear-stack");
@@ -74,17 +74,13 @@ export function setupStaticButtons(
     loadState, registry, resetStack, requestRender,
     requestUIDraw
 ) {
+    const uploadButton = gid('upload');
     uploadButton.addEventListener('change', handleUpload);
     saveBtn.addEventListener("click", () => {
         textarea.value = saveState();
         navigator.clipboard?.writeText(textarea.value).then(() =>
             console.log("Stack JSON copied to clipboard")
         );
-    });
-    loadBtn.addEventListener("click", () => {
-        loadState(textarea.value, registry);
-        requestUIDraw();
-        requestRender();
     });
     clearBtn.addEventListener("upclick", () => {
         resetStack();
@@ -162,7 +158,9 @@ export function initEffectBrowser(effectRegistry) {
 // window setup (currently just resize trigger)
 export function setupWindow(resizeAndRedraw) {
     window.addEventListener('resize', resizeAndRedraw);
+    window.addEventListener('orientationchange', resizeAndRedraw);
 }
+
 
 export function placeholderOption(text = "select") {
     const nullOpt = document.createElement('option');
@@ -179,7 +177,7 @@ function updatePresetSelect() {
     const select = document.getElementById('presetSelect');
     select.innerHTML = '';
 
-    select.appendChild(placeholderOption("-- select preset --"));
+    select.appendChild(placeholderOption("--preset--"));
     listAppPresets().sort().forEach((name) => {
         const opt = document.createElement('option');
         opt.textContent = name;
@@ -191,14 +189,14 @@ export function setupPresetUI(
     getState, loadState, requestRender, requestUIDraw, registry
 ) {
 
-    document.getElementById('presetLoad').onclick = async () => {
+    document.getElementById('presetSelect').addEventListener("change", async () => {
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
             await loadState(getAppPresetView(name), registry, false);
         }
         requestUIDraw();
         requestRender();
-    };
+    });
 
     document.getElementById('presetSave').onclick = () => {
         const name = prompt('Preset name?');
@@ -262,5 +260,54 @@ export function setupDragAndDrop(handleUpload) {
         .filter(f => f.type.startsWith('image/'));
       handleUpload(files[0]);
     });
+}
+
+function isProbablyMobile() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isMobileUA = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+  const isSmallScreen = window.innerWidth < 768;
+  return isMobileUA || (isTouchDevice && isSmallScreen);
+}
+export function pruneForMobile(exportImage, loadState, registry,
+                               requestUIDraw, requestRender) {
+    if (!isProbablyMobile()) return;
+    document.body.classList.add('mobile-mode');
+
+    gid("rightPane").style.display = 'none';
+    gid("leftPane").style.maxWidth = '100%';
+    gid("leftPane").style.flexGrow = 1;
+    gid("leftPane").style.flexShrink = 0;
+    console.log('beep');
+    const topBar = gid("topBar");
+    topBar.innerHTML = `
+        <button id="exportImage" title="Download PNG">📷</button>
+        <select id="presetSelect"></select>
+        <select id="test-pattern-select"></select>
+        <label for="upload" title="Choose File">⬆</label>
+      `;
+    updatePresetSelect();
+    document.getElementById('presetSelect').addEventListener("change", async () => {
+        const name = document.getElementById('presetSelect').value;
+        if (listAppPresets().includes(name)) {
+            await loadState(getAppPresetView(name), registry, false);
+        }
+        requestUIDraw();
+        requestRender();
+    });
+    document.getElementById('exportImage').onclick = () => {
+        exportImage("full");
+    };
+    // console.log('boop');
+    populateTestSelect();
+    gid("dragBar").remove();
+    topBar.classList.add('mobile');
+    gid("captureOverlay").remove();
+    // gid("debug-pane-root").remove();
+    gid("mainLayout").style.maxHeight = "80vh";
+    gid("mobile-topbar-target").appendChild(topBar);
+    // const uploadButton = gid('upload');
+    // uploadButton.addEventListener('change', handleUpload);
 }
 

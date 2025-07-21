@@ -1,6 +1,6 @@
 import {
     canvas,
-    defaultCtx, setupDragAndDrop,
+    defaultCtx, pruneForMobile, setupDragAndDrop,
     setupExportImage,
     setupPaneDrag,
     setupPresetUI,
@@ -46,6 +46,7 @@ import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
 import {drawBlackSquare} from "./test_patterns.js";
+import {getAppPresetView} from "./utils/presets.js";
 
 function handleUpload(e) {
     let file;
@@ -160,7 +161,7 @@ async function exportImage(resolution) {
 
     function executeRender() {
         const t = animating ? (performance.now() - startTime) / 1000 : 0;
-        updateRenderMsg("rendering effects");
+        // updateRenderMsg("rendering effects");
         clearRenderCache();
         rerollNormLoadID();  // to trigger framebuffer invalidation
         firePipeline(t, eCtx, normData);
@@ -170,9 +171,9 @@ async function exportImage(resolution) {
 
     function cleanup() {
         rendering = false;  // just making sure
-        document.getElementById("stopCaptureOverlay").style.display = "inherit"
-        document.getElementById('captureOverlay').style.display = 'none';
-        updateRenderMsg("");
+        // document.getElementById("stopCaptureOverlay").style.display = "inherit"
+        // document.getElementById('captureOverlay').style.display = 'none';
+        // updateRenderMsg("");
         exportCanvas?.close?.() || exportCanvas?.remove?.();
         exportCanvas = null;
         eCtx = null;
@@ -199,9 +200,9 @@ async function exportImage(resolution) {
     try {
         freezeAnimationFlag = true;
         clearRenderCache();
-        updateRenderMsg("setting up");
-        document.getElementById("stopCaptureOverlay").style.display = "none"
-        document.getElementById('captureOverlay').style.display = 'flex';
+        // updateRenderMsg("setting up");
+        // document.getElementById("stopCaptureOverlay").style.display = "none"
+        // document.getElementById('captureOverlay').style.display = 'flex';
         requestAnimationFrame(() => setTimeout(executeRender, 10));
     } catch (e) {
         rendering = false;
@@ -295,105 +296,107 @@ async function addSelectedEffect(effectName) {
 
 
 function watchRender() {
-        if (Lock.image || !Dirty.image) return;
-        Lock.image = true;
-        Dirty.image = false;
-        try {
-            renderImage()
-        } finally {
-            Lock.image = false;
+    if (Lock.image || !Dirty.image) return;
+    Lock.image = true;
+    Dirty.image = false;
+    try {
+        renderImage()
+    } finally {
+        Lock.image = false;
+    }
+}
+
+function watchUI() {
+    if (Lock.ui || !Dirty.ui) return;
+    Lock.ui = true;
+    Dirty.ui = false;
+    try {
+        renderStackUI(getEffectStack(), uiState, gid('effectStack'));
+    } finally {
+        Lock.ui = false;
+    }
+}
+
+function rafScheduler(func, name, registry) {
+    return () => {
+        func();
+        registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
+    }
+}
+
+
+const loopIDs = {};
+const renderLoop = rafScheduler(watchRender, "render", loopIDs);
+const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
+
+
+async function appSetup() {
+    const stackHeader = document.getElementById("effectStackHeader")
+    const picker = document.createElement("effect-picker")
+    stackHeader.appendChild(picker);
+    await picker.ready;
+
+    function toggleExpand() {
+        if (picker.inSearchMode) {
+            stackHeader.style.flexShrink = '0';
+            stackHeader.style.flexGrow = '2';
+        } else {
+            stackHeader.style.flexShrink = '1';
+            stackHeader.style.flexGrow = '1';
         }
     }
 
-    function watchUI() {
-        if (Lock.ui || !Dirty.ui) return;
-        Lock.ui = true;
-        Dirty.ui = false;
-        try {
-            renderStackUI(getEffectStack(), uiState, gid('effectStack'));
-        } finally {
-            Lock.ui = false;
+    picker.setEffectSelectCallback(
+        async (effectName) => {
+            await addSelectedEffect(effectName);
+            toggleExpand();
         }
-    }
-
-    function rafScheduler(func, name, registry) {
-        return () => {
-            func();
-            registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
-        }
-    }
-
-
-    const loopIDs = {};
-    const renderLoop = rafScheduler(watchRender, "render", loopIDs);
-    const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
-
-
-    async function appSetup() {
-        const stackHeader = document.getElementById("effectStackHeader")
-        const picker = document.createElement("effect-picker")
-        stackHeader.appendChild(picker);
-        await picker.ready;
-
-        function toggleExpand() {
-            if (picker.inSearchMode) {
-                stackHeader.style.flexShrink = '0';
-                stackHeader.style.flexGrow = '2';
-            } else {
-                stackHeader.style.flexShrink = '1';
-                stackHeader.style.flexGrow = '1';
-            }
-        }
-
-        picker.setEffectSelectCallback(
-            async (effectName) => {
-                await addSelectedEffect(effectName);
-                toggleExpand();
-            }
-        );
-        ["input", "keydown"].forEach(
-            (eType) => stackHeader.addEventListener(
-                eType, (e) => {
-                    if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
-                        toggleExpand();
-                    }
+    );
+    ["input", "keydown"].forEach(
+        (eType) => stackHeader.addEventListener(
+            eType, (e) => {
+                if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
+                    toggleExpand();
                 }
-            )
+            }
         )
-        const toggleBar = document.getElementById('toggle-stack-bar');
-        const effectStack = document.getElementById('effectStack');
-        toggleBar.addEventListener('click', function () {
-            effectStack.classList.toggle('collapsed');
-            toggleBar.classList.toggle('collapsed');
-        });
-        await setupStaticButtons(
-            handleUpload,
-            addSelectedEffect,
-            saveState,
-            loadState,
-            effectRegistry,
-            resetStack,
-            requestRender,
-            requestUIDraw,
-            renderImage
-        );
-        setupPresetUI(
-            saveState,
-            loadState,
-            requestRender,
-            requestUIDraw,
-            effectRegistry
-        );
-        setupDragAndDrop(handleUpload);
-        setupExportImage(exportImage);
-        setupVideoCapture(startCapture, stopCapture);
-        setupPaneDrag();
-        setupVideoExportModal();
-        setupWindow(resizeAndRedraw);
-        await drawBlackSquare();
-        resizeAndRedraw();
-        uiLoop();
-        renderLoop();
-    }
+    )
+    const toggleBar = document.getElementById('toggle-stack-bar');
+    const effectStack = document.getElementById('effectStack');
+    toggleBar.addEventListener('click', function () {
+        effectStack.classList.toggle('collapsed');
+        toggleBar.classList.toggle('collapsed');
+    });
+    await setupStaticButtons(
+        handleUpload,
+        addSelectedEffect,
+        saveState,
+        loadState,
+        effectRegistry,
+        resetStack,
+        requestRender,
+        requestUIDraw,
+        renderImage
+    );
+    setupPresetUI(
+        saveState,
+        loadState,
+        requestRender,
+        requestUIDraw,
+        effectRegistry
+    );
+    setupDragAndDrop(handleUpload);
+    setupExportImage(exportImage);
+    setupVideoCapture(startCapture, stopCapture);
+    setupPaneDrag();
+    setupVideoExportModal();
+    pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw, requestRender);
+    setupWindow(resizeAndRedraw);
+    await drawBlackSquare();
+    await loadState(getAppPresetView("Chromawoof"), effectRegistry, false);
+    resizeAndRedraw();
+    uiLoop();
+    renderLoop();
+}
 
-    await appSetup();
+await appSetup();

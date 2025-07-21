@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
+<!--    <meta name="viewport"-->
+<!--      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">-->
     <title>vandal</title>
     <link rel="stylesheet" href="labpage.css">
     <link rel="stylesheet" href="css/effectconfig.css">
@@ -17,66 +19,27 @@
 
 </div>
 
-<!--<div id="topBar">-->
-<!--  <input type="file" id="upload" accept="image/*" />-->
-<!--    ||-->
-<!--  <button id="exportImage">Export PNG</button>-->
-<!--  <select id="exportImageResolution">-->
-<!--    <option value="screen" selected>Screen</option>-->
-<!--    <option value="full">Full</option>-->
-<!--  </select>-->
-<!--    ||-->
-<!--  <details id="exportControls">-->
-<!--      <summary>Video</summary>-->
-<!--      <div class="export-group">-->
-<!--        <label>Duration:-->
-<!--          <input type="number" id="exportDuration" value="4" min="1" max="30" step="1">-->
-<!--        </label>-->
-<!--        <label>FPS:-->
-<!--          <input type="number" id="exportFPS" value="30" min="1" max="60">-->
-<!--        </label>-->
-<!--        <label>Format:-->
-<!--          <select id="exportFormat">-->
-<!--            <option value="webm">WebM</option>-->
-<!--            <option value="gif">GIF</option>-->
-<!--            <option value="png">PNG frames</option>-->
-<!--          </select>-->
-<!--        </label>-->
-<!--        <div class="export-buttons">-->
-<!--          <button id="startCapture">🎬 Start</button>-->
-<!--          <button id="stopCapture" disabled>⏹ Stop</button>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </details>-->
-<!--    ||-->
-<!--  <select id="presetSelect"></select>-->
-<!--  <button id="presetLoad">Load</button>-->
-<!--  <button id="presetSave">Save</button>-->
-<!--  <button id="presetDelete">Delete</button>-->
-<!--    || -->
-<!--  <select id="test-pattern-select"></select>-->
-<!--</div>-->
-
+<input type="file" id="upload" accept="image/*" style="display: none"/>
 <div id="topBar">
-  <input type="file" id="upload" accept="image/*" />
+    <label for="upload" class="file-upload-button">Choose File</label>
+
     ||
   <button id="exportImage">PNG</button>
   <select id="exportImageResolution">
     <option value="screen" selected>Screen</option>
-    <option value="full">Full</option>
+    <option value="full" selected="selected">Full</option>
   </select>
 ||
   <button id="openExportControlsModal">Video</button>
 ||
   <select id="presetSelect"></select>
-  <button id="presetLoad">Load</button>
   <button id="presetSave">Save</button>
   <button id="presetDelete">Delete</button>
   ||
     <select id="test-pattern-select"></select>
 </div>
 
-<!-- Modal Structure -->
+
 <div id="exportControlsModal" class="modal">
   <div class="modal-content">
     <span class="close-btn" id="closeExportControlsModal">&times;</span>
@@ -136,5 +99,6 @@
   </div>
 </div>
 <div id="debug-pane-root"></div>
+<div id="mobile-topbar-target"></div>
 </body>
 </html>

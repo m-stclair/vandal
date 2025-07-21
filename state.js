@@ -4,6 +4,13 @@ import {normalizeImageData} from "./utils/imageutils.js";
 import {webGLState} from "./utils/webgl_state.js";
 import {GlitchRenderer} from "./utils/glitch_renderer.js"
 
+
+export const Dirty = {image: true, ui: true}
+export const Lock = {image: false, ui: false}
+export const requestRender = () => Dirty.image = true;
+export const requestUIDraw = () => Dirty.ui = true;
+
+
 let effectStack = [];
 
 let selectedEffectId = "none";
@@ -214,10 +221,6 @@ export async function loadState(preset, registry, fromJSON=true) {
     }
 }
 
-export const Dirty = {image: true, ui: true}
-export const Lock = {image: false, ui: false}
-export const requestRender = () => Dirty.image = true;
-export const requestUIDraw = () => Dirty.ui = true;
 
 function DefaultDict(defaultFactory) {
   return new Proxy({}, {
@@ -244,7 +247,7 @@ export function resizeAndRedraw() {
     const originalImage = getOriginalImage();
     if (!originalImage) return;
     const leftPane = document.getElementById('leftPane');
-    const width = leftPane.clientWidth - 20;  // subtract some padding
+    const width = leftPane.clientWidth - 20;
     const height = window.innerHeight * 0.9;
     let scale = Math.min(
         width / originalImage.width, height / originalImage.height
@@ -262,3 +265,4 @@ export function resizeAndRedraw() {
     clearNormedImage();
     requestRender();
 }
+

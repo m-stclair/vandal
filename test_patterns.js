@@ -19,10 +19,10 @@ function uploadFromCanvas(ocv) {
     });
 }
 
-export async function drawBlackSquare() {
+export async function drawSquare(color='black') {
     const ocv = new OffscreenCanvas(1024, 1024)
     const ctx = ocv.getContext('2d')
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = color;
     ctx.fillRect(0, 0, 1024, 1024);
     uploadFromCanvas(ocv);
 }
@@ -151,10 +151,13 @@ function drawSinusoid(amplitude = 512, frequency = 0.05) {
     uploadFromCanvas(canvas);
 }
 
-async function drawPattern(pattern) {
+export async function drawPattern(pattern) {
     switch (pattern) {
         case "black":
-            await drawBlackSquare();
+            await drawSquare('black');
+            return;
+        case "white":
+            await drawSquare('white');
             return;
         case "rgb":
             await drawRGBSquares();
@@ -179,7 +182,7 @@ async function drawPattern(pattern) {
 export function populateTestSelect() {
     const testSelect = gid("test-pattern-select");
     testSelect.appendChild(placeholderOption("-- pattern --"));
-    ["black", "rgb", "gray", "wheel", "spiral", "sinusoid"].forEach(type => {
+    ["black", "white", "rgb", "gray", "wheel", "spiral", "sinusoid"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         testSelect.appendChild(opt);

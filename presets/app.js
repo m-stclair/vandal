@@ -1073,6 +1073,7 @@ export const builtInPresets = [
             }
         ]
     },
+
     {
         "name": "Puzzling",
         "config": [
@@ -1083,6 +1084,143 @@ export const builtInPresets = [
                     "paramB": 90,
                     "mode": "channelwise"
                 }
+            },
+            {
+                "name": "Chromasplash",
+                "config": [
+                    {
+                        "name": "Chromawave",
+                        "config": {
+                            "threshold": 0,
+                            "cycle": true,
+                            "cycleMode": "spatial",
+                            "hueShift": {
+                                "value": 2,
+                                "mod": {
+                                    "type": "hold",
+                                    "freq": 4.878915999999999,
+                                    "phase": 0,
+                                    "scale": 0.5158496080000001,
+                                    "offset": 1
+                                }
+                            },
+                            "saturation": 100,
+                            "lightness": 48,
+                            "hueSpread": 4.230713735302785,
+                            "bleed": 0,
+                            "COLORSPACE": 0,
+                            "BLENDMODE": "10",
+                            "BLEND_CHANNEL_MODE": 0,
+                            "blendAmount": 0.6,
+                            "chromaBoost": 1,
+                            "bandingSteps": 0,
+                            "waveType": 0,
+                            "dutyCycle": 0.5,
+                            "originX": 0.5,
+                            "originY": 0.5,
+                            "spatialPattern": "radial",
+                            "blendTarget": "0"
+                        }
+                    },
+                    {
+                        "name": "Chromawave",
+                        "config": {
+                            "threshold": 0.3,
+                            "cycle": true,
+                            "cycleMode": "spatial",
+                            "hueShift": {
+                                "value": 0.51,
+                                "mod": {
+                                    "type": "walk",
+                                    "freq": 0.954400895717668,
+                                    "phase": 0,
+                                    "scale": 0.06400000000000002,
+                                    "offset": 1,
+                                    "_walkValue": 0.5284797481111897,
+                                    "_lastUpdate": 98.04309999998212
+                                }
+                            },
+                            "saturation": 100,
+                            "lightness": 48,
+                            "hueSpread": {
+                                "value": 1.7707152252711142,
+                                "mod": {
+                                    "type": "none"
+                                }
+                            },
+                            "bleed": 0,
+                            "COLORSPACE": "4",
+                            "BLENDMODE": "6",
+                            "BLEND_CHANNEL_MODE": 0,
+                            "blendAmount": 0.7,
+                            "chromaBoost": 1,
+                            "bandingSteps": 1,
+                            "waveType": "sine",
+                            "dutyCycle": 0.5,
+                            "originX": 0.26,
+                            "originY": 0.37,
+                            "spatialPattern": "radial",
+                            "blendTarget": "0"
+                        }
+                    },
+                    {
+                        "name": "Auto Levels",
+                        "config": {
+                            "mode": "channelwise",
+                            "paramA": 33,
+                            "paramB": 100
+                        }
+                    },
+                    {
+                        "name": "flow()",
+                        "config": {
+                            "BLENDMODE": 1,
+                            "BLEND_CHANNEL_MODE": 0,
+                            "COLORSPACE": 0,
+                            "blendAmount": 1,
+                            "warpStrength": {
+                                "value": 0.9,
+                                "mod": {
+                                    "type": "saw",
+                                    "freq": 0.04807140887689735,
+                                    "phase": 0,
+                                    "scale": -4.68,
+                                    "offset": 0
+                                }
+                            },
+                            "directionStrength": 0.5,
+                            "u_directionChannel": 4,
+                            "magChannel": 0,
+                            "directionPolarity": false,
+                            "magPolarity": false,
+                            "threshLow": 0,
+                            "threshHigh": 1,
+                            "magGamma": 1,
+                            "kernelName": "gaussian",
+                            "kernelRadiusX": 3,
+                            "kernelRadiusY": 3,
+                            "kernelSoftness": 10,
+                            "chromaBoost": 1,
+                            "directionAngle": {
+                                "value": 1.4765485471872,
+                                "mod": {
+                                    "type": "saw",
+                                    "freq": 0.1804814460139499,
+                                    "phase": 0,
+                                    "scale": 0.1947787445225675,
+                                    "offset": 1.5330972149518187
+                                }
+                            },
+                            "modAmount": 0.42,
+                            "driverChannel": 0,
+                            "modulatorChannel": "4",
+                            "driverPolarity": false,
+                            "modulatorPolarity": false,
+                            "driverGamma": 0.5650845800732875,
+                            "flatThreshold": false
+                        }
+                    }
+                ]
             },
             {
                 "name": "Black Light Party",
@@ -2685,130 +2823,131 @@ export const builtInPresets = [
                     "chromaBoost": 1.1875,
                     "BLEND_CHANNEL_MODE": "0"
                 }
-            }]},
+            }]
+    },
+    {
+        "name": "Chromawoof",
+        "config": [
             {
-    "name": "Chromawoof",
-    "config": [
-        {
-            "name": "Chromawave",
-            "config": {
-                "threshold": 0,
-                "cycle": true,
-                "cycleMode": "spatial",
-                "hueShift": {
-                    "value": 2,
-                    "mod": {
-                        "type": "hold",
-                        "freq": 4.878915999999999,
-                        "phase": 0,
-                        "scale": 0.5158496080000001,
-                        "offset": 1
-                    }
-                },
-                "saturation": 100,
-                "lightness": 48,
-                "hueSpread": 4.230713735302785,
-                "bleed": 0,
-                "COLORSPACE": 0,
-                "BLENDMODE": 1,
-                "BLEND_CHANNEL_MODE": 0,
-                "blendAmount": 1,
-                "bandingSteps": 0,
-                "waveType": 0,
-                "dutyCycle": 0.5,
-                "originX": 0.5,
-                "originY": 0.5,
-                "spatialPattern": "radial",
-                "blendTarget": "0"
+                "name": "Chromawave",
+                "config": {
+                    "threshold": 0,
+                    "cycle": true,
+                    "cycleMode": "spatial",
+                    "hueShift": {
+                        "value": 2,
+                        "mod": {
+                            "type": "hold",
+                            "freq": 4.878915999999999,
+                            "phase": 0,
+                            "scale": 0.5158496080000001,
+                            "offset": 1
+                        }
+                    },
+                    "saturation": 100,
+                    "lightness": 48,
+                    "hueSpread": 4.230713735302785,
+                    "bleed": 0,
+                    "COLORSPACE": 0,
+                    "BLENDMODE": 1,
+                    "BLEND_CHANNEL_MODE": 0,
+                    "blendAmount": 1,
+                    "bandingSteps": 0,
+                    "waveType": 0,
+                    "dutyCycle": 0.5,
+                    "originX": 0.5,
+                    "originY": 0.5,
+                    "spatialPattern": "radial",
+                    "blendTarget": "0"
+                }
+            },
+            {
+                "name": "Chromawave",
+                "config": {
+                    "threshold": 0.3,
+                    "cycle": true,
+                    "cycleMode": "spatial",
+                    "hueShift": {
+                        "value": 0.51,
+                        "mod": {
+                            "type": "walk",
+                            "freq": 1.5824898442403836,
+                            "phase": 0,
+                            "scale": 2,
+                            "offset": 1,
+                            "_walkValue": 0.6886539534563602,
+                            "_lastUpdate": 360.922
+                        }
+                    },
+                    "saturation": 100,
+                    "lightness": 48,
+                    "hueSpread": {
+                        "value": 1.7707152252711142,
+                        "mod": {
+                            "type": "none"
+                        }
+                    },
+                    "bleed": 0,
+                    "COLORSPACE": "4",
+                    "BLENDMODE": "10",
+                    "BLEND_CHANNEL_MODE": 0,
+                    "blendAmount": 1,
+                    "bandingSteps": 1,
+                    "waveType": "sine",
+                    "dutyCycle": 0.5,
+                    "originX": 0.26,
+                    "originY": 0.37,
+                    "spatialPattern": "radial",
+                    "blendTarget": "0"
+                }
+            },
+            {
+                "name": "Auto Levels",
+                "config": {
+                    "mode": "channelwise",
+                    "paramA": 1,
+                    "paramB": 100
+                }
+            },
+            {
+                "name": "flow()",
+                "config": {
+                    "BLENDMODE": 1,
+                    "BLEND_CHANNEL_MODE": 0,
+                    "COLORSPACE": 0,
+                    "blendAmount": 1,
+                    "warpStrength": {
+                        "value": 0.88,
+                        "mod": {
+                            "type": "saw",
+                            "freq": 0.017830828180739,
+                            "phase": 0,
+                            "scale": 1.108,
+                            "offset": 1
+                        }
+                    },
+                    "directionAngle": {
+                        "value": 1.4765485471872,
+                        "mod": {
+                            "type": "saw",
+                            "freq": 0.1804814460139499,
+                            "phase": 0,
+                            "scale": 0.1947787445225675,
+                            "offset": 1.5330972149518187
+                        }
+                    },
+                    "modAmount": 0.42,
+                    "driverChannel": 0,
+                    "modulatorChannel": "4",
+                    "driverPolarity": false,
+                    "modulatorPolarity": false,
+                    "threshLow": 0,
+                    "threshHigh": 1,
+                    "driverGamma": 0.5650845800732875,
+                    "flatThreshold": false
+                }
             }
-        },
-        {
-            "name": "Chromawave",
-            "config": {
-                "threshold": 0.3,
-                "cycle": true,
-                "cycleMode": "spatial",
-                "hueShift": {
-                    "value": 0.51,
-                    "mod": {
-                        "type": "walk",
-                        "freq": 1.5824898442403836,
-                        "phase": 0,
-                        "scale": 2,
-                        "offset": 1,
-                        "_walkValue": 0.6886539534563602,
-                        "_lastUpdate": 360.922
-                    }
-                },
-                "saturation": 100,
-                "lightness": 48,
-                "hueSpread": {
-                    "value": 1.7707152252711142,
-                    "mod": {
-                        "type": "none"
-                    }
-                },
-                "bleed": 0,
-                "COLORSPACE": "4",
-                "BLENDMODE": "10",
-                "BLEND_CHANNEL_MODE": 0,
-                "blendAmount": 1,
-                "bandingSteps": 1,
-                "waveType": "sine",
-                "dutyCycle": 0.5,
-                "originX": 0.26,
-                "originY": 0.37,
-                "spatialPattern": "radial",
-                "blendTarget": "0"
-            }
-        },
-        {
-            "name": "Auto Levels",
-            "config": {
-                "mode": "channelwise",
-                "paramA": 1,
-                "paramB": 100
-            }
-        },
-        {
-            "name": "flow()",
-            "config": {
-                "BLENDMODE": 1,
-                "BLEND_CHANNEL_MODE": 0,
-                "COLORSPACE": 0,
-                "blendAmount": 1,
-                "warpStrength": {
-                    "value": 0.88,
-                    "mod": {
-                        "type": "saw",
-                        "freq": 0.017830828180739,
-                        "phase": 0,
-                        "scale": 1.108,
-                        "offset": 1
-                    }
-                },
-                "directionAngle": {
-                    "value": 1.4765485471872,
-                    "mod": {
-                        "type": "saw",
-                        "freq": 0.1804814460139499,
-                        "phase": 0,
-                        "scale": 0.1947787445225675,
-                        "offset": 1.5330972149518187
-                    }
-                },
-                "modAmount": 0.42,
-                "driverChannel": 0,
-                "modulatorChannel": "4",
-                "driverPolarity": false,
-                "modulatorPolarity": false,
-                "threshLow": 0,
-                "threshHigh": 1,
-                "driverGamma": 0.5650845800732875,
-                "flatThreshold": false
-            }
-        }
-    ]
-}
+        ]
+    }
 
 ]

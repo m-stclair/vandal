@@ -45,7 +45,7 @@ import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
-import {drawBlackSquare} from "./test_patterns.js";
+import {drawPattern, drawSquare} from "./test_patterns.js";
 import {getAppPresetView} from "./utils/presets.js";
 
 function handleUpload(e) {
@@ -392,8 +392,8 @@ async function appSetup() {
     setupVideoExportModal();
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw, requestRender);
     setupWindow(resizeAndRedraw);
-    await drawBlackSquare();
-    await loadState(getAppPresetView("Chromawoof"), effectRegistry, false);
+    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
+    await drawPattern('spiral');
     resizeAndRedraw();
     uiLoop();
     renderLoop();

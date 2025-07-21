@@ -21,7 +21,7 @@ export function resolveAnim(p, t) {
     } = mod;
 
     const phi = (t * freq + phase) % 1;
-    const lastPhi = ((t - 1 / 60) * freq + phase) % 1;
+    const lastPhi = ((t - 1 / 30) * freq + phase) % 1;
 
     let wave = 0;
 
@@ -51,6 +51,26 @@ export function resolveAnim(p, t) {
                 : 0;
             break;
         }
+        case "impulse-ease": {
+        // pulse index for consistent randomness
+            const idx        = Math.floor(t * freq) + seed;
+            const within     = phi < duty;
+            const wrapped    = lastPhi < duty && lastPhi > phi;
+            if (within || wrapped) {
+                // compute local position in the pulse [0..1]
+                const localPhi = within
+                    ? phi / duty
+                    : ((phi + 1) / duty) % 1; // handle wrap-around
+                // cubic smoothstep
+                const env = localPhi * localPhi * (3 - 2 * localPhi);
+                // same random value for the whole pulse
+                const rand = 2 * pseudoRandom(idx) - 1;
+                wave = rand * env;
+            } else {
+                wave = 0;
+            }
+            break;
+        }
         case "walk": {
             const dt = 1 / 60;
             if (mod._walkValue === undefined) {
@@ -65,6 +85,11 @@ export function resolveAnim(p, t) {
             // TODO, maybe: expose a wrap mode like:
             //  mod._walkValue = ((mod._walkValue + 1) % 2 + 2) % 2 - 1;
         }
+        case "fm-lfo":
+          const modulator = Math.sin(phi * 5 * Math.PI);
+          const carrier  = Math.sin((phi * 4 * Math.PI) + modulator);
+          wave = carrier;
+          break;
         default:
             wave = 0;
     }

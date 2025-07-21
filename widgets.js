@@ -139,7 +139,7 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     const msWrapper = document.createElement("div");
     msWrapper.className = "mod-field";
     const modSelect = document.createElement("select");
-    ["none", "sine", "square", "saw", "hold", "impulse", "walk"].forEach(type => {
+    ["none", "sine", "square", "triangle", "saw", "hold", "impulse", "impulse-ease", "walk", "fm-lfo"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         modSelect.appendChild(opt);

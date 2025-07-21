@@ -774,7 +774,7 @@ export const builtInPresets = [
                     "frequency": 30.744329067236027,
                     "freqShift": -0.07,
                     "seed": 280,
-                    "BLENDMODE": "soft light",
+                    "BLENDMODE": 9,
                     "fc": [
                         5,
                         13.75,

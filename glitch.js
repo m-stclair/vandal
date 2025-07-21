@@ -226,7 +226,7 @@ function tick() {
         requestAnimationFrame(tick);
         return;
     }
-    timePhase += 60 / 1000;
+    timePhase += 30 / 1000;
 
     document.querySelectorAll(".modulated").forEach(input => {
         const key = input.dataset.key;

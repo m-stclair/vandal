@@ -175,10 +175,10 @@ export class webGLState {
             } else {
                 UniformSetters[type](gl, loc, value);
             }
-            const err = gl.getError();
-            if (err !== gl.NO_ERROR) {
-                console.warn("Bad uniform set:", err, name);
-            }
+            // const err = gl.getError();
+            // if (err !== gl.NO_ERROR) {
+            //     console.warn("Bad uniform set:", err, name);
+            // }
 
         });
     }

@@ -70,7 +70,6 @@ export const getAnimationFrozen = () => {
 }
 export const setFreezeAnimationFlag = (v) => freezeAnimationFlag = v;
 export const setFreezeAnimationButtonFlag = (v) => {
-    console.log('beep')
     freezeAnimationButtonFlag = v;
 }
 

@@ -60,7 +60,6 @@ export function moveEffectInStack(effectStack, from, to) {
 }
 
 
-
 // top-level buttons
 const saveBtn = gid("save-stack");
 const loadBtn = gid("load-stack");
@@ -69,9 +68,15 @@ const textarea = gid("stack-json");
 
 
 export function setupStaticButtons(
-    handleUpload, addSelectedEffect, saveState,
-    loadState, registry, resetStack, requestRender,
-    requestUIDraw, setFreezeAnimationButtonFlag
+    handleUpload,
+    addSelectedEffect,
+    saveState,
+    loadState,
+    registry,
+    resetStack,
+    requestRender,
+    requestUIDraw,
+    setFreezeAnimationButtonFlag
 ) {
     const uploadButton = gid('upload');
     uploadButton.addEventListener('change', handleUpload);
@@ -263,21 +268,22 @@ const dropZone = document.getElementById('drop-zone-fullscreen');
 export function setupDragAndDrop(handleUpload) {
     document.addEventListener('dragover', e => e.preventDefault());
     document.addEventListener('drop', e => {
-      e.preventDefault();
-      const files = Array.from(e.dataTransfer.files)
-        .filter(f => f.type.startsWith('image/'));
-      handleUpload(files[0]);
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files)
+            .filter(f => f.type.startsWith('image/'));
+        handleUpload(files[0]);
     });
 }
 
 function isProbablyMobile() {
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
 
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const isMobileUA = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
-  const isSmallScreen = window.innerWidth < 768;
-  return isMobileUA || (isTouchDevice && isSmallScreen);
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobileUA = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    const isSmallScreen = window.innerWidth < 768;
+    return isMobileUA || (isTouchDevice && isSmallScreen);
 }
+
 export function pruneForMobile(exportImage, loadState, registry,
                                requestUIDraw, requestRender, startCapture) {
     if (!isProbablyMobile()) return;

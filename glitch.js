@@ -188,9 +188,6 @@ async function exportImage(resolution) {
     try {
         setFreezeAnimationFlag(true);
         clearRenderCache();
-        // updateRenderMsg("setting up");
-        // document.getElementById("stopCaptureOverlay").style.display = "none"
-        // document.getElementById('captureOverlay').style.display = 'flex';
         requestAnimationFrame(() => setTimeout(executeRender, 10));
     } catch (e) {
         rendering = false;
@@ -357,7 +354,6 @@ async function appSetup() {
         resetStack,
         requestRender,
         requestUIDraw,
-        renderImage,
         setFreezeAnimationButtonFlag
     );
     setupPresetUI(

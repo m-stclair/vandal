@@ -53,7 +53,7 @@ export class GlitchRenderer {
     constructor(ctx) {
         this.gl = ctx;
         // monkeyPatchDrawArrays(this.gl);
-        monkeyPatchBindTexture(this.gl);
+        // monkeyPatchBindTexture(this.gl);
         const version = this.gl.getParameter(this.gl.VERSION);
         console.log("WebGL version:", version);
         this.format = {

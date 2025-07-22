@@ -3634,6 +3634,7 @@ export const builtInPresets = [
       }
     }
   ]
-}
+},
+    {"name":"An End to Landscape","config":[{"name":"field()","config":{"weights":[0.29,-0.13,2,0,-0.04,0.06],"FIELD_SIGNAL_COMPRESSION_KNEE":0.5347,"FIELD_SIGNAL_NORMALIZE":false,"FIELD_HUE_H":0,"FIELD_HUE_WIDTH":0.3,"FIELD_HUE_CHROMA_BOOST":1,"FIELD_CHROMA_EXP":1,"FIELD_LIGHT_CENTER":{"value":0.42,"mod":{"type":"sine","freq":0.05566404101306507,"phase":0,"scale":0.888,"offset":0.617}},"FIELD_LIGHT_WIDTH":0.54955,"FIELD_DOT_VECTOR":[1,0,0],"FIELD_DISPLAY_MODE":"1","blendAmount":1,"BLENDMODE":"9","BLEND_CHANNEL_MODE":"0","COLORSPACE":0,"chromaBoost":1,"FIELD_TINT_COLOR":[0.6,0.3,0.2],"FIELD_EDGE_CENTER":0.5,"FIELD_EDGE_WIDTH":0.1,"FIELD_CHROMA_BOOST_MULT":2,"FIELD_LIGHT_DIR":[0.25,0.75],"FIELD_LIGHT_Z":1.5,"FIELD_HUE1_CENTER":0.2,"FIELD_HUE1_WIDTH":0.1,"FIELD_HUE2_CENTER":0.8,"FIELD_HUE2_WIDTH":0.1,"FIELD_HUE_GRAD_CHROMA_GAMMA":1}},{"name":"Pixelate","config":{"blockSize":{"value":3,"mod":{"type":"hold","freq":1.2172126609195149,"phase":0,"scale":1.0009585,"offset":22.3}},"BLENDMODE":"7","BLEND_CHANNEL_MODE":0,"COLORSPACE":"6","blendAmount":1,"chromaBoost":1,"sampleStrategy":"corner","preserveAlpha":true}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":0.2,"mod":{"type":"triangle","freq":0.081165698816699,"phase":0,"scale":-0.5763200000000008,"offset":0}},"directionStrength":0.5,"directionChannel":5,"magChannel":"5","directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1}}]},
 
 ]

@@ -2013,11 +2013,11 @@ export const builtInPresets = [
                 "blendAmount": {
                     "value": 1,
                     "mod": {
-                        "type": "saw",
-                        "freq": 0.5,
+                        "type": "sine",
+                        "freq": 0.08,
                         "phase": 0,
                         "rangeMode": "bipolar",
-                        "scale": 0.5,
+                        "scale": 0.2,
                         "offset": 0.75
                     }
                 },
@@ -2028,18 +2028,18 @@ export const builtInPresets = [
                     "value": 0.585,
                     "mod": {
                         "type": "sine",
-                        "freq": 0.35,
+                        "freq": 0.04,
                         "phase": 0,
                         "rangeMode": "bipolar",
-                        "scale": 0.09,
+                        "scale": 0.2,
                         "offset": 0.5
                     }
                 },
-                "zoneSX": 1.25333333333333,
+                "zoneSX": 1.35,
                 "zoneCY": 0.48,
                 "zoneSY": 0.72,
                 "zoneEllipseN": 4.813,
-                "zoneSoftness": 0,
+                "zoneSoftness": 0.5,
                 "WARPMODE": "lens",
                 "paramA": 0,
                 "paramB": 0,

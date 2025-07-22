@@ -18,7 +18,7 @@ export function subsampleTexture(probe, width, height, gl, inputTexture) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    checkFrameBuffer(gl);
+    // checkFrameBuffer(gl);
     // checkTexture(gl, inputTexture);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     const numPixels = probeRes * probeRes;

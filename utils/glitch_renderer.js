@@ -183,7 +183,7 @@ export class GlitchRenderer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D, tex, 0);
-        checkFrameBuffer(gl);
+        // checkFrameBuffer(gl);
         return {fbo, texture: tex, width, height};
 
     }
@@ -195,7 +195,7 @@ export class GlitchRenderer {
         // checkTexture(gl, tex);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D, tex, 0);
-        checkFrameBuffer(gl);
+        // checkFrameBuffer(gl);
         const pixels = new this.format.arrayConstructor(width * height * 4);
         gl.readPixels(
             0, 0, width, height, this.format.formatEnum, this.format.typeEnum, pixels);

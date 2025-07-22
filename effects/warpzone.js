@@ -199,4 +199,9 @@ export const effectMeta = {
     description: "Applies a spatially-bounded warping mask.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        warpStrength: {min: 25, max: 100},
+        zoneSoftness: {min: 0, max: 0.25},
+        blendAmount: {min: 0.6, max: 1}
+    }
 };

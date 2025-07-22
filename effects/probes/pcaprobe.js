@@ -428,7 +428,6 @@ export const pcaProbe = {
         refinementStrategy,
         usePCA,
         balanceParams,
-        COLORSPACE
     ) {
         initGLEffect(probe, fragSources, {COLORSPACE: ColorspaceEnum.Lab});
         const gl = probe.glState.gl;

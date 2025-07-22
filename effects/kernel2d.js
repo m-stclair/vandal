@@ -90,4 +90,7 @@ export const effectMeta = {
     description: "Applies a generic 2D convolution kernel; use for blur, emboss, sharpening, etc.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        blendAmount: {min: 0.75, max: 1}
+    }
 };

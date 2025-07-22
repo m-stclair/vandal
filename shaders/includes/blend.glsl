@@ -96,18 +96,13 @@ vec3 blendChannelMasked(vec3 base, vec3 fx, float blendAmount) {
         applyBlend(base.x, fx.x, blendAmount),
         base.yz
     );
-#elif BLEND_CHANNEL_MODE == 2 // HUE (assumed x)
-    return vec3(
-        applyBlend(base.x, fx.x, blendAmount),
-        base.yz
-    );
-#elif BLEND_CHANNEL_MODE == 3 // SATURATION (assumed y)
+#elif BLEND_CHANNEL_MODE == 2 // SATURATION (assumed y)
     return vec3(
         base.x,
         applyBlend(base.y, fx.y, blendAmount),
         base.z
     );
-#elif BLEND_CHANNEL_MODE == 4 // VALUE (assumed z)
+#elif BLEND_CHANNEL_MODE == 3 // VALUE (assumed z)
     return vec3(
         base.xy,
         applyBlend(base.z, fx.z, blendAmount)

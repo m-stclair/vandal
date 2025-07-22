@@ -59,4 +59,8 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: false,
   realtimeSafe: true,
+    // TODO: implement
+    parameterHints: {
+      notAll0: ["invert0", "invert1", "invert2"]
+    }
 };

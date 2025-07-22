@@ -128,4 +128,5 @@ export const effectMeta = {
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
+    notInRandom: true
 };

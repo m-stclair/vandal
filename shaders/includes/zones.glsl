@@ -33,12 +33,12 @@ float boundedMask(
 
 #if ZONESHAPE == ZONE_BOX
     vec2 inner = vec2(
-        sstep(zoneMin.x, zoneMin.x + softness, uv_rot.x),
-        sstep(zoneMin.y, zoneMin.y + softness, uv_rot.y)
+        sstep(zoneMin.x, zoneMin.x + softness / 2., uv_rot.x),
+        sstep(zoneMin.y, zoneMin.y + softness / 2., uv_rot.y)
     );
     vec2 outer = vec2(
-        1.0 - sstep(zoneMax.x - softness, zoneMax.x, uv_rot.x),
-        1.0 - sstep(zoneMax.y - softness, zoneMax.y, uv_rot.y)
+        1.0 - sstep(zoneMax.x - softness / 2., zoneMax.x, uv_rot.x),
+        1.0 - sstep(zoneMax.y - softness / 2., zoneMax.y, uv_rot.y)
     );
     return inner.x * inner.y * outer.x * outer.y;
 

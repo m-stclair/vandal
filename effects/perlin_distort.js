@@ -42,7 +42,6 @@ export default {
         chromaBoost: 1,
         blendAmount: 1,
     },
-
     uiLayout: [
         group("Core Noise Settings", [
             {key: "seed", label: "Random Seed", type: "range", min: 1, max: 500, step: 1},
@@ -181,4 +180,5 @@ export const effectMeta = {
         + "Creates organic-but-retro warps, curves, and plastic tumbler patterns.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {depth: {min: 0.2, max: 1}, fuzz: {min: 0, max: 0}}
 };

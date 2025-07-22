@@ -96,4 +96,8 @@ export const effectMeta = {
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        chromaThreshold: {min: 0.25, max: 0.75},
+        density: {min: 0.1, max: 0.85}
+    }
 };

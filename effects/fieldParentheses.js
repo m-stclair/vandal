@@ -20,7 +20,7 @@ const includePaths = {
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 
-const {
+export const {
     enum: FieldDisplayModeEnum,
     names: FieldDisplayModeNames,
     options: FieldDisplayModeOpts
@@ -55,12 +55,13 @@ export default {
 
         FIELD_DOT_VECTOR: [1.0, 0.0, 0.0],
 
-        FIELD_DISPLAY_MODE: 0,
+        FIELD_DISPLAY_MODE: FieldDisplayModeEnum.STRENGTH,
 
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1,
 
         FIELD_TINT_COLOR: [0.6, 0.3, 0.2],
         FIELD_EDGE_CENTER: 0.5,

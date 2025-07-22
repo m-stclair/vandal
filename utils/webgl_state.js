@@ -93,6 +93,12 @@ export class webGLState {
     }
 
     renderGL(inputTex, outputFBO, uniformSpec, defines) {
+        const undef = (Object.entries(uniformSpec).filter(v => v[1].value === undefined))
+        if (undef.length > 0) {
+            console.warn(
+                `some uniforms undefined in ${this.name}-${this.id}: ${undef.map(o => o)}`
+            )
+        }
         if (!this.initialized) {
             // this should always mean the frag source isn't ready yet --
             // machine gun preset loading or something. soft fault, skip a frame.
@@ -169,6 +175,11 @@ export class webGLState {
             } else {
                 UniformSetters[type](gl, loc, value);
             }
+            const err = gl.getError();
+            if (err !== gl.NO_ERROR) {
+                console.warn("Bad uniform set:", err, name);
+            }
+
         });
     }
 

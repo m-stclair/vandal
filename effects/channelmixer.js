@@ -74,7 +74,7 @@ export default {
             key: "offset",
             label: "Offset",
             type: "vector",
-            subLabels: ["C1", "C2", "Ce"],
+            subLabels: ["C1", "C2", "C3"],
             min: -1,
             max: 1,
             step: 0.01,
@@ -102,4 +102,6 @@ export const effectMeta = {
       "within, not across, colorspaces.",
   canAnimate: false,
   realtimeSafe: true,
+    // TODO: would prefer otherwise, but hard to hint good mix
+  notInRandom: true
 };

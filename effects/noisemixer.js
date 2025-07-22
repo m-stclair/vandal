@@ -266,4 +266,8 @@ export const effectMeta = {
         "generator.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        threshold: {min: 0, max: 0.45},
+        cutoff: {min: 0.55, max: 1}
+    }
 };

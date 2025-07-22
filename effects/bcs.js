@@ -87,4 +87,10 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
+  parameterHints: {
+      "brightness": {min: -0.2, max: 0.4},
+      "contrast": {min: -0.3, max: 0.5}
+  },
+  // TODO, maybe: meh
+  // notInRandom: true
 };

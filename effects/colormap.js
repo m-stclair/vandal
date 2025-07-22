@@ -76,10 +76,14 @@ export default {
 };
 
 export const effectMeta = {
-  group: "Color",
-  tags: ["color", "colormap", "gpu", "lookup", "palette"],
-  description: "Applies a colormap transformation using a 1D palette LUT. "
-    + "Useful for remapping luminance or applying false color.",
-  canAnimate: true,
-  realtimeSafe: true,
+    group: "Color",
+    tags: ["color", "colormap", "gpu", "lookup", "palette"],
+    description: "Applies a colormap transformation using a 1D palette LUT. "
+        + "Useful for remapping luminance or applying false color.",
+    canAnimate: true,
+    realtimeSafe: true,
+    parameterHints: {
+        BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
+        blendAmount: {"min": 0.85, "max": 1}
+    }
 };

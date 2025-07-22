@@ -114,7 +114,7 @@ export default {
             chromaBoost
         } = resolveAnimAll(instance.config, t);
 
-        let satNorm, lightNorm, shiftNorm, spreadNorm, period;
+        let satNorm, lightNorm, shiftNorm, spreadNorm;
         const CHROMAWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode];
         if (CHROMAWAVE_CYCLE === 0) {
             satNorm = saturation / 100;
@@ -144,7 +144,6 @@ export default {
             u_threshold: {type: "float", value: threshold},
             u_shiftNorm: {type: "float", value: shiftNorm},
             u_spreadNorm: {type: "float", value: spreadNorm},
-            u_period: {type: "float", value: period},
             u_bleed: {type: "float", value: bleed},
             u_satNorm: {type: "float", value: satNorm},
             u_lightNorm: {type: "float", value: lightNorm},
@@ -186,4 +185,7 @@ export const effectMeta = {
     backend: "gpu",
     animated: true,
     realtimeSafe: true,
+    parameterHints: {
+        threshold: {min: 0, max: 0.6}
+    }
 }

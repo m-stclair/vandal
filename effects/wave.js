@@ -69,4 +69,5 @@ export const effectMeta = {
     description: "Distorts the image in regular wave patterns.",
     canAnimate: true,
     realtimeSafe: true,
+    notInRandom: true
 };

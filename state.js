@@ -183,7 +183,7 @@ export function makeEffectInstance(mod) {
         isGPU: mod.isGPU
     }
     if (mod.isGPU) {
-        instance.glState = new webGLState(renderer, mod.fragURL)
+        instance.glState = new webGLState(renderer, mod.name, instance.id)
     }
     const hook = mod.initHook?.(instance, renderer);
     instance.ready = hook?.then ? hook : Promise.resolve();

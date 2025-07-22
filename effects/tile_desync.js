@@ -2,12 +2,11 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts,
     BlendTargetEnum,
-    BlendTargetOpts,
-    ColorspaceEnum, hasChromaBoostImplementation,
-    ColorspaceOpts
+    ColorspaceEnum,
+    hasChromaBoostImplementation
 } from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/tile_desync.frag"
 const includePaths = {
@@ -37,26 +36,8 @@ export default {
         {type: "modSlider", key: "seed", label: "Seed", min: 1, max: 500, step: 1},
         {type: "modSlider", key: "tileCountX", label: "Tile Count X", min: 1, max: 100, step: 1},
         {type: "modSlider", key: "tileCountY", label: "Tile Count Y", min: 1, max: 100, step: 1},
-        {type: "modSlider", key: "offsetAmount", label: "Offset", min: 0, max: 1, step:0.005},
-        {
-            key: 'COLORSPACE',
-            label: 'Blend Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
-        {key: 'blendAmount', label: 'Blend Amount', type: 'modSlider', min: 0, max: 1, step: 0.01},
+        {type: "modSlider", key: "offsetAmount", label: "Offset", min: 0, max: 1, step: 0.005},
+        blendControls()
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -93,10 +74,15 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Glitch",
-  tags: ["tile", "offset", "glitch", "gpu", "displacement"],
-  description: "Divides the image into tiles and desynchronizes their positions. " +
-      "Can produce glassy noise, jittery breakup effects, and geometric confusion.",
-  canAnimate: true,
-  realtimeSafe: true,
+    group: "Glitch",
+    tags: ["tile", "offset", "glitch", "gpu", "displacement"],
+    description: "Divides the image into tiles and desynchronizes their positions. " +
+        "Can produce glassy noise, jittery breakup effects, and geometric confusion.",
+    canAnimate: true,
+    realtimeSafe: true,
+    parameterHints: {
+        offsetAmount: {min: 0.45, max: 1},
+        tileCountX: {min: 5, max: 40},
+        tileCountY: {min: 5, max: 40}
+    }
 };

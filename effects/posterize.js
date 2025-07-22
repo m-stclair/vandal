@@ -2,12 +2,13 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts, BlendTargetEnum,
-    BlendTargetOpts,
-    ColorspaceEnum, hasChromaBoostImplementation,
-    ColorspaceOpts, PosterizeEnum,
+    BlendTargetEnum,
+    ColorspaceEnum,
+    hasChromaBoostImplementation,
+    PosterizeEnum,
     PosterizeModeOpts
 } from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/posterizer.frag"
 const includePaths = {
@@ -76,21 +77,10 @@ export default {
             options: PosterizeModeOpts
         },
         {key: "mod", label: "Modulator", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {
-            key: 'COLORSPACE',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},
         {key: "c3", label: "Channel 2", type: "checkbox"},
+        blendControls()
 
     ],
     cleanupHook(instance) {
@@ -108,4 +98,7 @@ export const effectMeta = {
                 "quantization modes and colorspaces.",
   canAnimate: true,
   realtimeSafe: true,
+  parameterHints: {
+      blendAmount: {min: 0.75, max: 1}
+  }
 };

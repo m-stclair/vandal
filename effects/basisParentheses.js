@@ -140,7 +140,7 @@ export default {
                     key: "offset",
                     label: "Offset",
                     type: "vector",
-                    subLabels: ["C1", "C2", "Ce"],
+                    subLabels: ["C1", "C2", "C3"],
                     min: -1,
                     max: 1,
                     step: 0.01,
@@ -242,6 +242,8 @@ export const effectMeta = {
         "mint-brick-aubergine? Go ahead.",
     canAnimate: false,
     realtimeSafe: true,
-    parameterHints: {"CC_DEBUG_MODE": {"always": CCDebugEnum.CC_DEBUG_NONE}}
+    parameterHints: {"CC_DEBUG_MODE": {"always": CCDebugEnum.CC_DEBUG_NONE}},
+    // TODO: would prefer otherwise but tedious to hint a non-degenerate basis
+    notInRandom: true
 };
 

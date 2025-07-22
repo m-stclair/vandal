@@ -194,7 +194,7 @@ void main() {
 
 #endif
     outColor = vec4(
-        blendWithColorSpace(samp.srgb, rep, u_blendamount),
+        blendWithColorSpace(samp.srgb, clamp(rep, 0., 1.), u_blendamount),
         1.
     );
 }

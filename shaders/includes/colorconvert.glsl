@@ -186,7 +186,7 @@ vec3 srgb2linear(vec3 c) {
 }
 
 vec3 linear2srgb(vec3 c) {
-    return pow(c, vec3(1.0 / 2.2));
+    return pow(max(c, vec3(0.0)), vec3(1.0 / 2.2));
 }
 
 // These constants are approximations for D65 Lab/LCH in sRGB (2° observer)

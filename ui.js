@@ -97,7 +97,7 @@ export function setupStaticButtons(
             setFreezeAnimationButtonFlag(freezeBtn.classList.contains("frozen"))
         }
     )
-    // gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
+    gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
 }
 
 
@@ -297,6 +297,7 @@ export function pruneForMobile(exportImage, loadState, registry,
         <button id="exportImage" title="Download PNG">📷</button>
         <select id="presetSelect"></select>
         <select id="test-pattern-select"></select>
+        <button id="randomStack" title="Randomize">🔀</button>
         <label for="upload" title="Choose File">⬆</label>
       `;
     updatePresetSelect();
@@ -311,6 +312,7 @@ export function pruneForMobile(exportImage, loadState, registry,
     document.getElementById('exportImage').onclick = () => {
         exportImage("full");
     };
+    gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
     populateTestSelect();
     gid("dragBar").remove();
     topBar.classList.add('mobile');

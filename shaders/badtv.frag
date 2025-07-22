@@ -108,7 +108,7 @@ void main() {
     float flickerVal = sin(u_mod.t * 3.0 + tearUV.y * 2.0) * 0.05 * u_mod.flickerAmount;
 
     vec3 sampled = texture(u_image, tearUV).rgb * (1.0 - u_mod.noiseAmount);
-    vec3 noised = sampled + noiseVal + flickerVal;
+    vec3 noised = clamp(sampled + noiseVal + flickerVal, 0., 1.);
 
     vec3 inColor = texture(u_image, uv).rgb;
     vec3 blended = blendWithColorSpace(inColor, noised, u_mod.blendAmount);

@@ -2,12 +2,11 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts,
     BlendTargetEnum,
-    BlendTargetOpts,
-    ColorspaceEnum, hasChromaBoostImplementation,
-    ColorspaceOpts
+    ColorspaceEnum,
+    hasChromaBoostImplementation,
 } from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "../shaders/gridpattern.frag";
 const includePaths = {
@@ -145,25 +144,7 @@ export default {
             label: "Invert",
             type: "checkbox"
         },
-        {
-            key: 'COLORSPACE',
-            label: 'Blend Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {key: "blendAmount", label: "Blend", type: "Range", min: 0, max: 1, step: 0.01},
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
+        blendControls(),
         {
             key: "color",
             label: "Color",
@@ -243,6 +224,7 @@ export default {
             INVERT: Number(invert),
             ADD_NOISE: Number(noiseAmount > 0),
             MOD_LUMA: Number((lumaMod !== 0) || (lumaThreshold !== 0 && lumaThreshold !== 1)),
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
@@ -261,4 +243,7 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
+    parameterHints: {
+      lineWidth: {min: 15, max: 200}
+    }
 };

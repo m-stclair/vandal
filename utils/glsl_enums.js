@@ -74,10 +74,9 @@ export const {
     options: BlendTargetOpts
 } = makeEnum([
     'ALL',
-    'LUMA',
-    'HUE',
-    'SATURATION',
-    'VALUE'
+    'CHANNEL_1',
+    'CHANNEL_2',
+    'CHANNEL_3'
 ]);
 
 // Gate modes

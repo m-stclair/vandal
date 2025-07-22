@@ -26,7 +26,6 @@ export default {
         const {
             exposure,
             chromaWeight,
-            gamma,
             tintAxis,
             tintStrength,
             chromaFadeLow,
@@ -45,7 +44,6 @@ export default {
             u_shoulder: {value: toneCenter, type: "float"},
             u_chroma_fade_low: {value: chromaFadeLow, type: "float"},
             u_chroma_fade_high: {value: chromaFadeHigh, type: "float"},
-            u_sh: {value: gamma, type: "float"},
             u_tint_axis: {value: new Float32Array(tintAxis), type: "vec3"},
             u_tint_strength: {value: tintStrength, type: "float"},
         }
@@ -144,4 +142,9 @@ export const effectMeta = {
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        toneShoulder: {min: -2.2, max: 2.2},
+        exposure: {min: 2, max: 2},
+        toneCenter: {min: 0.5, max: 1.5}
+    }
 };

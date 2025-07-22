@@ -23,7 +23,7 @@ export default {
         chromaBoost: 1
     },
     uiLayout: [
-        {type: 'modSlider', key: "blockSize", label: "Block Size", min: 1, max: 64, step: 1},
+        {type: 'modSlider', key: "blockSize", label: "Block Size", min: 1, max: 72, step: 1},
         blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -61,4 +61,7 @@ export const effectMeta = {
         "producing a pixelated appearance. Block size can be animated.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        blockSize: {min: 16, max: 72}
+    }
 };

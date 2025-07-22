@@ -141,4 +141,5 @@ export const effectMeta = {
     description: "Bloom / flare effect offering a variety of selectable modes and shapes",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {bloomThreshold: {min: 0, max: 0.65}}
 };

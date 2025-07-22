@@ -40,7 +40,7 @@ export default {
         blendAmount: 1,
         warpStrength: 0.2,
         directionStrength: 0.5,
-        u_directionChannel: PChannelEnum.H,
+        directionChannel: PChannelEnum.S,
         magChannel: PChannelEnum.LUMA,
         directionPolarity: false,
         magPolarity: false,
@@ -131,7 +131,7 @@ export default {
             BLEND_CHANNEL_MODE, magChannel,
             directionChannel, warpStrength,
             magPolarity, threshLow, threshHigh, magGamma,
-            flatThreshold, directionStrength,
+            directionStrength,
             kernelName, kernelRadiusX, kernelRadiusY,
             kernelSoftness, chromaBoost
         } = resolveAnimAll(instance.config, t);
@@ -154,7 +154,6 @@ export default {
             u_magnitudePolarity: {type: "float", value: Number(magPolarity)},
             u_magnitudeGamma: {type: "float", value: magGamma},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_flatThreshold: {value: flatThreshold, type: "int"},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             u_kernelWidth: {type: "int", value: kernelInfo.width},
             u_kernelHeight: {type: "int", value: kernelInfo.height},
@@ -185,4 +184,9 @@ export const effectMeta = {
         "separately modulated by luma, hue, saturation, or specified color channels. ",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        threshHigh: {min: 0.55, max: 1},
+        threshLow: {min: 0, max: 0.5},
+        warpStrength: {min: 0.2, max: 1}
+    }
 };

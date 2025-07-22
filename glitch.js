@@ -373,7 +373,8 @@ async function appSetup() {
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
     setupVideoExportModal();
-    pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw, requestRender);
+    pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
+                   requestRender, startCapture);
     setupWindow(resizeAndRedraw);
     await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
     await drawPattern('spiral');

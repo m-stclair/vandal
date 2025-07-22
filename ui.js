@@ -279,7 +279,7 @@ function isProbablyMobile() {
   return isMobileUA || (isTouchDevice && isSmallScreen);
 }
 export function pruneForMobile(exportImage, loadState, registry,
-                               requestUIDraw, requestRender) {
+                               requestUIDraw, requestRender, startCapture) {
     if (!isProbablyMobile()) return;
     document.body.classList.add('mobile-mode');
 
@@ -290,6 +290,7 @@ export function pruneForMobile(exportImage, loadState, registry,
     console.log('beep');
     const topBar = gid("topBar");
     topBar.innerHTML = `
+        <button id="startCapture" title="Download WebM">🎥</button>
         <button id="exportImage" title="Download PNG">📷</button>
         <select id="presetSelect"></select>
         <select id="test-pattern-select"></select>
@@ -308,11 +309,11 @@ export function pruneForMobile(exportImage, loadState, registry,
     document.getElementById('exportImage').onclick = () => {
         exportImage("full");
     };
+    document.getElementById('startCapture').onclick = () => startCapture();
     gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
     populateTestSelect();
     gid("dragBar").remove();
     topBar.classList.add('mobile');
-    gid("captureOverlay").remove();
     gid("mainLayout").style.maxHeight = "80vh";
     gid("mobile-topbar-target").appendChild(topBar);
 }

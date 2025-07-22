@@ -1653,7 +1653,6 @@ export const builtInPresets = [
                             "type": "sine",
                             "freq": 0.09,
                             "phase": 0,
-                            "rangeMode": "unipolar",
                             "scale": 16.88,
                             "offset": 47.62
                         }
@@ -1672,7 +1671,6 @@ export const builtInPresets = [
                             "type": "sine",
                             "freq": 0.01,
                             "phase": 0,
-                            "rangeMode": "bipolar",
                             "scale": 142.73,
                             "offset": -37.27
                         }

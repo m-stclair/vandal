@@ -11,6 +11,24 @@ import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "./glsl_enums.js";
 import {FieldDisplayModeEnum} from "../effects/fieldParentheses.js";
 
 
+const ANIMATE_PROB = 0.25;  // chance to animate an eligible param
+
+function generateAnimationMod(base, min, max) {
+    const span = max - min;
+    const freq = +(Math.random() * 0.1 + 0.01).toFixed(3); // 0.01–0.11 Hz
+    const scale = +(Math.random() * 0.5 * span).toFixed(2); // up to 50% swing
+    const offset = base;
+    const type = weightedSample([
+        ['sine', 3],
+        ['triangle', 1],
+        ['saw', 0.5],
+        ['square', 0.25],
+        ['impulse', 0.25],
+    ]);
+
+    return {type, freq, phase: 0, scale, offset};
+}
+
 
 const blendWeights = {
     [ColorspaceEnum.MIX]: 5.0,
@@ -48,28 +66,61 @@ function pickRandomSubset(arr, n) {
     return shuffled.slice(0, n);
 }
 
+function pickRandomSubsetWithReplacement(arr, n) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+        const shuffled = [...arr].sort(() => Math.random() - 0.5);
+        out.push(shuffled[0]);
+    }
+    return out;
+}
+
 function randBetween(min, max, steps = 100) {
     const step = (max - min) / steps;
     return min + step * Math.floor(Math.random() * steps);
+}
+
+function getBaseValue(param) {
+    return (param && typeof param === 'object' && 'value' in param) ? param.value : param;
+}
+
+function setBaseValue(param, newVal) {
+    if (param && typeof param === 'object') {
+        const newMod = structuredClone(param.mod);
+        newMod.offset = newVal;
+        param.mod = newMod
+        return param;
+    } else {
+        return newVal;
+    }
 }
 
 function enforceBlendConstraints(config) {
     if (config.BLENDMODE === BlendModeEnum.REPLACE) {
         config.BLENDMODE = BlendModeEnum.MIX;
     }
-    if (config.blendAmount !== undefined) {
-        config.blendAmount = Math.max(0.35, config.blendAmount);
-    }
-    if (config.BLENDMODE === BlendModeEnum.MIX) {
-        config.blendAmount = Math.min(0.75, config.blendAmount)
+    let blendAmount = getBaseValue(config.blendAmount);
+    if (blendAmount !== undefined) {
+        if (blendAmount < 0.35) {
+            config.blendAmount = setBaseValue(config.blendAmount, 0.35);
+        } else if (config.BLENDMODE === BlendModeEnum.MIX && blendAmount > 0.75) {
+            config.blendAmount = setBaseValue(config.blendAmount, 0.75);
+        }
+    } else {
+        // harmless to set it on things that don't need it
+        blendAmount = 1;
     }
     if (
         [BlendModeEnum.DIFFERENCE, BlendModeEnum.ADD].includes(config.BLENDMODE)
         && [ColorspaceEnum.Lab, ColorspaceEnum.LCH, ColorspaceEnum.YCbCr].includes(config.COLORSPACE)
     ) {
-        config.COLORSPACE = ColorspaceEnum.SOFT_LIGHT
+        config.BLENDMODE = BlendModeEnum.SOFT_LIGHT
     }
-    config.chromaBoost = Math.min(Math.max(0.9, config.blendAmount), 1.1)
+   let chromaBoost = getBaseValue(config.chromaBoost);
+    if (chromaBoost !== undefined) {
+        const clamped = Math.min(Math.max(0.9, blendAmount), 1.1);
+        config.chromaBoost = setBaseValue(config.chromaBoost, clamped);
+    }
 }
 
 function flattenUiLayout(layout) {
@@ -94,7 +145,8 @@ function weightedSample(weightedValues) {
         acc += weight;
         if (r < acc) return value;
     }
-    return weightedValues[weightedValues.length - 1][0]; // fallback
+    // fallback
+    return weightedValues[weightedValues.length - 1][0];
 }
 
 
@@ -106,14 +158,50 @@ function weightedSampleFromOptions(options, weightMap) {
     return weightedSample(weighted);
 }
 
+function validateConfig(config, layout) {
+    const errors = [];
+    const flatParams = flattenUiLayout(layout);
+
+    for (const param of flatParams) {
+        const key = param.key;
+        const val = config[key];
+
+        if (val === undefined) {
+            errors.push(`${key} is missing`);
+            continue;
+        }
+
+        if (typeof val === 'number' && isNaN(val)) {
+            errors.push(`${key} is NaN`);
+        }
+
+        if (typeof val === 'object' && val !== null && 'value' in val) {
+            const base = val.value;
+            const mod = val.mod;
+
+            if (typeof base !== 'number' || isNaN(base)) {
+                errors.push(`${key}.value is NaN or not a number`);
+            }
+
+            if (mod) {
+                const requiredFields = ['type', 'freq', 'phase', 'scale', 'offset'];
+                for (const field of requiredFields) {
+                    const v = mod[field];
+                    if (v === undefined || (typeof v === 'number' && isNaN(v))) {
+                        errors.push(`${key}.mod.${field} is ${v}`);
+                    }
+                }
+            }
+        }
+    }
+
+    return errors;
+}
 
 function generateRandomizedConfig(layout, meta) {
     const config = {};
     const flatParams = flattenUiLayout(layout);
     const hints = meta.parameterHints ?? {};
-    if (hints.length > 0) {
-        console.log("hi");
-    }
     for (const param of flatParams || []) {
         if (hints[param.key]?.always) {
             config[param.key] = hints[param.key].always;
@@ -122,14 +210,26 @@ function generateRandomizedConfig(layout, meta) {
         const ptype = param.type.toLowerCase();
         if (ptype === "modslider" || ptype === "range") {
             const min = hints[param.key]?.min ?? param.min;
-            const max = hints[param.key]?.min ?? param.max;
+            const max = hints[param.key]?.max ?? param.max;
             let val = randBetween(min, max);
+            if (!val && !(val === 0)) {
+                throw new Error("NAN!!!");
+            }
             if (param.scale === "log") {
                 const scaleFactor = param.scaleFactor ?? 10;
                 val = Math.log(val) / Math.log(scaleFactor)
             }
             if (param.step === 1) val = Math.floor(val);
-            config[param.key] = val;
+
+            if (ptype === "modslider" && Math.random() < ANIMATE_PROB) {
+                config[param.key] = {
+                    value: val,
+                    mod: generateAnimationMod(val, min, max)
+                };
+            } else {
+                config[param.key] = val;
+            }
+
         } else if (ptype === "checkbox") {
             config[param.key] = Math.random() < 0.5;
         } else if (ptype === "select") {
@@ -137,16 +237,13 @@ function generateRandomizedConfig(layout, meta) {
                 param.options.map(opt => opt.value ?? opt),
                 weightTable[param.key] ?? {}
             );
-            // console.log(param.key);
-            // console.log(`had: ${param.options.map(opt => opt.value ?? opt)}`)
-            // console.log(`got: ${config[param.key]}`);
 
         } else if (ptype === "vector") {
             let vec = [];
             vec = [];
-                for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
-                    vec.push(randBetween(param.min, param.max));
-                }
+            for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
+                vec.push(randBetween(param.min, param.max));
+            }
             while (param.max <= 2 && (!vec.some((v) => v > 0.2) || !vec.some((v) => v < 0.8))) {
                 // this is a silly heuristic: "don't turn all the colors to black "
                 // or white, although these aren't all colors"
@@ -157,18 +254,11 @@ function generateRandomizedConfig(layout, meta) {
                 }
             }
             config[param.key] = vec;
-            console.log(`set ${vec} as ${param.key}`)
         } else {
-            throw new Error("oops")
+            throw new Error("invalid parameter specification")
         }
     }
-    console.log(config);
     return config;
-}
-
-
-function pickRandom(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
 }
 
 
@@ -180,12 +270,19 @@ export async function randomizeEffectStack() {
         .filter(e => e.meta?.realtimeSafe && e.isGPU && !e.meta?.notInRandom);
     const numEffects = roll1d4();
 
-    const selected = pickRandomSubset(allEffects, numEffects);
+    const selected = pickRandomSubsetWithReplacement(allEffects, numEffects);
 
     for (const effect of selected) {
         const fx = makeEffectInstance(effect)
         fx.config = generateRandomizedConfig(fx.uiLayout, effect.meta);
         enforceBlendConstraints(fx.config);
+        const errors = validateConfig(fx.config, fx.uiLayout);
+        if (errors.length > 0) {
+            console.error(`invalid random config for ${fx.name}`);
+            console.error(errors);
+        }
+        console.log(`random config for ${fx.name}`);
+        console.log(fx.config);
         await fx.ready;
         addEffectToStack(fx);
     }

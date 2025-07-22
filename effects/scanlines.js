@@ -29,7 +29,6 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         chromaBoost: 1
-
     },
     uiLayout: [
         {type: "modSlider", key: "lineSpacing", label: "Line Spacing", min: 25, max: 1000, step: 5},

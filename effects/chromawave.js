@@ -47,11 +47,11 @@ export default {
         },
 
         group("Hue Mapping", [
-            {type: "modSlider", key: "hueShift", label: "Hue Shift", min: 0, max: 2, step: 0.01},
+            {type: "modSlider", key: "hueShift", label: "Shift", min: 0, max: 2, step: 0.01},
             {
                 type: "modSlider",
                 key: "hueSpread",
-                label: "Hue Spread",
+                label: "Spread",
                 min: 0,
                 max: 10,
                 steps: 200,
@@ -69,8 +69,8 @@ export default {
                 label: "Pattern",
                 options: ["radial", "horizontal", "vertical", "diagonal", "angle", "checker"]
             },
-            {type: "range", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
-            {type: "range", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
+            {type: "modSlider", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
+            {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
             color: "#001a20"
@@ -186,6 +186,8 @@ export const effectMeta = {
     animated: true,
     realtimeSafe: true,
     parameterHints: {
-        threshold: {min: 0, max: 0.6}
+        threshold: {min: 0, max: 0.6},
+        saturation: {min: 40, max: 100},
+        lightness: {min: 40, max: 60}
     }
 }

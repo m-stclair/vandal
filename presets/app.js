@@ -2545,42 +2545,7 @@ export const builtInPresets = [
             }
         ]
     },
-    {
-        "name": "Lessening",
-        "config": [{
-            "name": "Posterize",
-            "config": {
-                "levels": 8,
-                "mode": "2",
-                "COLORSPACE": "4",
-                "BLENDMODE": "10",
-                "BLEND_CHANNEL_MODE": 0,
-                "blendAmount": 1,
-                "mod": 0.5,
-                "c1": true,
-                "c2": true,
-                "c3": true
-            }
-        }, {
-            "name": "flow()",
-            "config": {
-                "BLENDMODE": 1,
-                "BLEND_CHANNEL_MODE": 0,
-                "COLORSPACE": 0,
-                "warpStrength": -0.21,
-                "directionAngle": -0.534070751110264,
-                "modAmount": 0,
-                "driverChannel": "1",
-                "modulatorChannel": "5",
-                "driverPolarity": true,
-                "modulatorPolarity": false,
-                "threshLow": 0.535,
-                "threshHigh": 0.945,
-                "driverGamma": 1.1414812755524588,
-                "flatThreshold": true
-            }
-        }]
-    },
+{"name":"Lessening","config":[{"name":"Posterize","config":{"levels":8,"mode":"2","COLORSPACE":"4","BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"blendAmount":1,"mod":0.5,"c1":true,"c2":true,"c3":true,"chromaBoost":1}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":-0.21,"directionStrength":0.5,"directionChannel":5,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":{"value":0.535,"mod":{"type":"walk","freq":1.5378671720779535,"phase":0,"scale":0.354866144,"offset":0.533,"_walkValue":0.19748710763467564,"_lastUpdate":252.90000000000882}},"threshHigh":0.945,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1,"directionAngle":-0.534070751110264,"modAmount":0,"driverChannel":"1","modulatorChannel":"5","driverPolarity":true,"modulatorPolarity":false,"driverGamma":1.1414812755524588,"flatThreshold":true}}]},
     {
         "name": "Dropped Textures",
         "config": [

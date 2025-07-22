@@ -97,7 +97,7 @@ export const effectMeta = {
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        chromaThreshold: {min: 0.25, max: 0.75},
+        chromaThreshold: {min: 0.25, max: 0.5},
         density: {min: 0.1, max: 0.85}
     }
 };

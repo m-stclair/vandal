@@ -245,6 +245,7 @@ export const effectMeta = {
   canAnimate: true,
   realtimeSafe: true,
     parameterHints: {
-      lineWidth: {min: 15, max: 200}
+      lineWidth: {min: 15, max: 200},
+      spacing: {min: 2, max: 20}
     }
 };

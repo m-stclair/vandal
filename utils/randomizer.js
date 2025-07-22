@@ -22,10 +22,13 @@ function generateAnimationMod(base, min, max) {
         ['sine', 3],
         ['triangle', 1],
         ['saw', 0.5],
-        ['square', 0.25],
+        ['fm-lfo', 1],
+        ['square', 0.1],
+        ['hold', 0.5],
+        ['walk', 0.5],
+        ['impulse-ease', 0.5],
         ['impulse', 0.25],
     ]);
-
     return {type, freq, phase: 0, scale, offset};
 }
 
@@ -115,6 +118,12 @@ function enforceBlendConstraints(config) {
         && [ColorspaceEnum.Lab, ColorspaceEnum.LCH, ColorspaceEnum.YCbCr].includes(config.COLORSPACE)
     ) {
         config.BLENDMODE = BlendModeEnum.SOFT_LIGHT
+    }
+    if (
+        (config.BLEND_CHANNEL_MODE === BlendTargetEnum.CHANNEL_2)
+        && [ColorspaceEnum.HSV, ColorspaceEnum.LCH, ColorspaceEnum.HSL].includes(config.COLORSPACE)
+    ) {
+        config.BLEND_CHANNEL_MODE = BlendTargetEnum.ALL
     }
    let chromaBoost = getBaseValue(config.chromaBoost);
     if (chromaBoost !== undefined) {

@@ -1620,44 +1620,7 @@ export const builtInPresets = [
             }
         ]
     },
-    {
-        "name": "UFO Landing",
-        "config": [
-            {
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.14,
-                    "cycle": true,
-                    "cycleMode": "spatial",
-                    "hueShift": 0.65,
-                    "saturation": 100,
-                    "lightness": 46,
-                    "hueSpread": {
-                        "value": 0,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 0.1320692336761749,
-                            "phase": 0,
-                            "scale": 6.46,
-                            "offset": 7.1499999999999995
-                        }
-                    },
-                    "bleed": 0.47,
-                    "COLORSPACE": "2",
-                    "BLENDMODE": "6",
-                    "BLEND_CHANNEL_MODE": "4",
-                    "blendAmount": 1,
-                    "chromaBoost": 1,
-                    "bandingSteps": 0,
-                    "waveType": "square",
-                    "dutyCycle": 0.38,
-                    "originX": 0.5,
-                    "originY": 0.5,
-                    "spatialPattern": "vertical"
-                }
-            }
-        ]
-    },
+{"name":"UFO Landing","config":[{"name":"Chromawave","config":{"threshold":0.09,"cycle":true,"cycleMode":"spatial","hueShift":{"value":2,"mod":{"type":"triangle","freq":0.06581262494354968,"phase":0,"scale":1.058,"offset":1}},"saturation":100,"lightness":50,"hueSpread":1,"bleed":0,"COLORSPACE":"2","BLENDMODE":"6","BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":0.85,"bandingSteps":0,"waveType":"square","dutyCycle":0.5,"originX":0.5,"originY":0.5,"spatialPattern":"vertical"}}]},
     {
         "name": "Powder",
         "config": [

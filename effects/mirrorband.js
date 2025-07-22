@@ -29,7 +29,7 @@ const {
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Banded Flip",
+    name: "Mirrorband",
     defaultConfig: {
         bandSize: 0.2,
         orientation: 1,

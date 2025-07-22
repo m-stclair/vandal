@@ -559,7 +559,7 @@ export const builtInPresets = [
                 }
             },
             {
-                "name": "Mirrorbands",
+                "name": "Mirrorband",
                 "config": {
                     "bandSize": 0.25,
                     "orientation": 1,
@@ -3614,7 +3614,7 @@ export const builtInPresets = [
   "name": "Light-up Floor",
   "config": [
     {
-      "name": "Mirrorbands",
+      "name": "Mirrorband",
       "config": {
         "bandSize": 0.2,
         "orientation": 1,

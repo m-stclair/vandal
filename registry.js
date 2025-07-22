@@ -11,7 +11,7 @@ const effectFiles = [
     'wave.js',
     'scanlines.js',
     'tile_desync.js',
-    'banded_flip.js',
+    'mirrorband.js',
     'colorshred.js',
     // 'jointshred.js',
     'edgetrace.js',

@@ -367,6 +367,9 @@ export class GlitchRenderer {
             lastCacheEntry['data'] = update['data']
             this.renderCache.set(fx.id, lastCacheEntry);
         }
+        if (!lastCacheEntry.texture) {
+            return this.f32ToTex(lastCacheEntry.data, width, height);
+        }
         return lastCacheEntry.texture;
     }
 

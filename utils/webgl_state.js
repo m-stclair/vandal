@@ -129,8 +129,8 @@ export class webGLState {
         gl.viewport(0, 0, outputFBO.width, outputFBO.height);
         gl.bindVertexArray(this.renderer.vao);
         checkFrameBuffer(gl);
-        checkTexture(gl, inputTex);
-        checkTexture(gl, outputFBO.texture);
+        // checkTexture(gl, inputTex);
+        // checkTexture(gl, outputFBO.texture);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         this.last_uniforms = uniformSpec;
     }

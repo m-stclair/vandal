@@ -22,7 +22,7 @@ export default {
     name: "Bloom",
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
-        BLENDTARGET: BlendTargetEnum.ALL,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 1,
         bloomThreshold: 0.4,
@@ -97,15 +97,15 @@ export default {
         blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
-        initGLEffect(instance, fragSources)
+        initGLEffect(instance, fragSources);
         let {
-            BLENDMODE, COLORSPACE, blendAmount, BLENDTARGET, bloomStrength,
+            BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, bloomStrength,
             bloomThreshold, bloomSoftness, BLOOM_MODE, kernelRadius,
             chromaOffset, BLOOM_CHROMA_TAIL, kernelName, kernelSoftness,
             chromaBoost
         } = resolveAnimAll(instance.config, t);
         const kernel = generateKernel(kernelName, kernelRadius, kernelSoftness);
-        console.log(kernel);
+        // console.log(kernel);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},
@@ -120,7 +120,7 @@ export default {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
             APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
-            BLEND_CHANNEL_MODE: BLENDTARGET,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             KERNEL_SIZE: kernel.length,
             BLOOM_MODE: BLOOM_MODE,
             BLOOM_CHROMA_TAIL: Number(BLOOM_CHROMA_TAIL)

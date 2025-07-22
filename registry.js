@@ -19,7 +19,7 @@ const effectFiles = [
     // 'hillshade.js',
     'pixelate.js',
     // "pixelate_old.js",
-    "warpnoise_svg.js",
+    // "warpnoise_svg.js",
     // "palette_debug.js",
     // "reinhardTransfer.js",
     "contour_synth.js",

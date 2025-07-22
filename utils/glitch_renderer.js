@@ -1,41 +1,108 @@
 // Hybrid GPU/CPU pipeline manager
 import {checkFrameBuffer, checkTexture, preprocessGLSL} from "./gl.js";
 import {
-    getEffectStack,
-    getNormedImage,
-    getNormLoadID,
-    renderCacheGet,
-    renderCacheSet,
-    clearRenderCache
+    getEffectStack, renderer,
 } from "../state.js";
 import {hashObject} from "./helpers.js";
 import {isModulating} from "../glitch.js";
+import {monkeyPatchBindTexture, monkeyPatchDrawArrays} from "../tools/gl_bs.js";
+
+const uploadVertSrc = `#version 300 es
+in vec2 a_position;
+out vec2 v_uv;
+void main() {
+    v_uv = (a_position + 1.0) * 0.5;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+}`
+
+const uploadFragSrc = `#version 300 es
+precision mediump float;
+
+uniform sampler2D u_image8bit;
+in vec2 v_uv;
+out vec4 outColor;
+
+void main() {
+    vec4 srgba = texture(u_image8bit, v_uv);
+    // If input is sRGB-encoded, decode it manually
+    // Otherwise just pass through (depends on texture setup)
+    outColor = srgba; // Linear-ish float now in [0,1]
+}`
+
+const outputFragSrc = `#version 300 es
+    precision mediump float;
+    uniform sampler2D u_image;
+    in vec2 v_uv;
+    out vec4 outColor;
+            
+    void main() {
+        vec2 flippedUV = vec2(v_uv.x, 1.0 - v_uv.y);
+        outColor = texture(u_image, flippedUV);
+    }`
+
+const outputVertSrc = `#version 300 es
+    in vec2 a_position;
+    out vec2 v_uv;
+    void main() {
+        v_uv = (a_position + 1.0) * 0.5;
+        gl_Position = vec4(a_position, 0.0, 1.0);
+    }
+`
 
 export class GlitchRenderer {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.gl = canvas.getContext('webgl2');
+    constructor(ctx) {
+        this.gl = ctx;
+        // monkeyPatchDrawArrays(this.gl);
+        monkeyPatchBindTexture(this.gl);
         const version = this.gl.getParameter(this.gl.VERSION);
         console.log("WebGL version:", version);
-
         this.format = {
-            internalFormat: this.gl.RGBA32F,
+            internalFormat: this.gl.RGBA16F,
             formatEnum: this.gl.RGBA,
             typeEnum: this.gl.FLOAT,
             arrayConstructor: Float32Array,
         }
-        this.framebuffers = []; // ping-pong FBOs
         this.fxbuffers = {};
         this.lutCache = new Map();
         // NOTE: I am _not_ sure why i need this. driver weirdness?
         if (!this.gl.getExtension("EXT_color_buffer_float")) {
             throw new Error("bad graphics weirdness");
         }
-        this.currentFBOIndex = 0;
         this.vertexShader = null;
         this.initSharedResources();
-        this.lastLoadID = null;
         this.inputTexture = null;
+        this.inputHeight = null;
+        this.inputWidth = null;
+        this.upsampleProgram = this.compileUpsampleProgram();
+        this.renderCache = new Map();
+        this.outputVert = null;
+        this.outputFrag = null;
+        this.outputProg = null;
+    }
+
+    compileUpsampleProgram() {
+        const gl = this.gl;
+        const upvert = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(upvert, uploadVertSrc);
+        gl.compileShader(upvert);
+        if (!gl.getShaderParameter(upvert, gl.COMPILE_STATUS)) {
+            throw new Error(gl.getShaderInfoLog(upvert));
+        }
+        const upfrag = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(upfrag, uploadFragSrc);
+        gl.compileShader(upfrag);
+        if (!gl.getShaderParameter(upvert, gl.COMPILE_STATUS)) {
+            throw new Error(gl.getShaderInfoLog(upfrag));
+        }
+        const upProg = gl.createProgram();
+        gl.attachShader(upProg, upvert);
+        gl.attachShader(upProg, upfrag);
+        gl.linkProgram(upProg);
+        if (!gl.getProgramParameter(upProg, gl.LINK_STATUS)) {
+            const info = gl.getProgramInfoLog(upProg);
+            throw new Error(`Could not compile WebGL program. \n\n${info}`);
+        }
+        return upProg;
     }
 
     initSharedResources() {
@@ -136,17 +203,9 @@ export class GlitchRenderer {
         return this.ensureInputTexture(f32Array, width, height);
     }
 
-    getNextFBO(width, height) {
-        if (!this.framebuffers[this.currentFBOIndex]) {
-            this.framebuffers[this.currentFBOIndex++ % 2] = this.make_framebuffer(width, height);
-        }
-        return this.framebuffers[this.currentFBOIndex++ % 2];
-    }
-
-
-    getEffectFBO(id, width, height) {
+    getEffectFBO(id, width, height, name) {
         if (!this.fxbuffers[id]) {
-            this.fxbuffers[id] = this.make_framebuffer(width, height);
+            this.fxbuffers[id] = this.make_framebuffer(width, height, id, name);
         }
         return this.fxbuffers[id];
     }
@@ -154,12 +213,26 @@ export class GlitchRenderer {
     deleteEffectFBO(id) {
         if (!this.fxbuffers[id]) return;
         const fbo = this.fxbuffers[id];
-        this.gl.deleteTexture(fbo.texture);
-        this.gl.deleteFramebuffer(fbo.fbo);
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo.fbo);
+        this.gl.framebufferTexture2D(
+            this.gl.FRAMEBUFFER,
+            this.gl.COLOR_ATTACHMENT0,
+            this.gl.TEXTURE_2D,
+            null,
+            0
+        );
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+        setTimeout(() => {
+            this.gl.deleteTexture(fbo.texture);
+        }, 0);
+        setTimeout(() => {
+            this.gl.deleteFramebuffer(fbo.fbo);
+        }, 0);
+
         this.fxbuffers[id] = undefined;
     }
 
-    make_framebuffer(width, height) {
+    make_framebuffer(width, height, id, name) {
         const gl = this.gl;
         const tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -184,6 +257,10 @@ export class GlitchRenderer {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D, tex, 0);
         // checkFrameBuffer(gl);
+        tex._id = id;
+        tex._name = name;
+        fbo._id = id;
+        fbo._name = name;
         return {fbo, texture: tex, width, height};
 
     }
@@ -209,31 +286,15 @@ export class GlitchRenderer {
     }
 
 
-    applyEffects(t, normedImage) {
-        if (!normedImage) {
-            normedImage = getNormedImage();
-        }
-        if (!normedImage) return;
-        const loadId = getNormLoadID();
-        const {data, width, height} = normedImage;
-        let currentTex;
-        if (this.lastLoadID !== loadId || !this.inputTexture) {
-            currentTex = this.ensureInputTexture(data, width, height);
-            this.inputTexture = currentTex;
-            clearRenderCache();
-            this.clearEffectBuffers();
-            getEffectStack().forEach((fx) => {
-                if (!fx.glState) return;
-                fx.glState.last_uniforms = {};
-            });
-        }
-        this.lastLoadID = loadId;
+    applyEffects(t) {
         const effects = getEffectStack();
         const anySolo = getEffectStack().some(fx => fx.solo);
-        let hashChain = `top-${width}-${height}-${loadId}`;
+        const width = this.inputWidth;
+        const height = this.inputHeight;
+        let hashChain = `top`;
         let animationUpdate = false;
         let lastCacheEntry = {
-            data: data,
+            data: null,
             texture: this.inputTexture
         };
         for (const fx of effects) {
@@ -242,7 +303,7 @@ export class GlitchRenderer {
                 hashChain += `${fx.name}-${fx.id}-disabled`;
                 continue;
             }
-            const cacheEntry = renderCacheGet(fx.id);
+            const cacheEntry = this.renderCache.get(fx.id);
             const isGPU = fx.isGPU;
             const timeChanged = cacheEntry?.lastT !== t;
             animationUpdate = animationUpdate ? animationUpdate : isModulating(fx) && timeChanged;
@@ -284,20 +345,19 @@ export class GlitchRenderer {
                     if (fx.glState.renderer !== this) {
                         throw new Error("GL effect not attached to this renderer")
                     }
-                    const fbo = this.getEffectFBO(fx.id, width, height);
+                    const fbo = this.getEffectFBO(fx.id, width, height, fx.name);
                     if (fx.glState) {
-                        fx.glState.uniformsDirty = !(configHash === renderCacheGet(fx.id)?.configHash);
+                        fx.glState.uniformsDirty = !(configHash === this.renderCache.get(fx.id)?.configHash);
                     }
                     fx.apply(fx, input, width, height, t, fbo);
                     update['texture'] = fbo.texture;
                 }
                 const duration = performance.now() - start;
-                console.log(`rendered ${fx.name}-${fx.id}, ${duration} ms`);
+                // console.log(`rendered ${fx.name}-${fx.id}, ${duration} ms`);
             } else {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }
             lastCacheEntry = {
-                // config: structuredClone(fx.config),
                 configHash: configHash,
                 disabled: fx.disabled,
                 hashChain: hashChain,
@@ -305,23 +365,131 @@ export class GlitchRenderer {
             }
             lastCacheEntry['texture'] = update['texture'];
             lastCacheEntry['data'] = update['data']
-            renderCacheSet(fx.id, lastCacheEntry);
+            this.renderCache.set(fx.id, lastCacheEntry);
         }
-        let finalPixels;
-        if (lastCacheEntry.data) {
-            finalPixels = lastCacheEntry.data
-        } else if (lastCacheEntry.texture) {
-            finalPixels = this.readFramebufferToPixels(lastCacheEntry.texture, width, height);
-        } else {
-            throw new Error("invalid pipeline output")
-        }
-        this.reset();
-        return finalPixels;
+        return lastCacheEntry.texture;
     }
+
+    reset() {
+        this.renderCache.clear();
+        this.clearEffectBuffers();
+        getEffectStack().forEach((fx) => {
+            if (!fx.glState) return;
+            fx.glState.last_uniforms = {};
+        });
+    }
+
+    async loadImage(img) {
+        this.reset();
+        const gl = this.gl
+
+        const w = gl.canvas.width;
+        const h = gl.canvas.height;
+
+        const cpuCanvas = document.createElement("canvas");
+        cpuCanvas.width = w;
+        cpuCanvas.height = h;
+        const ctx = cpuCanvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const inputTex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, inputTex);
+        gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, false);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA,
+            gl.RGBA,
+            gl.UNSIGNED_BYTE,
+            cpuCanvas
+        );
+
+        // --- Step 4: Allocate float texture + FBO ---
+        const floatTex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, floatTex);
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl.RGBA16F,
+            w,
+            h,
+            0,
+            gl.RGBA,
+            gl.HALF_FLOAT,
+            null
+        );
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+        const fbo = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, floatTex, 0);
+        gl.viewport(0, 0, w, h);
+        gl.useProgram(this.upsampleProgram); // assumes it's compiled already
+        gl.bindVertexArray(this.vao);        // fullscreen quad
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, inputTex);
+        gl.uniform1i(gl.getUniformLocation(this.upsampleProgram, 'u_image8bit'), 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.deleteFramebuffer(fbo);
+        if (this.inputTexture !== null) {
+            gl.deleteTexture(this.inputTexture);
+        }
+        this.inputTexture = floatTex;
+        this.inputWidth = w;
+        this.inputHeight = h;
+    };
+
+    writeToCanvas(tex) {
+        const gl = this.gl;
+        const canvas = gl.canvas;
+        if (this.outputVert === null) {
+            this.outputVert = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(this.outputVert, outputVertSrc)
+            gl.compileShader(this.outputVert);
+            if (!gl.getShaderParameter(this.outputVert, gl.COMPILE_STATUS)) {
+                throw new Error(gl.getShaderInfoLog(this.outputVert));
+            }
+        }
+        if (this.outputFrag === null) {
+            this.outputFrag = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(this.outputFrag, outputFragSrc)
+            gl.compileShader(this.outputFrag);
+            if (!gl.getShaderParameter(this.outputFrag, gl.COMPILE_STATUS)) {
+                throw new Error(gl.getShaderInfoLog(this.outputFrag));
+            }
+        }
+        if (this.outputProg === null) {
+            this.outputProg = gl.createProgram();
+            gl.attachShader(this.outputProg, this.outputVert);
+            gl.attachShader(this.outputProg, this.outputFrag);
+            gl.linkProgram(this.outputProg);
+            if (!gl.getProgramParameter(this.outputProg, gl.LINK_STATUS)) {
+                const info = gl.getProgramInfoLog(this.outputProg);
+                throw new Error(`Could not compile WebGL program. \n\n${info}`);
+            }
+        }
+        gl.useProgram(this.outputProg);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.bindVertexArray(this.vao);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.uniform1i(gl.getUniformLocation(this.outputProg, 'u_image'), 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
 
     format = {}
 
-    reset() {
-        this.currentFBOIndex = 0;
-    }
 }

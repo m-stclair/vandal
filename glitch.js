@@ -1,6 +1,4 @@
 import {
-    canvas,
-    defaultCtx,
     pruneForMobile,
     setupDragAndDrop,
     setupExportImage,
@@ -13,6 +11,8 @@ import {
 } from "./ui.js";
 
 import {
+    canvas,
+    defaultCtx,
     addEffectToStack,
     clearRenderCache,
     Dirty,
@@ -37,9 +37,9 @@ import {
     setOriginalImage,
     setRenderedImage,
     toggleEffectSelection,
-    uiState
+    uiState, setFreezeAnimationButtonFlag
 } from "./state.js";
-import "./tools/debugPane.js";
+// import "./tools/debugPane.js";
 import {formatFloatWidth, gid} from "./utils/helpers.js";
 import {renderStackUI} from "./ui_builder.js";
 import {effectRegistry} from "./registry.js";
@@ -65,39 +65,38 @@ function handleUpload(e) {
         setOriginalImage(img);
         resizeAndRedraw();
     }
-    clearRenderCache();
     img.src = URL.createObjectURL(file);
 }
 
 
-let capturer = null, capturing = false;
-let exportDuration = null, exportFPS = null, frameLimit = null;
-let frameCounter = null;
-
-function startCapture() {
-    const format = document.getElementById("exportFormat").value;
-    exportDuration = document.getElementById("exportDuration").value;
-    exportFPS = document.getElementById("exportFPS").value;
-    frameLimit = exportDuration * exportFPS;
-    frameCounter = 0;
-    capturer = new CCapture({
-        format: format,
-        framerate: exportFPS,
-        verbose: true
-    });
-    capturer.start();
-    capturing = true;
-    document.getElementById('captureOverlay').style.display = 'flex';
-    document.getElementById("overlayMessageP").innerText = "🎥 Recording…"
-}
-
-function stopCapture() {
-    if (!capturing) return;
-    capturing = false;
-    capturer.stop();
-    capturer.save();
+function stopCapture(recorder) {
+    recorder.stop();
     document.getElementById('captureOverlay').style.display = 'none';
 }
+
+function startCapture() {
+    const exportDuration = document.getElementById("exportDuration").value;
+    const exportFPS = document.getElementById("exportFPS").value;
+
+    const stream = renderer.gl.canvas.captureStream(exportFPS);
+    const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+    const chunks = [];
+
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "capture.webm";
+        a.click();
+    };
+    document.getElementById('captureOverlay').style.display = 'flex';
+    recorder.start();
+
+    setTimeout(() => stopCapture(recorder), exportDuration * 1000);
+}
+
 
 export function isModulating(fx) {
     return Object.values(fx.config).some(p =>
@@ -126,16 +125,6 @@ function updateVisualStyles(cvs = canvas) {
 
 let rendering = false;
 
-function updateRenderMsg(msg) {
-    // note: this doesn't really work. main render thread blocks too much
-    requestAnimationFrame(() =>
-        setTimeout(
-            () => document.getElementById("overlayMessageP").innerText = `${msg}...`,
-            10
-        )
-    )
-}
-
 async function exportImage(resolution) {
     let exportCanvas = document.createElement("canvas");
 
@@ -162,11 +151,8 @@ async function exportImage(resolution) {
     let [normData, eCtx] = getImg();
 
     function executeRender() {
-        const t = animating ? (performance.now() - startTime) / 1000 : 0;
-        // updateRenderMsg("rendering effects");
-        clearRenderCache();
-        rerollNormLoadID();  // to trigger framebuffer invalidation
-        firePipeline(t, eCtx, normData);
+        renderer.reset();
+        firePipeline(eCtx);
         updateVisualStyles(exportCanvas);
         exportCanvas.toBlob(onBlobResolved, 'image/png');
     }
@@ -179,7 +165,7 @@ async function exportImage(resolution) {
         exportCanvas?.close?.() || exportCanvas?.remove?.();
         exportCanvas = null;
         eCtx = null;
-        clearRenderCache();
+        renderer.reset();
         setFreezeAnimationFlag(false);
         rerollNormLoadID();  // to trigger framebuffer invalidation
     }
@@ -222,12 +208,10 @@ let timePhase = 0;
 
 function tick() {
     if (!animating) return;
-    if  (getAnimationFrozen()) {
+    if (getAnimationFrozen()) {
         requestAnimationFrame(tick);
         return;
     }
-    timePhase += 30 / 1000;
-
     document.querySelectorAll(".modulated").forEach(input => {
         const key = input.dataset.key;
         const fxId = input.dataset.fxId;
@@ -242,13 +226,7 @@ function tick() {
         const label = input.querySelector(".slider-value");
         label.textContent = formatFloatWidth(resolved);
     });
-    // TODO: this obviously has to work a _little_ differently.
-    firePipeline(timePhase);
-    if (capturing && capturer) {
-        capturer.capture(document.getElementById('glitchCanvas'));
-        frameCounter++;
-        if (frameCounter >= frameLimit) stopCapture();
-    }
+    requestRender();
     if (isAnimationActive()) {
         requestAnimationFrame(tick);
     } else {
@@ -256,15 +234,25 @@ function tick() {
     }
 }
 
-function firePipeline(t = 0, ctx = defaultCtx, normedImage = getNormedImage()) {
-    const applied = renderer.applyEffects(t, normedImage);
-    const {width, height} = normedImage;
-    setRenderedImage(deNormalizeImageData(applied, width, height), ctx)
-    updateVisualStyles();
+function firePipeline(ctx = defaultCtx, t = null) {
+    let time;
+    if (animating && t === null) {
+        timePhase += 30 / 1000;
+        time = timePhase;
+    } else {
+        time = t;
+    }
+    const finalTexture = renderer.applyEffects(time);
+    renderer.writeToCanvas(finalTexture);
+
 }
 
+
+// setRenderedImage(deNormalizeImageData(applied, width, height), ctx)
+// updateVisualStyles();
+
 function renderImage() {
-    if (!getNormedImage()) return;
+    if (!renderer.inputTexture) return;
     firePipeline();
     const animShouldBeRunning = isAnimationActive();
     if (animShouldBeRunning && !animating) {
@@ -369,7 +357,8 @@ async function appSetup() {
         resetStack,
         requestRender,
         requestUIDraw,
-        renderImage
+        renderImage,
+        setFreezeAnimationButtonFlag
     );
     setupPresetUI(
         saveState,

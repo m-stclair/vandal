@@ -41,7 +41,8 @@ export default {
         channelPhase1: 0,
         channelPhase2: 0,
         color: [1, 1, 1],
-        chromaBoost: 1
+        chromaBoost: 1,
+        lumaAngle: 0
     },
     uiLayout: [
         {

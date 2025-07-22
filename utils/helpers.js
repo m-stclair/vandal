@@ -81,20 +81,6 @@ export async function downsampleImageData(imageData, maxSize = DOWNSAMPLE_LIMIT)
     return ctx.getImageData(0, 0, w, h);
 }
 
-export function showImageData(imageData) {
-    const canvas = document.createElement("canvas");
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
-    canvas.style.border = "2px solid red"; // for visibility
-    canvas.style.margin = "4px";
-    canvas.style.imageRendering = "pixelated"; // sharp zoom
-    canvas.style.width = "512px"; // optional: upscale for visual clarity
-
-    const ctx = canvas.getContext("2d");
-    ctx.putImageData(imageData, 0, 0);
-    gid("debug").appendChild(canvas); // or some debug div
-}
-
 
 function fallbackUUIDv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {

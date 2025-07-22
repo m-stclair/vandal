@@ -28,6 +28,7 @@ export default {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1,
         waveform: "Sine",
         spatialWaveform: "Radial"
     },

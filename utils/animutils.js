@@ -72,7 +72,7 @@ export function resolveAnim(p, t) {
             break;
         }
         case "walk": {
-            const dt = 1 / 60;
+            const dt = 1 / 30;
             if (mod._walkValue === undefined) {
                 mod._walkValue = value;
             }

@@ -1,4 +1,3 @@
-import {canvas, defaultCtx} from "./ui.js";
 import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
 import {webGLState} from "./utils/webgl_state.js";
@@ -9,6 +8,10 @@ export const Dirty = {image: true, ui: true}
 export const Lock = {image: false, ui: false}
 export const requestRender = () => Dirty.image = true;
 export const requestUIDraw = () => Dirty.ui = true;
+
+// shared rendering objects
+export const canvas = document.getElementById('glitchCanvas');
+export const defaultCtx = canvas.getContext("webgl2", { alpha: false, antialias: true });
 
 
 let effectStack = [];
@@ -67,6 +70,7 @@ export const getAnimationFrozen = () => {
 }
 export const setFreezeAnimationFlag = (v) => freezeAnimationFlag = v;
 export const setFreezeAnimationButtonFlag = (v) => {
+    console.log('beep')
     freezeAnimationButtonFlag = v;
 }
 
@@ -84,24 +88,18 @@ export function getEffectStack() {
     return effectStack;
 }
 
-export const renderCache = new Map();
+export const renderer = new GlitchRenderer(defaultCtx);
+
+export const renderCache = renderer.renderCache;
 
 export function clearRenderCache() {
-    renderCache.clear();
-}
-
-export function renderCacheSet(k, v) {
-    renderCache[k] = v;
-}
-
-export function renderCacheGet(k) {
-    return renderCache[k];
+    renderer.renderCache.clear();
 }
 
 // currently-rendered imageData in canvas
 let renderedImage = null;
 
-export function setRenderedImage(img, context=defaultCtx) {
+export function setRenderedImage(img, context) {
     renderedImage = img;
     context.putImageData(img, 0, 0);
 }
@@ -134,8 +132,6 @@ export function getOriginalImage() {
     return originalImage;
 }
 
-const renderCanvas = document.createElement("canvas");
-export const renderer = new GlitchRenderer(renderCanvas);
 
 let normedImage = null;
 let normLoadID = '';
@@ -218,8 +214,8 @@ export async function loadState(preset, registry, fromJSON=true) {
             continue;
         }
         const instance = makeEffectInstance(mod);
-        await instance.ready;
         instance.config = { ...mod.defaultConfig, ...config };
+        await instance.ready;
         addEffectToStack(instance);
     }
 }
@@ -249,29 +245,29 @@ export const uiState = NestingDict();
 export function resizeAndRedraw() {
     const originalImage = getOriginalImage();
     if (!originalImage) return;
-    const leftPane = document.getElementById('leftPane');
-    const width = leftPane.clientWidth - 20;
-    const height = window.innerHeight * 0.9;
-    let scale = Math.min(
-        width / originalImage.width, height / originalImage.height
-    );
-
-    const w = Math.floor(originalImage.width * scale);
-    const h = Math.floor(originalImage.height * scale);
-
-    canvas.width = w;
-    canvas.height = h;
-
-    defaultCtx.drawImage(originalImage, 0, 0, w, h);
-    setRenderedImage(defaultCtx.getImageData(0, 0, w, h));
-    setResizedOriginalImage(defaultCtx.getImageData(0, 0, w, h));
-    clearNormedImage();
-    requestRender();
+    Lock.image = true;
+    try {
+        const leftPane = document.getElementById('leftPane');
+        const width = leftPane.clientWidth - 20;
+        const height = window.innerHeight * 0.9;
+        let scale = Math.min(
+            width / originalImage.width, height / originalImage.height
+        );
+        const w = Math.floor(originalImage.width * scale);
+        const h = Math.floor(originalImage.height * scale);
+        canvas.width = w;
+        canvas.height = h;
+        renderer.loadImage(originalImage).then(requestRender);
+    } finally {
+        Lock.image = false;
+    }
 }
+
 
 // TODO: big gun type situation
 export function resetStack() {
     setFreezeAnimationFlag(true);
+    renderer.reset();
     try {
         forEachEffect(
             (fx) => {
@@ -280,7 +276,6 @@ export function resetStack() {
                 }
             })
         flushEffectStack();
-        clearRenderCache();
         requestUIDraw();
         requestRender();
     } finally {

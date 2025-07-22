@@ -9,7 +9,6 @@ import {
 import {populateTestSelect} from "./test_patterns.js";
 import {randomizeEffectStack} from "./utils/randomizer.js";
 // TODO: messy messy
-import {setFreezeAnimationButtonFlag} from "./state.js";
 // pane dragging logic
 
 const dragBar = document.getElementById("dragBar");
@@ -60,9 +59,6 @@ export function moveEffectInStack(effectStack, from, to) {
     effectStack.splice(to, 0, moved);
 }
 
-// shared rendering objects
-export const canvas = document.getElementById('glitchCanvas');
-export const defaultCtx = canvas.getContext("2d", {willReadFrequently: true});
 
 
 // top-level buttons
@@ -75,7 +71,7 @@ const textarea = gid("stack-json");
 export function setupStaticButtons(
     handleUpload, addSelectedEffect, saveState,
     loadState, registry, resetStack, requestRender,
-    requestUIDraw
+    requestUIDraw, setFreezeAnimationButtonFlag
 ) {
     const uploadButton = gid('upload');
     uploadButton.addEventListener('change', handleUpload);
@@ -236,7 +232,7 @@ export function setupExportImage(exportImage) {
 
 export function setupVideoCapture(startCapture, stopCapture) {
     document.getElementById('startCapture').onclick = () => startCapture();
-    document.getElementById('stopCaptureOverlay').onclick = stopCapture();
+    document.getElementById('stopCaptureOverlay').onclick = () => stopCapture();
 }
 
 

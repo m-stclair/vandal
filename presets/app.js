@@ -551,20 +551,20 @@ export const builtInPresets = [
                 "name": "Invert",
                 "config": {
                     "invert0": false,
-                    "invert1": false,
+                    "invert1": true,
                     "invert2": true,
-                    "COLORSPACE": 0,
+                    "COLORSPACE": 1,
                     "mode": "lab",
                     "colorSpace": "1"
                 }
             },
             {
-                "name": "Banded Flip",
+                "name": "Mirrorbands",
                 "config": {
-                    "bandSize": 76,
-                    "orientation": "vertical",
+                    "bandSize": 0.25,
+                    "orientation": 1,
                     "mirrorRate": 1,
-                    "offset": -3
+                    "sBias": -0.5
                 }
             }
         ]
@@ -3609,6 +3609,66 @@ export const builtInPresets = [
             }
         ]
     },
-{"name":"Reverse Oilslick","config":[{"name":"Chromawave","config":{"threshold":{"value":0.12,"mod":{"type":"none"}},"cycle":true,"cycleMode":"spatial","hueShift":180,"saturation":82,"lightness":63,"hueSpread":1,"bleed":0.39,"COLORSPACE":0,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"bandingSteps":0,"waveType":0,"dutyCycle":0.5,"originX":0.5,"originY":0.5,"spatialPattern":"radial"}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":0.2,"mod":{"type":"sine","freq":0.00802482581416809,"phase":0,"scale":-0.658746680000001,"offset":0}},"directionStrength":1.6171059036866482,"u_directionChannel":4,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1,"directionChannel":"4"}},{"name":"Pixelate","config":{"blockSize":30,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"COLORSPACE":"2","blendAmount":0.63,"chromaBoost":1}}]}
+{"name":"Reverse Oilslick","config":[{"name":"Chromawave","config":{"threshold":{"value":0.12,"mod":{"type":"none"}},"cycle":true,"cycleMode":"spatial","hueShift":180,"saturation":82,"lightness":63,"hueSpread":1,"bleed":0.39,"COLORSPACE":0,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"bandingSteps":0,"waveType":0,"dutyCycle":0.5,"originX":0.5,"originY":0.5,"spatialPattern":"radial"}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":0.2,"mod":{"type":"sine","freq":0.00802482581416809,"phase":0,"scale":-0.658746680000001,"offset":0}},"directionStrength":1.6171059036866482,"u_directionChannel":4,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1,"directionChannel":"4"}},{"name":"Pixelate","config":{"blockSize":30,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"COLORSPACE":"2","blendAmount":0.63,"chromaBoost":1}}]},
+    {
+  "name": "Light-up Floor",
+  "config": [
+    {
+      "name": "Mirrorbands",
+      "config": {
+        "bandSize": 0.2,
+        "orientation": 1,
+        "mirrorRate": 1,
+        "offset": 0.35,
+        "noiseAmount": 0,
+        "colorNoise": 0,
+        "blendAmount": 0.57,
+        "COLORSPACE": 0,
+        "BLENDMODE": "10",
+        "BLEND_CHANNEL_MODE": 0,
+        "chromaBoost": 1,
+        "seed": {
+          "value": 258,
+          "mod": {
+            "type": "hold",
+            "freq": 4.5009999999999994,
+            "phase": 0,
+            "scale": 16.000000000000004,
+            "offset": 250
+          }
+        },
+        "levels": 2,
+        "rotationAmount": 0,
+        "sBias": 0.5,
+        "vBias": 0.86,
+        "hue": 0,
+        "colorBlend": "1"
+      }
+    },
+    {
+      "name": "flow()",
+      "config": {
+        "BLENDMODE": 1,
+        "BLEND_CHANNEL_MODE": 0,
+        "COLORSPACE": 0,
+        "blendAmount": 1,
+        "warpStrength": 0.1,
+        "directionStrength": 3.5825756949558434,
+        "directionChannel": "4",
+        "magChannel": 0,
+        "directionPolarity": false,
+        "magPolarity": false,
+        "threshLow": 0,
+        "threshHigh": 0.23,
+        "magGamma": 1,
+        "kernelName": "gaussian",
+        "kernelRadiusX": 3,
+        "kernelRadiusY": 3,
+        "kernelSoftness": 10,
+        "chromaBoost": 1
+      }
+    }
+  ]
+}
 
 ]

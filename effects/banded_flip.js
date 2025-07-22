@@ -1,76 +1,146 @@
 import {resolveAnimAll} from "../utils/animutils.js";
+import {
+    BlendModeEnum,
+    BlendTargetEnum,
+    ColorspaceEnum,
+    hasChromaBoostImplementation,
+    makeEnum
+} from "../utils/glsl_enums.js";
+import {blendControls, group} from "../utils/ui_configs.js";
+import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
+
+const shaderPath = "../shaders/banded_flip.frag"
+const includePaths = {
+    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
+    'blend.glsl': '../shaders/includes/blend.glsl',
+};
+const fragSources = loadFragSrcInit(shaderPath, includePaths);
+
+const {
+    enum: FlipColorEnum,
+    names: FlipColorNames,
+    options: FlipColorOpts
+} = makeEnum([
+    'RANDOM',
+    'SWEEP',
+    'TINT',
+])
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
     name: "Banded Flip",
-
     defaultConfig: {
-        bandSize: 32,
-        orientation: "horizontal", // or "vertical"
-        mirrorRate: 0.5,
-        offset: 0
+        bandSize: 0.2,
+        orientation: 1,
+        mirrorRate: 1,
+        offset: 0,
+        noiseAmount: 0,
+        colorNoise: 0,
+        blendAmount: 1,
+        COLORSPACE: ColorspaceEnum.RGB,
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        chromaBoost: 1,
+        seed: 0,
+        levels: 1,
+        rotationAmount: 0,
+        sBias: 0.5,
+        vBias: 0.5,
+        hue: 0
     },
-
-    apply(instance, data, width, height, t) {
-        const {bandSize, orientation, mirrorRate, offset} = resolveAnimAll(instance.config, t);
-
-        const out = new Float32Array(data.length);
-        const getIndex = (x, y) => (y * width + x) * 4;
-
-        const mirrorBand = (x, y, mirrored) => {
-            if (orientation === "horizontal") {
-                const slabY = Math.floor(y / bandSize) * bandSize;
-                const within = y - slabY;
-                const srcY = mirrored ? slabY + bandSize - within - 1 : y;
-                const offsetX = x + (mirrored ? offset : 0);
-                return [
-                    Math.max(0, Math.min(width - 1, offsetX)),
-                    Math.max(0, Math.min(height - 1, srcY))
-                ];
-            } else {
-                const slabX = Math.floor(x / bandSize) * bandSize;
-                const within = x - slabX;
-                const srcX = mirrored ? slabX + bandSize - within - 1 : x;
-                const offsetY = y + (mirrored ? offset : 0);
-                return [
-                    Math.max(0, Math.min(width - 1, srcX)),
-                    Math.max(0, Math.min(height - 1, offsetY))
-                ];
-            }
-        };
-
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < width; x++) {
-                const mirrored = Math.random() < mirrorRate;
-
-                const [srcX, srcY] = mirrorBand(x, y, mirrored);
-                const src = getIndex(srcX, srcY);
-                const dst = getIndex(x, y);
-
-                out[dst] = data[src];
-                out[dst + 1] = data[src + 1];
-                out[dst + 2] = data[src + 2];
-                out[dst + 3] = data[src + 3];
-            }
-        }
-
-        return out;
-    },
-
     uiLayout: [
-        {'type': 'modSlider', 'key': 'bandSize', 'label': 'Band Size', 'min': 4, 'max': 128, 'step': 4},
-        {'type': 'select', 'key': 'orientation', 'label': 'Orientation', 'options': ['horizontal', 'vertical']},
-        {'type': 'modSlider', 'key': 'mirrorRate', 'label': 'Mirror Rate', 'min': 0, 'max': 1, 'step': 0.01},
-        {'type': 'modSlider', 'key': 'offset', 'label': 'Offset', 'min': -32, 'max': 32, 'step': 1}
+        // **Geometry Controls**
+        group("Band and Orientation", [
+            {'type': 'modSlider', 'key': 'bandSize', 'label': 'Band Size', 'min': 0.01, 'max': 0.5, 'step': 0.01},
+            {
+                'type': 'select',
+                'key': 'orientation',
+                'label': 'Orientation',
+                'options': [{'label': 'horizontal', 'value': 0}, {'label': 'vertical', 'value': 1}]
+            }
+        ]),
+
+        group("Mirroring and Offsets", [
+            {'type': 'modSlider', 'key': 'mirrorRate', 'label': 'Mirror Rate', 'min': 0, 'max': 1, 'step': 0.01},
+            {'type': 'modSlider', 'key': 'offset', 'label': 'Offset', 'min': -1, 'max': 1, 'step': 0.01},
+            {'type': 'modSlider', 'key': 'seed', 'label': 'Seed', 'min': 0, 'max': 500, 'step': 1}
+        ]),
+
+        group("Color Adjustments", [
+            {'type': 'select', 'key': 'colorMode', 'label': 'Slab Color Mode', 'options': FlipColorOpts},
+            {
+                'type': 'select',
+                'key': 'colorBlend',
+                'label': 'Slab Color Blend',
+                'options': [{'label': 'Soft', 'value': 0}, {'label': 'Hard', 'value': 1}]
+            },
+            {
+                'type': 'modSlider',
+                'key': 'hue',
+                'label': 'H',
+                'min': 0,
+                'max': 1,
+                'step': 0.01,
+                'showIf': {key: "colorMode", equals: FlipColorEnum.TINT}
+            },
+            {'type': 'modSlider', 'key': 'sBias', 'label': 'S Bias', 'min': -0.5, 'max': 1, 'step': 0.01},
+            {'type': 'modSlider', 'key': 'vBias', 'label': 'V Bias', 'min': 0, 'max': 1, 'step': 0.01}
+        ]),
+
+        group("Iteration", [
+            {'type': 'modSlider', 'key': 'levels', 'label': 'Levels', 'min': 1, 'max': 5, 'step': 1},
+            {'type': 'modSlider', 'key': 'rotationAmount', 'label': 'Rotation', 'min': 0, 'max': Math.PI, 'step': 0.01}
+        ]),
+
+        blendControls(),
     ],
 
+    apply(instance, inputTex, width, height, t, outputFBO) {
+        initGLEffect(instance, fragSources);
+        const {
+            bandSize, orientation, mirrorRate, offset, seed,
+            COLORSPACE, BLEND_CHANNEL_MODE, BLENDMODE, chromaBoost,
+            blendAmount, levels, rotationAmount, hue, sBias, vBias, colorMode,
+            colorBlend
+        } = resolveAnimAll(instance.config, t);
+        const uniformSpec = {
+            u_resolution: {type: "vec2", value: [width, height]},
+            u_blendamount: {value: blendAmount, type: "float"},
+            u_mirrorRate: {value: mirrorRate, type: "float"},
+            u_seed: {value: seed, type: "float"},
+            u_offset: {value: offset * (width + height) / 2, type: "float"},
+            u_bandSize: {value: bandSize * (width + height) / 2, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
+            u_rotationAmount: {type: "float", value: rotationAmount},
+            u_orientation: {type: "int", value: orientation},
+            u_levels: {type: "int", value: levels},
+            u_hue: {type: "float", value: hue},
+            u_sBias: {type: "float", value: sBias},
+            u_vBias: {type: "float", value: vBias},
+        };
+        const defines = {
+            BLENDMODE: BLENDMODE,
+            COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            FLIP_COLOR_MODE: colorMode,
+            FLIP_COLOR_BLEND: colorBlend
+        }
+        instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
+    },
+    initHook: fragSources.load,
+    cleanupHook(instance) {
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+    },
+    glState: null,
+    isGPU: true,
 };
 
 export const effectMeta = {
-  group: "Distortion",
-  tags: ["bands", "invert", "temporal", "displacement"],
-  description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
-  canAnimate: true,
-  realtimeSafe: true,
+    group: "Distortion",
+    tags: ["bands", "invert", "temporal", "displacement"],
+    description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
+    canAnimate: true,
+    realtimeSafe: true,
 }

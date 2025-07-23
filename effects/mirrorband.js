@@ -139,8 +139,8 @@ export default {
 
 export const effectMeta = {
     group: "Distortion",
-    tags: ["bands", "invert", "temporal", "displacement"],
-    description: "Alternates flipped and unflipped horizontal or vertical bands for a staggered appearance.",
+    tags: ["bands", "invert", "mirror", "rotation", "displacement"],
+    description: "Alternates mirrored slices across the image, optionally rotating them into one another or recursively iterating the effect. Several color modes are supported.",
     canAnimate: true,
     realtimeSafe: true,
 }

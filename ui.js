@@ -233,9 +233,7 @@ export function setupPresetUI(
 }
 
 export function setupExportImage(exportImage) {
-    document.getElementById('exportImage').onclick = () => {
-        exportImage(document.getElementById("exportImageResolution").value);
-    };
+    document.getElementById('exportImage').onclick = exportImage;
 }
 
 export function setupVideoCapture(startCapture, stopCapture) {

@@ -165,7 +165,7 @@ export function loadFragSrcInit(shaderPath, includePaths) {
         if (includePaths) {
             includeMap = {};
             Object.entries(includePaths).map(([name, path]) => {
-                const url = new URL(`/build/shaders/${manifest[path]}`, import.meta.url);
+                const url = new URL(`../build/shaders/${manifest[path]}`, import.meta.url);
                 includeMap[name] = fetch(url);
             })
             for (const [name, promise] of Object.entries(includeMap)) {

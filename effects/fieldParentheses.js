@@ -9,13 +9,13 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/field_parentheses.frag"
+const shaderPath = "field_parentheses.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
-    'color_projection.glsl': '../shaders/includes/color_projection.glsl',
-    'basis_projection.glsl': '../shaders/includes/basis_projection.glsl',
-    'vecfield.glsl': '../shaders/includes/vecfield.glsl'
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
+    'color_projection.glsl': 'includes/color_projection.glsl',
+    'basis_projection.glsl': 'includes/basis_projection.glsl',
+    'vecfield.glsl': 'includes/vecfield.glsl'
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

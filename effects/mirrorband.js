@@ -9,10 +9,10 @@ import {
 import {blendControls, group} from "../utils/ui_configs.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
-const shaderPath = "../shaders/banded_flip.frag"
+const shaderPath = "banded_flip.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

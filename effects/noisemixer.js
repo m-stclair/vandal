@@ -8,17 +8,17 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls, zoneControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/noisemixer.frag"
+const shaderPath = "noisemixer.frag"
 const includePaths = {
-    'zones.glsl': '../shaders/includes/zones.glsl',
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
-    'noise.glsl': '../shaders/includes/noise.glsl',
-    'psrdnoise2.glsl': '../shaders/includes/noises/psrdnoise2.glsl',
-    "classicnoise2D.glsl": '../shaders/includes/noises/classicnoise2D.glsl',
-    "cellular2D.glsl": '../shaders/includes/noises/cellular2D.glsl',
-    "noise2D.glsl": '../shaders/includes/noises/noise2D.glsl',
-    'noisenums.glsl': "../shaders/includes/noises/noisenums.glsl",
+    'zones.glsl': 'includes/zones.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
+    'noise.glsl': 'includes/noise.glsl',
+    'psrdnoise2.glsl': 'includes/noises/psrdnoise2.glsl',
+    "classicnoise2D.glsl": 'includes/noises/classicnoise2D.glsl',
+    "cellular2D.glsl": 'includes/noises/cellular2D.glsl',
+    "noise2D.glsl": 'includes/noises/noise2D.glsl',
+    'noisenums.glsl': "includes/noises/noisenums.glsl",
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

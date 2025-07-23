@@ -4,10 +4,10 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/affine_transform.frag"
+const shaderPath = "affine_transform.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

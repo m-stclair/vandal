@@ -7,11 +7,11 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/badtv.frag"
+const shaderPath = "badtv.frag"
 const includePaths = {
-    'noise.glsl': '../shaders/includes/noise.glsl',
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'noise.glsl': 'includes/noise.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

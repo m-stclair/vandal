@@ -7,10 +7,10 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls, group} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/contour_synth.frag"
+const shaderPath = "contour_synth.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

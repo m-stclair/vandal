@@ -10,11 +10,11 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/posterizer.frag"
+const shaderPath = "posterizer.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
-    'posterize.glsl': '../shaders/includes/posterize.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
+    'posterize.glsl': 'includes/posterize.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

@@ -3,14 +3,14 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/perlin_distort.frag"
+const shaderPath = "perlin_distort.frag"
 const includePaths = {
-    'blend.glsl': "../shaders/includes/blend.glsl",
-    'colorconvert.glsl': "../shaders/includes/colorconvert.glsl",
-    'noise.glsl': "../shaders/includes/noise.glsl",
-    'classicnoise2D.glsl': "../shaders/includes/noises/classicnoise2D.glsl",
-    'cellular2D.glsl': "../shaders/includes/noises/cellular2D.glsl",
-    'noisenums.glsl': "../shaders/includes/noises/noisenums.glsl",
+    'blend.glsl': "includes/blend.glsl",
+    'colorconvert.glsl': "includes/colorconvert.glsl",
+    'noise.glsl': "includes/noise.glsl",
+    'classicnoise2D.glsl': "includes/noises/classicnoise2D.glsl",
+    'cellular2D.glsl': "includes/noises/cellular2D.glsl",
+    'noisenums.glsl': "includes/noises/noisenums.glsl",
 };
 const fragSource = loadFragSrcInit(shaderPath, includePaths);
 

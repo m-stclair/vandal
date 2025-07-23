@@ -1,3 +1,7 @@
+import { loadShaderManifest } from './manifestLoader.js';
+
+const manifest = await loadShaderManifest();
+
 export const UniformSetters = {
     float: (gl, loc, val) => gl.uniform1f(loc, val),
     int: (gl, loc, val) => gl.uniform1i(loc, val),
@@ -154,16 +158,14 @@ export function loadFragSrcInit(shaderPath, includePaths) {
     let includeMap = null;
 
     async function load() {
-        const fragURL = new URL(shaderPath, import.meta.url);
-        fragURL.searchParams.set("v", Date.now());
+        const fragURL = new URL(`/build/shaders/${manifest[shaderPath]}`, import.meta.url);
         const sresp = await fetch(fragURL);
         if (!sresp.ok) throw new Error(`Failed to load shader: ${fragURL}`);
         shader = await sresp.text();
         if (includePaths) {
             includeMap = {};
             Object.entries(includePaths).map(([name, path]) => {
-                const url = new URL(path, import.meta.url);
-                url.searchParams.set("v", Date.now());
+                const url = new URL(`/build/shaders/${manifest[path]}`, import.meta.url);
                 includeMap[name] = fetch(url);
             })
             for (const [name, promise] of Object.entries(includeMap)) {

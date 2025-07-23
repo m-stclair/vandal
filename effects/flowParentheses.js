@@ -9,10 +9,10 @@ import {
 import {blendControls} from "../utils/ui_configs.js";
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
 
-const shaderPath = "../shaders/flow_parentheses.glsl"
+const shaderPath = "flow_parentheses.glsl"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

@@ -3,8 +3,8 @@ import {subsampleTexture} from "./probeutils.js";
 import {clamp} from "../../utils/mathutils.js";
 import {ColorspaceEnum} from "../../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/pcaprobe.frag"
-const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
+const shaderPath = "pcaprobe.frag"
+const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 

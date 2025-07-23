@@ -9,12 +9,12 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls, group, zoneControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/warpzone.glsl";
+const shaderPath = "warpzone.glsl";
 const includePaths = {
-    "zones.glsl": "../shaders/includes/zones.glsl",
-    "psrdnoise2.glsl": "../shaders/includes/noises/psrdnoise2.glsl",
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
-    "blend.glsl": "../shaders/includes/blend.glsl"
+    "zones.glsl": "includes/zones.glsl",
+    "psrdnoise2.glsl": "includes/noises/psrdnoise2.glsl",
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

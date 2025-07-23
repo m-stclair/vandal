@@ -33,6 +33,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----
 
-Some GLSL files in ./shaders/includes and ./shaders/includes/noises vendor shaders
-from other sources, copyright of various parties. Their licenses are available
-as attached headers to individual files.
+Some GLSL files in ./shaders/includes and ./shaders/includes/noises are wholly or partially
+vendored from other sources, copyright of various parties. Their licenses are available
+as attached headers to individual files, and are applicable in addition to the license
+above to those files.

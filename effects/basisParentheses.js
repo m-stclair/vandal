@@ -4,12 +4,12 @@ import {ColorspaceEnum, ColorspaceOpts, makeEnum} from "../utils/glsl_enums.js";
 import {BasisConstructionError, gramSchmidt3, invertMat3} from "../utils/ortho.js";
 import {convertAxisVector} from "../utils/colorutils.js";
 
-const shaderPath = "../shaders/basis_parentheses.frag"
+const shaderPath = "basis_parentheses.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
-    'color_projection.glsl': '../shaders/includes/color_projection.glsl',
-    'basis_projection.glsl': '../shaders/includes/basis_projection.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
+    'color_projection.glsl': 'includes/color_projection.glsl',
+    'basis_projection.glsl': 'includes/basis_projection.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

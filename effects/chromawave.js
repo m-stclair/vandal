@@ -3,10 +3,10 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
 import {hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/chromawave.frag"
+const shaderPath = "chromawave.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

@@ -2,10 +2,10 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {makeEnum} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/colorshred.frag";
+const shaderPath = "colorshred.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
-    "noise.glsl": "../shaders/includes/noise.glsl"
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "noise.glsl": "includes/noise.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

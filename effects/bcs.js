@@ -1,8 +1,8 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
-const shaderPath = "../shaders/bcs.frag";
-const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
+const shaderPath = "bcs.frag";
+const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 

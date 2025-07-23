@@ -8,10 +8,10 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/gridpattern.frag";
+const shaderPath = "gridpattern.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
-    "blend.glsl": "../shaders/includes/blend.glsl"
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

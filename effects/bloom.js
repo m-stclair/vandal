@@ -8,11 +8,11 @@ import {
 import {generateKernel, KernelTypeEnum} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/bloom.glsl"
+const shaderPath = "bloom.glsl"
 const includePaths = {
-    'kernel_utils.glsl': '../shaders/includes/kernel_utils.glsl',
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'kernel_utils.glsl': 'includes/kernel_utils.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

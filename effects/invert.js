@@ -2,9 +2,9 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {ColorspaceEnum, ColorspaceOpts} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/invert.frag";
+const shaderPath = "invert.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
+    "colorconvert.glsl": "includes/colorconvert.glsl",
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

@@ -5,10 +5,10 @@ import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/palette_synth.frag";
+const shaderPath = "palette_synth.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
-    "blend.glsl": "../shaders/includes/blend.glsl"
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

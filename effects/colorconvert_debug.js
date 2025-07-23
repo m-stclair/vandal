@@ -3,7 +3,7 @@ import {loadFragInit} from "../utils/load_runner.js";
 import {initGLEffect} from "../utils/gl.js";
 
 const fragURL = [
-    new URL("../shaders/colorconvert_test.frag", import.meta.url),
+    new URL("/colorconvert_test.frag", import.meta.url),
 ];
 fragURL.forEach((u) => u.searchParams.set("v", Date.now()));
 const fragSource = loadFragInit(fragURL);

@@ -11,10 +11,10 @@ import {
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/kernel2d.glsl";
+const shaderPath = "kernel2d.glsl";
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

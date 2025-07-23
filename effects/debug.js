@@ -5,9 +5,9 @@ import {
     ColorspaceOpts, ColorspaceEnum, hasChromaBoostImplementation, DebugModeEnum, DebugColorModeOpts, DebugColorModeEnum
 } from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/gen_debug.frag";
+const shaderPath = "gen_debug.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
+    "colorconvert.glsl": "includes/colorconvert.glsl",
 };
 
 const fragSources = loadFragSrcInit(shaderPath, includePaths);

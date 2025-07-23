@@ -1,8 +1,8 @@
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {subsampleTexture} from "./probeutils.js";
 
-const shaderPath = "../shaders/statsprobe.frag"
-const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
+const shaderPath = "statsprobe.frag"
+const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 export const statsProbe = {

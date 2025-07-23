@@ -24,7 +24,7 @@ export default {
     name: "2D Kernel",
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
-        BLENDTARGET: BlendTargetEnum.ALL,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 1,
         chromaBoost: 1,

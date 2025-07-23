@@ -60,6 +60,7 @@ export class webGLState {
             if (isEqual(defines[k], this.last_defines[k])) continue;
             if (defines[k] === this.last_defines[k]) continue;
             if (defines[k] instanceof Number && defines[k] === Number.parseInt(this.last_defines[k])) continue;
+            console.log(`${k} changed`);
             return true;
         }
         return false;

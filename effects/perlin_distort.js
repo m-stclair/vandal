@@ -44,7 +44,7 @@ export default {
     },
     uiLayout: [
         group("Core Noise Settings", [
-            {key: "seed", label: "Random Seed", type: "range", min: 1, max: 500, step: 1},
+            {key: "seed", label: "Random Seed", type: "modSlider", min: 1, max: 500, step: 1},
             {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
             {
                 key: "freqX",

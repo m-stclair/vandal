@@ -158,7 +158,7 @@ export function loadFragSrcInit(shaderPath, includePaths) {
     let includeMap = null;
 
     async function load() {
-        const fragURL = new URL(`/build/shaders/${manifest[shaderPath]}`, import.meta.url);
+        const fragURL = new URL(`../build/shaders/${manifest[shaderPath]}`, import.meta.url);
         const sresp = await fetch(fragURL);
         if (!sresp.ok) throw new Error(`Failed to load shader: ${fragURL}`);
         shader = await sresp.text();

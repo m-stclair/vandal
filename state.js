@@ -11,6 +11,7 @@ export const requestUIDraw = () => Dirty.ui = true;
 
 // shared rendering objects
 export const canvas = document.getElementById('glitchCanvas');
+canvas.style.willChange = 'transform';
 export const defaultCtx = canvas.getContext("webgl2", { alpha: false, antialias: true });
 
 

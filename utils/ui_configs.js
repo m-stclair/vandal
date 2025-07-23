@@ -28,6 +28,7 @@ export function blendControls() {
                     steps: 200,
                     // ugh
                     showIf: [
+                        {key: "NEVER", equals: 'NEVER'},
                         {key: "COLORSPACE", notEquals: ColorspaceEnum.RGB},
                         {key: "COLORSPACE", notEquals: ColorspaceEnum.HSV},
                         {key: "COLORSPACE", notEquals: ColorspaceEnum.HSL},

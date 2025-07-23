@@ -15,7 +15,7 @@ const ANIMATE_PROB = 0.25;  // chance to animate an eligible param
 
 function generateAnimationMod(base, min, max) {
     const span = max - min;
-    const freq = +(Math.random() * 0.1 + 0.01).toFixed(3); // 0.01–0.11 Hz
+    let freq = +(Math.random() * 0.1 + 0.01).toFixed(3); // 0.01–0.11 Hz
     const scale = +(Math.random() * 0.5 * span).toFixed(2); // up to 50% swing
     const offset = base;
     const type = weightedSample([
@@ -29,16 +29,25 @@ function generateAnimationMod(base, min, max) {
         ['impulse-ease', 0.5],
         ['impulse', 0.25],
     ]);
+    if (['impulse-ease', 'impulse', 'walk'].includes(type)) {
+        freq *= 3;
+    }
     return {type, freq, phase: 0, scale, offset};
 }
 
 
 const blendWeights = {
-    [ColorspaceEnum.MIX]: 5.0,
-    [ColorspaceEnum.SOFT_LIGHT]: 2.0,
-    [ColorspaceEnum.HARD_LIGHT]: 0.5,
-    [ColorspaceEnum.DARKEN]: 0.5,
-    [ColorspaceEnum.REPLACE]: 0.0
+    [BlendModeEnum.MIX]: 5.0,
+    [BlendModeEnum.SOFT_LIGHT]: 2.0,
+    [BlendModeEnum.HARD_LIGHT]: 2.0,
+    [BlendModeEnum.DARKEN]: 0.5,
+    [BlendModeEnum.MULTIPLY]: 0.5,
+    [BlendModeEnum.REPLACE]: 0.0
+}
+
+const cSpaceWeights = {
+    [ColorspaceEnum.RGB]: 3.0,
+    [ColorspaceEnum.HSV]: 2.0,
 }
 
 const chanWeights = {
@@ -57,7 +66,8 @@ const fieldDisplayWeights = {
 const weightTable = {
     BLENDMODE: blendWeights,
     BLEND_CHANNEL_MODE: chanWeights,
-    FIELD_DISPLAY_MODE: fieldDisplayWeights
+    FIELD_DISPLAY_MODE: fieldDisplayWeights,
+    COLORSPACE: cSpaceWeights,
 }
 
 function roll1d4() {
@@ -207,65 +217,65 @@ function validateConfig(config, layout) {
     return errors;
 }
 
+function selectRandomParam(hints, param) {
+    if (hints[param.key]?.always) {
+        return hints[param.key].always;
+    }
+    const ptype = param.type.toLowerCase();
+    if (ptype === "modslider" || ptype === "range") {
+        const min = hints[param.key]?.min ?? param.min;
+        const max = hints[param.key]?.max ?? param.max;
+        let val = randBetween(min, max);
+        if (param.scale === "log") {
+            const scaleFactor = param.scaleFactor ?? 10;
+
+            val = min + Math.log(val - min + 1) / Math.log(scaleFactor)
+        }
+        if (param.step === 1) val = Math.floor(val);
+
+        if (ptype === "modslider" && Math.random() < ANIMATE_PROB) {
+            return {
+                value: val,
+                mod: generateAnimationMod(val, min, max)
+            };
+        } else {
+            return val;
+        }
+
+    } else if (ptype === "checkbox") {
+        return Math.random() < 0.5;
+    } else if (ptype === "select") {
+        return weightedSampleFromOptions(
+            param.options.map(opt => opt.value ?? opt),
+            {...(weightTable[param.key] ?? {}), ...(hints[param.key]?.weights ?? {})}
+        );
+    } else if (ptype === "vector") {
+        let vec = [];
+        vec = [];
+        for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
+            vec.push(randBetween(param.min, param.max));
+        }
+        while (param.max <= 2 && (!vec.some((v) => v > 0.2) || !vec.some((v) => v < 0.8))) {
+            // this is a silly heuristic: "don't turn all the colors to black "
+            // or white, although these aren't all colors"
+            // TODO: DRY, michael, DRY
+            vec = [];
+            for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
+                vec.push(randBetween(param.min, param.max));
+            }
+        }
+        return vec;
+    } else {
+        throw new Error("invalid parameter specification")
+    }
+}
+
 function generateRandomizedConfig(layout, meta) {
     const config = {};
     const flatParams = flattenUiLayout(layout);
     const hints = meta.parameterHints ?? {};
     for (const param of flatParams || []) {
-        if (hints[param.key]?.always) {
-            config[param.key] = hints[param.key].always;
-            continue;
-        }
-        const ptype = param.type.toLowerCase();
-        if (ptype === "modslider" || ptype === "range") {
-            const min = hints[param.key]?.min ?? param.min;
-            const max = hints[param.key]?.max ?? param.max;
-            let val = randBetween(min, max);
-            if (!val && !(val === 0)) {
-                throw new Error("NAN!!!");
-            }
-            if (param.scale === "log") {
-                const scaleFactor = param.scaleFactor ?? 10;
-                val = Math.log(val) / Math.log(scaleFactor)
-            }
-            if (param.step === 1) val = Math.floor(val);
-
-            if (ptype === "modslider" && Math.random() < ANIMATE_PROB) {
-                config[param.key] = {
-                    value: val,
-                    mod: generateAnimationMod(val, min, max)
-                };
-            } else {
-                config[param.key] = val;
-            }
-
-        } else if (ptype === "checkbox") {
-            config[param.key] = Math.random() < 0.5;
-        } else if (ptype === "select") {
-            config[param.key] = weightedSampleFromOptions(
-                param.options.map(opt => opt.value ?? opt),
-                weightTable[param.key] ?? {}
-            );
-
-        } else if (ptype === "vector") {
-            let vec = [];
-            vec = [];
-            for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
-                vec.push(randBetween(param.min, param.max));
-            }
-            while (param.max <= 2 && (!vec.some((v) => v > 0.2) || !vec.some((v) => v < 0.8))) {
-                // this is a silly heuristic: "don't turn all the colors to black "
-                // or white, although these aren't all colors"
-                // TODO: DRY, michael, DRY
-                vec = [];
-                for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
-                    vec.push(randBetween(param.min, param.max));
-                }
-            }
-            config[param.key] = vec;
-        } else {
-            throw new Error("invalid parameter specification")
-        }
+        config[param.key] = selectRandomParam(hints, param, config);
     }
     return config;
 }

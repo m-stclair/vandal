@@ -250,27 +250,31 @@ float luminance(vec3 rgb) {
 #define COLORSPACE COLORSPACE_RGB
 #endif
 
+// TODO, probably: get rid of all this bs
 #ifndef APPLY_CHROMA_BOOST
 #define APPLY_CHROMA_BOOST 0
 #endif
 
 #if APPLY_CHROMA_BOOST == 1
 uniform float u_chromaBoost;
-
+//
 vec3 applyChromaBoost(vec3 c) {
-#if COLORSPACE == COLORSPACE_LCH
-    c.y *= pow(c.y, 0.2) * u_chromaBoost;
     return c;
-#elif COLORSPACE == COLORSPACE_LAB
-    float chroma = length(c.yz); // a and b
-    vec2 chromaVec = normalize(c.yz);
-    chroma = pow(chroma, 0.8) * u_chromaBoost;
-    return vec3(c.x, chroma * chromaVec);
-#else
-    return c;
-#endif
 }
 #endif
+//#if COLORSPACE == COLORSPACE_LCH
+//    c.y *= pow(c.y, 0.2) * u_chromaBoost;
+//    return c;
+//#elif COLORSPACE == COLORSPACE_LAB
+//    float chroma = length(c.yz);
+//    vec2 chromaVec = normalize(c.yz);
+//    chroma = pow(chroma, 1. / u_chromaBoost);
+//    return vec3(c.x, chroma * chromaVec.y, chroma * chromaVec.x);
+//#else
+//    return c;
+//#endif
+//}
+//#endif
 
 
 vec3 extractColor(vec3 srgb) {

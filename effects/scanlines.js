@@ -74,5 +74,9 @@ export const effectMeta = {
   description: "Adds horizontal scanlines to simulate CRT-style rendering artifacts.",
   canAnimate: true,
   realtimeSafe: true,
+  parameterHints: {
+      intensity: {always: 1.0}
+  },
+  notInRandom: true
 };
 

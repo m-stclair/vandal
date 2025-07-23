@@ -32,6 +32,7 @@ function clampInfinity(value, minval = 0.001) {
     return value === -Infinity ? minval : value
 }
 
+// TODO : needs an offset from min
 function reverseScaling(value, scale, scaleFactor) {
     switch (scale) {
         case "log":

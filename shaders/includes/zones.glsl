@@ -43,8 +43,8 @@ float boundedMask(
     return inner.x * inner.y * outer.x * outer.y;
 
 #elif ZONESHAPE == ZONE_VERTICAL
-    float left = sstep(zoneMin.x, zoneMin.x + softness, uv_rot.x);
-    float right = 1.0 - sstep(zoneMax.x - softness, zoneMax.x, uv_rot.x);
+    float left = sstep(zoneMin.x, zoneMin.x + softness / 2., uv_rot.x);
+    float right = 1.0 - sstep(zoneMax.x - softness / 2., zoneMax.x, uv_rot.x);
     return left * right;
 
 #elif ZONESHAPE == ZONE_SUPERELLIPSE
@@ -73,8 +73,8 @@ float boundedMask(
     );
 
 #elif ZONESHAPE == ZONE_HORIZONTAL
-    float top = sstep(zoneMin.y, zoneMin.y + softness, uv_rot.y);
-    float bottom = 1.0 - sstep(zoneMax.y - softness, zoneMax.y, uv_rot.y);
+    float top = sstep(zoneMin.y, zoneMin.y + softness / 2., uv_rot.y);
+    float bottom = 1.0 - sstep(zoneMax.y - softness / 2., zoneMax.y, uv_rot.y);
     return top * bottom;
 #else
     return 0.0;

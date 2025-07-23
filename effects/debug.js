@@ -18,7 +18,7 @@ export default {
     name: "Debug Shader",
     defaultConfig: {
         COLORSPACE: ColorspaceEnum.RGB,
-        DEBUG_MODE: DebugModeEnum.MODE_UV_GRADIENT,
+        DEBUG_MODE: DebugModeEnum.MODE_OOB_NAN_HIGHLIGHT,
         DISPLAY_CHANNEL: 0,
         DEBUG_COLOR_MODE: DebugColorModeEnum.COLOR_MODE_CHANNEL
     },

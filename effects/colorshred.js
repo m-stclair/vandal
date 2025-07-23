@@ -98,6 +98,7 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         chromaThreshold: {min: 0.25, max: 0.5},
-        density: {min: 0.1, max: 0.85}
+        density: {min: 0.1, max: 0.85},
+        mode: {weights: {[SModeEnum.PRESERVE_LUMA]: 0}}
     }
 };

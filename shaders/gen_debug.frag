@@ -39,7 +39,7 @@ void main() {
     } else if (invalid) {
         outColor = vec4(0.0, 1.0, 1.0, 1.0);// cyan for NaN/Inf
     } else {
-        outColor = color;
+        outColor = vec4(0., 0., 0., 1.);
     }
 
     #elif DEBUG_MODE == MODE_UV_GRADIENT

@@ -268,6 +268,9 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         threshold: {min: 0, max: 0.45},
-        cutoff: {min: 0.55, max: 1}
+        cutoff: {min: 0.55, max: 1},
+        zoneSX: {min: 0.4, max: 1},
+        zoneSY: {min: 0.4, max: 1},
+        zoneSoftness: {min: 0, max: 0.5}
     }
 };

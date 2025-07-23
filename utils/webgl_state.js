@@ -57,7 +57,10 @@ export class webGLState {
         if (!defines) return false;
         if (!this.last_defines) return true;
         for (let k of Object.keys(defines)) {
-            if (!(isEqual(defines[k], this.last_defines[k]))) return true;
+            if (isEqual(defines[k], this.last_defines[k])) continue;
+            if (defines[k] === this.last_defines[k]) continue;
+            if (defines[k] instanceof Number && defines[k] === Number.parseInt(this.last_defines[k])) continue;
+            return true;
         }
         return false;
     }
@@ -147,12 +150,9 @@ export class webGLState {
             if (type === "texture2D") {
                 // TODO: terrible to unconditionally pick texture1!
                 gl.activeTexture(gl.TEXTURE1);
-                if (!gl.isTexture(value)) {
+                if (value instanceof Array) {
                     const value = gl.createTexture()
                     this.allocateTexture(this.format, width, height, value);
-                }
-                if (!gl.isTexture(value)) {
-                    throw new Error("bad sideloaded texture")
                 }
                 gl.bindTexture(gl.TEXTURE_2D, value);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);

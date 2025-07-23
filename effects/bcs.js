@@ -91,6 +91,5 @@ export const effectMeta = {
       "brightness": {min: -0.2, max: 0.4},
       "contrast": {min: -0.3, max: 0.5}
   },
-  // TODO, maybe: meh
-  // notInRandom: true
+  notInRandom: true
 };

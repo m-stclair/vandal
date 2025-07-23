@@ -99,6 +99,7 @@ export const effectMeta = {
   canAnimate: true,
   realtimeSafe: true,
   parameterHints: {
-      blendAmount: {min: 0.75, max: 1}
+      blendAmount: {min: 0.75, max: 1},
+      POSTERIZE_MODE: {weights: {[PosterizeEnum.NONE]: 0}}
   }
 };

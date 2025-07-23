@@ -256,7 +256,10 @@ export function resizeAndRedraw() {
         const h = Math.floor(originalImage.height * scale);
         canvas.width = w;
         canvas.height = h;
-        renderer.loadImage(originalImage).then(requestRender);
+        // unnecessary on resize vs. load but harmelss
+        renderer.cachedImage = originalImage;
+        renderer.inputDirty = true;
+        requestRender();
     } finally {
         Lock.image = false;
     }
@@ -265,19 +268,21 @@ export function resizeAndRedraw() {
 
 // TODO: big gun type situation
 export function resetStack() {
-    setFreezeAnimationFlag(true);
     renderer.reset();
-    try {
-        forEachEffect(
-            (fx) => {
-                if (fx.cleanupHook) {
-                    fx.cleanupHook(fx);
-                }
-            })
+    forEachEffect(
+        (fx) => {
+            if (fx.cleanupHook) {
+                fx.cleanupHook(fx);
+            }
+        })
         flushEffectStack();
         requestUIDraw();
-        requestRender();
-    } finally {
-        setFreezeAnimationFlag(false);
-    }
+}
+
+export function lockRender() {
+    renderer.lock();
+}
+
+export function unlockRender() {
+    renderer.unlock();
 }

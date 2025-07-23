@@ -65,7 +65,7 @@ export const statsProbe = {
                 cdfs[c][i] = cumsums[c] / numPixels;
             }
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, probe.glState.renderer.dummyBuffer);
         gl.deleteTexture(tempBuffer.texture);
         gl.deleteFramebuffer(tempBuffer.fbo);
         const boundsOut = []

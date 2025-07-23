@@ -173,3 +173,19 @@ export function isEqual(a, b) {
   // everything else must have been === already
   return false;
 }
+
+
+export function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+export function vandalStamp(ext) {
+    const date = new Date();
+    const timestamp = date.toISOString().replace(/[^0-9]/g, '');
+    return `vandal_${timestamp}.${ext}`
+}

@@ -20,36 +20,36 @@ import {
     getEffectById,
     getEffectStack,
     getAnimationFrozen,
-    getNormedImage,
-    getOriginalImage,
     loadState,
     Lock,
     makeEffectInstance,
     renderer,
     requestRender,
     requestUIDraw,
-    rerollNormLoadID,
     resetStack,
     resizeAndRedraw,
     saveState,
     setFilters,
-    setFreezeAnimationFlag,
     setOriginalImage,
-    setRenderedImage,
     toggleEffectSelection,
-    uiState, setFreezeAnimationButtonFlag
+    uiState, setFreezeAnimationButtonFlag, lockRender, unlockRender
 } from "./state.js";
 // import "./tools/debugPane.js";
-import {formatFloatWidth, gid} from "./utils/helpers.js";
+import {downloadBlob, formatFloatWidth, gid, vandalStamp} from "./utils/helpers.js";
 import {renderStackUI} from "./ui_builder.js";
 import {effectRegistry} from "./registry.js";
 import {resolveAnim} from "./utils/animutils.js";
-import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
 import {drawPattern} from "./test_patterns.js";
 import {getAppPresetView} from "./utils/presets.js";
+
+
+let animating = false;
+let startTime = null;
+let timePhase = 0;
+
 
 function handleUpload(e) {
     let file;
@@ -79,16 +79,19 @@ function startCapture() {
     const exportFPS = document.getElementById("exportFPS").value;
 
     const stream = renderer.gl.canvas.captureStream(exportFPS);
-    const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+    const options = {
+        mimeType: 'video/webm; codecs=vp9',
+        videoBitsPerSecond: 16_000_000,
+    }
+    const recorder = new MediaRecorder(stream, options);
     const chunks = [];
-
     recorder.ondataavailable = e => chunks.push(e.data);
     recorder.onstop = () => {
         const blob = new Blob(chunks, { type: "video/webm" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "capture.webm";
+        a.download = vandalStamp('webm');
         a.click();
     };
     document.getElementById('captureOverlay').style.display = 'flex';
@@ -123,85 +126,26 @@ function updateVisualStyles(cvs = canvas) {
 }
 
 
-let rendering = false;
-
-async function exportImage(resolution) {
-    let exportCanvas = document.createElement("canvas");
-
-    function getImg() {
-        if (resolution === "full") {
-            const img = getOriginalImage();
-            if (!img) return;
-            exportCanvas.width = img.width;
-            exportCanvas.height = img.height;
-            const eCtx = exportCanvas.getContext('2d');
-            eCtx.drawImage(img, 0, 0, img.width, img.height);
-            const imageData = eCtx.getImageData(0, 0, img.width, img.height)
-            const normData = normalizeImageData(imageData);
-            return [normData, eCtx];
-        } else {
-            const imageData = getNormedImage();
-            exportCanvas.width = imageData.width;
-            exportCanvas.height = imageData.height;
-            const eCtx = exportCanvas.getContext('2d')
-            return [imageData, eCtx];
-        }
+async function exportImage() {
+    Lock.image = true;
+    const [w, h] = [renderer.cachedImage.width, renderer.cachedImage.height]
+    const pixels = await renderer.applyFullRes(animating ? timePhase : 0);
+    Lock.image = false;
+    const imgArr = new Uint8ClampedArray(pixels.length);
+    for (let i = 0; i < pixels.length; i++) {
+        imgArr[i] = Math.round(pixels[i] * 255);
     }
-
-    let [normData, eCtx] = getImg();
-
-    function executeRender() {
-        renderer.reset();
-        firePipeline(eCtx);
-        updateVisualStyles(exportCanvas);
-        exportCanvas.toBlob(onBlobResolved, 'image/png');
-    }
-
-    function cleanup() {
-        rendering = false;  // just making sure
-        // document.getElementById("stopCaptureOverlay").style.display = "inherit"
-        // document.getElementById('captureOverlay').style.display = 'none';
-        // updateRenderMsg("");
-        exportCanvas?.close?.() || exportCanvas?.remove?.();
-        exportCanvas = null;
-        eCtx = null;
-        renderer.reset();
-        setFreezeAnimationFlag(false);
-        rerollNormLoadID();  // to trigger framebuffer invalidation
-    }
-
-    function onBlobResolved(blob) {
-        const link = document.createElement('a');
-        const date = new Date();
-        const timestamp = date.toISOString().replace(/[^0-9]/g, '');
-        link.download = `glitch_${timestamp}.png`;
-        link.href = URL.createObjectURL(blob);
-        try {
-            link.click();
-        } finally {
-            rendering = false;
-            cleanup();
-            URL.revokeObjectURL(link.href);
-        }
-    }
-
-    try {
-        setFreezeAnimationFlag(true);
-        clearRenderCache();
-        requestAnimationFrame(() => setTimeout(executeRender, 10));
-    } catch (e) {
-        rendering = false;
-        console.error(e)
-        cleanup();
-        alert("Rendering failed")
-    }
+    const imgData = new ImageData(imgArr, w, h);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").putImageData(imgData, 0, 0);
+    canvas.toBlob(blob => downloadBlob(blob, vandalStamp('png')), "image/png");
 }
+
 
 const isAnimationActive = () => getEffectStack().some(fx => isModulating(fx))
 
-let animating = false;
-let startTime = null;
-let timePhase = 0;
 
 function tick() {
     if (!animating) return;
@@ -241,15 +185,10 @@ function firePipeline(ctx = defaultCtx, t = null) {
     }
     const finalTexture = renderer.applyEffects(time);
     renderer.writeToCanvas(finalTexture);
-
 }
 
 
-// setRenderedImage(deNormalizeImageData(applied, width, height), ctx)
-// updateVisualStyles();
-
 function renderImage() {
-    if (!renderer.inputTexture) return;
     firePipeline();
     const animShouldBeRunning = isAnimationActive();
     if (animShouldBeRunning && !animating) {
@@ -362,7 +301,9 @@ async function appSetup() {
         resetStack,
         requestRender,
         requestUIDraw,
-        effectRegistry
+        effectRegistry,
+        lockRender,
+        unlockRender
     );
     setupDragAndDrop(handleUpload);
     setupExportImage(exportImage);

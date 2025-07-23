@@ -78,6 +78,18 @@ export class GlitchRenderer {
         this.outputVert = null;
         this.outputFrag = null;
         this.outputProg = null;
+        this.cachedImage = null;
+        this.inputDirty = true;
+        this.defaultFBO = this.gl.createFramebuffer();
+        this.locked = false;
+    }
+
+    lock() {
+        this.locked = true;
+    }
+
+    unlock() {
+        this.locked = false;
     }
 
     compileUpsampleProgram() {
@@ -213,22 +225,8 @@ export class GlitchRenderer {
     deleteEffectFBO(id) {
         if (!this.fxbuffers[id]) return;
         const fbo = this.fxbuffers[id];
-        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, fbo.fbo);
-        this.gl.framebufferTexture2D(
-            this.gl.FRAMEBUFFER,
-            this.gl.COLOR_ATTACHMENT0,
-            this.gl.TEXTURE_2D,
-            null,
-            0
-        );
-        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-        setTimeout(() => {
-            this.gl.deleteTexture(fbo.texture);
-        }, 0);
-        setTimeout(() => {
-            this.gl.deleteFramebuffer(fbo.fbo);
-        }, 0);
-
+        this.deleteFrameBuffer(fbo.fbo);
+        this.gl.deleteTexture(fbo.texture);
         this.fxbuffers[id] = undefined;
     }
 
@@ -272,11 +270,27 @@ export class GlitchRenderer {
         // checkTexture(gl, tex);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D, tex, 0);
-        // checkFrameBuffer(gl);
         const pixels = new this.format.arrayConstructor(width * height * 4);
         gl.readPixels(
             0, 0, width, height, this.format.formatEnum, this.format.typeEnum, pixels);
+        this.deleteFrameBuffer(fbo);
         return pixels;
+    }
+
+    deleteFrameBuffer(fbo) {
+        const gl = this.gl;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.defaultFBO);
+        gl.deleteFramebuffer(fbo);
+    }
+
+    unbindFramebuffer(fbo) {
+        const gl = this.gl;
+        if (gl.getParameter(gl.FRAMEBUFFER_BINDING) === fbo) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.defaultFBO);
+        }
     }
 
     clearEffectBuffers() {
@@ -285,8 +299,39 @@ export class GlitchRenderer {
         );
     }
 
+    async applyFullRes(t) {
+        const gl = this.gl;
+        const iw = this.inputWidth
+        const ih = this.inputHeight;
+        const w = this.cachedImage.width;
+        const h = this.cachedImage.height;
+        this.inputWidth = w;
+        this.inputHeight = h;
+        this.gl.canvas.width = w;
+        this.gl.canvas.height = h;
+        await this.loadImage();
+        const tex = this.applyEffects(t);
+        const pixels = this.readFramebufferToPixels(tex, gl.canvas.width, gl.canvas.height);
+        [this.inputWidth, this.inputHeight] = [iw, ih];
+        this.inputDirty = true;
+        this.gl.canvas.width = iw;
+        this.gl.canvas.height = ih;
+
+        return pixels;
+    }
+
 
     applyEffects(t) {
+        if (this.inputDirty) {
+            if (!this.cachedImage) return;
+            const success = this.loadImage();
+            if (!success) {
+                console.error("failed to initialize input texture");
+                return;
+            }
+            this.inputDirty = false;
+        }
+        if (this.locked) return;
         const effects = getEffectStack();
         const anySolo = getEffectStack().some(fx => fx.solo);
         const width = this.inputWidth;
@@ -382,18 +427,26 @@ export class GlitchRenderer {
         });
     }
 
-    async loadImage(img) {
+    async loadImage(size) {
+        if (!this.cachedImage) {
+            return false;
+        }
         this.reset();
         const gl = this.gl
 
-        const w = gl.canvas.width;
-        const h = gl.canvas.height;
+        let w, h;
+        if (!size) {
+            w = gl.canvas.width;
+            h = gl.canvas.height;
+        } else {
+            [w, h] = size;
+        }
 
         const cpuCanvas = document.createElement("canvas");
         cpuCanvas.width = w;
         cpuCanvas.height = h;
         const ctx = cpuCanvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, w, h);
+        ctx.drawImage(this.cachedImage, 0, 0, w, h);
 
         const inputTex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, inputTex);
@@ -411,7 +464,6 @@ export class GlitchRenderer {
             cpuCanvas
         );
 
-        // --- Step 4: Allocate float texture + FBO ---
         const floatTex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, floatTex);
         gl.texImage2D(
@@ -434,8 +486,8 @@ export class GlitchRenderer {
         gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, floatTex, 0);
         gl.viewport(0, 0, w, h);
-        gl.useProgram(this.upsampleProgram); // assumes it's compiled already
-        gl.bindVertexArray(this.vao);        // fullscreen quad
+        gl.useProgram(this.upsampleProgram);
+        gl.bindVertexArray(this.vao);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, inputTex);
         gl.uniform1i(gl.getUniformLocation(this.upsampleProgram, 'u_image8bit'), 0);
@@ -443,7 +495,7 @@ export class GlitchRenderer {
 
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.defaultFBO);
         gl.deleteFramebuffer(fbo);
         if (this.inputTexture !== null) {
             gl.deleteTexture(this.inputTexture);
@@ -451,6 +503,7 @@ export class GlitchRenderer {
         this.inputTexture = floatTex;
         this.inputWidth = w;
         this.inputHeight = h;
+        return true;
     };
 
     writeToCanvas(tex) {
@@ -491,8 +544,5 @@ export class GlitchRenderer {
         gl.uniform1i(gl.getUniformLocation(this.outputProg, 'u_image'), 0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
-
-
     format = {}
-
 }

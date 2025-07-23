@@ -8,9 +8,9 @@ import {
 } from "./utils/presets.js";
 import {populateTestSelect} from "./test_patterns.js";
 import {randomizeEffectStack} from "./utils/randomizer.js";
-// TODO: messy messy
-// pane dragging logic
 
+
+// pane dragging logic
 const dragBar = document.getElementById("dragBar");
 const leftPane = document.getElementById("leftPane");
 const layout = document.getElementById("mainLayout");
@@ -198,10 +198,12 @@ function updatePresetSelect() {
 }
 
 export function setupPresetUI(
-    getState, loadState, resetStack, requestRender, requestUIDraw, registry
+    getState, loadState, resetStack, requestRender, requestUIDraw, registry,
+    lockRender, unlockRender
 ) {
 
     document.getElementById('presetSelect').addEventListener("change", async () => {
+        lockRender();
         resetStack();
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
@@ -209,6 +211,7 @@ export function setupPresetUI(
         }
         requestUIDraw();
         requestRender();
+        unlockRender();
     });
 
     document.getElementById('presetSave').onclick = () => {

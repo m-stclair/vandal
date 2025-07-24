@@ -16,7 +16,7 @@ const ANIMATE_PROB = 0.25;  // chance to animate an eligible param
 function generateAnimationMod(base, min, max) {
     const span = max - min;
     let freq = +(Math.random() * 0.1 + 0.01).toFixed(3); // 0.01–0.11 Hz
-    const scale = +(Math.random() * 0.5 * span).toFixed(2); // up to 50% swing
+    let scale = +(Math.random() * 0.5 * span).toFixed(2); // up to 50% swing
     const offset = base;
     const type = weightedSample([
         ['sine', 3],
@@ -31,6 +31,10 @@ function generateAnimationMod(base, min, max) {
     ]);
     if (['impulse-ease', 'impulse', 'walk'].includes(type)) {
         freq *= 3;
+
+    }
+    if (['impulse-ease', 'impulse'].includes(type)) {
+        scale *= 1.5;
     }
     return {type, freq, phase: 0, scale, offset};
 }

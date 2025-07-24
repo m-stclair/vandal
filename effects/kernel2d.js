@@ -91,6 +91,8 @@ export const effectMeta = {
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        blendAmount: {min: 0.75, max: 1}
+        blendAmount: {min: 0.75, max: 1},
+        kernelRadiusX: {min: 2, max: 9},
+        kernelRadiusY: {min: 2, max: 9}
     }
 };

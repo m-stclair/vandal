@@ -187,6 +187,8 @@ export const effectMeta = {
     parameterHints: {
         threshHigh: {min: 0.55, max: 1},
         threshLow: {min: 0, max: 0.5},
-        warpStrength: {min: 0.2, max: 1}
+        warpStrength: {min: 0.2, max: 1},
+        kernelRadiusX: {min: 2, max: 9},
+        kernelRadiusY: {min: 2, max: 9}
     }
 };

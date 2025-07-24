@@ -111,7 +111,6 @@ function createDualResponseSlider({
         setValue: (scaled) => {
             const mapped = (scaled - min) / (max - min);
             // Note: we don't attempt to inverse dualZoneRemap here — it's one-way
-            console.warn("setValue is imprecise; reverse remap not implemented");
         },
         onChange: fn => {
             listeners.push(fn);
@@ -256,6 +255,9 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     input.value = reverseScaling(baseValue, input.scale, input.scaleFactor);
     input.name = key;
     input.classList.add("slider");
+    input.dataset.key = key;
+    input.dataset.fxId = id
+
 
     const valueInput = document.createElement("input");
     valueInput.type = "number";
@@ -265,6 +267,8 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     valueInput.min = input.min;
     valueInput.max = input.max;
     valueInput.step = input.step;
+    valueInput.dataset.key = key;
+    valueInput.dataset.fxId = id
 
     row.append(input, valueInput);
     wrapper.appendChild(row);
@@ -294,7 +298,10 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
         }
         if ((config[key]?.mod) && (config[key].mod.type !== "none")) {
             input.disabled = true;
+            valueInput.disabled = true;
             foldoutButton.classList.add("animating")
+            input.classList.add("animating")
+            valueInput.classList.add("animating")
         }
     }
 

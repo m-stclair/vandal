@@ -146,6 +146,7 @@ async function exportImage() {
 
 const isAnimationActive = () => getEffectStack().some(fx => isModulating(fx))
 
+let frameIx = 0;
 
 function tick() {
     if (!animating) return;
@@ -153,20 +154,24 @@ function tick() {
         requestAnimationFrame(tick);
         return;
     }
-    document.querySelectorAll(".modulated").forEach(input => {
-        const key = input.dataset.key;
-        const fxId = input.dataset.fxId;
-        const fx = getEffectById(fxId);
-        if (fx === null) {
-            // this generally represents a harmless race condition -- the effect was
-            // deleted after resolving querySelectorAll() and can no longer be
-            // animated. Treat it as a very soft fault.
-            return;
-        }
-        const resolved = resolveAnim(fx.config[key], timePhase);
-        const label = input.querySelector(".slider-value");
-        label.textContent = formatFloatWidth(resolved);
-    });
+    // i.e., update displayed parameter values every sixth frame
+    frameIx = (frameIx + 1) % 6;
+    if (frameIx === 0) {
+        document.querySelectorAll(".slider-value.animating").forEach(input => {
+            const key = input.dataset.key;
+            const fxId = input.dataset.fxId;
+            const fx = getEffectById(fxId);
+            if (fx === null) {
+                // this generally represents a harmless race condition -- we
+                // resolved querySelectorAll() during effect teardown but before
+                // the associated DOM nodes were removed.
+                return;
+            }
+            const resolved = resolveAnim(fx.config[key], timePhase);
+            input.value = formatFloatWidth(resolved);
+        });
+    }
+
     requestRender();
     if (isAnimationActive()) {
         requestAnimationFrame(tick);

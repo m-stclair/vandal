@@ -6,7 +6,7 @@ uniform sampler2D u_image;
 uniform vec2 u_resolution;
 uniform int u_kernelSizeX;
 uniform int u_kernelSizeY;
-uniform vec2 u_patchOrigins[50];
+uniform vec2 u_patchOrigins[150];
 
 out vec4 outColor;
 

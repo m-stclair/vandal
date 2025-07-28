@@ -321,12 +321,12 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     });
 
     function valueUpdate() {
-        input.value = valueInput.value;
+        input.value = Number(valueInput.value);
         if (typeof (config[key]) !== "object") {
-            config[key] = input.value;
+            config[key] = Number(input.value);
         } else {
             config[key] = {
-                value: input.value,
+                value: Number(input.value),
                 mod: config[key]?.mod || {type: "none"},
             };
         }

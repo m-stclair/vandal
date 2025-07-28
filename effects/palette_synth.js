@@ -39,23 +39,29 @@ export default {
             paletteSize, cycleOffset, softness, blendK,
             lumaWeight, chromaWeight, hueWeight, BLENDMODE,
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
-            showPalette,
-            chromaBoost, ignoreWeights, deltaL, gammaC,
+            showPalette, selectWeights,
+            chromaBoost, deltaL, gammaC,
             blockSize, seed
         } = resolveAnimAll(instance.config, t)
         const probe = instance.probe;
+        const selectionWeights = {
+            midtone: selectWeights[0],
+            outlier: selectWeights[1],
+            luma: selectWeights[2],
+            hue: selectWeights[3],
+        }
         let palette = probe.analyze(
             probe,
             inputTex,
             width,
             height,
-            paletteSize,
+            paletteSize / 3,
             deltaL,
             gammaC,
             blockSize,
-            seed
+            seed,
+            selectionWeights
         );
-        palette = palette.slice(0, paletteSize);
         const MAX_SIZE = 256;
         const padded = new Float32Array(MAX_SIZE * 4);
 
@@ -121,7 +127,7 @@ export default {
                     key: "deltaL",
                     label: "Tint/Shade Delta",
                     min: 1,
-                    max: 50,
+                    max: 60,
                     step: 0.5
                 },
                 {
@@ -129,7 +135,7 @@ export default {
                     key: "gammaC",
                     label: "Chroma Gamma",
                     min: 0.1,
-                    max: 4,
+                    max: 2,
                     step: 0.1
                 },
                 {
@@ -149,6 +155,16 @@ export default {
                     step: 1
                 },
                 {
+                    type: "vector",
+                    key: "selectWeights",
+                    label: "Selection Weights",
+                    min: 0,
+                    max: 5,
+                    step: 0.1,
+                    length: 4,
+                    subLabels: ["midtone", "outlier", "luma", "hue"]
+                },
+                {
                     type: "select",
                     key: "showPalette",
                     label: "Show Palette",
@@ -160,7 +176,7 @@ export default {
             type: "select",
             key: "assignMode",
             label: "Assignment Mode",
-            options: ["nearest", "hue", "blend"]
+            options: ["nearest", "blend"]
         },
         {
             type: "group",
@@ -236,9 +252,10 @@ export default {
         cycleOffset: 0,
         softness: 1,
         blendK: 2,
-        lumaWeight: 0.5,
-        chromaWeight: 1,
-        hueWeight: 0.5,
+        lumaWeight: 0.75,
+        chromaWeight: 0.75,
+        hueWeight: 0.25,
+        selectWeights: [0, 0, 0.1, 0.2],
         assignMode: "blend",
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,

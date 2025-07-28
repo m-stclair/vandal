@@ -6,46 +6,73 @@ const shaderPath = "look.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
+function toneMap(jz, exposure, center, shoulder, curveStrength) {
+    jz *= Math.pow(2, exposure);
+    const logJz = Math.log2(Math.max(jz, 1e-6));
+    const curveBase = 1 / (1 + Math.exp(-shoulder * (logJz - center)));
+    return jz * (1 - curveStrength) + curveBase * curveStrength;
+}
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
     name: "Look",
     defaultConfig: {
-        exposure: 0.0,
-        toneShoulder: -2,
-        toneCenter: 1,
+        exposure: 0.2,
+        toneShoulder: 2.2,
+        toneCenter: -0.75,
+        curveStrength: 1,
         chromaWeight: 1.0,
         chromaFadeLow: -3,
         chromaFadeHigh: 2,
-        tintAxis: [1.27, 0.57, 0],
-        tintStrength: 0
+        tintHue: 68,
+        tintStrength: 0,
+        lift: 0,
+        gamma: 0,
+        gain: 0
     },
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
             exposure,
             chromaWeight,
-            tintAxis,
+            tintHue,
             tintStrength,
             chromaFadeLow,
             chromaFadeHigh,
             toneShoulder,
-            toneCenter
+            toneCenter,
+            lift,
+            gamma,
+            gain,
+            curveStrength
         } = resolveAnimAll(instance.config, t);
 
+
+        // we precalculate remapped highlight/midtone/shadow thresholds here
+        // in order to avoid unnecessary per-pixel calcs GPU-side.
+        // currently just based on constant thresholds in Jz:
+        let thresholds = [0.15, 0.35, 0.65, 0.85];
+        thresholds = thresholds.map(
+            jz => toneMap(jz, exposure, toneCenter, toneShoulder, curveStrength)
+        );
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
             u_exposure: {value: exposure, type: "float"},
             u_chroma_weight: {value: chromaWeight, type: "float"},
-            u_center: {value: toneShoulder, type: "float"},
-            u_shoulder: {value: toneCenter, type: "float"},
+            u_center: {value: toneCenter, type: "float"},
+            u_shoulder: {value: toneShoulder, type: "float"},
+            u_lift: {value: lift, type: "float"},
+            u_gamma: {value: gamma, type: "float"},
+            u_gain: {value: gain, type: "float"},
             u_chroma_fade_low: {value: chromaFadeLow, type: "float"},
             u_chroma_fade_high: {value: chromaFadeHigh, type: "float"},
-            u_tint_axis: {value: new Float32Array(tintAxis), type: "vec3"},
+            u_tint_hue: {value: tintHue * Math.PI / 180, type: "float"},
             u_tint_strength: {value: tintStrength, type: "float"},
+            u_curve_strength: {value: curveStrength, type: "float"},
+            u_thresholds: {value: thresholds, type: "vec4"},
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
     },
@@ -66,21 +93,68 @@ export default {
                 step: 0.05
             },
             {
-                key: "toneShoulder",
-                label: "Tone Shoulder",
+                key: "curveStrength",
+                label: "Curve Weight",
                 type: "modSlider",
-                min: -6,
-                max: 6,
-                step: 0.05
+                min: 0,
+                max: 1,
+                step: 0.01
             },
             {
-                key: "toneCenter",
-                label: "Tone Center",
-                type: "modSlider",
-                min: -0.5,
-                max: 2,
-                step: 0.01
+                type: "group",
+                kind: "collapse",
+                label: "Curve",
+                children: [
+                    {
+                        key: "toneShoulder",
+                        label: "Tone Shoulder",
+                        type: "modSlider",
+                        min: 1,
+                        max: 6,
+                        step: 0.02
+                    },
+                    {
+                        key: "toneCenter",
+                        label: "Tone Center",
+                        type: "modSlider",
+                        min: -4,
+                        max: 4,
+                        step: 0.05
+                    },
+                ]
+            },
+            {
+                type: "group",
+                kind: "collapse",
+                label: "Grading",
+                children: [
+                    {
+                        key: "lift",
+                        label: "Lift",
+                        type: "modSlider",
+                        min: -0.2,
+                        max: 0.2,
+                        step: 0.01
+                    },
+                    {
+                        key: "gamma",
+                        label: "Gamma",
+                        type: "modSlider",
+                        min: -0.2,
+                        max: 0.2,
+                        step: 0.01
+                    },
+                    {
+                        key: "gain",
+                        label: "Gain",
+                        type: "modSlider",
+                        min: -0.2,
+                        max: 0.2,
+                        step: 0.01
+                    }
+                ]
             }
+
         ]),
 
         group("Chroma Rolloff", [
@@ -120,14 +194,14 @@ export default {
                 step: 0.01
             },
             {
-                key: "tintAxis",
-                label: "Tint Axis",
-                type: "vector",
-                subLabels: ["R", "G", "B"],
-                min: -2,
-                max: 2,
+                key: "tintHue",
+                label: "Tint Hue",
+                type: "modSlider",
+                min: 0,
+                max: 360,
                 step: 0.01
-            }
+            },
+
         ])
     ]
 

@@ -27,8 +27,16 @@ out vec4 outColor;
 #define ASSIGN_HUE 1
 #define ASSIGN_BLEND 2
 
+
+bool is_finite(float x) {
+    return abs(x) < 1e20;
+}
 float hueAngle(vec2 ab) {
-  return atan(ab.y, ab.x); // returns radians in [-π, π]
+  return atan(ab.y, ab.x);
+}
+
+float getChroma(vec2 ab) {
+    return length(ab);
 }
 
 float angleDiff(float a1, float a2) {
@@ -36,24 +44,21 @@ float angleDiff(float a1, float a2) {
   return min(d, 6.28318530718 - d); // wrap around 2π
 }
 
-
-float squared_deltaE(vec3 lab1, vec3 lab2) {
-    float d = dot(lab1 - lab2, lab1 - lab2);
-    return d * d;
-}
-
-
 float deltaE_withBias(vec3 lab1, vec3 lab2, float lumaW, float chromaW, float hueW) {
-    float dE = squared_deltaE(lab1, lab2);
-    float hueDiff = angleDiff(hueAngle(lab1.yz), hueAngle(lab2.yz));
-    float chromaBias = abs(length(lab1.yz) - length(lab2.yz));
-    float lumaBias   = abs(lab1.x - lab2.x);
+    float dJ = lab1.x - lab2.x;
+    float C1 = getChroma(lab1.yz);
+    float C2 = getChroma(lab2.yz);
+    float dC = C1 - C2;
+
+    float dH = angleDiff(hueAngle(lab1.yz), hueAngle(lab2.yz));
+
+    float avgC = 0.5 * (C1 + C2);
+    float hueBias = avgC * dH;  // perceptually weighted
 
     return (
-        dE
-      + hueW * hueDiff
-      + chromaW * chromaBias
-      + lumaW * lumaBias
+        lumaW   * abs(dJ) +
+        chromaW * abs(dC) +
+        hueW    * abs(hueBias)
     );
 }
 
@@ -93,21 +98,24 @@ vec3 softAssign(vec3 labColor, int cycleOffset) {
 }
 
 vec3 matchHue(vec3 lab, int cycleOffset) {
-    float inputHue = hueAngle(lab.yz); // a = y, b = z
+    float inputHue = hueAngle(lab.yz);
 
     int bestIndex = 0;
     float bestDiff = 1e9;
 
     for (int i = 0; i < u_paletteSize; ++i) {
-      float binHue = hueAngle(paletteColors[i].yz);
-      float d = angleDiff(inputHue, binHue);
+        vec3 lab = paletteColors[i].rgb;
+        float binHue = lab.z;
+        float d = angleDiff(inputHue, binHue);
 
-      if (d < bestDiff) {
-        bestDiff = d;
-        bestIndex = i;
-      }
+        if (d < bestDiff) {
+            bestDiff = d;
+            bestIndex = i;
+        }
     }
-    return paletteColors[(bestIndex + cycleOffset) % u_paletteSize].rgb;
+
+    vec3 matched = paletteColors[(bestIndex + cycleOffset) % u_paletteSize].rgb;
+    return matched;
 }
 
 vec3 matchNearest(vec3 lab, int cycleOffset) {
@@ -138,12 +146,12 @@ void main() {
 #else
     if (uv.y < 0.1) {
 #endif
-        outColor = vec4(normLab2SRGB(pcolor.rgb), 1.);
+        outColor = vec4(linear2srgb(lab2rgb((pcolor.rgb))), 1.);
         return;
     }
 #endif
     vec3 color = texture(u_image, uv).rgb;
-    vec3 lab = srgb2NormLab(color);
+    vec3 lab = rgb2lab(srgb2linear(color));
 #if ASSIGNMODE == ASSIGN_BLEND
     vec3 labMapped = softAssign(lab, u_cycleOffset);
 #elif ASSIGNMODE == ASSIGN_HUE
@@ -151,9 +159,10 @@ void main() {
 #else
     vec3 labMapped = matchNearest(lab, u_cycleOffset);
 #endif
-    vec3 srgb = normLab2SRGB(labMapped);
+    vec3 srgbOut = linear2srgb(lab2rgb(labMapped));
+    srgbOut = clamp(srgbOut, 0., 1.);
     outColor = vec4(
-        blendWithColorSpace(color, normLab2SRGB(labMapped), u_blendAmount),
+        blendWithColorSpace(color, srgbOut, u_blendAmount),
         1.0
     );
 }

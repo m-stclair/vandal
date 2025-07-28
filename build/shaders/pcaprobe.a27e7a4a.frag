@@ -9,5 +9,7 @@ out vec4 data;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy + 0.5) / vec2(float(u_proberes));
-    data = vec4(srgb2NormLab(texture(u_image, uv).rgb), 0.);
+    vec3 srgb = texture(u_image, uv).rgb;
+    vec3 lin = srgb2linear(srgb);
+    data = vec4(rgb2jzazbz(lin), 0.0);
 }

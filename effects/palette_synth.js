@@ -1,6 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {pcaProbe} from "./probes/pcaprobe.js";
+import {paletteprobe} from "./probes/paletteprobe.js";
 import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
@@ -15,13 +15,13 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 //
 async function makeProbe(fx, renderer) {
     const prb = {
-        config: structuredClone(pcaProbe.config),
-        initHook: pcaProbe.initHook,
+        config: structuredClone(paletteprobe.config),
+        initHook: paletteprobe.initHook,
         parent: fx,
         glState: new webGLState(
             renderer, `${fx.name}-probe`, `${fx.id}-probe`
         ),
-        analyze: pcaProbe.analyze
+        analyze: paletteprobe.analyze
     }
     await prb.initHook();
     fx.probe = prb;
@@ -36,34 +36,24 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            paletteSize, pWeights, cycleOffset, softness, blendK, useFurthest,
+            paletteSize, cycleOffset, softness, blendK,
             lumaWeight, chromaWeight, hueWeight, BLENDMODE,
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
-            usePCA, showPalette, refinementStrategy, balanceParamVec,
-            chromaBoost
+            showPalette,
+            chromaBoost, ignoreWeights, deltaL, gammaC,
+            blockSize, seed
         } = resolveAnimAll(instance.config, t)
-        const balanceParams = {
-            'chromaBoost': balanceParamVec[0],
-            'contrast': balanceParamVec[1],
-            'hueWarp': balanceParamVec[2],
-            'balanceShift': balanceParamVec[3],
-            'paletteGamma': balanceParamVec[4]
-        }
-        let pSize = Math.floor(paletteSize);  // just sanitizing
         const probe = instance.probe;
-        let {pca, palette} = probe.analyze(
+        let palette = probe.analyze(
             probe,
             inputTex,
             width,
             height,
-            // NOTE: this is _target_ size. could end up smaller if there
-            // are lots of empty bins.
-            pSize,
-            pWeights,
-            useFurthest,
-            refinementStrategy,
-            usePCA,
-            balanceParams
+            paletteSize,
+            deltaL,
+            gammaC,
+            blockSize,
+            seed
         );
         palette = palette.slice(0, paletteSize);
         const MAX_SIZE = 256;
@@ -73,7 +63,7 @@ export default {
             padded[i * 4 + 0] = palette[i][0];
             padded[i * 4 + 1] = palette[i][1];
             padded[i * 4 + 2] = palette[i][2];
-            padded[i * 4 + 3] = palette[i][3];  // 'bin' weight
+            padded[i * 4 + 3] = 0;
         }
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -119,60 +109,50 @@ export default {
             collapsed: false,
             children: [
                 {
-                    type: "range",
+                    type: "modSlider",
                     key: "paletteSize",
                     label: "size",
-                    min: 2,
-                    max: 60,
+                    min: 3,
+                    max: 90,
+                    step: 3
+                },
+                {
+                    type: "range",
+                    key: "deltaL",
+                    label: "Tint/Shade Delta",
+                    min: 1,
+                    max: 50,
+                    step: 0.5
+                },
+                {
+                    type: "range",
+                    key: "gammaC",
+                    label: "Chroma Gamma",
+                    min: 0.1,
+                    max: 4,
+                    step: 0.1
+                },
+                {
+                    type: "range",
+                    key: "blockSize",
+                    label: "Sample Width",
+                    min: 1,
+                    max: 5,
                     step: 1
                 },
                 {
-                    type: "select",
-                    key: "refinementStrategy",
-                    label: "Refinement Strategy",
-                    options: ["none", "k-means", "merge"]
-                },
-                {
-                    type: "checkbox",
-                    key: "useFurthest",
-                    label: "Spread"
-                },
-                {
-                    type: "checkbox",
-                    key: "usePCA",
-                    label: "PCA"
+                    type: "range",
+                    key: "seed",
+                    label: "Seed",
+                    min: 0,
+                    max: 500,
+                    step: 1
                 },
                 {
                     type: "select",
                     key: "showPalette",
                     label: "Show Palette",
                     options: ["none", "strip", "bars"]
-                },
-            ]
-        },
-        {
-            type: "group",
-            label: "Palette Balance",
-            kind: "collapse",
-            children: [
-                {
-                    type: "vector",
-                    length: 5,
-                    key: "balanceParamVec",
-                    label: "Adjustments",
-                    subLabels: ["chroma", "contrast", "hue", "shift", "gamma"],
-                    min: 0,
-                    max: 3,
-                    step: 0.01
-                },
-                {
-                    key: "pWeights",
-                    label: "Weights",
-                    type: "vector",
-                    subLabels: ["Luma", "Chroma", "Hue"],
-                    min: 0,
-                    max: 3,
-                    step: 0.01,
                 },
             ]
         },
@@ -250,31 +230,30 @@ export default {
 
     ],
     defaultConfig: {
-        paletteSize: 14,
-        pWeights: [1, 1, 1],
+        paletteSize: 15,
+        deltaL: 30,
+        gammaC: 1,
         cycleOffset: 0,
         softness: 1,
         blendK: 2,
         lumaWeight: 0.5,
         chromaWeight: 1,
         hueWeight: 0.5,
-        useFurthest: true,
-        usePCA: false,
         assignMode: "blend",
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         showPalette: "none",
-        balanceParamVec: [1, 1, 0, 0, 1],
-        refinementStrategy: "k-means",
-        chromaBoost: 1
+        chromaBoost: 1,
+        blockSize: 3,
+        seed: 1
     }
 }
 
 export const effectMeta = {
     group: "Color",
-    tags: ["color", "gpu", "pallette", "posterize"],
+    tags: ["color", "gpu", "palette", "posterize"],
     description: "Highly configurable neoclassical posterization, controllable " +
         "on multiple perceptual axes, useful for everything from utilitarian " +
         "palette generation to brutal decimation to subtle lighting effects. ",

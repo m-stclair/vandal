@@ -13,6 +13,125 @@ float lab_fInv(float t) {
     return t3 > EPSILON ? t3 : (116.0 * t - 16.0) / KAPPA;
 }
 
+// RGB/XYZ/LMS conversion matrices
+const mat3 RGB_TO_XYZ = mat3(
+    0.4122214708, 0.2119034982, 0.0883024619,
+    0.5363325363, 0.6806995451, 0.2817188376,
+    0.0514459929, 0.1073969566, 0.6299787005
+);
+
+const mat3 XYZ_TO_RGB = mat3(
+     3.2409699419, -0.9692436363,  0.0556300797,
+    -1.5373831776,  1.8759675015, -0.2039769589,
+    -0.4986107603,  0.0415550574,  1.0569715142
+);
+
+const mat3 XYZ_TO_LMS = mat3(
+     0.41478972, -0.2015100, -0.0166008,
+     0.579999,    1.120649,   0.264800,
+     0.0146480,   0.0531008,  0.6684799
+);
+
+const mat3 LMS_TO_XYZ = inverse(XYZ_TO_LMS);
+
+const mat3 LMS_P_TO_JAB = mat3(
+     0.5,        3.524000,  0.199076,
+     0.5,       -4.066708,  1.096799,
+     0.0,        0.542708, -1.295875
+);
+const mat3 JAB_TO_LMS_P = inverse(LMS_P_TO_JAB);
+
+// PQ constants (primarily for JzAzBz conversion)
+const float pq_b  = 1.15;
+const float pq_g  = 0.66;
+const float pq_c1 = 3424.0 / 4096.0;
+const float pq_c2 = 2413.0 / 128.0;
+const float pq_c3 = 2392.0 / 128.0;
+const float pq_n  = 2610.0 / 16384.0;
+const float pq_p  = 1.7 * 2523.0 / 32.0;
+const float pq_d  = -0.56;
+const float pq_d0 = 1.6295499532821566e-11;
+
+vec3 pq_encode(vec3 x) {
+    vec3 num = pq_c1 + pq_c2 * pow(x, vec3(pq_n));
+    vec3 den = vec3(1.0) + pq_c3 * pow(x, vec3(pq_n));
+    return pow(num / den, vec3(pq_p));
+}
+
+vec3 pq_decode(vec3 x) {
+    vec3 xp = pow(x, vec3(1.0 / pq_p));
+    return pow((xp - pq_c1) / (pq_c2 - pq_c3 * xp), vec3(1.0 / pq_n));
+}
+
+vec3 rgb2jzazbz(vec3 rgb) {
+    vec3 xyz = RGB_TO_XYZ * rgb;
+    vec3 lms = XYZ_TO_LMS * xyz;
+    lms = max(lms, vec3(1e-5));
+
+    // Apply PQ nonlinearity
+    vec3 lms_p = pq_encode(lms);
+
+    vec3 jab = LMS_P_TO_JAB * lms_p;
+
+    float iz = jab.x;
+    float jz = ((1.0 + pq_d) * iz) / (1.0 + pq_d * iz) - pq_d0;
+
+    return vec3(jz, jab.yz);
+}
+
+
+bool anyNaN(vec3 v) {
+    return !(v.x == v.x && v.y == v.y && v.z == v.z);
+}
+
+
+vec3 jzazbz2rgb(vec3 jzazbz) {
+    float jz = jzazbz.x;
+    float iz_unnorm = jz + pq_d0;
+    float iz = iz_unnorm / (1.0 + pq_d - pq_d * iz_unnorm);
+    vec3 jab = vec3(iz, jzazbz.yz);
+
+    vec3 lms_p = JAB_TO_LMS_P * jab;
+
+    vec3 lms = pq_decode(lms_p);
+    vec3 xyz = LMS_TO_XYZ * lms;
+    vec3 rgb = XYZ_TO_RGB * xyz;
+    if (anyNaN(rgb) || any(lessThan(rgb, vec3(-1.0)))) {
+       rgb = vec3(0.5);
+    }
+    return rgb;
+}
+
+vec3 safeRGB(vec3 rgb) {
+    return clamp(rgb, vec3(0.0), vec3(1.0));
+}
+
+
+vec3 rgb2jchz(vec3 rgb) {
+    vec3 jzazbz = rgb2jzazbz(rgb);
+    float J = jzazbz.x;
+    float a = jzazbz.y;
+    float b = jzazbz.z;
+
+    float C = length(vec2(a, b));
+    float h = atan(b, a);
+    const float TWO_PIES = 6.2831850718;
+    if (h < 0.0) h += TWO_PIES;
+    h = mod(h, TWO_PIES);
+
+    return vec3(J, C, h);
+}
+
+vec3 jchz2rgb(vec3 jchz) {
+    float epsilon = 1e-4;
+    float safeC = max(jchz.y, epsilon);
+    vec2 ab = vec2(cos(jchz.z), sin(jchz.z)) * safeC;
+    vec3 jzazbz = vec3(jchz.x, ab.x, ab.y);
+    vec3 rgb = jzazbz2rgb(jzazbz);
+    return safeRGB(rgb);
+}
+
+
 vec3 rgb2lab(vec3 rgb) {
     float x = rgb.r * 0.4124564 + rgb.g * 0.3575761 + rgb.b * 0.1804375;
     float y = rgb.r * 0.2126729 + rgb.g * 0.7151522 + rgb.b * 0.0721750;
@@ -127,8 +246,8 @@ vec3 rgb2lch(vec3 rgb) {
     float a = lab.y;
     float b = lab.z;
 
-    float C = length(lab.yz);         // chroma
-    float h = atan(b, a);             // hue angle, radians
+    float C = length(lab.yz);
+    float h = atan(b, a);
     if (h < 0.0) h += 2.0 * 3.14159265;
 
     return vec3(L, C, h);
@@ -146,9 +265,9 @@ vec3 lch2rgb(vec3 lch) {
 }
 
 vec3 rgb2opponent(vec3 rgb) {
-    float o1 = (rgb.r + rgb.g + rgb.b) / 3.0;                  // intensity
-    float o2 = (rgb.r - rgb.g) / sqrt(2.0);                    // red vs green
-    float o3 = (rgb.r + rgb.g - 2.0 * rgb.b) / sqrt(6.0);      // yellow vs blue
+    float o1 = (rgb.r + rgb.g + rgb.b) / 3.0;
+    float o2 = (rgb.r - rgb.g) / sqrt(2.0);
+    float o3 = (rgb.r + rgb.g - 2.0 * rgb.b) / sqrt(6.0);
     return vec3(o1, o2, o3);
 }
 
@@ -181,17 +300,15 @@ vec3 ycbcr2rgb(vec3 ycbcr) {
 }
 
 
+// IEC sRGB curves
 vec3 srgb2linear(vec3 c) {
-    return pow(c, vec3(2.2));
+    return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c));
 }
 
 vec3 linear2srgb(vec3 c) {
-    return pow(max(c, vec3(0.0)), vec3(1.0 / 2.2));
+    return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c));
 }
 
-// These constants are approximations for D65 Lab/LCH in sRGB (2° observer)
-// L ∈ [0, 100], a ∈ [-128, 127], b ∈ [-128, 127]
-// C ∈ [0, ~150], h ∈ [0, 360]
 vec3 normalizeLab(vec3 lab) {
     return vec3(lab.x / 100.0, (lab.y + 128.0) / 255.0, (lab.z + 128.0) / 255.0);
 }
@@ -204,6 +321,23 @@ vec3 normalizeLCH(vec3 lch) {
 vec3 denormalizeLCH(vec3 lchn) {
     return vec3(lchn.x * 100.0, lchn.y * 150.0, lchn.z * 6.2832);
 }
+
+vec3 normalizeJzazbz(vec3 jzazbz) {
+    return vec3(jzazbz.x, (jzazbz.yz + 1.) / 2.);
+}
+
+vec3 denormalizeJzazbz(vec3 jzazbzn) {
+    return vec3(jzazbzn.x, jzazbzn.yz * 2. - 1.);
+}
+
+vec3 normalizeJchz(vec3 jchz) {
+    return vec3(jchz.x, jchz.y, jchz.z / 6.2832);
+}
+
+vec3 denormalizeJchz(vec3 jchzn) {
+    return vec3(jchzn.x, jchzn.y, jchzn.z * 6.2832);
+}
+
 
 vec3 srgb2NormLab(vec3 srgb) {
     return normalizeLab(rgb2lab(srgb2linear(srgb)));
@@ -234,6 +368,22 @@ vec3 hsl2SRGB(vec3 hsl) {
     return linear2srgb(hsl2rgb(hsl));
 }
 
+vec3 srgb2NormJzazbz(vec3 srgb) {
+    return normalizeJzazbz(rgb2jzazbz(srgb2linear(srgb)));
+}
+
+vec3 normJzazbz2SRGB(vec3 jzazbzn) {
+    return linear2srgb(jzazbz2rgb(denormalizeJzazbz(jzazbzn)));
+}
+
+vec3 srgb2NormJchz(vec3 srgb) {
+    return normalizeJchz(rgb2jchz(srgb2linear(srgb)));
+}
+
+vec3 normJchz2SRGB(vec3 jchzn) {
+    return linear2srgb(jchz2rgb(denormalizeJchz(jchzn)));
+}
+
 float luminance(vec3 rgb) {
     return dot(rgb, vec3(0.2126, 0.7152, 0.0722));
 }
@@ -245,12 +395,15 @@ float luminance(vec3 rgb) {
 #define COLORSPACE_OPPONENT 4
 #define COLORSPACE_YCBCR 5
 #define COLORSPACE_HSL 6
+#define COLORSPACE_JZAZBZ 7
+#define COLORSPACE_JCHZ 8
 
 #ifndef COLORSPACE
 #define COLORSPACE COLORSPACE_RGB
 #endif
 
 // TODO, probably: get rid of all this bs
+// TODO, dissenting: NO! MORE! USE JZAZBZ! FURTHUR!
 #ifndef APPLY_CHROMA_BOOST
 #define APPLY_CHROMA_BOOST 0
 #endif
@@ -293,6 +446,10 @@ vec3 extractColor(vec3 srgb) {
     extracted = rgb2ycbcr(srgb);
 #elif COLORSPACE == COLORSPACE_HSL
     extracted = srgb2HSL(srgb);
+#elif COLORSPACE == COLORSPACE_JZAZBZ
+    extracted = srgb2NormJzazbz(srgb);
+#elif COLORSPACE == COLORSPACE_JCHZ
+    extracted = srgb2NormJchz(srgb);
 #else
     extracted = srgb;
 #endif
@@ -319,6 +476,10 @@ vec3 encodeColor(vec3 color) {
     encoded = ycbcr2rgb(color);
 #elif COLORSPACE == COLORSPACE_HSL
     encoded = hsl2SRGB(color);
+#elif COLORSPACE == COLORSPACE_JZAZBZ
+    encoded = normJzazbz2SRGB(color);
+#elif COLORSPACE == COLORSPACE_JCHZ
+    encoded = normJchz2SRGB(color);
 #else
     encoded = color;
 #endif

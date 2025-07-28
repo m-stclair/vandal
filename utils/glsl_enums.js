@@ -32,7 +32,9 @@ export const {
     'HSV',
     'Opponent',
     'YCbCr',
-    'HSL'
+    'HSL',
+    'JzAzBz',
+    'JCHz'
 ]);
 
 // Blend modes

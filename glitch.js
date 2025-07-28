@@ -318,8 +318,8 @@ async function appSetup() {
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);
-    // await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
-    await drawPattern('wheel');
+    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
+    await drawPattern('spiral');
     resizeAndRedraw();
     uiLoop();
     renderLoop();

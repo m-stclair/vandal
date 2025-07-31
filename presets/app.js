@@ -3361,7 +3361,7 @@ export const builtInPresets = [
                 "name": "Auto Levels",
                 "config": {
                     "mode": "channelwise",
-                    "paramA": 33,
+                    "paramA": 17,
                     "paramB": 100
                 }
             },

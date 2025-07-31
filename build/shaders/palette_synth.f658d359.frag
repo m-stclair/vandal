@@ -41,7 +41,7 @@ float getChroma(vec2 ab) {
 
 float angleDiff(float a1, float a2) {
   float d = abs(a1 - a2);
-  return min(d, 6.28318530718 - d); // wrap around 2π
+  return min(d, 6.28318530718 - d);
 }
 
 float deltaE_withBias(vec3 lab1, vec3 lab2, float lumaW, float chromaW, float hueW) {
@@ -53,7 +53,7 @@ float deltaE_withBias(vec3 lab1, vec3 lab2, float lumaW, float chromaW, float hu
     float dH = angleDiff(hueAngle(lab1.yz), hueAngle(lab2.yz));
 
     float avgC = 0.5 * (C1 + C2);
-    float hueBias = avgC * dH;  // perceptually weighted
+    float hueBias = avgC * dH;
 
     return (
         lumaW   * abs(dJ) +
@@ -83,8 +83,6 @@ vec3 softAssign(vec3 labColor, int cycleOffset) {
       }
     }
   }
-
-
   // Blend top K
   vec3 result = vec3(0.0);
   float totalWeight = 0.0;
@@ -97,26 +95,6 @@ vec3 softAssign(vec3 labColor, int cycleOffset) {
   return result / totalWeight;
 }
 
-vec3 matchHue(vec3 lab, int cycleOffset) {
-    float inputHue = hueAngle(lab.yz);
-
-    int bestIndex = 0;
-    float bestDiff = 1e9;
-
-    for (int i = 0; i < u_paletteSize; ++i) {
-        vec3 lab = paletteColors[i].rgb;
-        float binHue = lab.z;
-        float d = angleDiff(inputHue, binHue);
-
-        if (d < bestDiff) {
-            bestDiff = d;
-            bestIndex = i;
-        }
-    }
-
-    vec3 matched = paletteColors[(bestIndex + cycleOffset) % u_paletteSize].rgb;
-    return matched;
-}
 
 vec3 matchNearest(vec3 lab, int cycleOffset) {
     float minDist = 1e6;
@@ -154,8 +132,6 @@ void main() {
     vec3 lab = rgb2lab(srgb2linear(color));
 #if ASSIGNMODE == ASSIGN_BLEND
     vec3 labMapped = softAssign(lab, u_cycleOffset);
-#elif ASSIGNMODE == ASSIGN_HUE
-    vec3 labMapped = matchHue(lab, u_cycleOffset);
 #else
     vec3 labMapped = matchNearest(lab, u_cycleOffset);
 #endif

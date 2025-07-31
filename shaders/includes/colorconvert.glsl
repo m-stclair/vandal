@@ -59,8 +59,10 @@ vec3 pq_encode(vec3 x) {
 }
 
 vec3 pq_decode(vec3 x) {
-    vec3 xp = pow(x, vec3(1.0 / pq_p));
-    return pow((xp - pq_c1) / (pq_c2 - pq_c3 * xp), vec3(1.0 / pq_n));
+    vec3 xp = pow(max(x, 1e-4), vec3(1.0 / pq_p));
+    vec3 num = max(xp - pq_c1, 1e-4);
+    vec3 denom = max(pq_c2 - pq_c3 * xp, 1e-4);
+    return pow(num / denom, vec3(1.0 / pq_n));
 }
 
 vec3 rgb2jzazbz(vec3 rgb) {
@@ -85,14 +87,18 @@ bool anyNaN(vec3 v) {
 }
 
 
+
 vec3 jzazbz2rgb(vec3 jzazbz) {
     float jz = jzazbz.x;
+    if (jz < 1e-5) {
+        jz = 1e-5;
+        jzazbz.yz = vec2(0., 0.);
+    }
     float iz_unnorm = jz + pq_d0;
     float iz = iz_unnorm / (1.0 + pq_d - pq_d * iz_unnorm);
     vec3 jab = vec3(iz, jzazbz.yz);
 
     vec3 lms_p = JAB_TO_LMS_P * jab;
-
     vec3 lms = pq_decode(lms_p);
     vec3 xyz = LMS_TO_XYZ * lms;
     vec3 rgb = XYZ_TO_RGB * xyz;
@@ -100,10 +106,6 @@ vec3 jzazbz2rgb(vec3 jzazbz) {
        rgb = vec3(0.5);
     }
     return rgb;
-}
-
-vec3 safeRGB(vec3 rgb) {
-    return clamp(rgb, vec3(0.0), vec3(1.0));
 }
 
 
@@ -122,9 +124,17 @@ vec3 rgb2jchz(vec3 rgb) {
     return vec3(J, C, h);
 }
 
+vec3 safeRGB(vec3 rgb) {
+    return clamp(rgb, vec3(0.0), vec3(1.0));
+}
+
 vec3 jchz2rgb(vec3 jchz) {
     float epsilon = 1e-4;
     float safeC = max(jchz.y, epsilon);
+    if (jchz.x < 1e-5) {
+        jchz.x = 1e-5;
+        safeC = 0.0;
+    }
     vec2 ab = vec2(cos(jchz.z), sin(jchz.z)) * safeC;
     vec3 jzazbz = vec3(jchz.x, ab.x, ab.y);
     vec3 rgb = jzazbz2rgb(jzazbz);

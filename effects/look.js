@@ -6,12 +6,6 @@ const shaderPath = "look.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
-function toneMap(jz, exposure, center, shoulder, curveStrength) {
-    jz *= Math.pow(2, exposure);
-    const logJz = Math.log2(Math.max(jz, 1e-6));
-    const curveBase = 1 / (1 + Math.exp(-shoulder * (logJz - center)));
-    return jz * (1 - curveStrength) + curveBase * curveStrength;
-}
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -48,14 +42,6 @@ export default {
             curveStrength
         } = resolveAnimAll(instance.config, t);
 
-
-        // we precalculate remapped highlight/midtone/shadow thresholds here
-        // in order to avoid unnecessary per-pixel calcs GPU-side.
-        // currently just based on constant thresholds in Jz:
-        let thresholds = [0.15, 0.35, 0.65, 0.85];
-        thresholds = thresholds.map(
-            jz => toneMap(jz, exposure, toneCenter, toneShoulder, curveStrength)
-        );
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
@@ -72,7 +58,6 @@ export default {
             u_tint_hue: {value: tintHue * Math.PI / 180, type: "float"},
             u_tint_strength: {value: tintStrength, type: "float"},
             u_curve_strength: {value: curveStrength, type: "float"},
-            u_thresholds: {value: thresholds, type: "vec4"},
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec);
     },
@@ -117,8 +102,8 @@ export default {
                         key: "toneCenter",
                         label: "Tone Center",
                         type: "modSlider",
-                        min: -4,
-                        max: 4,
+                        min: -3,
+                        max: 1,
                         step: 0.05
                     },
                 ]
@@ -219,6 +204,6 @@ export const effectMeta = {
     parameterHints: {
         toneShoulder: {min: -2.2, max: 2.2},
         exposure: {min: 2, max: 2},
-        toneCenter: {min: 0.5, max: 1.5}
+        toneCenter: {min: -1.5, max: 0.2}
     }
 };

@@ -232,20 +232,20 @@ function selectRandomParam(hints, param) {
         let val = randBetween(min, max);
         if (param.scale === "log") {
             const scaleFactor = param.scaleFactor ?? 10;
-
             val = min + Math.log(val - min + 1) / Math.log(scaleFactor)
         }
         if (param.step === 1) val = Math.floor(val);
 
         if (ptype === "modslider" && Math.random() < ANIMATE_PROB) {
+            const aniMin = hints[param.key]?.aniMin ?? min;
+            const aniMax = hints[param.key]?.aniMax ?? max;
             return {
                 value: val,
-                mod: generateAnimationMod(val, min, max)
+                mod: generateAnimationMod(val, aniMin, aniMax)
             };
         } else {
             return val;
         }
-
     } else if (ptype === "checkbox") {
         return Math.random() < 0.5;
     } else if (ptype === "select") {

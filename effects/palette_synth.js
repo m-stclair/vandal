@@ -277,5 +277,9 @@ export const effectMeta = {
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
-    parameterHints: {"showPalette": {"always": "none"}}
+    parameterHints: {
+        "showPalette": {"always": "none"},
+        "cycleOffset": {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
+        "chromaGamma": {"min": 0.8, "max": 1.2}
+    }
 };

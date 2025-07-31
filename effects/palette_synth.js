@@ -188,7 +188,7 @@ export default {
                     type: "modSlider",
                     key: "lumaWeight",
                     label: "Luma",
-                    min: -1,
+                    min: -0.2,
                     max: 3,
                     step: 0.01
                 },
@@ -196,7 +196,7 @@ export default {
                     type: "modSlider",
                     key: "chromaWeight",
                     label: "Chroma",
-                    min: -1,
+                    min: -0.2,
                     max: 3,
                     step: 0.01
                 },
@@ -204,7 +204,7 @@ export default {
                     type: "modSlider",
                     key: "hueWeight",
                     label: "Hue",
-                    min: -1,
+                    min: -0.2,
                     max: 3,
                     step: 0.01
                 },

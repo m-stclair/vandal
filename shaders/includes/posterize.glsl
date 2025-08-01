@@ -18,11 +18,6 @@
 #define POSTERIZE_MODE POSTERIZE_UNIFORM
 #endif
 
-#ifndef POSTERIZE_LEVELS
-#define POSTERIZE_LEVELS 6
-#endif
-
-
 float ditherThreshold(vec2 uv) {
     int x = int(mod(uv.x * 4.0, 4.0));
     int y = int(mod(uv.y * 4.0, 4.0));
@@ -36,43 +31,45 @@ float ditherThreshold(vec2 uv) {
     return thresholds[index];
 }
 
-float _posterize(float val, vec2 uv, float bayerRes, float bias, float logBase) {
+float _posterize(
+    float val, vec2 uv, float bayerRes, float bias, float logBase, int levels
+) {
 #if POSTERIZE_MODE == POSTERIZE_NONE
     return val;
 
 #elif POSTERIZE_MODE == POSTERIZE_UNIFORM
-    return floor(val * float(POSTERIZE_LEVELS)) / float(POSTERIZE_LEVELS);
+    return floor(val * float(levels)) / float(levels);
 
 #elif POSTERIZE_MODE == POSTERIZE_LOG
-    float levels = float(POSTERIZE_LEVELS);
+    float levels = float(levels);
     float logval = log(1.0 + (logBase - 1.) * val) / log(logBase);
     float q = floor(logval * levels) / levels;
     return pow(float(logBase), q) - logBase / logBase;
 
 #elif POSTERIZE_MODE == POSTERIZE_BIAS
     float biased = pow(val, log(bias) / log(0.5));
-    float q = floor(biased * float(POSTERIZE_LEVELS)) / float(POSTERIZE_LEVELS);
+    float q = floor(biased * float(levels)) / float(levels);
     return pow(q, log(0.5) / log(bias));
 
 #elif POSTERIZE_MODE == POSTERIZE_BAYER
     float dither = ditherThreshold(uv / bayerRes);
-    float d = val * float(POSTERIZE_LEVELS) + dither;
-    return floor(d) / float(POSTERIZE_LEVELS);
+    float d = val * float(levels) + dither;
+    return floor(d) / float(levels);
 
 #else
     return val;
 #endif
 }
 
-vec3 posterize(vec3 color, vec2 uv, float bayerRes, float bias, float logBase) {
+vec3 posterize(vec3 color, vec2 uv, float bayerRes, float bias, float logBase, int levels) {
 #if POSTERIZE_C1
-    color.r = _posterize(color.r, uv, bayerRes, bias, logBase);
+    color.r = _posterize(color.r, uv, bayerRes, bias, logBase, levels);
 #endif
 #if POSTERIZE_C2
-    color.g = _posterize(color.g, uv, bayerRes, bias, logBase);
+    color.g = _posterize(color.g, uv, bayerRes, bias, logBase, levels);
 #endif
 #if POSTERIZE_C3
-    color.b = _posterize(color.b, uv, bayerRes, bias, logBase);
+    color.b = _posterize(color.b, uv, bayerRes, bias, logBase, levels);
 #endif
     return color;
 }

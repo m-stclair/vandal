@@ -103,48 +103,7 @@ export const builtInPresets = [
             }
         ]
     },
-    {
-        "name": "Action",
-        "config": [
-            {
-                "name": "Look",
-                "config": {
-                    "exposure": -0.6,
-                    "toneShoulder": -3.4,
-                    "toneCenter": 0.74,
-                    "chromaWeight": 1.01,
-                    "chromaFadeLow": 0.1,
-                    "chromaFadeHigh": 0.2,
-                    "tintAxis": [
-                        1.27,
-                        0.57,
-                        0
-                    ],
-                    "tintStrength": 0
-                }
-            },
-            {
-                "name": "Palette Synth",
-                "config": {
-                    "paletteSize": 22,
-                    "weightL": 0.2,
-                    "cycleOffset": 0,
-                    "softness": 3.2,
-                    "blendK": 2,
-                    "useFurthest": true,
-                    "lumaWeight": 1.04,
-                    "chromaWeight": 0.98,
-                    "hueWeight": 0.33,
-                    "doMerge": true,
-                    "assignMode": "blend",
-                    "blendAmount": 1,
-                    "BLENDMODE": "10",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": "4"
-                }
-            }
-        ]
-    },
+    {"name":"Action","config":[{"name":"Look","config":{"exposure":-0.1,"toneShoulder":1.8,"toneCenter":-1.65,"curveStrength":1,"chromaWeight":1.01,"chromaFadeLow":-2,"chromaFadeHigh":2.9,"tintHue":68,"tintStrength":0,"lift":0,"gamma":-0.15,"gain":0,"tintAxis":[1.27,0.57,0]}},{"name":"Palette Synth","config":{"paletteSize":22,"deltaL":28.5,"gammaC":1,"cycleOffset":0,"softness":3.2,"blendK":2,"lumaWeight":1.04,"chromaWeight":0.98,"hueWeight":0.33,"selectWeights":[0,0,0,0.2],"assignMode":"blend","blendAmount":1,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"COLORSPACE":"1","showPalette":"none","chromaBoost":1,"blockSize":2,"seed":1,"weightL":0.2,"useFurthest":true,"doMerge":true}}]},
     {
         "name": "Under the Rift",
         "config": [
@@ -3896,6 +3855,9 @@ export const builtInPresets = [
                 "spatialPattern": "vertical"
             }
         }]
-    }
+    },
+    {"name":"Galactic","config":[{"name":"Affine Transform","config":{"angle":-158.4,"scaleX":0.72636714137856,"scaleY":1.6442505393252127,"shearX":0.17999999999999972,"shearY":0.8999999999999999,"translateX":-0.96,"translateY":-0.64,"wrap":true,"blendAmount":{"value":0.47000000000000003,"mod":{"type":"hold","freq":0.026,"phase":0,"scale":0.04,"offset":0.47000000000000003}},"BLENDMODE":4,"COLORSPACE":5,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}},{"name":"Warp Zone","config":{"ZONESHAPE":3,"zoneCX":0.87,"zoneSX":0.74,"zoneCY":0,"zoneSY":0.8300000000000001,"zoneEllipseN":{"value":4.358,"mod":{"type":"triangle","freq":0.079,"phase":0,"scale":2.46,"offset":4.358}},"zoneSoftness":{"value":0.165,"mod":{"type":"sine","freq":0.021,"phase":0,"scale":0.12,"offset":0.165}},"zoneAngle":{"value":5.717698629533424,"mod":{"type":"sine","freq":0.063,"phase":0,"scale":1.54,"offset":5.717698629533424}},"warpAngle":{"value":5.089380098815465,"mod":{"type":"walk","freq":0.33,"phase":0,"scale":0.04,"offset":5.089380098815465,"_walkValue":0.7364068557686569,"_lastUpdate":185.97000000000628}},"warpStrength":87.25,"paramA":0.62,"WARPMODE":"noise","blendAmount":0.756,"BLENDMODE":10,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9,"WARPDRIVE_MODE":1,"WARPDRIVE_COLORSPACE":0,"WARPDRIVE_CHANNEL":0,"paramB":{"value":0.26,"mod":{"type":"hold","freq":0.025,"phase":0,"scale":0.25,"offset":0.26}},"PREBLEND_WARP_CHANNEL":2}},{"name":"Colormap","config":{"colormap":"moonbow","reverse":false,"blendAmount":0.871,"BLENDMODE":10,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}}]},
+    {"name":"Over the Edge","config":[{"name":"Edge Trace","config":{"threshold":{"value":0.96,"mod":{"type":"sine","freq":0.024,"phase":0,"scale":0.24,"offset":0.96}},"blendAmount":{"value":0.8300000000000001,"mod":{"type":"hold","freq":0.013,"phase":0,"scale":0.26,"offset":0.8300000000000001}},"BLENDMODE":5,"COLORSPACE":4,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9,"tint":[0.59,0.55,0.52]}},{"name":"Pixelate","config":{"blockSize":{"value":23,"mod":{"type":"sine","freq":0.096,"phase":0,"scale":14.58,"offset":23}},"blendAmount":0.6,"BLENDMODE":9,"COLORSPACE":7,"BLEND_CHANNEL_MODE":0,"chromaBoost":{"value":1.9500000000000002,"mod":{"type":"saw","freq":0.106,"phase":0,"scale":0.23,"offset":0.9}}}},{"name":"Delay Line","config":{"delay":194,"density":1.42,"window":"circle","falloff":"yRamp","jitter":{"value":0.16,"mod":{"type":"fm-lfo","freq":0.082,"phase":0,"scale":0.47,"offset":0.16}},"angle":25.200000000000017,"shearX":{"value":0.20000000000000018,"mod":{"type":"saw","freq":0.039,"phase":0,"scale":3.47,"offset":0.20000000000000018}},"shearY":-3.7,"scaleX":1.1440000000000001,"scaleY":1.666,"blendAmount":0.74,"BLENDMODE":4,"COLORSPACE":4,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}}]},
+    {"name":"Sliding Doors","config":[{"name":"Chromawave","config":{"threshold":0.17400000000000002,"cycleMode":"luma","hueShift":1.3,"hueSpread":1.8697439987548659,"spatialPattern":"angle","originX":{"value":0.3,"mod":{"type":"saw","freq":0.052,"phase":0,"scale":0.14,"offset":0.3}},"originY":0.14,"saturation":87,"lightness":53,"bleed":0.2,"waveType":"tri","bandingSteps":2,"dutyCycle":0.1962,"blendAmount":0.35,"BLENDMODE":10,"COLORSPACE":3,"BLEND_CHANNEL_MODE":3,"chromaBoost":0.9}},{"name":"Mirrorband","config":{"bandSize":0.2893,"orientation":0,"mirrorRate":{"value":0.73,"mod":{"type":"impulse-ease","freq":0.123,"phase":0,"scale":0.21000000000000002,"offset":0.73}},"offset":-0.07999999999999996,"seed":280,"colorMode":1,"colorBlend":0,"hue":0.11,"sBias":{"value":0.265,"mod":{"type":"walk","freq":0.10799999999999998,"phase":0,"scale":0.38,"offset":0.265,"_walkValue":0.3126180602972707,"_lastUpdate":359.9399999999144}},"vBias":0.64,"levels":1,"rotationAmount":{"value":1.4451326206513049,"mod":{"type":"sine","freq":0.051,"phase":0,"scale":1.47,"offset":1.4451326206513049}},"blendAmount":0.53,"BLENDMODE":1,"COLORSPACE":8,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}},{"name":"Desync Tiles","config":{"seed":260,"tileCountX":7,"tileCountY":{"value":11,"mod":{"type":"saw","freq":0.078,"phase":0,"scale":14.43,"offset":11}},"offsetAmount":{"value":0.9945000000000002,"mod":{"type":"sine","freq":0.033,"phase":0,"scale":0.08,"offset":0.9945000000000002}},"blendAmount":{"value":0.8200000000000001,"mod":{"type":"fm-lfo","freq":0.012,"phase":0,"scale":0.17,"offset":0.75}},"BLENDMODE":1,"COLORSPACE":8,"BLEND_CHANNEL_MODE":0,"chromaBoost":{"value":0.5750000000000001,"mod":{"type":"fm-lfo","freq":0.027,"phase":0,"scale":0.19,"offset":0.9}}}}]}
 
 ]

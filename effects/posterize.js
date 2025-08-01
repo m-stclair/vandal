@@ -52,6 +52,7 @@ export default {
             u_bias: {type: "float", value: mod / 2 + 0.1},
             u_bayer_resolution: {type: "float", value: mod * mod},
             u_chromaBoost: {type: "float", value: chromaBoost},
+            u_levels: {type: "int", value: levels}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
@@ -59,7 +60,6 @@ export default {
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             POSTERIZE_MODE: Number.parseInt(mode),
-            POSTERIZE_LEVELS: levels,
             POSTERIZE_C1: Number(c1),
             POSTERIZE_C2: Number(c2),
             POSTERIZE_C3: Number(c3),

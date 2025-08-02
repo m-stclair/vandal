@@ -37,8 +37,11 @@ def process_tree(src_root, out_root):
             physical_path = os.path.normpath(os.path.join(rel_dir, hashed_name)).replace("\\", "/")
             manifest[logical_key] = physical_path
 
-process_tree(SRC_DIR, OUT_DIR)
 
-os.makedirs(os.path.dirname(MANIFEST_PATH), exist_ok=True)
-with open(MANIFEST_PATH, 'w') as f:
-    json.dump(manifest, f, indent=2)
+def hash_shaders():
+    process_tree(SRC_DIR, OUT_DIR)
+    os.makedirs(os.path.dirname(MANIFEST_PATH), exist_ok=True)
+    with open(MANIFEST_PATH, 'w') as f:
+        json.dump(manifest, f, indent=2)
+
+

@@ -253,6 +253,10 @@ const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
 
 
 async function appSetup() {
+    const workerURL = new URL(`./cache-worker.js`, import.meta.url);
+    if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.register(workerURL);
+    }
     const stackHeader = document.getElementById("effectStackHeader")
     const picker = document.createElement("effect-picker")
     stackHeader.appendChild(picker);

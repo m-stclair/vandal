@@ -36,7 +36,7 @@
   "flow_parentheses.glsl": "flow_parentheses.df2c4bcf.glsl",
   "aberration.frag": "aberration.b2d44bd4.frag",
   "perlin_distort.frag": "perlin_distort.8a780b89.frag",
-  "includes/posterize.glsl": "includes/posterize.e45d43cc.glsl",
+  "includes/posterize.glsl": "includes/posterize.d8c18a5d.glsl",
   "includes/kernel_utils.glsl": "includes/kernel_utils.8726f9e6.glsl",
   "includes/vecfield.glsl": "includes/vecfield.9a4f2176.glsl",
   "includes/colorconvert.glsl": "includes/colorconvert.66ea333e.glsl",

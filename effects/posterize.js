@@ -79,7 +79,7 @@ export default {
         {key: "mod", label: "Modulator", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},
-        {key: "c3", label: "Channel 2", type: "checkbox"},
+        {key: "c3", label: "Channel 3", type: "checkbox"},
         blendControls()
 
     ],

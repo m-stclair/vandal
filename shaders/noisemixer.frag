@@ -93,7 +93,7 @@ void main() {
         sin(u_burstTheta),
         cos(u_burstPhi)
     );
-    vec2 burstUV = rot * (uv * u_burstFreq);
+    vec2 burstUV = rot * (uvs * u_burstFreq);
 #if BURST_MODTYPE == BURST_SIMPLEX
     float burstField = snoise(burstUV + u_seed * 7.77);
 

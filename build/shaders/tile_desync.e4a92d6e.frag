@@ -32,6 +32,5 @@ void main() {
     vec2 warpedUV = desyncOffset(uv);
     vec3 original = extractColor(texture(u_image, uv).rgb);
     vec3 warped = extractColor(texture(u_image, warpedUV).rgb);
-    vec3 blended = applyBlend(original, warped, u_blendamount);
-    outColor = vec4(encodeColor(blended), 1.0);
+    outColor = vec4(blendWithColorSpace(original, warped, u_blendamount), 1.0);
 }

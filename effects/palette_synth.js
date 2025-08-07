@@ -4,6 +4,33 @@ import {paletteprobe} from "./probes/paletteprobe.js";
 import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {lab2Rgb, linear2SRGB} from "../utils/colorutils.js";
+
+function exportPalette(_config, palette) {
+  const canvas = document.createElement("canvas");
+  canvas.width = palette.length;
+  canvas.height = 1;
+  const ctx = canvas.getContext("2d");
+  const imageData = ctx.createImageData(palette.length, 1);
+
+  // `palette` is a nested array like [[L, a, b_], [L, a, b_]],
+  // with L, a, b in CIELAB units, and 0 as literal 0.
+  for (let i = 0; i < palette.length; i++) {
+      const L = palette[i][0] / 100;
+      const a = (palette[i][1] + 128) / 255;
+      const b_ = (palette[i][2] + 128) / 255;
+      const [r, g, b] = lab2Rgb(L, a, b_).map((c) => Math.round(linear2SRGB(c) * 255));
+      imageData.data.set([r, g, b, 255], i * 4);
+  }
+  ctx.putImageData(imageData, 0, 0);
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "lut.png";
+    link.click();
+  });
+}
 
 const shaderPath = "palette_synth.frag";
 const includePaths = {
@@ -71,6 +98,7 @@ export default {
             padded[i * 4 + 2] = palette[i][2];
             padded[i * 4 + 3] = 0;
         }
+        instance.config['exportPalette'] = palette;
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
@@ -119,7 +147,7 @@ export default {
                     key: "paletteSize",
                     label: "size",
                     min: 3,
-                    max: 90,
+                    max: 42,
                     step: 3
                 },
                 {
@@ -208,6 +236,7 @@ export default {
                     max: 3,
                     step: 0.01
                 },
+
             ]
         },
         {
@@ -242,6 +271,12 @@ export default {
             min: 0,
             max: 100,
             step: 1
+        },
+        {
+            type: 'button',
+            key: 'exportPalette',
+            label: "Export Palette",
+            func: exportPalette
         },
 
     ],

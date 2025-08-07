@@ -1,14 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
-    BlendModeEnum,
+    BlendModeEnum, BlendModeOpts,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, ColorspaceOpts,
     hasChromaBoostImplementation,
     PosterizeEnum,
     PosterizeModeOpts
 } from "../utils/glsl_enums.js";
-import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "posterizer.frag"
 const includePaths = {
@@ -69,18 +68,23 @@ export default {
 
     uiLayout: [
         {key: "levels", label: "Levels", type: "modSlider", min: 2, max: 32, step: 1},
-        {key: "blendAmount", label: "Blend Amount", type: "modSlider", min: 0, max: 1, step: 0.01},
         {
             key: 'mode',
             label: 'Mode',
             type: 'Select',
             options: PosterizeModeOpts
         },
-        {key: "mod", label: "Modulator", type: "modSlider", min: 0, max: 1, step: 0.01},
+        {
+            key: "mod", label: "Param", type: "modSlider", min: 0, max: 1, step: 0.01,
+            showIf: {"key": "mode", "notEquals": PosterizeEnum.UNIFORM}
+        },
+        {key: 'COLORSPACE', label: 'Colorspace', type: 'Select', options: ColorspaceOpts},
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},
         {key: "c3", label: "Channel 3", type: "checkbox"},
-        blendControls()
+        {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
+        {key: 'BLENDMODE', label: 'Blend Mode', type: 'Select', options: BlendModeOpts},
+
 
     ],
     cleanupHook(instance) {

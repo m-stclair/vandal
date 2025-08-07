@@ -1,6 +1,7 @@
 // effects/index.js
 
 const effectFiles = [
+    'apply_lut.js',
     'chromawave.js',
     'pixelsort.js',
     'invert.js',

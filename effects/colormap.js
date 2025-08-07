@@ -1,4 +1,4 @@
-import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
+import {cmapLuts, colormaps, LUTSIZE, resampleLut} from "../utils/colormaps.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
@@ -14,6 +14,32 @@ const includePaths = {
     "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
+
+
+function importColormap(config, _ignoredValue, e, _fx, requestRender, requestUIDraw) {
+    let file;
+    if (!(e instanceof File)) {
+        file = e.target.files[0];
+    } else {
+        file = e;
+    }
+    if (!file) return;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = 1;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, img.width, 1).data;
+        const lutArr = resampleLut(data);
+        cmapLuts[file.name.replace(/\..+$/, '')] = lutArr;
+        config['colormap'] = file.name.replace(/\..+$/, '');
+        requestRender();
+        requestUIDraw();
+    }
+}
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -33,19 +59,29 @@ export default {
             type: "select",
             key: "colormap",
             label: "Colormap",
-            options: Object.keys(colormaps)
+            get options() {
+                return Object.keys(cmapLuts);
+            }
         },
         {
             type: "checkbox",
             key: "reverse",
             label: "Reverse",
         },
+        {
+            type: "button",
+            key: "importColormap",
+            label: "Import Colormap",
+            func: importColormap,
+            inputType: "file"
+
+        },
         blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            reverse, BLENDMODE, BLEND_CHANNEL_MODE, COLORMAP, blendAmount,
+            reverse, BLENDMODE, BLEND_CHANNEL_MODE, COLORSPACE, blendAmount,
             colormap, chromaBoost
         } = resolveAnimAll(instance.config, t);
         const uniformSpec = {
@@ -63,7 +99,7 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            COLORMAP: COLORMAP
+            COLORSPACE: COLORSPACE
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },

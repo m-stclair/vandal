@@ -227,7 +227,7 @@ export function hsv2Rgb(h, s, v) {
     return [r, g, b];
 }
 
-function sRGB2Linear(channel) {
+export function sRGB2Linear(channel) {
   return channel <= 0.04045
     ? channel / 12.92
     : Math.pow((channel + 0.055) / 1.055, 2.4);
@@ -237,7 +237,7 @@ function sRGBVec2Linear(rgb) {
   return rgb.map(sRGB2Linear);
 }
 
-function linear2SRGB(channel) {
+export function linear2SRGB(channel) {
   return channel <= 0.0031308
     ? 12.92 * channel
     : 1.055 * Math.pow(channel, 1/2.4) - 0.055;

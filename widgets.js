@@ -560,6 +560,24 @@ function Select(id, config, uiSpec) {
     return wrapper;
 }
 
+function makeButton(id, config, instance, uiSpec) {
+    const {key, label, func} = uiSpec;
+    const wrapper = document.createElement("div");
+    let input;
+    if (uiSpec.inputType === "file") {
+        input = document.createElement('input');
+        input.type = 'file';
+    } else {
+        input = document.createElement('button');
+    }
+    input.name = key;
+    input.textContent = label;
+    const listenerType = input.type === 'file' ? 'change': 'click';
+    input.addEventListener(listenerType, (e) => func(config, config[key], e, instance, requestRender, requestUIDraw));
+    wrapper.appendChild(input);
+    return wrapper;
+}
+
 function ReferenceImage(id, config, uiSpec, fx) {
     const {key, label} = uiSpec;
     const container = document.createElement("div");
@@ -593,6 +611,7 @@ function ReferenceImage(id, config, uiSpec, fx) {
 
 export default {
     formatFloatWidth,
+    makeButton,
     makeSlider,
     makeMatrixSlider,
     makeVectorSlider,

@@ -21,10 +21,9 @@ out vec4 outColor;
 #include "colorconvert.glsl"
 #include "blend.glsl"
 
-#define MAX_PALETTE_SIZE 64
+#define MAX_PALETTE_SIZE 128
 
 #define ASSIGN_NEAREST 0
-#define ASSIGN_HUE 1
 #define ASSIGN_BLEND 2
 
 

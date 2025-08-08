@@ -120,7 +120,7 @@ void main() {
 #if SHOW_PALETTE != 0
     int idx = int(round(uv.x * float(u_paletteSize - 1)));
     vec4 pcolor = paletteColors[(idx + u_cycleOffset) % u_paletteSize];
-    if (pcolor.a > 1. - uv.y) {
+    if (uv.y < 0.1) {
         outColor = vec4(linear2srgb(lab2rgb((pcolor.rgb))), 1.);
         return;
     }

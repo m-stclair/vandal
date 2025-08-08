@@ -1,4 +1,4 @@
-import {cmapLuts, colormaps, LUTSIZE, resampleLut} from "../utils/colormaps.js";
+import {cmapLuts, resampleLut} from "../utils/colormaps.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
@@ -6,6 +6,7 @@ import {
     BlendTargetEnum,
     ColorspaceEnum
 } from "../utils/glsl_enums.js";
+import {preprocessPalette} from "../utils/paletteutils.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {rgb2Lab, sRGB2Linear} from "../utils/colorutils.js";
 
@@ -34,8 +35,7 @@ function importLut(config, _emptyVal, e, fx, requestRender, requestUIDraw) {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
         const data = ctx.getImageData(0, 0, img.width, 1).data;
-        const lutArr = resampleLut(data, "nearest", img.width);
-        cmapLuts[file.name.replace(/\..+$/, '')] = lutArr;
+        cmapLuts[file.name.replace(/\..+$/, '')] = resampleLut(data, "nearest", img.width);;
         config['lut'] = file.name.replace(/\..+$/, '');
         fx.auxiliaryCache.lastLut = null;
         requestRender();
@@ -73,6 +73,12 @@ export default {
             }
         },
         {
+            type: "select",
+            key: "assignMode",
+            label: "Assignment Mode",
+            options: ["nearest", "blend"]
+        },
+        {
             type: "button",
             key: "importLut",
             label: "Import Lut",
@@ -83,7 +89,6 @@ export default {
             type: "group",
             kind: "collapse",
             label: "Perceptual Weights",
-            showIf: {key: "assignMode", notEquals: "hue"},
             children: [
                 {
                     type: "modSlider",
@@ -159,37 +164,38 @@ export default {
             chromaBoost, lut, cycleOffset, softness, blendK,
             lumaWeight, chromaWeight, hueWeight, assignMode, showPalette
         } = resolveAnimAll(instance.config, t);
-        if (instance.auxiliaryCache.lastLut !== lut) {
-            let palette = cmapLuts[lut];
-            const MAX_SIZE = 256;
-            const MAX_PRACTICAL_SIZE = 42
-            if (palette.length > MAX_PRACTICAL_SIZE) {
-                palette = resampleLut(palette, "nearest", MAX_PRACTICAL_SIZE);
+        if (instance.auxiliaryCache.lastLutName !== lut) {
+            let srgbaPalette = cmapLuts[lut];
+            const MAX_PRACTICAL_SIZE = 70
+            if (srgbaPalette.length > MAX_PRACTICAL_SIZE * 4) {
+                srgbaPalette = resampleLut(srgbaPalette, "nearest", MAX_PRACTICAL_SIZE);
             }
-            const padded = new Float32Array(MAX_SIZE * 4);
-            for (let i = 1; i < palette.length / 4; i++) {
-                const r = palette[i * 4] / 255;
-                const g = palette[i * 4 + 1] / 255;
-                const b = palette[i * 4 + 2] / 255;
-                // yes, we ignore alpha
+            const palette = [];
+            for (let i = 0; i < srgbaPalette.length / 4; i++) {
+                const r = srgbaPalette[i * 4] / 255;
+                const g = srgbaPalette[i * 4 + 1] / 255;
+                const b = srgbaPalette[i * 4 + 2] / 255;
                 const rgb = [r, g, b].map(sRGB2Linear);
                 const [Ln, an, b_n] = rgb2Lab(...rgb);
-                padded[i * 4] = Ln * 100;
-                padded[i * 4 + 1] = an * 255 - 128;
-                padded[i * 4 + 2] = b_n * 255 - 128;
-                padded[i * 4 + 3] = 0;
+                palette.push([
+                    Ln * 100, an * 255 - 128, b_n * 255 - 128
+                ]);
             }
-            instance.auxiliaryCache.palette = padded;
-            instance.auxiliaryCache.paletteSize = palette.length / 4;
+            const {paletteBlock, paletteFeatures} = preprocessPalette(palette);
+            instance.auxiliaryCache.paletteBlock = paletteBlock;
+            instance.auxiliaryCache.paletteSize = palette.length;
+            instance.auxiliaryCache.paletteFeatures = paletteFeatures;
         }
-        instance.auxiliaryCache.lastLut = lut;
+        instance.auxiliaryCache.lastLutName = lut;
         const paletteSize = instance.auxiliaryCache.paletteSize;
-        const palette = instance.auxiliaryCache.palette;
+        const paletteFeatures = instance.auxiliaryCache.paletteFeatures;
+        const paletteBlock = instance.auxiliaryCache.paletteBlock;
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendAmount: {value: blendAmount, type: "float"},
             u_chromaBoost: {type: "float", value: chromaBoost},
-            PaletteBlock: {value: palette, type: "UBO"},
+            PaletteFeatures: {value: paletteFeatures, type: "UBO", binding: 0},
+            PaletteBlock: {value: paletteBlock, type: "UBO", binding: 1},
             u_paletteSize: {value: paletteSize, type: "int"},
             u_cycleOffset: {value: cycleOffset, type: "int"},
             u_softness: {value: softness, type: "float"},
@@ -203,9 +209,10 @@ export default {
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             COLORSPACE: COLORSPACE,
-            ASSIGNMODE: {"nearest": 0, "hue": 1, "blend": 2}[assignMode],
-            SHOW_PALETTE: {"none": 0, "bars": 1, "strip": 2}[showPalette]
+            ASSIGNMODE: {"nearest": 0, "blend": 1}[assignMode],
+            SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette]
         };
+
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: async (instance, renderer) => {
@@ -228,6 +235,7 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
-        blendAmount: {"min": 0.85, "max": 1}
+        blendAmount: {"min": 0.85, "max": 1},
+        cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
     }
 };

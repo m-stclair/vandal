@@ -33,7 +33,6 @@ export default {
         c1: true,
         c2: true,
         c3: true,
-        chromaBoost: 1
     },
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -50,7 +49,7 @@ export default {
             u_logbase: {type: "float", value: mod * 4 + 1},
             u_bias: {type: "float", value: mod / 2 + 0.1},
             u_bayer_resolution: {type: "float", value: mod * mod},
-            u_chromaBoost: {type: "float", value: chromaBoost},
+            u_chromaBoost: {type: "float", value: 1},
             u_levels: {type: "int", value: levels}
         };
         const defines = {
@@ -84,8 +83,6 @@ export default {
         {key: "c3", label: "Channel 3", type: "checkbox"},
         {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
         {key: 'BLENDMODE', label: 'Blend Mode', type: 'Select', options: BlendModeOpts},
-
-
     ],
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);

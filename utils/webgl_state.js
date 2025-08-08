@@ -141,7 +141,7 @@ export class webGLState {
     uploadUniforms(uniformSpec) {
         const gl = this.gl;
         // Upload other uniforms
-        Object.entries(uniformSpec).forEach(([name, {value, type, width, height}]) => {
+        Object.entries(uniformSpec).forEach(([name, {value, type, width, height, binding}]) => {
             if (!this.uniforms[name]) {
                 // TODO: a hack. ACTIVE_UNIFORMS doesn't detect arrays well?
                 this.uniforms[name] = gl.getUniformLocation(this.program, name);
@@ -166,8 +166,7 @@ export class webGLState {
             if (isEqual(this.last_uniforms[name], value)) return;
             if (type === "UBO") {
                 const blockIndex = gl.getUniformBlockIndex(this.program, name);
-                // TODO: as above, probably terrible
-                const blockBinding = 0;
+                const blockBinding = binding ?? 0;
                 gl.uniformBlockBinding(this.program, blockIndex, blockBinding);
                 const ubo = gl.createBuffer();
                 gl.bindBufferBase(gl.UNIFORM_BUFFER, blockBinding, ubo);

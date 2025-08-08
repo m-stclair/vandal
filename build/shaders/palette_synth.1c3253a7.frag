@@ -4,9 +4,19 @@ precision highp float;
 uniform sampler2D u_image;
 uniform vec2 u_resolution;
 
-layout(std140) uniform PaletteBlock {
-    vec4 paletteColors[256]; // padded vec3s
+#define MAX_PALETTE_SIZE 128
+
+
+layout(std140) uniform PaletteFeatures {
+    // L, C, cosH, sinH
+    vec4 paletteFeatures[MAX_PALETTE_SIZE];
 };
+
+layout(std140) uniform PaletteBlock {
+    // L, a, b, _unused
+    vec4 paletteColors[MAX_PALETTE_SIZE];
+};
+
 uniform int u_paletteSize;
 uniform int u_cycleOffset;
 uniform int u_blendK;
@@ -21,46 +31,41 @@ out vec4 outColor;
 #include "colorconvert.glsl"
 #include "blend.glsl"
 
-#define MAX_PALETTE_SIZE 64
 
 #define ASSIGN_NEAREST 0
-#define ASSIGN_HUE 1
-#define ASSIGN_BLEND 2
+#define ASSIGN_BLEND 1
 
 
 bool is_finite(float x) {
     return abs(x) < 1e20;
 }
-float hueAngle(vec2 ab) {
-  return atan(ab.y, ab.x);
-}
 
-float getChroma(vec2 ab) {
-    return length(ab);
-}
+float deltaE_bias_fast(vec3 lab, vec4 q) {
+    float L = q[0];
+    float C = q[1];
+    float cosH = q[2];
+    float sinH = q[3];
 
-float angleDiff(float a1, float a2) {
-  float d = abs(a1 - a2);
-  return min(d, 6.28318530718 - d);
-}
+    float dL = lab.x - L;
 
-float deltaE_withBias(vec3 lab1, vec3 lab2, float lumaW, float chromaW, float hueW) {
-    float dJ = lab1.x - lab2.x;
-    float C1 = getChroma(lab1.yz);
-    float C2 = getChroma(lab2.yz);
-    float dC = C1 - C2;
+    // C1 = |ab| (fast hypot)
+    float C1 = length(lab.yz);
+    float dC = C1 - C;
 
-    float dH = angleDiff(hueAngle(lab1.yz), hueAngle(lab2.yz));
+    // unit ab for input (no atan)
+    vec2 u = (C1 > 1e-6) ? lab.yz / C1 : vec2(1.0, 0.0);
 
-    float avgC = 0.5 * (C1 + C2);
-    float hueBias = avgC * dH;
+    // hue separation surrogate:
+    float theta  = clamp(dot(u, vec2(cosH, sinH)), -1.0, 1.0);
+    float hueBias = 0.5 * (C1 + C) * theta;
 
     return (
-        lumaW   * abs(dJ) +
-        chromaW * abs(dC) +
-        hueW    * abs(hueBias)
+        u_lumaWeight   * abs(dL) +
+        u_chromaWeight * abs(dC) +
+        u_hueWeight    * abs(hueBias)
     );
 }
+
 
 
 vec3 softAssign(vec3 labColor, int cycleOffset) {
@@ -69,8 +74,7 @@ vec3 softAssign(vec3 labColor, int cycleOffset) {
 
   // Compute distances
   for (int i = 0; i < u_paletteSize; ++i) {
-    dist[i] = deltaE_withBias(labColor, paletteColors[i].rgb, u_lumaWeight,
-                              u_chromaWeight, u_hueWeight);
+    dist[i] = deltaE_bias_fast(labColor, paletteFeatures[i]);
     index[i] = i;
   }
 
@@ -102,10 +106,7 @@ vec3 matchNearest(vec3 lab, int cycleOffset) {
 
     for (int i = 0; i < 256; i++) {
         if (i >= u_paletteSize) break;
-
-        vec3 p = paletteColors[i].rgb;
-        float d = deltaE_withBias(lab, p, u_lumaWeight, u_chromaWeight,
-                                  u_hueWeight);
+        float d = deltaE_bias_fast(lab, paletteFeatures[i]);
         if (d < minDist) {
             minDist = d;
             best_i = i;
@@ -119,11 +120,7 @@ void main() {
 #if SHOW_PALETTE != 0
     int idx = int(round(uv.x * float(u_paletteSize - 1)));
     vec4 pcolor = paletteColors[(idx + u_cycleOffset) % u_paletteSize];
-#if SHOW_PALETTE == 1
     if (pcolor.a > 1. - uv.y) {
-#else
-    if (uv.y < 0.1) {
-#endif
         outColor = vec4(linear2srgb(lab2rgb((pcolor.rgb))), 1.);
         return;
     }

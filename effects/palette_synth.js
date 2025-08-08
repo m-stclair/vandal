@@ -5,6 +5,7 @@ import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 import {lab2Rgb, linear2SRGB} from "../utils/colorutils.js";
+import {preprocessPalette} from "../utils/paletteutils.js";
 
 function exportPalette(_config, palette) {
   const canvas = document.createElement("canvas");
@@ -70,6 +71,11 @@ export default {
             chromaBoost, deltaL, gammaC,
             blockSize, seed
         } = resolveAnimAll(instance.config, t)
+        // TODO, maybe: there are some cases in which we don't need to recompute the
+        //  palette -- when (1) we are the first active effect in the chain,
+        //  (2) there hasn't been a base image swap, and (3) no parameters
+        //  relevant to palette _selection_ have changed (e.g., someone
+        //  changed a blend setting).
         const probe = instance.probe;
         const selectionWeights = {
             midtone: selectWeights[0],
@@ -89,22 +95,16 @@ export default {
             seed,
             selectionWeights
         );
-        const MAX_SIZE = 256;
-        const padded = new Float32Array(MAX_SIZE * 4);
+        const {paletteBlock, paletteFeatures} = preprocessPalette(palette, paletteSize);
 
-        for (let i = 0; i < palette.length; i++) {
-            padded[i * 4 + 0] = palette[i][0];
-            padded[i * 4 + 1] = palette[i][1];
-            padded[i * 4 + 2] = palette[i][2];
-            padded[i * 4 + 3] = 0;
-        }
         instance.config['exportPalette'] = palette;
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
-            PaletteBlock: {value: padded, type: "UBO"},
+            PaletteFeatures: {value: paletteFeatures, type: "UBO", binding: 0},
+            PaletteBlock: {value: paletteBlock, type: "UBO", binding: 1},
             u_paletteSize: {value: palette.length, type: "int"},
             u_cycleOffset: {value: cycleOffset, type: "int"},
             u_softness: {value: softness, type: "float"},
@@ -120,8 +120,8 @@ export default {
             COLORSPACE: COLORSPACE,
             APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            ASSIGNMODE: {"nearest": 0, "hue": 1, "blend": 2}[assignMode],
-            SHOW_PALETTE: {"none": 0, "bars": 1, "strip": 2}[showPalette]
+            ASSIGNMODE: {"nearest": 0, "blend": 1}[assignMode],
+            SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette]
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
@@ -196,7 +196,7 @@ export default {
                     type: "select",
                     key: "showPalette",
                     label: "Show Palette",
-                    options: ["none", "strip", "bars"]
+                    options: ["none", "strip"]
                 },
             ]
         },
@@ -210,7 +210,6 @@ export default {
             type: "group",
             kind: "collapse",
             label: "Perceptual Weights",
-            showIf: {key: "assignMode", notEquals: "hue"},
             children: [
                 {
                     type: "modSlider",

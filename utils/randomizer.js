@@ -153,7 +153,7 @@ function flattenUiLayout(layout) {
         const ptype = (param.type || "").toLowerCase();
         if (ptype === "group") {
             out.push(...flattenUiLayout(param.children));
-        } else {
+        } else if (ptype !== "button") {
             out.push(param);
         }
     }

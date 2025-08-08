@@ -1,4 +1,4 @@
-import {cmapLuts, colormaps, LUTSIZE, resampleLut} from "../utils/colormaps.js";
+import {cmapLuts, LUTSIZE, resampleLut} from "../utils/colormaps.js";
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
@@ -33,7 +33,7 @@ function importColormap(config, _ignoredValue, e, _fx, requestRender, requestUID
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0);
         const data = ctx.getImageData(0, 0, img.width, 1).data;
-        const lutArr = resampleLut(data);
+        const lutArr = resampleLut(data, "linear", LUTSIZE);
         cmapLuts[file.name.replace(/\..+$/, '')] = lutArr;
         config['colormap'] = file.name.replace(/\..+$/, '');
         requestRender();
@@ -90,20 +90,34 @@ export default {
             u_reverse: {value: reverse, type: "float"},
             u_chromaBoost: {type: "float", value: chromaBoost},
         };
+        if (colormap !== instance.auxiliaryCache.lastCmapName) {
+            let lutArr = cmapLuts[colormap];
+            // this is intended to handle cases in which someone loads a
+            // LUT as a small array using Apply LUT or similar
+            if (lutArr.length !== LUTSIZE) {
+                lutArr = resampleLut(lutArr, "linear", LUTSIZE);
+            }
+            instance.auxiliaryCache.cmapTex = instance.glState.getOrCreateLUT(colormap, lutArr);
+        }
+        instance.auxiliaryCache.lastCmapName = colormap;
         uniformSpec["u_cmap"] = {
-            value: instance.glState.getOrCreateLUT(colormap, cmapLuts[colormap]),
+            value: instance.auxiliaryCache.cmapTex,
             type: "texture2D",
             width: LUTSIZE,
             height: 1
         };
         const defines = {
+            APPLY_CHROMA_BOOST: 0,
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             COLORSPACE: COLORSPACE
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
-    initHook: fragSources.load,
+    initHook: async (instance, renderer) => {
+        instance.auxiliaryCache = {};
+        await fragSources.load(instance, renderer);
+    },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
     },

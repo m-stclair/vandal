@@ -85,3 +85,33 @@ export function getImageStats(data) {
         })
     };
 }
+
+
+export function preprocessPalette(palette) {
+    const MAX_SIZE = 128;
+    const STRIDE = 4;
+    const paletteBlock = new Float32Array(MAX_SIZE * STRIDE);
+
+    for (let i = 0; i < palette.length; i++) {
+        paletteBlock[i * 4 + 0] = palette[i][0];
+        paletteBlock[i * 4 + 1] = palette[i][1];
+        paletteBlock[i * 4 + 2] = palette[i][2];
+        paletteBlock[i * 4 + 3] = 0;
+    }
+
+    // each L, C, sinH, cosH is a vec4, so 4 4-byte elements each
+    const paletteFeatures = new Float32Array(MAX_SIZE * STRIDE);
+    for (let i = 0; i < palette.length; i++) {
+        const [L, a, b] = palette[i];
+        const C = Math.hypot(a, b);
+        const h = Math.atan2(b, a);
+        const cosH = Math.cos(h);
+        const sinH = Math.sin(h);
+        const start = i * STRIDE;
+        paletteFeatures[start] = L;
+        paletteFeatures[start + 1] = C;
+        paletteFeatures[start + 2] = sinH;
+        paletteFeatures[start + 3] = cosH;
+    }
+    return {paletteBlock, paletteFeatures};
+}

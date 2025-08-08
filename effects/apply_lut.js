@@ -235,6 +235,7 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
+        showPalette: {"always": "none"},
         blendAmount: {"min": 0.85, "max": 1},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
     }

@@ -202,8 +202,8 @@ export const effectMeta = {
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        toneShoulder: {min: -2.2, max: 2.2},
-        exposure: {min: 2, max: 2},
+        toneShoulder: {min: -1.5, max: 1.5},
+        exposure: {min: -0.3, max: 1.3},
         toneCenter: {min: -1.5, max: 0.2}
     }
 };

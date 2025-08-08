@@ -30,7 +30,7 @@ vec2 desyncOffset(vec2 uv) {
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec2 warpedUV = desyncOffset(uv);
-    vec3 original = extractColor(texture(u_image, uv).rgb);
-    vec3 warped = extractColor(texture(u_image, warpedUV).rgb);
+    vec3 original = texture(u_image, uv).rgb;
+    vec3 warped = texture(u_image, warpedUV).rgb;
     outColor = vec4(blendWithColorSpace(original, warped, u_blendamount), 1.0);
 }

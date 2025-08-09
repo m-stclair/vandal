@@ -99,7 +99,7 @@ export function preprocessPalette(palette) {
         paletteBlock[i * 4 + 3] = 0;
     }
 
-    // each L, C, sinH, cosH is a vec4, so 4 4-byte elements each
+    // each L, C, cosH, sinH is a vec4, so 4 4-byte elements each
     const paletteFeatures = new Float32Array(MAX_SIZE * STRIDE);
     for (let i = 0; i < palette.length; i++) {
         const [L, a, b] = palette[i];
@@ -110,8 +110,8 @@ export function preprocessPalette(palette) {
         const start = i * STRIDE;
         paletteFeatures[start] = L;
         paletteFeatures[start + 1] = C;
-        paletteFeatures[start + 2] = sinH;
-        paletteFeatures[start + 3] = cosH;
+        paletteFeatures[start + 2] = cosH;
+        paletteFeatures[start + 3] = sinH;
     }
     return {paletteBlock, paletteFeatures};
 }

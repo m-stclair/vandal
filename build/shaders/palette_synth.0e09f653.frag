@@ -48,14 +48,11 @@ float deltaE_bias_fast(vec3 lab, vec4 q) {
 
     float dL = lab.x - L;
 
-    // C1 = |ab| (fast hypot)
     float C1 = length(lab.yz);
     float dC = C1 - C;
 
-    // unit ab for input (no atan)
     vec2 u = (C1 > 1e-6) ? lab.yz / C1 : vec2(1.0, 0.0);
 
-    // hue separation surrogate:
     float theta  = clamp(dot(u, vec2(cosH, sinH)), -1.0, 1.0);
     float hueBias = 0.5 * (C1 + C) * (1.0 - theta);
 

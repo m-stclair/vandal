@@ -57,7 +57,7 @@ float deltaE_bias_fast(vec3 lab, vec4 q) {
 
     // hue separation surrogate:
     float theta  = clamp(dot(u, vec2(cosH, sinH)), -1.0, 1.0);
-    float hueBias = 0.5 * (C1 + C) * (1 - theta);
+    float hueBias = 0.5 * (C1 + C) * (1.0 - theta);
 
     return (
         u_lumaWeight   * abs(dL) +

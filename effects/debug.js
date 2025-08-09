@@ -71,7 +71,7 @@ export default {
         const defines = {
             DEBUG_COLOR_MODE: DEBUG_COLOR_MODE,
             COLORSPACE: COLORSPACE,
-APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            DEBUG_MODE: DEBUG_MODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),            DEBUG_MODE: DEBUG_MODE,
             DISPLAY_CHANNEL: DISPLAY_CHANNEL
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);

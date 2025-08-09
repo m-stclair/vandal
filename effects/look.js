@@ -205,5 +205,7 @@ export const effectMeta = {
         toneShoulder: {min: -1.5, max: 1.5},
         exposure: {min: -0.3, max: 1.3},
         toneCenter: {min: -1.5, max: 0.2}
-    }
+    },
+    // just too hard to balance
+    notInRandom: true
 };

@@ -238,5 +238,8 @@ export const effectMeta = {
         showPalette: {"always": "none"},
         blendAmount: {"min": 0.85, "max": 1},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
-    }
+    },
+    // just too hard to balance
+    notInRandom: true
+
 };

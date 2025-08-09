@@ -15,7 +15,7 @@ const ANIMATE_PROB = 0.25;  // chance to animate an eligible param
 
 function generateAnimationMod(base, min, max) {
     const span = max - min;
-    let freq = +(Math.random() * 0.1 + 0.01).toFixed(3); // 0.01–0.11 Hz
+    let freq = +(Math.random() * 0.09 + 0.03).toFixed(3); // 0.03–0.12 Hz
     let scale = +(Math.random() * 0.5 * span).toFixed(2); // up to 50% swing
     const offset = base;
     const type = weightedSample([

@@ -15,7 +15,7 @@ function exportPalette(_config, palette) {
   const imageData = ctx.createImageData(palette.length, 1);
 
   // `palette` is a nested array like [[L, a, b_], [L, a, b_]],
-  // with L, a, b in CIELAB units, and 0 as literal 0.
+  // with L, a, b in CIELAB units.
   for (let i = 0; i < palette.length; i++) {
       const L = palette[i][0] / 100;
       const a = (palette[i][1] + 128) / 255;
@@ -71,6 +71,7 @@ export default {
             chromaBoost, deltaL, gammaC,
             blockSize, seed
         } = resolveAnimAll(instance.config, t)
+
         // TODO, maybe: there are some cases in which we don't need to recompute the
         //  palette -- when (1) we are the first active effect in the chain,
         //  (2) there hasn't been a base image swap, and (3) no parameters
@@ -88,7 +89,7 @@ export default {
             inputTex,
             width,
             height,
-            paletteSize / 3,
+            (paletteSize < 3 ? 3 : paletteSize) / 3,
             deltaL,
             gammaC,
             blockSize,

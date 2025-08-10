@@ -5,7 +5,10 @@ import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum,
 import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "wave.frag";
-const includePaths = {};
+const includePaths = {
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "blend.glsl": "includes/blend.glsl"
+};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 

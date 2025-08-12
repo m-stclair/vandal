@@ -135,13 +135,20 @@ export default {
             kernelName, kernelRadiusX, kernelRadiusY,
             kernelSoftness, chromaBoost
         } = resolveAnimAll(instance.config, t);
-
-        const MAX_KERNEL_SIZE = 255;
-        let kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
-        if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
-            kernelInfo = subsampleKernel2D(kernelInfo.kernel, kernelInfo.width, kernelInfo.height, MAX_KERNEL_SIZE);
+        let kernelInfo;
+        const kernelSettings = [kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness];
+        if (instance.auxiliaryCache.lastKernelSettings !== kernelSettings) {
+            const MAX_KERNEL_SIZE = 255;
+            kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
+            if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
+                kernelInfo = subsampleKernel2D(kernelInfo.kernel, kernelInfo.width, kernelInfo.height, MAX_KERNEL_SIZE);
+            }
+            instance.auxiliaryCache.lastKernelSettings = kernelSettings;
+            instance.auxiliaryCache.kernelInfo = kernelInfo;
+        } else {
+            kernelInfo = instance.auxiliaryCache.kernelInfo;
         }
-
+        instance.auxiliaryCache.lastKernelSettings = kernelSettings;
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_warpStrength: {type: "float", value: warpStrength},
@@ -168,14 +175,16 @@ export default {
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
-    initHook: fragSources.load,
+    initHook: async (instance, renderer) => {
+        instance.auxiliaryCache = {};
+        await fragSources.load(instance, renderer);
+    },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
     },
     glState: null,
     isGPU: true
 };
-
 export const effectMeta = {
     group: "Operators",
     tags: ["sort", "webgl", "blur", "paint"],

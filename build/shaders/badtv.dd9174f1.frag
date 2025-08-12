@@ -65,24 +65,24 @@ float valueNoise(vec2 uv) {
 // --- Tearing logic ---
 vec2 applyTear(vec2 uv, TearParams tp, float time) {
 #if TEARMODE == TEAR_WAVE
-    uv.x += sin(uv.y * 200.0 + time * 3.0) * 0.005;
+    uv.x += sin(uv.y * 60.0 * tp.chunks + time * 3.0) * 0.07;
 
 #elif TEARMODE == TEAR_JUMP
     float tearLine = fract(time * 0.2);
-    float jump = step(abs(uv.y - tearLine), 0.002);
-    uv.x += jump * 0.05;
+    float jump = step(abs(uv.y - tearLine), 0.001 * sqrt(tp.chunks));
+    uv.x += jump * 0.2;
 
 #elif TEARMODE == TEAR_BAND
     float band = smoothstep(0.45, 0.46, uv.y) - smoothstep(0.46, 0.47, uv.y);
-    uv.x += band * (fract(sin(time * 12.9898) * 43758.5453) - 0.5) * 0.2;
+    uv.x += band * (fract(sin(time * 12.9898) * 43758.5453) - 0.5) * 0.5;
 
 #elif TEARMODE == TEAR_CHUNK
     float chunk = floor(uv.y * tp.chunks);
     float offset = fract(sin(dot(vec2(chunk, time), vec2(12.9898, 78.233))) * 43758.5453);
-    uv.x += (offset - 0.5) * 0.1;
+    uv.x += (offset - 0.5) * 0.2;
 
 #elif TEARMODE == TEAR_GHOST
-    uv.x += tp.ghostOffset * smoothstep(0.4, 0.41, uv.y);
+    uv.x += tp.ghostOffset * smoothstep(fract(time), 0.1 + fract(time), uv.y);
 #endif
 
     return uv;

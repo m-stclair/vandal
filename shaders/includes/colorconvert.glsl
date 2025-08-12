@@ -15,15 +15,14 @@ float lab_fInv(float t) {
 
 // RGB/XYZ/LMS conversion matrices
 const mat3 RGB_TO_XYZ = mat3(
-    0.4122214708, 0.2119034982, 0.0883024619,
-    0.5363325363, 0.6806995451, 0.2817188376,
-    0.0514459929, 0.1073969566, 0.6299787005
+  0.412390799, 0.357584339, 0.180480789,
+  0.212639006, 0.715168679, 0.072192315,
+  0.019330819, 0.119194780, 0.950532152
 );
-
 const mat3 XYZ_TO_RGB = mat3(
-     3.2409699419, -0.9692436363,  0.0556300797,
-    -1.5373831776,  1.8759675015, -0.2039769589,
-    -0.4986107603,  0.0415550574,  1.0569715142
+   3.24096994, -1.53738318, -0.49861076,
+  -0.96924364,  1.87596750,  0.04155506,
+   0.05563008, -0.20397696,  1.05697151
 );
 
 const mat3 XYZ_TO_LMS = mat3(
@@ -68,13 +67,14 @@ vec3 pq_decode(vec3 x) {
 vec3 rgb2jzazbz(vec3 rgb) {
     vec3 xyz = RGB_TO_XYZ * rgb;
     vec3 lms = XYZ_TO_LMS * xyz;
-    lms = max(lms, vec3(1e-5));
-
+    vec3 lmsp = vec3(
+      pq_b * lms.x - (pq_b - 1.0) * lms.z,
+      pq_g * lms.y,
+      lms.z
+    );
     // Apply PQ nonlinearity
-    vec3 lms_p = pq_encode(lms);
-
-    vec3 jab = LMS_P_TO_JAB * lms_p;
-
+    vec3 lms_P = pq_encode(max(lmsp, vec3(1e-5)));
+    vec3 jab = LMS_P_TO_JAB * lms_P;
     float iz = jab.x;
     float jz = ((1.0 + pq_d) * iz) / (1.0 + pq_d * iz) - pq_d0;
 
@@ -97,14 +97,18 @@ vec3 jzazbz2rgb(vec3 jzazbz) {
     float iz_unnorm = jz + pq_d0;
     float iz = iz_unnorm / (1.0 + pq_d - pq_d * iz_unnorm);
     vec3 jab = vec3(iz, jzazbz.yz);
-
-    vec3 lms_p = JAB_TO_LMS_P * jab;
-    vec3 lms = pq_decode(lms_p);
+    vec3 lms_P = JAB_TO_LMS_P * jab;
+    vec3 lmsp = pq_decode(lms_P);
+    vec3 lms = vec3(
+      (lmsp.x + (pq_b - 1.0) * lmsp.z) / pq_b,
+      lmsp.y / pq_g,
+      lmsp.z
+    );
     vec3 xyz = LMS_TO_XYZ * lms;
     vec3 rgb = XYZ_TO_RGB * xyz;
-    if (anyNaN(rgb) || any(lessThan(rgb, vec3(-1.0)))) {
-       rgb = vec3(0.5);
-    }
+    // if (anyNaN(rgb) || any(lessThan(rgb, vec3(-1.0)))) {
+    //    rgb = vec3(0.5);
+    // }
     return rgb;
 }
 
@@ -130,12 +134,7 @@ vec3 safeRGB(vec3 rgb) {
 
 vec3 jchz2rgb(vec3 jchz) {
     float epsilon = 1e-4;
-    float safeC = max(jchz.y, epsilon);
-    if (jchz.x < 1e-5) {
-        jchz.x = 1e-5;
-        safeC = 0.0;
-    }
-    vec2 ab = vec2(cos(jchz.z), sin(jchz.z)) * safeC;
+    vec2 ab = jchz.y * vec2(cos(jchz.z), sin(jchz.z));
     vec3 jzazbz = vec3(jchz.x, ab.x, ab.y);
     vec3 rgb = jzazbz2rgb(jzazbz);
     return safeRGB(rgb);
@@ -232,11 +231,8 @@ vec3 rgb2hsl(vec3 c) {
     float maxc = max(max(c.r, c.g), c.b);
     float minc = min(min(c.r, c.g), c.b);
     float delta = maxc - minc;
-
     float l = 0.5 * (maxc + minc);
-
-    float s = delta / (1.0 - abs(2.0 * l - 1.0) + 1e-10);
-
+    float s = clamp(delta / (1.0 - abs(2.0 * l - 1.0) + 1e-10), 0., 1.);
     float h = 0.0;
     if (delta > 1e-10) {
         vec3 n = (c - minc) / delta;
@@ -245,7 +241,6 @@ vec3 rgb2hsl(vec3 c) {
                             (4.0 + n.r - n.g);
         h = fract(h / 6.0);
     }
-
     return vec3(h, s, l);
 }
 

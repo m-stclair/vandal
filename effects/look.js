@@ -1,6 +1,7 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {group} from "../utils/ui_configs.js";
+import {hsv2Rgb} from "../utils/colorutils.js";
 
 const shaderPath = "look.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
@@ -42,6 +43,8 @@ export default {
             curveStrength
         } = resolveAnimAll(instance.config, t);
 
+        const tintNorm = tintHue / 360;
+        const tint = hsv2Rgb(tintNorm, 1, 1);
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
@@ -55,7 +58,7 @@ export default {
             u_gain: {value: gain, type: "float"},
             u_chroma_fade_low: {value: chromaFadeLow, type: "float"},
             u_chroma_fade_high: {value: chromaFadeHigh, type: "float"},
-            u_tint_hue: {value: tintHue * Math.PI / 180, type: "float"},
+            u_tint: {value: tint, type: "vec3"},
             u_tint_strength: {value: tintStrength, type: "float"},
             u_curve_strength: {value: curveStrength, type: "float"},
         }

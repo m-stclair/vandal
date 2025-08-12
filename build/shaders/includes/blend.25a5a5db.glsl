@@ -31,7 +31,7 @@ vec3 blended;
         sqrt(base) * (2.0 * fx - 1.0) + 2.0 * base * (1.0 - fx),
         step(fx, vec3(0.5))
     );
-    blended = mix(base, result, blendAmount);
+    blended = mix(base, clamp(result, 0., 1.), blendAmount);
 #elif BLENDMODE == 10  // Hard Light
     vec3 result = mix(
         2.0 * base * fx,
@@ -89,26 +89,26 @@ float applyBlend(float base, float fx, float blendAmount) {
 #endif
 
 vec3 blendChannelMasked(vec3 base, vec3 fx, float blendAmount) {
-#if BLEND_CHANNEL_MODE == 0 // ALL
+#if BLEND_CHANNEL_MODE == 0  // ALL
     return applyBlend(base, fx, blendAmount);
-#elif BLEND_CHANNEL_MODE == 1 // LUMA (assumed x)
+#elif BLEND_CHANNEL_MODE == 1
     return vec3(
         applyBlend(base.x, fx.x, blendAmount),
         base.yz
     );
-#elif BLEND_CHANNEL_MODE == 2 // SATURATION (assumed y)
+#elif BLEND_CHANNEL_MODE == 2
     return vec3(
         base.x,
         applyBlend(base.y, fx.y, blendAmount),
         base.z
     );
-#elif BLEND_CHANNEL_MODE == 3 // VALUE (assumed z)
+#elif BLEND_CHANNEL_MODE == 3
     return vec3(
         base.xy,
         applyBlend(base.z, fx.z, blendAmount)
     );
 #else
-    return base; // fallback: no-op
+    return base;
 #endif
 }
 

@@ -36,7 +36,9 @@ void main() {
     vec3 extracted = srgb2NormJchz(srgb);
     vec3 encoded = normJchz2SRGB(extracted);
 
-    outColor = vec4(encoded, 1.0);
+    outColor = vec4(encoded.x > 0., encoded.y > 0., encoded.z > 0.0, 1.0);
+
+//    outColor = vec4(encoded, 1.0);
 
 }
 

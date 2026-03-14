@@ -41,9 +41,9 @@ float _posterize(
     return floor(val * float(levels)) / float(levels);
 
 #elif POSTERIZE_MODE == POSTERIZE_LOG
-    float logval = log(1.0 + (logBase - 1.) * val) / log(logBase);
+    float logval = log(1.0 + (logBase - 1.0) * val) / log(logBase);
     float q = floor(logval * float(levels)) / float(levels);
-    return pow(float(logBase), q) - logBase / logBase;
+    return pow(logBase, q) - logBase / logBase;
 
 #elif POSTERIZE_MODE == POSTERIZE_BIAS
     float biased = pow(val, log(bias) / log(0.5));

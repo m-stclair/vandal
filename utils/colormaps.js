@@ -110,3 +110,49 @@ export function fromList(colorList) {
     return lerpColor(a, b, frac);
   }
 }
+
+
+export function resampleLut(lut, method = 'nearest', nColors = 1024) {
+  const N = lut.length / 4;
+  const out = new Uint8ClampedArray(nColors * 4);
+
+  for (let i = 0; i < nColors; i++) {
+    const t = i / (nColors - 1);
+    const pos = t * (N - 1);
+
+    if (method === 'nearest') {
+      const nearest = Math.floor(pos);
+      out[i * 4] = lut[nearest * 4];
+      out[i * 4 + 1] = lut[nearest * 4 + 1];
+      out[i * 4 + 2] = lut[nearest * 4 + 2];
+      out[i * 4 + 3] = lut[nearest * 4 + 3];
+
+    }
+
+    else if (method === 'linear') {
+      const i0 = Math.floor(pos) * 4;
+      const i1 = Math.min(i0 / 4 + 1, N - 1);
+      const f = pos * 4 - i0;
+
+      const r0 = lut[i0];
+      const g0 = lut[i0 + 1];
+      const b0 = lut[i0 + 2];
+      const a0 = lut[i0 + 3];
+      const r1 = lut[i1];
+      const g1 = lut[i1 + 1];
+      const b1 = lut[i1 + 2]
+      const a1 = lut[i1 + 3];
+
+      out[i * 4] = (1 - f) * r0 + f * r1;
+      out[i * 4 + 1] = (1 - f) * g0 + f * g1;
+      out[i * 4 + 2] = (1 - f) * b0 + f * b1;
+      out[i * 4 + 3] = (1 - f) * a0 + f * a1;
+    }
+
+    else {
+      throw new Error(`Unknown interpolation method: ${method}`);
+    }
+  }
+
+  return out;
+}

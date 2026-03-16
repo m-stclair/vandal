@@ -1,11 +1,12 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
+import {hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/chromawave.frag"
+const shaderPath = "chromawave.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -26,13 +27,13 @@ export default {
         BLENDMODE: 1,
         BLEND_CHANNEL_MODE: 0,
         blendAmount: 1,
+        chromaBoost: 1,
         bandingSteps: 0,
         waveType: 0,
         dutyCycle: 0.5,
         originX: 0.5,
         originY: 0.5,
         spatialPattern: "radial",
-        blendTarget: '0'
 
     },
     uiLayout: [
@@ -46,8 +47,17 @@ export default {
         },
 
         group("Hue Mapping", [
-            {type: "modSlider", key: "hueShift", label: "Hue Shift", min: 0, max: 2, step: 0.01},
-            {type: "modSlider", key: "hueSpread", label: "Hue Spread", min: 0, max: 4, step: 0.05},
+            {type: "modSlider", key: "hueShift", label: "Shift", min: 0, max: 2, step: 0.01},
+            {
+                type: "modSlider",
+                key: "hueSpread",
+                label: "Spread",
+                min: 0,
+                max: 10,
+                steps: 200,
+                scale: "log",
+                scaleFactor: 3
+            },
         ], {
             color: "#20001a"
         }),
@@ -59,8 +69,8 @@ export default {
                 label: "Pattern",
                 options: ["radial", "horizontal", "vertical", "diagonal", "angle", "checker"]
             },
-            {type: "range", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
-            {type: "range", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
+            {type: "modSlider", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
+            {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
             color: "#001a20"
@@ -100,10 +110,11 @@ export default {
             originX,
             originY,
             spatialPattern,
-            BLEND_CHANNEL_MODE
+            BLEND_CHANNEL_MODE,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
 
-        let satNorm, lightNorm, shiftNorm, spreadNorm, period;
+        let satNorm, lightNorm, shiftNorm, spreadNorm;
         const CHROMAWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode];
         if (CHROMAWAVE_CYCLE === 0) {
             satNorm = saturation / 100;
@@ -133,16 +144,17 @@ export default {
             u_threshold: {type: "float", value: threshold},
             u_shiftNorm: {type: "float", value: shiftNorm},
             u_spreadNorm: {type: "float", value: spreadNorm},
-            u_period: {type: "float", value: period},
             u_bleed: {type: "float", value: bleed},
             u_satNorm: {type: "float", value: satNorm},
             u_lightNorm: {type: "float", value: lightNorm},
             u_duty: {type: "float", value: dutyCycle},
             u_bandingSteps: {type: "float", value: bandingSteps},
-            u_origin: {type: "vec2", value: [originX * width, originY * height]}
+            u_origin: {type: "vec2", value: [originX * width, originY * height]},
+            u_chromaBoost: {type: "float", value: chromaBoost}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
@@ -173,4 +185,9 @@ export const effectMeta = {
     backend: "gpu",
     animated: true,
     realtimeSafe: true,
+    parameterHints: {
+        threshold: {min: 0, max: 0.6},
+        saturation: {min: 40, max: 100},
+        lightness: {min: 40, max: 60}
+    }
 }

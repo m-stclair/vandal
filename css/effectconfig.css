@@ -61,10 +61,20 @@ input[type="range"]::-moz-range-thumb {
   cursor: grab;
 }
 
-/* TODO: use this */
-input[type="range"].modulated::-webkit-slider-thumb {
-  background: #0af;
-  border-color: #0ff;
+input[type="range"].animating {
+  background: #888;
+  border-color: #bb9900;
+}
+
+input[type="range"].animating::-webkit-slider-thumb {
+  /*background: #222;*/
+  /*border-color: #bb9900;*/
+  /*TODO*: an overly big gun, do this right sometime*/
+  display: none
+}
+
+input[type="number"].animating {
+  border-color: #bb9900;
 }
 
 .toggle {

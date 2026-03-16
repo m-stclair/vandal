@@ -2,17 +2,16 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendModeOpts,
     BlendTargetEnum,
-    BlendTargetOpts,
     ColorspaceEnum,
-    ColorspaceOpts
+    hasChromaBoostImplementation,
 } from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/gridpattern.frag";
+const shaderPath = "gridpattern.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
-    "blend.glsl": "../shaders/includes/blend.glsl"
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -42,6 +41,8 @@ export default {
         channelPhase1: 0,
         channelPhase2: 0,
         color: [1, 1, 1],
+        chromaBoost: 1,
+        lumaAngle: 0
     },
     uiLayout: [
         {
@@ -144,25 +145,7 @@ export default {
             label: "Invert",
             type: "checkbox"
         },
-        {
-            key: 'COLORSPACE',
-            label: 'Blend Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
-        },
-        {key: "blendAmount", label: "Blend", type: "Range", min: 0, max: 1, step: 0.01},
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
-        {
-            key: 'BLEND_CHANNEL_MODE',
-            label: 'Blend Target',
-            type: 'Select',
-            options: BlendTargetOpts
-        },
+        blendControls(),
         {
             key: "color",
             label: "Color",
@@ -203,7 +186,8 @@ export default {
         const {
             lineWidth, phaseX, phaseY, noiseScale, noiseAmount, direction, mode, BLENDMODE, blendAmount,
             COLORSPACE, invert, spacingFactor, skew, BLEND_CHANNEL_MODE, lumaMod, color,
-            lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2
+            lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -229,6 +213,7 @@ export default {
                 ],
                 type: "vec3"
             },
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         // console.log(uniformSpec);
         const defines = {
@@ -240,6 +225,7 @@ export default {
             INVERT: Number(invert),
             ADD_NOISE: Number(noiseAmount > 0),
             MOD_LUMA: Number((lumaMod !== 0) || (lumaThreshold !== 0 && lumaThreshold !== 1)),
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
@@ -258,4 +244,8 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
+    parameterHints: {
+      lineWidth: {min: 15, max: 200},
+      spacingFactor: {min: 1, max: 2}
+    }
 };

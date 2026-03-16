@@ -81,20 +81,6 @@ export async function downsampleImageData(imageData, maxSize = DOWNSAMPLE_LIMIT)
     return ctx.getImageData(0, 0, w, h);
 }
 
-export function showImageData(imageData) {
-    const canvas = document.createElement("canvas");
-    canvas.width = imageData.width;
-    canvas.height = imageData.height;
-    canvas.style.border = "2px solid red"; // for visibility
-    canvas.style.margin = "4px";
-    canvas.style.imageRendering = "pixelated"; // sharp zoom
-    canvas.style.width = "512px"; // optional: upscale for visual clarity
-
-    const ctx = canvas.getContext("2d");
-    ctx.putImageData(imageData, 0, 0);
-    gid("debug").appendChild(canvas); // or some debug div
-}
-
 
 function fallbackUUIDv4() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -153,4 +139,53 @@ export function assertHas(obj, key, context = "") {
     throw new Error(`Expected key "${key}" to exist${summary}, but it was not found.`);
   }
   return obj[key]; // enables chaining
+}
+
+/**
+ * Deep-equals for primitives, Arrays, and TypedArrays.
+ * @param {*} a
+ * @param {*} b
+ * @returns {boolean}
+ */
+export function isEqual(a, b) {
+  // identical or both NaN
+  if (a === b || (Number.isNaN(a) && Number.isNaN(b))) return true;
+  // must be same “class”
+  if (Object.prototype.toString.call(a) !== Object.prototype.toString.call(b)) {
+    return false;
+  }
+  // Arrays
+  if (Array.isArray(a)) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (!isEqual(a[i], b[i])) return false;
+    }
+    return true;
+  }
+  // TypedArrays (excludes DataView)
+  if (ArrayBuffer.isView(a) && !(a instanceof DataView)) {
+    if (a.constructor !== b.constructor || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+  // everything else must have been === already
+  return false;
+}
+
+
+export function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+export function vandalStamp(ext) {
+    const date = new Date();
+    const timestamp = date.toISOString().replace(/[^0-9]/g, '');
+    return `vandal_${timestamp}.${ext}`
 }

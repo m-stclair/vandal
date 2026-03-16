@@ -1,4 +1,4 @@
-import {clearRenderCache, requestRender, resizeAndRedraw, setOriginalImage} from "./state.js";
+import {clearRenderCache, resizeAndRedraw, setOriginalImage} from "./state.js";
 import {gid} from "./utils/helpers.js";
 import {hsv2Rgb} from "./utils/colorutils.js";
 import {placeholderOption} from "./ui.js";
@@ -7,7 +7,7 @@ import {placeholderOption} from "./ui.js";
 function uploadFromCanvas(ocv) {
     ocv.convertToBlob().then(blob => {
         const url = URL.createObjectURL(blob);
-        const img = new Image();
+        const img = new Image(ocv.width, ocv.height);
         img.onload = () => {
             setOriginalImage(img);
             resizeAndRedraw();
@@ -19,16 +19,16 @@ function uploadFromCanvas(ocv) {
     });
 }
 
-export async function drawBlackSquare() {
-    const ocv = new OffscreenCanvas(1024, 1024)
+export async function drawSquare(color='black') {
+    const ocv = new OffscreenCanvas(2048, 2048)
     const ctx = ocv.getContext('2d')
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, 1024, 1024);
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 2048, 2048);
     uploadFromCanvas(ocv);
 }
 
 export async function drawRGBSquares() {
-    const ocv = new OffscreenCanvas(1024, 1024)
+    const ocv = new OffscreenCanvas(2048, 2048)
     const ctx = ocv.getContext('2d')
 
     const squareSize = ocv.width / 4;
@@ -52,7 +52,7 @@ export async function drawRGBSquares() {
 }
 
 export async function drawGrayscaleRamp() {
-    const ocv = new OffscreenCanvas(1024, 1024)
+    const ocv = new OffscreenCanvas(2048, 2048)
     const ctx = ocv.getContext('2d')
 
     const grad = ctx.createLinearGradient(0, 0, ocv.width, 0);
@@ -64,7 +64,7 @@ export async function drawGrayscaleRamp() {
 }
 
 export async function drawHueWheel() {
-    const ocv = new OffscreenCanvas(1024, 1024)
+    const ocv = new OffscreenCanvas(2048, 2048)
     const context = ocv.getContext('2d');
     const radius = ocv.width / 2;
     const centerX = radius;
@@ -100,7 +100,7 @@ export async function drawHueWheel() {
 }
 
 function drawSpiral(numLoops = 5, lineWidth = 2) {
-    const canvas = new OffscreenCanvas(1024, 1024)
+    const canvas = new OffscreenCanvas(2048, 2048)
     const context = canvas.getContext('2d');
 
     const centerX = canvas.width / 2;
@@ -130,7 +130,7 @@ function drawSpiral(numLoops = 5, lineWidth = 2) {
 }
 
 function drawSinusoid(amplitude = 512, frequency = 0.05) {
-    const canvas = new OffscreenCanvas(1024, 1024)
+    const canvas = new OffscreenCanvas(2048, 2048)
     const context = canvas.getContext('2d');
 
     const midY = canvas.height / 2;
@@ -151,10 +151,13 @@ function drawSinusoid(amplitude = 512, frequency = 0.05) {
     uploadFromCanvas(canvas);
 }
 
-async function drawPattern(pattern) {
+export async function drawPattern(pattern) {
     switch (pattern) {
         case "black":
-            await drawBlackSquare();
+            await drawSquare('black');
+            return;
+        case "white":
+            await drawSquare('white');
             return;
         case "rgb":
             await drawRGBSquares();
@@ -176,10 +179,10 @@ async function drawPattern(pattern) {
 }
 
 
-function populateTestSelect() {
+export function populateTestSelect() {
     const testSelect = gid("test-pattern-select");
-    testSelect.appendChild(placeholderOption("-- select pattern --"));
-    ["black", "rgb", "gray", "wheel", "spiral", "sinusoid", "hypertrochoid"].forEach(type => {
+    testSelect.appendChild(placeholderOption("-- pattern --"));
+    ["black", "white", "rgb", "gray", "wheel", "spiral", "sinusoid"].forEach(type => {
         const opt = document.createElement("option");
         opt.value = opt.text = type;
         testSelect.appendChild(opt);

@@ -1,13 +1,16 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {group} from "../utils/ui_configs.js";
+import {blendControls, group} from "../utils/ui_configs.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/perlin_distort.frag"
+const shaderPath = "perlin_distort.frag"
 const includePaths = {
-    'noise.glsl': "../shaders/includes/noise.glsl",
-    'classicnoise2D.glsl': "../shaders/includes/noises/classicnoise2D.glsl",
-    'cellular2D.glsl': "../shaders/includes/noises/cellular2D.glsl",
-    'noisenums.glsl': "../shaders/includes/noises/noisenums.glsl",
+    'blend.glsl': "includes/blend.glsl",
+    'colorconvert.glsl': "includes/colorconvert.glsl",
+    'noise.glsl': "includes/noise.glsl",
+    'classicnoise2D.glsl': "includes/noises/classicnoise2D.glsl",
+    'cellular2D.glsl': "includes/noises/cellular2D.glsl",
+    'noisenums.glsl': "includes/noises/noisenums.glsl",
 };
 const fragSource = loadFragSrcInit(shaderPath, includePaths);
 
@@ -32,12 +35,16 @@ export default {
         phase: [0, 0],
         fuzz: 0,
         noiseMode: "pseudo",
-        clampScale: 1
+        clampScale: 1,
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1,
+        blendAmount: 1,
     },
-
     uiLayout: [
         group("Core Noise Settings", [
-            {key: "seed", label: "Random Seed", type: "range", min: 1, max: 500, step: 1},
+            {key: "seed", label: "Random Seed", type: "modSlider", min: 1, max: 500, step: 1},
             {key: "depth", label: "Noise Depth", type: "modSlider", min: 0, max: 1, step: 0.01},
             {
                 key: "freqX",
@@ -116,14 +123,16 @@ export default {
                 step: 1,
                 showIf: {key: "noiseMode", equals: "periodic"}
             }
-        ], {color: "#202020"}),
+        ]),
+        blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSource);
         const {
             pitchX, pitchY, freqX, freqY, phase,
             seed, depth, boundMode, rate, rateDrive, fuzz,
-            noiseMode, clampScale, reps, fc
+            noiseMode, clampScale, reps, fc, BLENDMODE, COLORSPACE,
+            blendAmount, BLEND_CHANNEL_MODE, chromaBoost
         } = resolveAnimAll(instance.config, t);
 
         const boundCode = {'fract': 0, 'free': 1, 'clamp': 2}[boundMode];
@@ -142,12 +151,18 @@ export default {
             u_fuzz: {value: fuzz / 500, type: "float"},
             u_clampscale: {value: clampScale, type: "float"},
             u_reps: {value: reps, type: "vec2"},
-            u_fc: {value: fc, type: "floatArray"}
+            u_fc: {value: fc, type: "floatArray"},
+            u_blendAmount: {value: blendAmount, type: "float"},
+            u_chromaBoost: {value: chromaBoost, type: "float"},
         };
         const defines = {
             NOISEMODE: modeCode,
-            BOUNDMODE: boundCode
-        }
+            BOUNDMODE: boundCode,
+            BLENDMODE: BLENDMODE,
+            COLORSPACE: COLORSPACE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE)
+        };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSource.load,
@@ -165,4 +180,5 @@ export const effectMeta = {
         + "Creates organic-but-retro warps, curves, and plastic tumbler patterns.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {depth: {min: 0.2, max: 1}, fuzz: {min: 0, max: 0}}
 };

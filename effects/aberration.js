@@ -3,14 +3,14 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/aberration.frag"
+const shaderPath = "aberration.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -24,9 +24,11 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
+        chromaBoost: 1,
         rdx: 0, rdy: 0,
         gdx: 0, gdy: 0,
-        bdx: 0, bdy: 0
+        bdx: 0, bdy: 0,
+
     },
     uiLayout: [
         {type: "modSlider", key: "rdx", label: "Channel 1 X", min: -50, max: 50, step: 1},
@@ -43,7 +45,7 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, rdx, rdy,
-            gdx, gdy, bdx, bdy, BLEND_CHANNEL_MODE
+            gdx, gdy, bdx, bdy, BLEND_CHANNEL_MODE, chromaBoost
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -53,9 +55,11 @@ export default {
             u_shift0: {value: [rdx / width, rdy / height], "type": "vec2"},
             u_shift1: {value: [gdx / width, gdy / height], "type": "vec2"},
             u_shift2: {value: [bdx / width, bdy / height], "type": "vec2"},
+            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }

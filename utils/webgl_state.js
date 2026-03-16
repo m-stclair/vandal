@@ -1,5 +1,5 @@
-// Example GPU effect module using GlitchRenderer pipeline
 import {UniformSetters, checkTexture, checkFrameBuffer} from "./gl.js";
+import {isEqual} from "./helpers.js";
 
 export class webGLState {
     constructor(renderer, name, id) {
@@ -9,7 +9,8 @@ export class webGLState {
         this.name = name;
         this.id = id;
         this.includeMap = null;
-        this.last_defines = null;
+        this.last_defines = {};
+        this.last_uniforms = {};
     }
 
     get gl() {
@@ -32,9 +33,14 @@ export class webGLState {
         if (!this.fragSrc) {
             throw new Error(`${this.name}-${this.id} GL init called with unloaded frag source`)
         }
+        if (this.fragSrc instanceof Promise || Object.values(this.includeMap).some((x) => x instanceof Promise)) {
+            // We're going too fast! Soft fault.
+            return false;
+        }
         this.program = this.buildProgram(defines);
         this.uniforms = this.getUniformLocations(this.program);
         this.initialized = true;
+        return true;
     }
 
     allocateTexture(format, width, height, buffer) {
@@ -51,7 +57,10 @@ export class webGLState {
         if (!defines) return false;
         if (!this.last_defines) return true;
         for (let k of Object.keys(defines)) {
-            if (defines[k] !== this.last_defines[k]) return true;
+            if (isEqual(defines[k], this.last_defines[k])) continue;
+            if (defines[k] === this.last_defines[k]) continue;
+            if (defines[k] instanceof Number && defines[k] === Number.parseInt(this.last_defines[k])) continue;
+            return true;
         }
         return false;
     }
@@ -87,7 +96,17 @@ export class webGLState {
     }
 
     renderGL(inputTex, outputFBO, uniformSpec, defines) {
-        if (!this.initialized) this.init(defines);
+        const undef = (Object.entries(uniformSpec).filter(v => v[1].value === undefined))
+        if (undef.length > 0) {
+            console.warn(
+                `some uniforms undefined in ${this.name}-${this.id}: ${undef.map(o => o)}`
+            )
+        }
+        if (!this.initialized) {
+            // this should always mean the frag source isn't ready yet --
+            // machine gun preset loading or something. soft fault, skip a frame.
+            if(!this.init(defines)) return inputTex;
+        }
         const gl = this.gl;
         // this will result in a double compilation on the very first frame
         // in some cases, which is probably not a huge deal.
@@ -112,16 +131,17 @@ export class webGLState {
         );
         gl.viewport(0, 0, outputFBO.width, outputFBO.height);
         gl.bindVertexArray(this.renderer.vao);
-        checkFrameBuffer(gl);
-        checkTexture(gl, inputTex);
-        checkTexture(gl, outputFBO.texture);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
+        this.last_uniforms = uniformSpec;
     }
+        // checkFrameBuffer(gl);
+        // checkTexture(gl, inputTex);
+        // checkTexture(gl, outputFBO.texture);
 
     uploadUniforms(uniformSpec) {
         const gl = this.gl;
         // Upload other uniforms
-        Object.entries(uniformSpec).forEach(([name, {value, type, width, height}]) => {
+        Object.entries(uniformSpec).forEach(([name, {value, type, width, height, binding}]) => {
             if (!this.uniforms[name]) {
                 // TODO: a hack. ACTIVE_UNIFORMS doesn't detect arrays well?
                 this.uniforms[name] = gl.getUniformLocation(this.program, name);
@@ -130,12 +150,9 @@ export class webGLState {
             if (type === "texture2D") {
                 // TODO: terrible to unconditionally pick texture1!
                 gl.activeTexture(gl.TEXTURE1);
-                if (!gl.isTexture(value)) {
+                if (value instanceof Array) {
                     const value = gl.createTexture()
                     this.allocateTexture(this.format, width, height, value);
-                }
-                if (!gl.isTexture(value)) {
-                    throw new Error("bad sideloaded texture")
                 }
                 gl.bindTexture(gl.TEXTURE_2D, value);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -143,10 +160,13 @@ export class webGLState {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
                 UniformSetters[type](gl, loc, 1);
-            } else if (type === "UBO") {
+                return;
+            }
+
+            if (isEqual(this.last_uniforms[name], value)) return;
+            if (type === "UBO") {
                 const blockIndex = gl.getUniformBlockIndex(this.program, name);
-                // TODO: as above, probably terrible
-                const blockBinding = 0;
+                const blockBinding = binding ?? 0;
                 gl.uniformBlockBinding(this.program, blockIndex, blockBinding);
                 const ubo = gl.createBuffer();
                 gl.bindBufferBase(gl.UNIFORM_BUFFER, blockBinding, ubo);
@@ -154,6 +174,11 @@ export class webGLState {
             } else {
                 UniformSetters[type](gl, loc, value);
             }
+            // const err = gl.getError();
+            // if (err !== gl.NO_ERROR) {
+            //     console.warn("Bad uniform set:", err, name);
+            // }
+
         });
     }
 

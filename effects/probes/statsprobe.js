@@ -1,14 +1,14 @@
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {subsampleTexture} from "./probeutils.js";
 
-const shaderPath = "../shaders/statsprobe.frag"
-const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
+const shaderPath = "statsprobe.frag"
+const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 export const statsProbe = {
     config: {
-        resolution: 128,
-        numBins: 256,
+        resolution: 92,
+        numBins: 184,
     },
     analyze(
         probe,
@@ -65,7 +65,7 @@ export const statsProbe = {
                 cdfs[c][i] = cumsums[c] / numPixels;
             }
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, probe.glState.renderer.dummyBuffer);
         gl.deleteTexture(tempBuffer.texture);
         gl.deleteFramebuffer(tempBuffer.fbo);
         const boundsOut = []
@@ -79,7 +79,10 @@ export const statsProbe = {
                 lowIx / scale + vMin, highIx / scale + vMin
             ]);
         }
-        return boundsOut;
+        return {
+            channelBounds: boundsOut,
+            histograms: hists
+        };
     },
     initHook: fragSources.load
 }

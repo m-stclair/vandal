@@ -6,8 +6,11 @@ import {
     deleteUserPreset,
     updateAppPresets,
 } from "./utils/presets.js";
-// pane dragging logic
+import {populateTestSelect} from "./test_patterns.js";
+import {randomizeEffectStack} from "./utils/randomizer.js";
 
+
+// pane dragging logic
 const dragBar = document.getElementById("dragBar");
 const leftPane = document.getElementById("leftPane");
 const layout = document.getElementById("mainLayout");
@@ -56,10 +59,6 @@ export function moveEffectInStack(effectStack, from, to) {
     effectStack.splice(to, 0, moved);
 }
 
-// shared rendering objects
-export const canvas = document.getElementById('glitchCanvas');
-export const defaultCtx = canvas.getContext("2d", {willReadFrequently: true});
-
 
 // top-level buttons
 const uploadButton = gid('upload');
@@ -74,7 +73,17 @@ export function setupStaticButtons(
     handleUpload, handlePDRUpload, addSelectedEffect, saveState,
     loadState, registry, resetStack, requestRender,
     requestUIDraw
+    handleUpload,
+    addSelectedEffect,
+    saveState,
+    loadState,
+    registry,
+    resetStack,
+    requestRender,
+    requestUIDraw,
+    setFreezeAnimationButtonFlag
 ) {
+    const uploadButton = gid('upload');
     uploadButton.addEventListener('change', handleUpload);
     uploadPDRButton.addEventListener('change', async (e) => await handlePDRUpload(e));
     saveBtn.addEventListener("click", () => {
@@ -83,16 +92,19 @@ export function setupStaticButtons(
             console.log("Stack JSON copied to clipboard")
         );
     });
-    loadBtn.addEventListener("click", () => {
-        loadState(textarea.value, registry);
-        requestUIDraw();
-        requestRender();
-    });
     clearBtn.addEventListener("upclick", () => {
         resetStack();
         requestUIDraw();
         requestRender();
     });
+    const freezeBtn = gid("freezeAnimation")
+    freezeBtn.addEventListener("click",
+        () => {
+            freezeBtn.classList.toggle("frozen");
+            setFreezeAnimationButtonFlag(freezeBtn.classList.contains("frozen"))
+        }
+    )
+    gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
 }
 
 
@@ -164,7 +176,9 @@ export function initEffectBrowser(effectRegistry) {
 // window setup (currently just resize trigger)
 export function setupWindow(resizeAndRedraw) {
     window.addEventListener('resize', resizeAndRedraw);
+    window.addEventListener('orientationchange', resizeAndRedraw);
 }
+
 
 export function placeholderOption(text = "select") {
     const nullOpt = document.createElement('option');
@@ -181,7 +195,7 @@ function updatePresetSelect() {
     const select = document.getElementById('presetSelect');
     select.innerHTML = '';
 
-    select.appendChild(placeholderOption("-- select preset --"));
+    select.appendChild(placeholderOption("--preset--"));
     listAppPresets().sort().forEach((name) => {
         const opt = document.createElement('option');
         opt.textContent = name;
@@ -190,17 +204,21 @@ function updatePresetSelect() {
 }
 
 export function setupPresetUI(
-    getState, loadState, requestRender, requestUIDraw, registry
+    getState, loadState, resetStack, requestRender, requestUIDraw, registry,
+    lockRender, unlockRender
 ) {
 
-    document.getElementById('presetLoad').onclick = async () => {
+    document.getElementById('presetSelect').addEventListener("change", async () => {
+        lockRender();
+        resetStack();
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
             await loadState(getAppPresetView(name), registry, false);
         }
         requestUIDraw();
         requestRender();
-    };
+        unlockRender();
+    });
 
     document.getElementById('presetSave').onclick = () => {
         const name = prompt('Preset name?');
@@ -221,14 +239,12 @@ export function setupPresetUI(
 }
 
 export function setupExportImage(exportImage) {
-    document.getElementById('exportImage').onclick = () => {
-        exportImage(document.getElementById("exportImageResolution").value);
-    };
+    document.getElementById('exportImage').onclick = exportImage;
 }
 
 export function setupVideoCapture(startCapture, stopCapture) {
     document.getElementById('startCapture').onclick = () => startCapture();
-    document.getElementById('stopCaptureOverlay').onclick = stopCapture();
+    document.getElementById('stopCaptureOverlay').onclick = () => stopCapture();
 }
 
 
@@ -250,6 +266,68 @@ export function setupVideoExportModal() {
             modal.style.display = "none";
         }
     });
-
-
 }
+
+const dropZone = document.getElementById('drop-zone-fullscreen');
+
+// const fileInput = document.getElementById('file-input');
+
+export function setupDragAndDrop(handleUpload) {
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files)
+            .filter(f => f.type.startsWith('image/'));
+        handleUpload(files[0]);
+    });
+}
+
+function isProbablyMobile() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobileUA = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+    const isSmallScreen = window.innerWidth < 768;
+    return isMobileUA || (isTouchDevice && isSmallScreen);
+}
+
+export function pruneForMobile(exportImage, loadState, registry,
+                               requestUIDraw, requestRender, startCapture) {
+    if (!isProbablyMobile()) return;
+    document.body.classList.add('mobile-mode');
+
+    gid("rightPane").style.display = 'none';
+    gid("leftPane").style.maxWidth = '100%';
+    gid("leftPane").style.flexGrow = 1;
+    gid("leftPane").style.flexShrink = 0;
+    console.log('beep');
+    const topBar = gid("topBar");
+    topBar.innerHTML = `
+        <button id="startCapture" title="Download WebM">🎥</button>
+        <button id="exportImage" title="Download PNG">📷</button>
+        <select id="presetSelect"></select>
+        <select id="test-pattern-select"></select>
+        <button id="randomStack" title="Randomize">🔀</button>
+        <label for="upload" title="Choose File">⬆</label>
+      `;
+    updatePresetSelect();
+    document.getElementById('presetSelect').addEventListener("change", async () => {
+        const name = document.getElementById('presetSelect').value;
+        if (listAppPresets().includes(name)) {
+            await loadState(getAppPresetView(name), registry, false);
+        }
+        requestUIDraw();
+        requestRender();
+    });
+    document.getElementById('exportImage').onclick = () => {
+        exportImage("full");
+    };
+    document.getElementById('startCapture').onclick = () => startCapture();
+    gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
+    populateTestSelect();
+    gid("dragBar").remove();
+    topBar.classList.add('mobile');
+    gid("mainLayout").style.maxHeight = "80vh";
+    gid("mobile-topbar-target").appendChild(topBar);
+}
+

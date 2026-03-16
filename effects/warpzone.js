@@ -3,18 +3,18 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation,
     ZoneShapeEnum,
 
 } from "../utils/glsl_enums.js";
 import {blendControls, group, zoneControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/warpzone.glsl";
+const shaderPath = "warpzone.glsl";
 const includePaths = {
-    "zones.glsl": "../shaders/includes/zones.glsl",
-    "psrdnoise2.glsl": "../shaders/includes/noises/psrdnoise2.glsl",
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
-    "blend.glsl": "../shaders/includes/blend.glsl"
+    "zones.glsl": "includes/zones.glsl",
+    "psrdnoise2.glsl": "includes/noises/psrdnoise2.glsl",
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -45,7 +45,7 @@ export default {
         WARPDRIVE_CHANNEL: 2,
         zoneAngle: 0,
         warpAngle: 0,
-
+        chromaBoost: 1
     },
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
@@ -55,7 +55,7 @@ export default {
             zoneSoftness, zoneEllipseN, paramA, WARPMODE,
             warpStrength, WARPDRIVE_CHANNEL, WARPDRIVE_COLORSPACE,
             WARPDRIVE_MODE, PREBLEND_WARP_CHANNEL, paramB, warpAngle,
-            zoneAngle
+            zoneAngle, chromaBoost
         } = resolveAnimAll(instance.config, t);
         let xMax = zoneCX + zoneSX / 2;
         let yMax = zoneCY + zoneSY / 2;
@@ -73,6 +73,7 @@ export default {
             u_warpStrength: {value: warpStrength, type: "float"},
             u_warpAngle: {value: warpAngle, type: "float"},
             u_zoneAngle: {value: zoneAngle, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const warpCode = {
             "shift": 0, "sine": 1, "noise": 2, "lens": 3
@@ -80,6 +81,7 @@ export default {
 
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ZONESHAPE: ZONESHAPE,
@@ -197,4 +199,9 @@ export const effectMeta = {
     description: "Applies a spatially-bounded warping mask.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        warpStrength: {min: 25, max: 100},
+        zoneSoftness: {min: 0, max: 0.25},
+        blendAmount: {min: 0.6, max: 1}
+    }
 };

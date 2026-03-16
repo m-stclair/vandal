@@ -1,10 +1,10 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {ColorspaceOpts} from "../utils/glsl_enums.js";
+import {ColorspaceEnum, ColorspaceOpts} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/invert.frag";
+const shaderPath = "invert.frag";
 const includePaths = {
-    "colorconvert.glsl": "../shaders/includes/colorconvert.glsl",
+    "colorconvert.glsl": "includes/colorconvert.glsl",
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -17,20 +17,20 @@ export default {
         invert0: true,
         invert1: true,
         invert2: true,
-        COLORSPACE: 0
+        COLORSPACE: ColorspaceEnum.RGB
     },
 
     uiLayout: [
         { type: "checkbox", key: "invert0", label: "Channel 1" },
         { type: "checkbox", key: "invert1", label: "Channel 2" },
         { type: "checkbox", key: "invert2", label: "Channel 3" },
-        { type: "select", key: "colorSpace", label: "Colorspace", options: ColorspaceOpts },
+        { type: "select", key: "COLORSPACE", label: "Colorspace", options: ColorspaceOpts },
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources)
         const {
-            colorSpace,  invert0, invert1, invert2
+            COLORSPACE,  invert0, invert1, invert2
         } = resolveAnimAll(instance.config, t);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
@@ -38,13 +38,14 @@ export default {
             u_invert1: {value: Number(invert1), type: "float"},
             u_invert2: {value: Number(invert2), type: "float"}
         };
-        console.log(uniformSpec);
-        const defines = { COLORSPACE: Number.parseInt(colorSpace) };
+        const defines = { COLORSPACE: COLORSPACE };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: fragSources.load,
     cleanupHook(instance) {
-        instance.glState.renderer.deleteEffectFBO(instance.id);
+        if (instance.glState?.renderer) {
+            instance.glState.renderer.deleteEffectFBO(instance.id);
+        }
     },
     glState: null,
     isGPU: true
@@ -58,4 +59,8 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: false,
   realtimeSafe: true,
+    // TODO: implement
+    parameterHints: {
+      notAll0: ["invert0", "invert1", "invert2"]
+    }
 };

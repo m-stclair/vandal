@@ -127,7 +127,7 @@ export interface EffectMeta {
   tags: string[];
   description: string;
   backend: "cpu" | "webgl" | "hybrid";
-  canAnimate: boolean; // Supports animation (e.g., modSliders exist)
+  canAnimate: boolean;
   animatedByDefault?: boolean; // Default config has non-zero mod depth or animation hook
   realtimeSafe: boolean;
   // Optional extensions

@@ -3,16 +3,16 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum,
+    ColorspaceEnum, hasChromaBoostImplementation
 } from "../utils/glsl_enums.js";
 import {generateKernel, KernelTypeEnum} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/bloom.glsl"
+const shaderPath = "bloom.glsl"
 const includePaths = {
-    'kernel_utils.glsl': '../shaders/includes/kernel_utils.glsl',
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'kernel_utils.glsl': 'includes/kernel_utils.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -22,7 +22,7 @@ export default {
     name: "Bloom",
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
-        BLENDTARGET: BlendTargetEnum.ALL,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 1,
         bloomThreshold: 0.4,
@@ -33,7 +33,8 @@ export default {
         kernelSoftness: 10,
         BLOOM_MODE: 0,
         BLOOM_CHROMA_TAIL: false,
-        chromaOffset: [1.1, 1.0, 0.9]
+        chromaOffset: [1.1, 1.0, 0.9],
+        chromaBoost: 1
     },
     uiLayout: [
         {
@@ -96,14 +97,15 @@ export default {
         blendControls()
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
-        initGLEffect(instance, fragSources)
+        initGLEffect(instance, fragSources);
         let {
-            BLENDMODE, COLORSPACE, blendAmount, BLENDTARGET, bloomStrength,
+            BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, bloomStrength,
             bloomThreshold, bloomSoftness, BLOOM_MODE, kernelRadius,
             chromaOffset, BLOOM_CHROMA_TAIL, kernelName, kernelSoftness,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
         const kernel = generateKernel(kernelName, kernelRadius, kernelSoftness);
-        console.log(kernel);
+        // console.log(kernel);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},
@@ -112,11 +114,13 @@ export default {
             u_bloomThreshold: {value: bloomThreshold, type: "float"},
             u_kernel: {value: kernel, type: "floatArray"},
             u_chromaOffset: {value: chromaOffset, type: "vec3"},
+            u_chromaBoost: {type: "float", value: chromaBoost}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            BLEND_CHANNEL_MODE: BLENDTARGET,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             KERNEL_SIZE: kernel.length,
             BLOOM_MODE: BLOOM_MODE,
             BLOOM_CHROMA_TAIL: Number(BLOOM_CHROMA_TAIL)
@@ -137,4 +141,5 @@ export const effectMeta = {
     description: "Bloom / flare effect offering a variety of selectable modes and shapes",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {bloomThreshold: {min: 0, max: 0.65}}
 };

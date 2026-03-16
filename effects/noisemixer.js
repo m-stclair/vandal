@@ -3,22 +3,22 @@ import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendTargetEnum, ColorspaceEnum, GateModeEnum, GateModeOpts,
+    BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation, GateModeEnum, GateModeOpts,
     ZoneShapeEnum,
 } from "../utils/glsl_enums.js";
 import {blendControls, zoneControls} from "../utils/ui_configs.js";
 
-const shaderPath = "../shaders/noisemixer.frag"
+const shaderPath = "noisemixer.frag"
 const includePaths = {
-    'zones.glsl': '../shaders/includes/zones.glsl',
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
-    'noise.glsl': '../shaders/includes/noise.glsl',
-    'psrdnoise2.glsl': '../shaders/includes/noises/psrdnoise2.glsl',
-    "classicnoise2D.glsl": '../shaders/includes/noises/classicnoise2D.glsl',
-    "cellular2D.glsl": '../shaders/includes/noises/cellular2D.glsl',
-    "noise2D.glsl": '../shaders/includes/noises/noise2D.glsl',
-    'noisenums.glsl': "../shaders/includes/noises/noisenums.glsl",
+    'zones.glsl': 'includes/zones.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
+    'noise.glsl': 'includes/noise.glsl',
+    'psrdnoise2.glsl': 'includes/noises/psrdnoise2.glsl',
+    "classicnoise2D.glsl": 'includes/noises/classicnoise2D.glsl',
+    "cellular2D.glsl": 'includes/noises/cellular2D.glsl',
+    "noise2D.glsl": 'includes/noises/noise2D.glsl',
+    'noisenums.glsl': "includes/noises/noisenums.glsl",
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -34,6 +34,7 @@ export default {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
+        chromaBoost: 1,
         components: [0.5, 0, 0, 0, 0, 0.5, 0],
         blendAmount: 0.5,
         colormap: "none",
@@ -53,7 +54,9 @@ export default {
         zoneSoftness: 0.1,
         zoneAngle: 0,
         APPLY_MASK: false,
-        burstModType: "simplex"
+        burstModType: "simplex",
+        shiftX: 0,
+        shiftY: 0
     },
     uiLayout: [
         {
@@ -184,7 +187,8 @@ export default {
             threshold, cutoff, gate, burstThreshold, burstFreq,
             ZONESHAPE, zoneCX, zoneSX, zoneCY, zoneSY,
             zoneSoftness, zoneEllipseN, zoneAngle, APPLY_MASK,
-            BLEND_CHANNEL_MODE, burstTheta, burstDTheta, burstModType
+            BLEND_CHANNEL_MODE, burstTheta, burstDTheta, burstModType,
+            chromaBoost
         } = resolveAnimAll(instance.config, t);
         // TODO: this is wrong
         if (!components.some((c) => c)) return inputTex;
@@ -213,6 +217,7 @@ export default {
             u_burstThreshold: {type: "float", value: burstThreshold},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmountC, type: "float"},
+            u_chromaBoost: {type: "float", value: chromaBoost},
             u_zoneSoftness: {value: zoneSoftness, type: "float"},
             u_zoneEllipseN: {value: zoneEllipseN, type: "float"},
             u_zoneMin: {value: [xMin, yMin], type: "vec2"},
@@ -225,6 +230,7 @@ export default {
             BLENDMODE: BLENDMODE,
             USE_CMAP: colormap === "none" ? 0 : 1,
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             GATE_MODE: gate,
             USE_WINDOW: Number(cutoff < 1),
             ZONESHAPE: ZONESHAPE,
@@ -244,7 +250,9 @@ export default {
     },
     initHook: fragSources.load,
     cleanupHook(instance) {
-        instance.glState.renderer.deleteEffectFBO(instance.id);
+        if (instance.glState?.renderer) {
+            instance.glState.renderer.deleteEffectFBO(instance.id);
+        }
     },
     glState: null,
     isGPU: true
@@ -258,4 +266,11 @@ export const effectMeta = {
         "generator.",
     canAnimate: true,
     realtimeSafe: true,
+    parameterHints: {
+        threshold: {min: 0, max: 0.45},
+        cutoff: {min: 0.55, max: 1},
+        zoneSX: {min: 0.4, max: 1},
+        zoneSY: {min: 0.4, max: 1},
+        zoneSoftness: {min: 0, max: 0.5}
+    }
 };

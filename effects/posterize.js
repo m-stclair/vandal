@@ -1,19 +1,19 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
-    BlendModeEnum,
-    BlendModeOpts, BlendTargetEnum,
-    BlendTargetOpts,
-    ColorspaceEnum,
-    ColorspaceOpts, PosterizeEnum,
+    BlendModeEnum, BlendModeOpts,
+    BlendTargetEnum,
+    ColorspaceEnum, ColorspaceOpts,
+    hasChromaBoostImplementation,
+    PosterizeEnum,
     PosterizeModeOpts
 } from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/posterizer.frag"
+const shaderPath = "posterizer.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
-    'posterize.glsl': '../shaders/includes/posterize.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
+    'posterize.glsl': 'includes/posterize.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -32,14 +32,14 @@ export default {
         mod: 0.5,
         c1: true,
         c2: true,
-        c3: true
+        c3: true,
     },
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, mod, COLORSPACE, mode, levels,
+            blendAmount, mod, COLORSPACE, mode, levels, chromaBoost,
             c1, c2, c3, BLENDMODE, BLEND_CHANNEL_MODE} = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -49,13 +49,15 @@ export default {
             u_logbase: {type: "float", value: mod * 4 + 1},
             u_bias: {type: "float", value: mod / 2 + 0.1},
             u_bayer_resolution: {type: "float", value: mod * mod},
+            u_chromaBoost: {type: "float", value: 1},
+            u_levels: {type: "int", value: levels}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
+            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             POSTERIZE_MODE: Number.parseInt(mode),
-            POSTERIZE_LEVELS: levels,
             POSTERIZE_C1: Number(c1),
             POSTERIZE_C2: Number(c2),
             POSTERIZE_C3: Number(c3),
@@ -65,30 +67,22 @@ export default {
 
     uiLayout: [
         {key: "levels", label: "Levels", type: "modSlider", min: 2, max: 32, step: 1},
-        {key: "blendAmount", label: "Blend Amount", type: "modSlider", min: 0, max: 1, step: 0.01},
         {
             key: 'mode',
             label: 'Mode',
             type: 'Select',
             options: PosterizeModeOpts
         },
-        {key: "mod", label: "Modulator", type: "modSlider", min: 0, max: 1, step: 0.01},
         {
-            key: 'COLORSPACE',
-            label: 'Colorspace',
-            type: 'Select',
-            options: ColorspaceOpts
+            key: "mod", label: "Param", type: "modSlider", min: 0, max: 1, step: 0.01,
+            showIf: {"key": "mode", "notEquals": PosterizeEnum.UNIFORM}
         },
-        {
-            key: 'BLENDMODE',
-            label: 'Blend Mode',
-            type: 'Select',
-            options: BlendModeOpts
-        },
+        {key: 'COLORSPACE', label: 'Colorspace', type: 'Select', options: ColorspaceOpts},
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},
-        {key: "c3", label: "Channel 2", type: "checkbox"},
-
+        {key: "c3", label: "Channel 3", type: "checkbox"},
+        {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
+        {key: 'BLENDMODE', label: 'Blend Mode', type: 'Select', options: BlendModeOpts},
     ],
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
@@ -105,4 +99,8 @@ export const effectMeta = {
                 "quantization modes and colorspaces.",
   canAnimate: true,
   realtimeSafe: true,
+  parameterHints: {
+      blendAmount: {min: 0.75, max: 1},
+      POSTERIZE_MODE: {weights: {[PosterizeEnum.NONE]: 0}}
+  }
 };

@@ -79,6 +79,9 @@ function buildWidget(instance, uiSpec, fxUIState, drawTriggers) {
         case 'vector':
             widget = widgets.makeVectorSlider(instance.id, config, uiSpec, fxUIState);
             break;
+        case 'button':
+            widget = widgets.makeButton(instance.id, config, instance, uiSpec, fxUIState);
+            break;
         default:
             throw new Error(`Unknown widget type: ${type}`);
     }
@@ -329,6 +332,17 @@ function createControlGroup(fx, effectStack, uiState, i) {
         requestRender();
     });
 
+    const resetBtn = document.createElement("button");
+    resetBtn.textContent = "⟲";
+    resetBtn.title = "Reset effect";
+    resetBtn.className = "effectButton";
+    resetBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        fx.config = structuredClone(effectRegistry[fx.name].defaultConfig);
+        requestUIDraw();
+        requestRender();
+    });
+
     const delBtn = document.createElement('button');
     delBtn.textContent = '×';
     delBtn.className = "effectButton";
@@ -345,7 +359,7 @@ function createControlGroup(fx, effectStack, uiState, i) {
 
     const controlGroup = document.createElement("div");
     controlGroup.className = "controlGroup";
-    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, delBtn);
+    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, resetBtn, delBtn);
     return controlGroup;
 }
 

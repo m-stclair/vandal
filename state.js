@@ -1,8 +1,79 @@
-import {canvas, defaultCtx} from "./ui.js";
 import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
 import {webGLState} from "./utils/webgl_state.js";
 import {GlitchRenderer} from "./utils/glitch_renderer.js"
+
+
+export const Dirty = {image: true, ui: true}
+export const Lock = {image: false, ui: false}
+export const requestRender = () => Dirty.image = true;
+export const requestUIDraw = () => Dirty.ui = true;
+export const requestRedraw = () => {
+    Dirty.image = true;
+    renderer.inputDirty = true;
+}
+
+// shared rendering objects
+export const canvas = document.getElementById('glitchCanvas');
+canvas.style.willChange = 'transform';
+export const defaultCtx = canvas.getContext("webgl2", { alpha: false, antialias: true });
+
+export const renderer = new GlitchRenderer(defaultCtx);
+export function clearRenderCache() {
+    renderer.renderCache.clear();
+}
+
+canvas.addEventListener(
+    "wheel", (e) => {
+        e.preventDefault();
+        renderer.setZoom(e.deltaY);
+        requestRender();
+    },
+    { passive: false }
+)
+
+class PanInterface {
+    constructor(pannable) {
+        this.pannable = pannable;
+        this.lastPointerX = null;
+        this.lastPointerY = null;
+        this.isDragging = false;
+    }
+
+    onPointerDown = (e) => {
+        this.isDragging = true;
+        this.lastPointerX = e.clientX;
+        this.lastPointerY = e.clientY;
+        e.target.setPointerCapture?.(e.pointerId);
+    };
+
+    onPointerMove = (e) => {
+        if (!this.isDragging) return;
+
+        const dx = e.clientX - this.lastPointerX;
+        const dy = e.clientY - this.lastPointerY;
+
+        this.lastPointerX = e.clientX;
+        this.lastPointerY = e.clientY;
+
+        this.pannable.panByPixels(dx, -dy);
+
+        requestRender();
+    };
+
+    onPointerUp = (e) => {
+        this.isDragging = false;
+        e.target.releasePointerCapture?.(e.pointerId);
+    };
+}
+
+const panInterface = new PanInterface(renderer);
+
+canvas.addEventListener("pointerdown", panInterface.onPointerDown);
+canvas.addEventListener("pointermove", panInterface.onPointerMove);
+canvas.addEventListener("pointerup", panInterface.onPointerUp);
+canvas.addEventListener("pointercancel", panInterface.onPointerUp);
+
 
 let effectStack = [];
 
@@ -10,9 +81,6 @@ let selectedEffectId = "none";
 
 export function getSelectedEffectId() {
     return selectedEffectId;
-}
-export function setSelectedEffectId(id) {
-    selectedEffectId = id;
 }
 
 export function toggleEffectSelection(fx) {
@@ -53,6 +121,17 @@ export function filterEffectStack(func) {
     effectStack = effectStack.filter(func);
 }
 
+let freezeAnimationFlag = false;
+let freezeAnimationButtonFlag = false;
+export const getAnimationFrozen = () => {
+    return freezeAnimationFlag || freezeAnimationButtonFlag;
+}
+export const setFreezeAnimationFlag = (v) => freezeAnimationFlag = v;
+export const setFreezeAnimationButtonFlag = (v) => {
+    freezeAnimationButtonFlag = v;
+}
+
+
 export function flushEffectStack() {
     effectStack.length = 0;
 }
@@ -66,43 +145,6 @@ export function getEffectStack() {
     return effectStack;
 }
 
-export const renderCache = new Map();
-
-export function clearRenderCache() {
-    renderCache.clear();
-}
-
-export function renderCacheSet(k, v) {
-    renderCache[k] = v;
-}
-
-export function renderCacheGet(k) {
-    return renderCache[k];
-}
-
-// currently-rendered imageData in canvas
-let renderedImage = null;
-
-export function setRenderedImage(img, context=defaultCtx) {
-    renderedImage = img;
-    context.putImageData(img, 0, 0);
-}
-
-export function getRenderedImage() {
-    return renderedImage;
-}
-
-// resized image with no effects applied
-let resizedOriginalImage = null;
-
-export function setResizedOriginalImage(img) {
-    resizedOriginalImage = img;
-    clearNormedImage();
-}
-
-export function getResizedOriginalImage() {
-    return resizedOriginalImage;
-}
 
 // uploaded image as HTMLImageElement, used to generate resized
 // raster in canvas before applying effects
@@ -110,51 +152,17 @@ let originalImage = null;
 
 export function setOriginalImage(img) {
     originalImage = img;
+    renderer.setCachedImage(img);
 }
 
 export function getOriginalImage() {
     return originalImage;
 }
 
-const renderCanvas = document.createElement("canvas");
-export const renderer = new GlitchRenderer(renderCanvas);
-
-let normedImage = null;
-let normLoadID = '';
-
-export function getNormLoadID() {
-    return normLoadID;
-}
-
-export function rerollNormLoadID() {
-    normLoadID = uuidv4();
-}
-
-export function getNormedImage() {
-    if (!resizedOriginalImage) return null;
-    if (normedImage === null) {
-        normedImage = normalizeImageData(resizedOriginalImage);
-        normLoadID = uuidv4();
-        return normedImage;
-    } else return normedImage;
-}
-
-export function clearNormedImage() {
-    normedImage = null;
-}
 
 // canvas property modification
-
 export function setFilters(filters, cvs=canvas) {
     cvs.style.filter = filters;
-}
-
-// config UI clearing
-
-const configContainer = gid("configForm");
-
-export function clearConfigUI() {
-    configContainer.innerHTML = '';
 }
 
 export function makeEffectInstance(mod) {
@@ -173,7 +181,7 @@ export function makeEffectInstance(mod) {
         isGPU: mod.isGPU
     }
     if (mod.isGPU) {
-        instance.glState = new webGLState(renderer, mod.fragURL)
+        instance.glState = new webGLState(renderer, mod.name, instance.id)
     }
     const hook = mod.initHook?.(instance, renderer);
     instance.ready = hook?.then ? hook : Promise.resolve();
@@ -200,7 +208,6 @@ export async function loadState(preset, registry, fromJSON=true) {
     } else {
         preset = preset.config;
     }
-    flushEffectStack();
     for (const { name, config } of preset) {
         const mod = registry[name];
         if (!mod) {
@@ -208,16 +215,12 @@ export async function loadState(preset, registry, fromJSON=true) {
             continue;
         }
         const instance = makeEffectInstance(mod);
-        await instance.ready;
         instance.config = { ...mod.defaultConfig, ...config };
+        await instance.ready;
         addEffectToStack(instance);
     }
 }
 
-export const Dirty = {image: true, ui: true}
-export const Lock = {image: false, ui: false}
-export const requestRender = () => Dirty.image = true;
-export const requestUIDraw = () => Dirty.ui = true;
 
 function DefaultDict(defaultFactory) {
   return new Proxy({}, {
@@ -243,22 +246,38 @@ export const uiState = NestingDict();
 export function resizeAndRedraw() {
     const originalImage = getOriginalImage();
     if (!originalImage) return;
-    const leftPane = document.getElementById('leftPane');
-    const width = leftPane.clientWidth - 20;  // subtract some padding
-    const height = window.innerHeight * 0.9;
-    let scale = Math.min(
-        width / originalImage.width, height / originalImage.height
-    );
+    Lock.image = true;
+    try {
+        const leftPane = document.getElementById('leftPane');
+        const width = leftPane.clientWidth - 20;
+        const height = window.innerHeight * 0.9;
+        canvas.width = width;
+        canvas.height = height;
+        renderer.inputDirty = true;
+        requestRender();
+    } finally {
+        Lock.image = false;
+    }
+}
 
-    const w = Math.floor(originalImage.width * scale);
-    const h = Math.floor(originalImage.height * scale);
 
-    canvas.width = w;
-    canvas.height = h;
+// TODO: big gun type situation
+export function resetStack() {
+    renderer.reset_pipeline();
+    forEachEffect(
+        (fx) => {
+            if (fx.cleanupHook) {
+                fx.cleanupHook(fx);
+            }
+        })
+        flushEffectStack();
+        requestUIDraw();
+}
 
-    defaultCtx.drawImage(originalImage, 0, 0, w, h);
-    setRenderedImage(defaultCtx.getImageData(0, 0, w, h));
-    setResizedOriginalImage(defaultCtx.getImageData(0, 0, w, h));
-    clearNormedImage();
-    requestRender();
+export function lockRender() {
+    renderer.lock();
+}
+
+export function unlockRender() {
+    renderer.unlock();
 }

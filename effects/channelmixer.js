@@ -1,11 +1,11 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {ColorspaceEnum, ColorspaceOpts} from "../utils/glsl_enums.js";
+import {ColorspaceEnum, hasChromaBoostImplementation, ColorspaceOpts} from "../utils/glsl_enums.js";
 
-const shaderPath = "../shaders/channelmixer.frag"
+const shaderPath = "channelmixer.frag"
 const includePaths = {
-    'colorconvert.glsl': '../shaders/includes/colorconvert.glsl',
-    'blend.glsl': '../shaders/includes/blend.glsl',
+    'colorconvert.glsl': 'includes/colorconvert.glsl',
+    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -20,7 +20,7 @@ export default {
         mix2: [0, 1, 0],
         mix3: [0, 0, 1],
         offset: [0, 0, 0],
-        colorSpace: ColorspaceEnum.Lab
+        COLORSPACE: ColorspaceEnum.Lab
     },
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -37,7 +37,7 @@ export default {
             u_offset: {type: "vec3", value: resolved.offset},
         };
         const defines = {
-            COLORSPACE: Number.parseInt(resolved.colorSpace)
+            COLORSPACE: Number.parseInt(resolved.COLORSPACE)
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },
@@ -74,13 +74,13 @@ export default {
             key: "offset",
             label: "Offset",
             type: "vector",
-            subLabels: ["C1", "C2", "Ce"],
+            subLabels: ["C1", "C2", "C3"],
             min: -1,
             max: 1,
             step: 0.01,
         },
         {
-            key: 'colorSpace',
+            key: 'COLORSPACE',
             label: 'Colorspace',
             type: 'Select',
             options: ColorspaceOpts
@@ -102,4 +102,6 @@ export const effectMeta = {
       "within, not across, colorspaces.",
   canAnimate: false,
   realtimeSafe: true,
+    // TODO: would prefer otherwise, but hard to hint good mix
+  notInRandom: true
 };

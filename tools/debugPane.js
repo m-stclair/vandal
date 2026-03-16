@@ -1,7 +1,7 @@
 (function () {
     const MAX_LOGS = 200;
     const LOG_LEVELS = {log: 'lime', warn: 'orange', error: 'red'};
-    let visible = true;
+    let visible = false;
 
     const root = document.getElementById('debug-pane-root');
     const style = document.createElement('style');

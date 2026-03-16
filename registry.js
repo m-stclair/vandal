@@ -1,6 +1,7 @@
 // effects/index.js
 
 const effectFiles = [
+    'apply_lut.js',
     'chromawave.js',
     'pixelsort.js',
     'invert.js',
@@ -11,19 +12,20 @@ const effectFiles = [
     'wave.js',
     'scanlines.js',
     'tile_desync.js',
-    'banded_flip.js',
+    'mirrorband.js',
     'colorshred.js',
-    'jointshred.js',
+    // 'jointshred.js',
     'edgetrace.js',
     'morphops_svg.js',
     // 'hillshade.js',
     'pixelate.js',
     // "pixelate_old.js",
-    "warpnoise_svg.js",
+    // "warpnoise_svg.js",
     // "palette_debug.js",
-    "reinhardTransfer.js",
+    // "reinhardTransfer.js",
     "contour_synth.js",
-    "fir.js",
+    "jztest.js",
+    // "fir.js",
     "delayline.js",
     "affine_transform.js",
     "channelmixer.js",
@@ -39,9 +41,12 @@ const effectFiles = [
     "warpzone.js",
     "bloom.js",
     "kernel2d.js",
-    "pseudosort.js",
+    "flowParentheses.js",
     "badTV.js",
-    "palette_synth.js"
+    "palette_synth.js",
+    "debug.js",
+    "basisParentheses.js",
+    "fieldParentheses.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

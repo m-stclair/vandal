@@ -3,11 +3,11 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {statsProbe} from "./probes/statsprobe.js";
 import {webGLState} from "../utils/webgl_state.js";
 
-const shaderPath = "../shaders/auto_levels.frag";
-const includePaths = {"colorconvert.glsl": "../shaders/includes/colorconvert.glsl"};
+const shaderPath = "auto_levels.frag";
+const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
-//
+
 async function makeProbe(fx, renderer) {
     const prb = {
         config: structuredClone(statsProbe.config),
@@ -56,7 +56,7 @@ export default {
             return;
         }
         const probe = instance.probe;
-        const channelBounds = probe.analyze(
+        const {channelBounds} = probe.analyze(
             probe,
             inputTex,
             width,
@@ -128,4 +128,5 @@ export const effectMeta = {
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
+    notInRandom: true
 };

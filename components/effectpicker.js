@@ -39,9 +39,8 @@ export class EffectPicker extends HTMLElement {
     }
 
     connectedCallback() {
-        // If init is async, we must wait before attaching behavior
+        // currently unused
         this.ready.then(() => {
-            // Any live hookup code can go here if needed
         });
     }
 

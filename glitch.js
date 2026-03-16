@@ -1,56 +1,65 @@
 import {
-    canvas,
-    defaultCtx,
+    pruneForMobile,
+    setupDragAndDrop,
     setupExportImage,
     setupPaneDrag,
     setupPresetUI,
     setupStaticButtons,
-    setupVideoCapture, setupVideoExportModal,
+    setupVideoCapture,
+    setupVideoExportModal,
     setupWindow
 } from "./ui.js";
 
-import "./tools/debugPane.js";
-
 import {
+    canvas,
+    defaultCtx,
     addEffectToStack,
-    clearConfigUI,
     clearRenderCache,
     Dirty,
-    flushEffectStack,
-    forEachEffect,
     getActiveEffects,
     getEffectById,
     getEffectStack,
-    getNormedImage,
-    getOriginalImage,
+    getAnimationFrozen,
     loadState,
     Lock,
     makeEffectInstance,
     renderer,
     requestRender,
     requestUIDraw,
-    rerollNormLoadID,
+    resetStack,
     resizeAndRedraw,
     saveState,
     setFilters,
     setOriginalImage,
-    setRenderedImage,
     toggleEffectSelection,
-    uiState
+    uiState, setFreezeAnimationButtonFlag, lockRender, unlockRender, flushEffectStack
 } from "./state.js";
-import {formatFloatWidth, gid} from "./utils/helpers.js";
+// import "./tools/debugPane.js";
+import {downloadBlob, formatFloatWidth, gid, vandalStamp} from "./utils/helpers.js";
 import {renderStackUI} from "./ui_builder.js";
 import {effectRegistry} from "./registry.js";
 import {resolveAnim} from "./utils/animutils.js";
-import {deNormalizeImageData, normalizeImageData} from "./utils/imageutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
 import {drawBlackSquare} from "./test_patterns.js";
 import {pdrInitializedFlag, initPDR, getPyodide, getFirstImage} from "./pdr.js";
+import {drawPattern} from "./test_patterns.js";
+import {getAppPresetView} from "./utils/presets.js";
+
+
+let animating = false;
+let startTime = null;
+let timePhase = 0;
+
 
 function handleUpload(e) {
-    const file = e.target.files[0];
+    let file;
+    if (!(e instanceof File)) {
+        file = e.target.files[0];
+    } else {
+        file = e;
+    }
     if (!file) return;
 
     const img = new Image();
@@ -58,7 +67,6 @@ function handleUpload(e) {
         setOriginalImage(img);
         resizeAndRedraw();
     }
-    clearRenderCache();
     img.src = URL.createObjectURL(file);
 }
 
@@ -96,34 +104,37 @@ async function handlePDRUpload(e) {
 }
 
 
-let capturer = null, capturing = false;
-let exportDuration = null, exportFPS = null, frameLimit = null;
-let frameCounter = null;
-
-function startCapture() {
-    const format = document.getElementById("exportFormat").value;
-    exportDuration = document.getElementById("exportDuration").value;
-    exportFPS = document.getElementById("exportFPS").value;
-    frameLimit = exportDuration * exportFPS;
-    frameCounter = 0;
-    capturer = new CCapture({
-        format: format,
-        framerate: exportFPS,
-        verbose: true
-    });
-    capturer.start();
-    capturing = true;
-    document.getElementById('captureOverlay').style.display = 'flex';
-    document.getElementById("overlayMessageP").innerText = "🎥 Recording…"
-}
-
-function stopCapture() {
-    if (!capturing) return;
-    capturing = false;
-    capturer.stop();
-    capturer.save();
+function stopCapture(recorder) {
+    recorder.stop();
     document.getElementById('captureOverlay').style.display = 'none';
 }
+
+function startCapture() {
+    const exportDuration = document.getElementById("exportDuration").value;
+    const exportFPS = document.getElementById("exportFPS").value;
+
+    const stream = renderer.gl.canvas.captureStream(exportFPS);
+    const options = {
+        mimeType: 'video/webm; codecs=vp9',
+        videoBitsPerSecond: 16_000_000,
+    }
+    const recorder = new MediaRecorder(stream, options);
+    const chunks = [];
+    recorder.ondataavailable = e => chunks.push(e.data);
+    recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = vandalStamp('webm');
+        a.click();
+    };
+    document.getElementById('captureOverlay').style.display = 'flex';
+    recorder.start();
+
+    setTimeout(() => stopCapture(recorder), exportDuration * 1000);
+}
+
 
 export function isModulating(fx) {
     return Object.values(fx.config).some(p =>
@@ -150,121 +161,53 @@ function updateVisualStyles(cvs = canvas) {
 }
 
 
-let freezeAnimationFlag = false;
-let rendering = false;
-
-function updateRenderMsg(msg) {
-    // note: this doesn't really work. main render thread blocks too much
-    requestAnimationFrame(() =>
-        setTimeout(
-            () => document.getElementById("overlayMessageP").innerText = `${msg}...`,
-            10
-        )
-    )
+async function exportImage() {
+    Lock.image = true;
+    const [w, h] = [renderer.cachedImage.width, renderer.cachedImage.height]
+    const pixels = await renderer.applyFullRes(animating ? timePhase : 0);
+    Lock.image = false;
+    const imgArr = new Uint8ClampedArray(pixels.length);
+    for (let i = 0; i < pixels.length; i++) {
+        imgArr[i] = Math.round(pixels[i] * 255);
+    }
+    const imgData = new ImageData(imgArr, w, h);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").putImageData(imgData, 0, 0);
+    canvas.toBlob(blob => downloadBlob(blob, vandalStamp('png')), "image/png");
 }
 
-async function exportImage(resolution) {
-    let exportCanvas = document.createElement("canvas");
-
-    function getImg() {
-        if (resolution === "full") {
-            const img = getOriginalImage();
-            if (!img) return;
-            exportCanvas.width = img.width;
-            exportCanvas.height = img.height;
-            const eCtx = exportCanvas.getContext('2d');
-            eCtx.drawImage(img, 0, 0, img.width, img.height);
-            const imageData = eCtx.getImageData(0, 0, img.width, img.height)
-            const normData = normalizeImageData(imageData);
-            return [normData, eCtx];
-        } else {
-            const imageData = getNormedImage();
-            exportCanvas.width = imageData.width;
-            exportCanvas.height = imageData.height;
-            const eCtx = exportCanvas.getContext('2d')
-            return [imageData, eCtx];
-        }
-    }
-
-    let [normData, eCtx] = getImg();
-
-    function executeRender() {
-        const t = animating ? (performance.now() - startTime) / 1000 : 0;
-        updateRenderMsg("rendering effects");
-        clearRenderCache();
-        rerollNormLoadID();  // to trigger framebuffer invalidation
-        firePipeline(t, eCtx, normData);
-        updateVisualStyles(exportCanvas);
-        exportCanvas.toBlob(onBlobResolved, 'image/png');
-    }
-
-    function cleanup() {
-        rendering = false;  // just making sure
-        document.getElementById("stopCaptureOverlay").style.display = "inherit"
-        document.getElementById('captureOverlay').style.display = 'none';
-        updateRenderMsg("");
-        exportCanvas?.close?.() || exportCanvas?.remove?.();
-        exportCanvas = null;
-        eCtx = null;
-        clearRenderCache();
-        freezeAnimationFlag = false;
-        rerollNormLoadID();  // to trigger framebuffer invalidation
-    }
-
-    function onBlobResolved(blob) {
-        const link = document.createElement('a');
-        const date = new Date();
-        const timestamp = date.toISOString().replace(/[^0-9]/g, '');
-        link.download = `glitch_${timestamp}.png`;
-        link.href = URL.createObjectURL(blob);
-        try {
-            link.click();
-        } finally {
-            rendering = false;
-            cleanup();
-            URL.revokeObjectURL(link.href);
-        }
-    }
-
-    try {
-        freezeAnimationFlag = true;
-        clearRenderCache();
-        updateRenderMsg("setting up");
-        document.getElementById("stopCaptureOverlay").style.display = "none"
-        document.getElementById('captureOverlay').style.display = 'flex';
-        requestAnimationFrame(() => setTimeout(executeRender, 10));
-    } catch (e) {
-        rendering = false;
-        console.error(e)
-        cleanup();
-        alert("Rendering failed")
-    }
-}
 
 const isAnimationActive = () => getEffectStack().some(fx => isModulating(fx))
 
-let animating = false;
-let startTime = null;
+let frameIx = 0;
 
-function tick(now) {
-    if (!animating || freezeAnimationFlag) return;
-    const t = (now - startTime) / 1000;
-    document.querySelectorAll(".modulated").forEach(input => {
-        const key = input.dataset.key;
-        const fxId = input.dataset.fxId;
-        const fx = getEffectById(fxId);
-        if (fx === null) throw new Error("Effect matching control is missing")
-        const resolved = resolveAnim(fx.config[key], t);
-        const label = input.querySelector(".slider-value");
-        label.textContent = formatFloatWidth(resolved);
-    });
-    // TODO: this obviously has to work a _little_ differently.
-    firePipeline(t);
-    if (capturing && capturer) {
-        capturer.capture(document.getElementById('glitchCanvas'));
-        frameCounter++;
-        if (frameCounter >= frameLimit) stopCapture();
+function tick() {
+    if (!animating) return;
+    if (getAnimationFrozen()) {
+        requestAnimationFrame(tick);
+        return;
     }
+    // i.e., update displayed parameter values every sixth frame
+    frameIx = (frameIx + 1) % 6;
+    if (frameIx === 0) {
+        document.querySelectorAll(".slider-value.animating").forEach(input => {
+            const key = input.dataset.key;
+            const fxId = input.dataset.fxId;
+            const fx = getEffectById(fxId);
+            if (fx === null) {
+                // this generally represents a harmless race condition -- we
+                // resolved querySelectorAll() during effect teardown but before
+                // the associated DOM nodes were removed.
+                return;
+            }
+            const resolved = resolveAnim(fx.config[key], timePhase);
+            input.value = formatFloatWidth(resolved);
+        });
+    }
+
+    requestRender();
     if (isAnimationActive()) {
         requestAnimationFrame(tick);
     } else {
@@ -272,15 +215,21 @@ function tick(now) {
     }
 }
 
-function firePipeline(t = 0, ctx = defaultCtx, normedImage = getNormedImage()) {
-    const applied = renderer.applyEffects(t, normedImage);
-    const {width, height} = normedImage;
-    setRenderedImage(deNormalizeImageData(applied, width, height), ctx)
-    updateVisualStyles();
+function firePipeline(ctx = defaultCtx, t = null) {
+    let time;
+    if (animating && t === null) {
+        timePhase += 30 / 1000;
+        time = timePhase;
+    } else {
+        time = t;
+    }
+    if (!renderer.cachedImage) return;
+    const finalTexture = renderer.applyEffects(time);
+    renderer.writeToCanvas(finalTexture);
 }
 
+
 function renderImage() {
-    if (!getNormedImage()) return;
     firePipeline();
     const animShouldBeRunning = isAnimationActive();
     if (animShouldBeRunning && !animating) {
@@ -290,21 +239,6 @@ function renderImage() {
     } else if (!animShouldBeRunning && animating) {
         animating = false;
     }
-}
-
-// TODO: big gun type situation
-function resetStack() {
-    forEachEffect(
-        (fx) => {
-            if (fx.cleanupHook) {
-                fx.cleanupHook(fx.id);
-            }
-        })
-    flushEffectStack();
-    clearRenderCache();
-    clearConfigUI();
-    requestUIDraw();
-    requestRender();
 }
 
 async function addSelectedEffect(effectName) {
@@ -320,56 +254,115 @@ async function addSelectedEffect(effectName) {
 
 
 function watchRender() {
-        if (Lock.image || !Dirty.image) return;
-        Lock.image = true;
-        Dirty.image = false;
-        try {
-            renderImage()
-        } finally {
-            Lock.image = false;
+    if (Lock.image || !Dirty.image) return;
+    Lock.image = true;
+    Dirty.image = false;
+    try {
+        renderImage()
+    } finally {
+        Lock.image = false;
+    }
+}
+
+function watchUI() {
+    if (Lock.ui || !Dirty.ui) return;
+    Lock.ui = true;
+    Dirty.ui = false;
+    try {
+        renderStackUI(getEffectStack(), uiState, gid('effectStack'));
+    } finally {
+        Lock.ui = false;
+    }
+}
+
+function rafScheduler(func, name, registry) {
+    return () => {
+        func();
+        registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
+    }
+}
+
+
+const loopIDs = {};
+const renderLoop = rafScheduler(watchRender, "render", loopIDs);
+const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
+
+
+async function appSetup() {
+    const workerURL = new URL(`./cache-worker.js`, import.meta.url);
+    if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.register(workerURL);
+    }
+    const stackHeader = document.getElementById("effectStackHeader")
+    const picker = document.createElement("effect-picker")
+    stackHeader.appendChild(picker);
+    await picker.ready;
+
+    function toggleExpand() {
+        if (picker.inSearchMode) {
+            stackHeader.style.flexShrink = '0';
+            stackHeader.style.flexGrow = '2';
+        } else {
+            stackHeader.style.flexShrink = '1';
+            stackHeader.style.flexGrow = '1';
         }
     }
 
-    function watchUI() {
-        if (Lock.ui || !Dirty.ui) return;
-        Lock.ui = true;
-        Dirty.ui = false;
-        try {
-            renderStackUI(getEffectStack(), uiState, gid('effectStack'));
-        } finally {
-            Lock.ui = false;
+    picker.setEffectSelectCallback(
+        async (effectName) => {
+            await addSelectedEffect(effectName);
+            toggleExpand();
         }
-    }
-
-    function rafScheduler(func, name, registry) {
-        return () => {
-            func();
-            registry[name] = requestAnimationFrame(rafScheduler(func, name, registry));
-        }
-    }
-
-
-    const loopIDs = {};
-    const renderLoop = rafScheduler(watchRender, "render", loopIDs);
-    const uiLoop = rafScheduler(watchUI, "ui", loopIDs);
-
-
-    async function appSetup() {
-        const stackHeader = document.getElementById("effectStackHeader")
-        const picker = document.createElement("effect-picker")
-        stackHeader.appendChild(picker);
-        await picker.ready;
-
-        function toggleExpand() {
-            if (picker.inSearchMode) {
-                stackHeader.style.flexShrink = '0';
-                stackHeader.style.flexGrow = '2';
-            } else {
-                stackHeader.style.flexShrink = '1';
-                stackHeader.style.flexGrow = '1';
+    );
+    ["input", "keydown"].forEach(
+        (eType) => stackHeader.addEventListener(
+            eType, (e) => {
+                if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
+                    toggleExpand();
+                }
             }
-        }
-
+        )
+    )
+    const toggleBar = document.getElementById('toggle-stack-bar');
+    const effectStack = document.getElementById('effectStack');
+    toggleBar.addEventListener('click', function () {
+        effectStack.classList.toggle('collapsed');
+        toggleBar.classList.toggle('collapsed');
+    });
+    await setupStaticButtons(
+        handleUpload,
+        addSelectedEffect,
+        saveState,
+        loadState,
+        effectRegistry,
+        resetStack,
+        requestRender,
+        requestUIDraw,
+        setFreezeAnimationButtonFlag
+    );
+    setupPresetUI(
+        saveState,
+        loadState,
+        resetStack,
+        requestRender,
+        requestUIDraw,
+        effectRegistry,
+        lockRender,
+        unlockRender
+    );
+    setupDragAndDrop(handleUpload);
+    setupExportImage(exportImage);
+    setupVideoCapture(startCapture, stopCapture);
+    setupPaneDrag();
+    setupVideoExportModal();
+    pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
+                   requestRender, startCapture);
+    setupWindow(resizeAndRedraw);
+    await drawPattern('spiral');
+    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
+    renderLoop();
+    uiLoop();
+}
         picker.setEffectSelectCallback(
             async (effectName) => {
                 await addSelectedEffect(effectName);
@@ -421,4 +414,4 @@ function watchRender() {
         renderLoop();
     }
 
-    await appSetup();
+await appSetup();

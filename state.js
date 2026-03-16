@@ -8,11 +8,71 @@ export const Dirty = {image: true, ui: true}
 export const Lock = {image: false, ui: false}
 export const requestRender = () => Dirty.image = true;
 export const requestUIDraw = () => Dirty.ui = true;
+export const requestRedraw = () => {
+    Dirty.image = true;
+    renderer.inputDirty = true;
+}
 
 // shared rendering objects
 export const canvas = document.getElementById('glitchCanvas');
 canvas.style.willChange = 'transform';
 export const defaultCtx = canvas.getContext("webgl2", { alpha: false, antialias: true });
+
+export const renderer = new GlitchRenderer(defaultCtx);
+export function clearRenderCache() {
+    renderer.renderCache.clear();
+}
+
+canvas.addEventListener(
+    "wheel", (e) => {
+        e.preventDefault();
+        renderer.setZoom(e.deltaY);
+        requestRender();
+    },
+    { passive: false }
+)
+
+class PanInterface {
+    constructor(pannable) {
+        this.pannable = pannable;
+        this.lastPointerX = null;
+        this.lastPointerY = null;
+        this.isDragging = false;
+    }
+
+    onPointerDown = (e) => {
+        this.isDragging = true;
+        this.lastPointerX = e.clientX;
+        this.lastPointerY = e.clientY;
+        e.target.setPointerCapture?.(e.pointerId);
+    };
+
+    onPointerMove = (e) => {
+        if (!this.isDragging) return;
+
+        const dx = e.clientX - this.lastPointerX;
+        const dy = e.clientY - this.lastPointerY;
+
+        this.lastPointerX = e.clientX;
+        this.lastPointerY = e.clientY;
+
+        this.pannable.panByPixels(dx, -dy);
+
+        requestRender();
+    };
+
+    onPointerUp = (e) => {
+        this.isDragging = false;
+        e.target.releasePointerCapture?.(e.pointerId);
+    };
+}
+
+const panInterface = new PanInterface(renderer);
+
+canvas.addEventListener("pointerdown", panInterface.onPointerDown);
+canvas.addEventListener("pointermove", panInterface.onPointerMove);
+canvas.addEventListener("pointerup", panInterface.onPointerUp);
+canvas.addEventListener("pointercancel", panInterface.onPointerUp);
 
 
 let effectStack = [];
@@ -21,9 +81,6 @@ let selectedEffectId = "none";
 
 export function getSelectedEffectId() {
     return selectedEffectId;
-}
-export function setSelectedEffectId(id) {
-    selectedEffectId = id;
 }
 
 export function toggleEffectSelection(fx) {
@@ -88,37 +145,6 @@ export function getEffectStack() {
     return effectStack;
 }
 
-export const renderer = new GlitchRenderer(defaultCtx);
-
-export const renderCache = renderer.renderCache;
-
-export function clearRenderCache() {
-    renderer.renderCache.clear();
-}
-
-// currently-rendered imageData in canvas
-let renderedImage = null;
-
-export function setRenderedImage(img, context) {
-    renderedImage = img;
-    context.putImageData(img, 0, 0);
-}
-
-export function getRenderedImage() {
-    return renderedImage;
-}
-
-// resized image with no effects applied
-let resizedOriginalImage = null;
-
-export function setResizedOriginalImage(img) {
-    resizedOriginalImage = img;
-    clearNormedImage();
-}
-
-export function getResizedOriginalImage() {
-    return resizedOriginalImage;
-}
 
 // uploaded image as HTMLImageElement, used to generate resized
 // raster in canvas before applying effects
@@ -126,6 +152,7 @@ let originalImage = null;
 
 export function setOriginalImage(img) {
     originalImage = img;
+    renderer.setCachedImage(img);
 }
 
 export function getOriginalImage() {
@@ -133,32 +160,7 @@ export function getOriginalImage() {
 }
 
 
-let normedImage = null;
-let normLoadID = '';
-
-export function getNormLoadID() {
-    return normLoadID;
-}
-
-export function rerollNormLoadID() {
-    normLoadID = uuidv4();
-}
-
-export function getNormedImage() {
-    if (!resizedOriginalImage) return null;
-    if (normedImage === null) {
-        normedImage = normalizeImageData(resizedOriginalImage);
-        normLoadID = uuidv4();
-        return normedImage;
-    } else return normedImage;
-}
-
-export function clearNormedImage() {
-    normedImage = null;
-}
-
 // canvas property modification
-
 export function setFilters(filters, cvs=canvas) {
     cvs.style.filter = filters;
 }
@@ -206,7 +208,6 @@ export async function loadState(preset, registry, fromJSON=true) {
     } else {
         preset = preset.config;
     }
-    flushEffectStack();
     for (const { name, config } of preset) {
         const mod = registry[name];
         if (!mod) {
@@ -250,15 +251,8 @@ export function resizeAndRedraw() {
         const leftPane = document.getElementById('leftPane');
         const width = leftPane.clientWidth - 20;
         const height = window.innerHeight * 0.9;
-        let scale = Math.min(
-            width / originalImage.width, height / originalImage.height
-        );
-        const w = Math.floor(originalImage.width * scale);
-        const h = Math.floor(originalImage.height * scale);
-        canvas.width = w;
-        canvas.height = h;
-        // unnecessary on resize vs. load but harmelss
-        renderer.cachedImage = originalImage;
+        canvas.width = width;
+        canvas.height = height;
         renderer.inputDirty = true;
         requestRender();
     } finally {
@@ -269,7 +263,7 @@ export function resizeAndRedraw() {
 
 // TODO: big gun type situation
 export function resetStack() {
-    renderer.reset();
+    renderer.reset_pipeline();
     forEachEffect(
         (fx) => {
             if (fx.cleanupHook) {

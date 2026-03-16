@@ -67,7 +67,6 @@ vec2 blurOffset(vec2 uv) {
         if (y >= u_kernelHeight) break;
         for (int x = 0; x < KERNEL_SIZE; x++) {
             if (x >= u_kernelWidth) break;
-            // TODO, maybe: wrap or clamp
             vec2 kernelOffset = vec2(float(x - halfWidth), float(y - halfHeight)) * texel;
             vec2 offset = computeOffset(uv + kernelOffset);
             accum += offset * u_kernel[k];

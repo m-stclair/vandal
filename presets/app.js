@@ -530,6 +530,11 @@ export const builtInPresets = [
     },
 
     {
+        "name": "Blank",
+        "config": []
+    },
+
+    {
         "name": "Blood Dragon",
         "config": [
             {

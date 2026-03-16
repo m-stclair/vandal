@@ -1,11 +1,10 @@
 // Hybrid GPU/CPU pipeline manager
-import {checkFrameBuffer, checkTexture, preprocessGLSL} from "./gl.js";
-import {
-    getEffectStack, renderer,
-} from "../state.js";
-import {hashObject} from "./helpers.js";
-import {isModulating} from "../glitch.js";
-import {monkeyPatchBindTexture, monkeyPatchDrawArrays} from "../tools/gl_bs.js";
+import { checkFrameBuffer, checkTexture, preprocessGLSL} from "./gl.js";
+import {getEffectStack, renderer} from "../state.js";
+import { hashObject } from "./helpers.js";
+import { isModulating } from "../glitch.js";
+import { monkeyPatchBindTexture, monkeyPatchDrawArrays } from "../tools/gl_bs.js";
+import { clamp } from "./mathutils.js";
 
 const uploadVertSrc = `#version 300 es
 in vec2 a_position;
@@ -21,17 +20,19 @@ precision mediump float;
 uniform sampler2D u_image8bit;
 in vec2 v_uv;
 out vec4 outColor;
+uniform vec2 u_center;
+uniform vec2 u_viewSpan;
 
 void main() {
-    vec4 srgba = texture(u_image8bit, v_uv);
-    // If input is sRGB-encoded, decode it manually
-    // Otherwise just pass through (depends on texture setup)
-    outColor = srgba; // Linear-ish float now in [0,1]
+    vec2 srcUV = clamp(u_center + (v_uv - 0.5) * u_viewSpan, 0.0, 1.0);
+    outColor = texture(u_image8bit, srcUV);
 }`
 
 const outputFragSrc = `#version 300 es
     precision mediump float;
+    
     uniform sampler2D u_image;
+    
     in vec2 v_uv;
     out vec4 outColor;
             
@@ -48,6 +49,7 @@ const outputVertSrc = `#version 300 es
         gl_Position = vec4(a_position, 0.0, 1.0);
     }
 `
+
 
 export class GlitchRenderer {
     constructor(ctx) {
@@ -73,7 +75,9 @@ export class GlitchRenderer {
         this.inputTexture = null;
         this.inputHeight = null;
         this.inputWidth = null;
-        this.upsampleProgram = this.compileUpsampleProgram();
+        const [upsampleProgram, upsampleUniforms] = this.compileUpsampleProgram();
+        this.upsampleProgram = upsampleProgram;
+        this.upsampleUniforms = upsampleUniforms;
         this.renderCache = new Map();
         this.outputVert = null;
         this.outputFrag = null;
@@ -82,6 +86,10 @@ export class GlitchRenderer {
         this.inputDirty = true;
         this.defaultFBO = this.gl.createFramebuffer();
         this.locked = false;
+        this.sourceTexture = null;
+        this.zoom = 1.0
+        this.centerX = 0.5
+        this.centerY = 0.5
     }
 
     lock() {
@@ -90,6 +98,28 @@ export class GlitchRenderer {
 
     unlock() {
         this.locked = false;
+    }
+
+    getCachedImageSize() {
+        if (!this.cachedImage) return null;
+        const img = this.cachedImage;
+        return [
+            img.naturalWidth ?? img.videoWidth ?? img.width,
+            img.naturalHeight ?? img.videoHeight ?? img.height,
+        ];
+    }
+
+    setCachedImage(img) {
+        this.cachedImage = img;
+        if (this.sourceTexture) {
+            this.gl.deleteTexture(this.sourceTexture);
+        }
+        this.sourceTexture = null;
+        if (this.inputTexture) {
+            this.gl.deleteTexture(renderer.inputTexture);
+        }
+        this.inputTexture = null;
+        this.loadImage();
     }
 
     compileUpsampleProgram() {
@@ -114,7 +144,13 @@ export class GlitchRenderer {
             const info = gl.getProgramInfoLog(upProg);
             throw new Error(`Could not compile WebGL program. \n\n${info}`);
         }
-        return upProg;
+        gl.useProgram(upProg);
+        const upsampleUniforms = {
+            image: gl.getUniformLocation(upProg, "u_image8bit"),
+            viewSpan: gl.getUniformLocation(upProg, "u_viewSpan"),
+            center: gl.getUniformLocation(upProg, "u_center")
+        }
+        return [upProg, upsampleUniforms];
     }
 
     initSharedResources() {
@@ -253,7 +289,7 @@ export class GlitchRenderer {
         const fbo = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
-            gl.TEXTURE_2D, tex, 0);
+                                gl.TEXTURE_2D, tex, 0);
         // checkFrameBuffer(gl);
         tex._id = id;
         tex._name = name;
@@ -271,8 +307,8 @@ export class GlitchRenderer {
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0,
             gl.TEXTURE_2D, tex, 0);
         const pixels = new this.format.arrayConstructor(width * height * 4);
-        gl.readPixels(
-            0, 0, width, height, this.format.formatEnum, this.format.typeEnum, pixels);
+        gl.readPixels(0, 0, width, height, this.format.formatEnum,
+                      this.format.typeEnum, pixels);
         this.deleteFrameBuffer(fbo);
         return pixels;
     }
@@ -309,7 +345,7 @@ export class GlitchRenderer {
         this.inputHeight = h;
         this.gl.canvas.width = w;
         this.gl.canvas.height = h;
-        await this.loadImage();
+        this.loadImage();
         const tex = this.applyEffects(t);
         const pixels = this.readFramebufferToPixels(tex, gl.canvas.width, gl.canvas.height);
         [this.inputWidth, this.inputHeight] = [iw, ih];
@@ -334,8 +370,10 @@ export class GlitchRenderer {
         if (this.locked) return;
         const effects = getEffectStack();
         const anySolo = getEffectStack().some(fx => fx.solo);
-        const width = this.inputWidth;
-        const height = this.inputHeight;
+
+        const viewRect = this.getViewRect();
+        const width = viewRect.w;
+        const height = viewRect.h;
         let hashChain = `top`;
         let animationUpdate = false;
         let lastCacheEntry = {
@@ -365,7 +403,6 @@ export class GlitchRenderer {
             );
             let update = {};
             if (needsUpdate) {
-                const start = performance.now()
                 let input;
                 if (isGPU && lastCacheEntry?.texture) {
                     input = lastCacheEntry.texture;
@@ -397,8 +434,6 @@ export class GlitchRenderer {
                     fx.apply(fx, input, width, height, t, fbo);
                     update['texture'] = fbo.texture;
                 }
-                const duration = performance.now() - start;
-                // console.log(`rendered ${fx.name}-${fx.id}, ${duration} ms`);
             } else {
                 update = {data: cacheEntry.data, texture: cacheEntry.texture}
             }
@@ -418,7 +453,7 @@ export class GlitchRenderer {
         return lastCacheEntry.texture;
     }
 
-    reset() {
+    reset_pipeline() {
         this.renderCache.clear();
         this.clearEffectBuffers();
         getEffectStack().forEach((fx) => {
@@ -427,45 +462,120 @@ export class GlitchRenderer {
         });
     }
 
-    async loadImage(size) {
-        if (!this.cachedImage) {
-            return false;
+    buildSourceTexture() {
+        if (!this.cachedImage) return false;
+        const gl = this.gl;
+        if (this.sourceTexture) {
+            gl.deleteTexture(this.sourceTexture);
+            this.sourceTexture = null;
         }
-        this.reset();
-        const gl = this.gl
+            const tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex);
 
-        let w, h;
-        if (!size) {
-            w = gl.canvas.width;
-            h = gl.canvas.height;
-        } else {
-            [w, h] = size;
-        }
-
-        const cpuCanvas = document.createElement("canvas");
-        cpuCanvas.width = w;
-        cpuCanvas.height = h;
-        const ctx = cpuCanvas.getContext("2d");
-        ctx.drawImage(this.cachedImage, 0, 0, w, h);
-
-        const inputTex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, inputTex);
         gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, false);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+        // Mip-capable filtering on the source texture.
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
             gl.RGBA,
             gl.RGBA,
             gl.UNSIGNED_BYTE,
-            cpuCanvas
+            this.cachedImage
         );
+
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
+        this.sourceTexture = tex;
+        return true;
+    }
+
+    getViewRect() {
+        const canvasW = this.gl.canvas.width;
+        const canvasH = this.gl.canvas.height;
+        const [imageW, imageH] = this.getCachedImageSize();
+
+        if (imageH === undefined) {
+            throw new Error("oops")
+        }
+        const imageAspect = imageW / imageH;
+        const canvasAspect = canvasW / canvasH;
+
+        let fitW, fitH;
+
+        if (canvasAspect > imageAspect) {
+            fitH = canvasH;
+            fitW = Math.round(fitH * imageAspect);
+
+            const w = Math.min(canvasW, Math.round(fitW * this.zoom));
+            const h = fitH;
+            const x = Math.floor((canvasW - w) / 2);
+            const y = 0;
+            return { x, y, w, h };
+        } else {
+            fitW = canvasW;
+            fitH = Math.round(fitW / imageAspect);
+
+            const w = fitW;
+            const h = Math.min(canvasH, Math.round(fitH * this.zoom));
+            const x = 0;
+            const y = Math.floor((canvasH - h) / 2);
+            return { x, y, w, h };
+        }
+    }
+
+    getViewSpan(viewW, viewH) {
+        const [imageW, imageH] = this.getCachedImageSize();
+
+        const viewAspect = viewW / viewH;
+        const imageAspect = imageW / imageH;
+
+        const base = 1 / this.zoom;
+
+        let spanX, spanY;
+
+        if (viewAspect > imageAspect) {
+            spanY = base;
+            spanX = base * (viewAspect / imageAspect);
+        } else {
+            spanX = base;
+            spanY = base * (imageAspect / viewAspect);
+        }
+
+        return [Math.min(spanX, 1), Math.min(spanY, 1)];
+    }
+
+    loadImage(size) {
+        if (!this.cachedImage) {
+            return false;
+        }
+        this.reset_pipeline();
+
+        const gl = this.gl;
+
+        const viewRect = this.getViewRect();
+
+        let w, h;
+        if (!size) {
+            w = viewRect.w;
+            h = viewRect.h;
+        } else {
+            [w, h] = size;
+        }
+        if (!this.sourceTexture) {
+            this.buildSourceTexture();
+        }
 
         const floatTex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, floatTex);
+
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
@@ -484,27 +594,42 @@ export class GlitchRenderer {
 
         const fbo = gl.createFramebuffer();
         gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, floatTex, 0);
-        gl.viewport(0, 0, w, h);
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            gl.COLOR_ATTACHMENT0,
+            gl.TEXTURE_2D,
+            floatTex,
+            0
+        );
+
+        gl.viewport(0, 0, viewRect.w, viewRect.h);
         gl.useProgram(this.upsampleProgram);
         gl.bindVertexArray(this.vao);
+
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, inputTex);
-        gl.uniform1i(gl.getUniformLocation(this.upsampleProgram, 'u_image8bit'), 0);
+        gl.bindTexture(gl.TEXTURE_2D, this.sourceTexture);
+
+        const [spanX, spanY] = this.getViewSpan(viewRect.w, viewRect.h);
+        gl.uniform1i(this.upsampleUniforms.image, 0);
+        gl.uniform2f(this.upsampleUniforms.viewSpan, spanX, spanY);
+        gl.uniform2f(this.upsampleUniforms.center, this.centerX, this.centerY);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
         gl.bindTexture(gl.TEXTURE_2D, null);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.defaultFBO);
         gl.deleteFramebuffer(fbo);
+
         if (this.inputTexture !== null) {
             gl.deleteTexture(this.inputTexture);
         }
+
         this.inputTexture = floatTex;
         this.inputWidth = w;
         this.inputHeight = h;
         return true;
-    };
+    }
 
     writeToCanvas(tex) {
         const gl = this.gl;
@@ -537,7 +662,8 @@ export class GlitchRenderer {
         }
         gl.useProgram(this.outputProg);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.viewport(0, 0, canvas.width, canvas.height);
+        const viewRect = this.getViewRect();
+        gl.viewport(viewRect.x, viewRect.y, viewRect.w, viewRect.h);
         gl.bindVertexArray(this.vao);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -545,4 +671,37 @@ export class GlitchRenderer {
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
     format = {}
+
+    clampCenter() {
+    const viewRect = this.getViewRect();
+    const [spanX, spanY] = this.getViewSpan(viewRect.w, viewRect.h);
+
+    const halfW = 0.5 * spanX;
+    const halfH = 0.5 * spanY;
+
+        this.centerX = clamp(this.centerX, halfW, 1.0 - halfW);
+        this.centerY = clamp(this.centerY, halfH, 1.0 - halfH);
+    }
+
+    setZoom(deltaY) {
+        const factor = Math.exp(-deltaY * 0.001);
+        this.zoom = Math.max(1.0, Math.min(this.zoom * factor, 32.0));
+        this.clampCenter();
+        this.inputDirty = true;
+    }
+
+    panByPixels(dx, dy) {
+        const rect = this.gl.canvas.getBoundingClientRect();
+
+        const viewRect = this.getViewRect();
+        const [spanX, spanY] = this.getViewSpan(viewRect.w, viewRect.h);
+
+        this.centerX -= (dx / rect.width) * spanX;
+        this.centerY += (dy / rect.height) * spanY;
+
+        this.clampCenter();
+
+        this.inputDirty = true;
+    }
+
 }

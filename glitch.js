@@ -32,7 +32,7 @@ import {
     setFilters,
     setOriginalImage,
     toggleEffectSelection,
-    uiState, setFreezeAnimationButtonFlag, lockRender, unlockRender
+    uiState, setFreezeAnimationButtonFlag, lockRender, unlockRender, flushEffectStack
 } from "./state.js";
 // import "./tools/debugPane.js";
 import {downloadBlob, formatFloatWidth, gid, vandalStamp} from "./utils/helpers.js";
@@ -188,6 +188,7 @@ function firePipeline(ctx = defaultCtx, t = null) {
     } else {
         time = t;
     }
+    if (!renderer.cachedImage) return;
     const finalTexture = renderer.applyEffects(time);
     renderer.writeToCanvas(finalTexture);
 }
@@ -322,11 +323,10 @@ async function appSetup() {
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);
-    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
     await drawPattern('spiral');
-    resizeAndRedraw();
-    uiLoop();
+    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
     renderLoop();
+    uiLoop();
 }
 
 await appSetup();

@@ -40,12 +40,14 @@ export function dot3(a, b) {
     return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
 }
 
+
 export function clamp(x, min, max) {
-  if (x < min) return min;
-  return Math.min(x, max)
+    if (x <= min) return min;
+    if (x >= max) return max;
+    return x;
 }
 
-export const positiveClamped = (func) => (...args) => Math.max(0, func(...args));
+export const clampedPositive = (func) => (...args) => Math.max(0, func(...args));
 
 
 export function hist1D(data, nbins = 256, vmin = 0, vmax = 1) {

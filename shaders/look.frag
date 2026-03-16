@@ -83,6 +83,5 @@ void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec4 pix = texture(u_image, uv);
     vec3 looked = applyLook(pix.rgb);
-//    return;
     outColor = vec4(clamp(looked, 0., 1.), pix.a);
 }

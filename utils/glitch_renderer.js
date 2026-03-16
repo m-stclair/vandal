@@ -1,6 +1,6 @@
 // Hybrid GPU/CPU pipeline manager
 import { checkFrameBuffer, checkTexture, preprocessGLSL} from "./gl.js";
-import {getEffectStack, renderer} from "../state.js";
+import { getEffectStack } from "../state.js";
 import { hashObject } from "./helpers.js";
 import { isModulating } from "../glitch.js";
 import { monkeyPatchBindTexture, monkeyPatchDrawArrays } from "../tools/gl_bs.js";
@@ -90,6 +90,7 @@ export class GlitchRenderer {
         this.zoom = 1.0
         this.centerX = 0.5
         this.centerY = 0.5
+        console.log(this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE))
     }
 
     lock() {
@@ -116,7 +117,7 @@ export class GlitchRenderer {
         }
         this.sourceTexture = null;
         if (this.inputTexture) {
-            this.gl.deleteTexture(renderer.inputTexture);
+            this.gl.deleteTexture(this.inputTexture);
         }
         this.inputTexture = null;
         this.loadImage();
@@ -133,7 +134,7 @@ export class GlitchRenderer {
         const upfrag = gl.createShader(gl.FRAGMENT_SHADER);
         gl.shaderSource(upfrag, uploadFragSrc);
         gl.compileShader(upfrag);
-        if (!gl.getShaderParameter(upvert, gl.COMPILE_STATUS)) {
+        if (!gl.getShaderParameter(upfrag, gl.COMPILE_STATUS)) {
             throw new Error(gl.getShaderInfoLog(upfrag));
         }
         const upProg = gl.createProgram();
@@ -670,14 +671,13 @@ export class GlitchRenderer {
         gl.uniform1i(gl.getUniformLocation(this.outputProg, 'u_image'), 0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
-    format = {}
 
     clampCenter() {
-    const viewRect = this.getViewRect();
-    const [spanX, spanY] = this.getViewSpan(viewRect.w, viewRect.h);
+        const viewRect = this.getViewRect();
+        const [spanX, spanY] = this.getViewSpan(viewRect.w, viewRect.h);
 
-    const halfW = 0.5 * spanX;
-    const halfH = 0.5 * spanY;
+        const halfW = 0.5 * spanX;
+        const halfH = 0.5 * spanY;
 
         this.centerX = clamp(this.centerX, halfW, 1.0 - halfW);
         this.centerY = clamp(this.centerY, halfH, 1.0 - halfH);

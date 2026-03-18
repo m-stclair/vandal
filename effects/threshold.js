@@ -88,9 +88,13 @@ export default {
 };
 
 export const effectMeta = {
-    group: "Distortion",
-    tags: ["bands", "invert", "mirror", "rotation", "displacement"],
-    description: "Alternates mirrored slices across the image, optionally rotating them into one another or recursively iterating the effect. Several color modes are supported.",
+    group: "Utility",
+    tags: ["threshold", "chromakey", "channel", "binary"],
+    description: (
+        "Simple threshold effect. Can operate either on absolute luma or a " +
+        "channel key (luma, chroma, or hue). Optionally converts the " +
+        "image to binary black/white."
+    ),
     canAnimate: true,
     realtimeSafe: true,
 }

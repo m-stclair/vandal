@@ -23,7 +23,9 @@ def findish():
             continue
         if "build" not in dn:
             continue
-        manifest_entries += [f"{dn}/{fn}" for fn in fns]
+        manifest_entries += [
+            f"{dn}/{fn}" for fn in fns if "shader_manifest" not in fn
+        ]
     return manifest_entries
 
 

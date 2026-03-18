@@ -38,6 +38,8 @@ def generate_serviceworker():
     const ASSETS_TO_CACHE = {make_manifest()};"""
 
     const = """
+    const SHADER_PREFIX = `${self.location.origin}/build/shaders/`;
+
     self.addEventListener('install', event => {
   self.skipWaiting()
   event.waitUntil(
@@ -55,6 +57,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  if (req.method !== 'GET') return;
 
   // Network-first for HTML/navigation
   if (req.mode === 'navigate' || req.destination === 'document') {
@@ -66,6 +69,11 @@ self.addEventListener('fetch', (event) => {
         return cached || Response.error();
       }
     })());
+    return;
+  }
+  
+  // Only cache same-origin shader assets.
+  if (url.origin !== self.location.origin || !url.href.startsWith(SHADER_PREFIX)) {
     return;
   }
 

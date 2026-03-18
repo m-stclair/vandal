@@ -70,22 +70,12 @@ const textarea = gid("stack-json");
 
 
 export function setupStaticButtons(
-    handleUpload, handlePDRUpload, addSelectedEffect, saveState,
-    loadState, registry, resetStack, requestRender,
-    requestUIDraw
-    handleUpload,
-    addSelectedEffect,
-    saveState,
-    loadState,
-    registry,
-    resetStack,
-    requestRender,
-    requestUIDraw,
+    handleUpload, handlePdrUpload, addSelectedEffect, saveState,
+    loadState, registry, resetStack, requestRender, requestUIDraw,
     setFreezeAnimationButtonFlag
 ) {
-    const uploadButton = gid('upload');
     uploadButton.addEventListener('change', handleUpload);
-    uploadPDRButton.addEventListener('change', async (e) => await handlePDRUpload(e));
+    uploadPDRButton.addEventListener('change', async (e) => await handlePdrUpload(e));
     saveBtn.addEventListener("click", () => {
         textarea.value = saveState();
         navigator.clipboard?.writeText(textarea.value).then(() =>

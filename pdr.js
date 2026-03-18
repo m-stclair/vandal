@@ -1,14 +1,26 @@
-import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.28.0/full/pyodide.mjs";
+import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v0.29.3/full/pyodide.mjs";
 
 export let pdrInitializedFlag = false;
+export let pdrInitializingFlag = false;
 
-let pyodidePromise = null;
+let pyodide = null;
 
-export function getPyodide() {
-    if (!pyodidePromise) {
-        pyodidePromise = loadPyodide();
+const pyodideLoadOpts = {
+    stdout: (msg) => console.log("[py]", msg),
+    stderr: (msg) => console.error("[py err]", msg),
+}
+
+export async function getPyodide() {
+    if (pyodide === null) {
+        pyodide = await loadPyodide(pyodideLoadOpts);
+        pyodide.setStdout({
+          batched: (msg) => console.log("[py]", msg),
+        });
+        pyodide.setStderr({
+          batched: (msg) => console.error("[py err]", msg),
+        });
     }
-    return pyodidePromise;
+    return pyodide;
 }
 
 export async function installPDR() {
@@ -16,7 +28,7 @@ export async function installPDR() {
     const pyodide = await getPyodide();
     console.log("preparing micropip...");
     await pyodide.loadPackage("micropip");
-    // micropip priints its own logs
+    // micropip prints its own logs
     await pyodide.runPythonAsync(`
         import micropip
         await micropip.install("pdr[pillow,fits]") 
@@ -26,42 +38,98 @@ export async function installPDR() {
 }
 
 export async function initPDR() {
-    if (pdrInitializedFlag) return;
+    if (pdrInitializedFlag || pdrInitializingFlag) return;
     console.log("fetching pyodide...");
+    pdrInitializingFlag = true;
     await getPyodide();
     await installPDR();
+    await setUpInterface();
+    pdrInitializingFlag = false;
     pdrInitializedFlag = true;
     console.log("ready!");
 }
 
-export async function getFirstImage(path) {
+const py = {
+    initialized: false,
+    fns: {}
+};
+
+function requirePdrInterfaceInit() {
+    if (!py.initialized) {
+        throw new Error("PDR Python function interface not initialized");
+    }
+}
+
+export async function getArrayImage(path, objname, band) {
+    requirePdrInterfaceInit();
+    return await py.fns.get_array_image(path, objname, band);
+}
+
+export async function getProductInfo(path) {
+    requirePdrInterfaceInit();
+    return JSON.parse(await py.fns.get_product_info(path));
+}
+
+export async function setUpInterface() {
     const pyodide = await getPyodide();
-    const result = await pyodide.runPythonAsync(`get_first_image("${path}")`);
-    const [arrProxy, shape] = result.toJs({ dict_converter: Object });
-    const flat = arrProxy;
-    const gray = flat instanceof Uint8Array ? flat : Uint8Array.from(flat);
-    const [ni, nj] = shape;
-    // NOTE: orientation flip is intentional due to different index order convention
-    return {pixels: padGrayscaleToRGBA(gray, nj, ni), width: nj, height: ni};
+
+    const names = ["get_array_image", "get_product_info"];
+
+    for (const name of names) {
+        const fn = pyodide.globals.get(name);
+        if (!fn) {
+            throw new Error(`Missing Python function: ${name}`);
+        }
+        py.fns[name] = fn;
+    }
+    py.initialized = true;
 }
 
-function padGrayscaleToRGBA(gray, width, height) {
-    const len = width * height;
-    if (gray.length !== len) {
-        throw new Error(`Expected ${len} pixels, got ${gray.length}`);
-    }
-
-    const rgba = new Uint8Array(len * 4);
-    for (let i = 0; i < len; i++) {
-        const v = gray[i];
-        const j = i * 4;
-        rgba[j + 0] = v; // R
-        rgba[j + 1] = v; // G
-        rgba[j + 2] = v; // B
-        rgba[j + 3] = 255; // A
-    }
-    return rgba;
+export async function loadPdrImage(path, objname, band) {
+    const result = await getArrayImage(path, objname, band)
+    const [arr, shape] = result.toJs({ dict_converter: Object });
+    // NOTE: although `result.destroy()` decrefs the return value of `get_array_image()`,
+    //  the memory visible to JS as `arr` will _not_ be freed as long as `arr`
+    //  survives in JS, even though the `ndarray` that originally 'owned' that memory
+    //  will be collected. Pyodide does some kind of witchcraft with TypedArray.
+    result.destroy();
+    return {pixels: arr, width: shape[1], height: shape[0]};
 }
+
+//
+// function padRGBToRGBA(rgb, width, height) {
+//     const len = width * height * 3;
+//     if (rgb.length !== len) {
+//         throw new Error(`Expected ${len} pixels, got ${rgb.length}`);
+//     }
+//     const rgba = new Uint8Array(len * 4 / 3);
+//     for (let i = 0; i < len / 3; i++) {
+//         const j = i * 4;
+//         rgba[j] = rgb[i * 3]
+//         rgba[j + 1] = rgb[i * 3 + 1];
+//         rgba[j + 2] = rgb[i * 3 + 2];
+//         rgba[j + 3] = 255;
+//     }
+//     return rgba
+// }
+//
+// function padGrayscaleToRGBA(gray, width, height) {
+//     const len = width * height;
+//     if (gray.length !== len) {
+//         throw new Error(`Expected ${len} pixels, got ${gray.length}`);
+//     }
+//
+//     const rgba = new Uint8Array(len * 4);
+//     for (let i = 0; i < len; i++) {
+//         const v = gray[i];
+//         const j = i * 4;
+//         rgba[j] = v;     // R
+//         rgba[j + 1] = v; // G
+//         rgba[j + 2] = v; // B
+//         rgba[j + 3] = 255; // A
+//     }
+//     return rgba;
+// }
 
 //     await pyodide.runPythonAsync(`load_product("${file.name}")`);
 //     const dataJSON = await pycall(`describe_data("${file.name}")`);

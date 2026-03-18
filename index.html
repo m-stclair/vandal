@@ -22,17 +22,15 @@
 
 <input type="file" id="upload" accept = "image/png,image/jpeg,image/webp" style="display: none"/>
 <div id="topBar">
-    <label for="upload" class="file-upload-button">Choose File</label>
+<label for="upload" class="file-upload-button">Choose File</label>
+
+||
+<input type="file" id="pdr-upload"  style="display: none"/>
+<label for="pdr-upload" class="file-upload-button">PDR File</label>
+
 
     ||
-  <label for="pdr-upload">pdr upload</label>
-  <input type="file" id="pdr-upload">
-    ||
   <button id="exportImage">PNG</button>
-  <select id="exportImageResolution">
-    <option value="screen" selected>Screen</option>
-    <option value="full">Full</option>
-  </select>
 ||
   <button id="openExportControlsModal">Video</button>
 ||
@@ -70,6 +68,14 @@
     </div>
     <div id="dragBar"></div>
     <div id="rightPane">
+        <div id="pdrUI">
+            <p id="activeFile"></p>
+            <label for="data-object-select">object</label>
+            <select id="data-object-select"></select>
+            <label for="image-band-select">band</label>
+            <select id="image-band-select"></select>
+
+        </div>
         <div id="effectStackHeader"></div>
         <div class="toggle-bar" id="toggle-stack-bar">
             <span class="arrow">⇓ ⇓ ⇓ ⇓ ⇓ ⇓ ⇓ </span> <!-- Down arrow for expand -->

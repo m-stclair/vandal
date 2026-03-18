@@ -1,4 +1,5 @@
 import {
+    placeholderOption,
     pruneForMobile,
     setupDragAndDrop,
     setupExportImage,
@@ -42,8 +43,7 @@ import {resolveAnim} from "./utils/animutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
-import {drawBlackSquare} from "./test_patterns.js";
-import {pdrInitializedFlag, initPDR, getPyodide, getFirstImage} from "./pdr.js";
+import {pdrInitializedFlag, initPDR, getPyodide, getProductInfo, loadPdrImage} from "./pdr.js";
 import {drawPattern} from "./test_patterns.js";
 import {getAppPresetView} from "./utils/presets.js";
 
@@ -92,15 +92,90 @@ function glitchLoadCallbackFactory(self) {
     }
 }
 
-async function handlePDRUpload(e) {
+const dataObjectSelect = gid("data-object-select");
+const imageBandSelect = gid("image-band-select");
+
+// info for 'active' product
+let pdrProductInfo = null;
+
+async function handlePdrBandSelect() {
+    if (!pdrProductInfo) return;
+    const path = pdrProductInfo['path'];
+    const objname = dataObjectSelect.value;
+    const band = imageBandSelect.value;
+    const result = await loadPdrImage(path, objname, band);
+    pixelsToImage(result, glitchLoadCallbackFactory)
+}
+
+async function handlePdrObjectChange() {
+    if (!pdrProductInfo) return;
+    const objname = dataObjectSelect.value
+    if (!pdrProductInfo) return;
+    const objInfo = pdrProductInfo['objects'][objname];
+    if (objInfo === undefined) {
+        throw new Error(`${objname} not in product`)
+    }
+    imageBandSelect.options.length = 0;
+    if (objInfo['bands'] === 3 || objInfo['bands'] === 4) {
+        const opt = document.createElement('option')
+        opt.value = 'RGB';
+        opt.textContent = 'RGB'
+        imageBandSelect.options.add(opt);
+    }
+    for (let i = 0; i < objInfo['bands']; i++) {
+        const opt = document.createElement('option')
+        opt.value = i;
+        opt.textContent = String(i);
+        imageBandSelect.options.add(opt);
+    }
+    imageBandSelect.options[0].selected = true;
+    await handlePdrBandSelect();
+}
+
+dataObjectSelect.addEventListener('change', async () => {
+    lockRender();
+    await handlePdrObjectChange();
+    requestRender();
+    unlockRender();
+})
+
+imageBandSelect.addEventListener('change', async() => {
+    lockRender();
+    await handlePdrBandSelect();
+    requestRender();
+    unlockRender();
+})
+
+async function populatePdrUI() {
+    if (!pdrProductInfo) return;
+    dataObjectSelect.options.length = 0;
+    Object.keys(pdrProductInfo['objects']).forEach(
+        function(name) {
+            const opt = document.createElement('option')
+            opt.value = name;
+            opt.textContent = name;
+            dataObjectSelect.options.add(opt);
+        }
+    )
+    dataObjectSelect.options[0].selected = true;
+}
+
+
+async function handlePdrUpload(e) {
+    // this needs to be plural to permit uploading detached labels
     const file = e.target.files[0];
     if (!file) return;
     const bytes = await file.arrayBuffer();
     const pyodide = await getPyodide();
     pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
     await initPDR();
-    const result = await getFirstImage(file.name);
-    pixelsToImage(result, glitchLoadCallbackFactory);
+    console.log('init')
+    pdrProductInfo = await getProductInfo(file.name);
+    lockRender();
+    await populatePdrUI();
+    await handlePdrObjectChange();
+    requestRender();
+    unlockRender();
 }
 
 
@@ -331,6 +406,7 @@ async function appSetup() {
     });
     await setupStaticButtons(
         handleUpload,
+        handlePdrUpload,
         addSelectedEffect,
         saveState,
         loadState,
@@ -359,59 +435,10 @@ async function appSetup() {
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);
     await drawPattern('spiral');
-    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
+    await loadState(getAppPresetView("Blank"), effectRegistry, false);
     renderLoop();
     uiLoop();
 }
-        picker.setEffectSelectCallback(
-            async (effectName) => {
-                await addSelectedEffect(effectName);
-                toggleExpand();
-            }
-        );
-        ["input", "keydown"].forEach(
-            (eType) => stackHeader.addEventListener(
-                eType, (e) => {
-                    if (e.type === "input" || e.key === "Escape" || e.key === "Enter") {
-                        toggleExpand();
-                    }
-                }
-            )
-        )
-        const toggleBar = document.getElementById('toggle-stack-bar');
-        const effectStack = document.getElementById('effectStack');
-        toggleBar.addEventListener('click', function () {
-            effectStack.classList.toggle('collapsed');
-            toggleBar.classList.toggle('collapsed');
-        });
-        await setupStaticButtons(
-            handleUpload,
-            handlePDRUpload,
-            addSelectedEffect,
-            saveState,
-            loadState,
-            effectRegistry,
-            resetStack,
-            requestRender,
-            requestUIDraw,
-            renderImage
-        );
-        setupPresetUI(
-            saveState,
-            loadState,
-            requestRender,
-            requestUIDraw,
-            effectRegistry
-        );
-        setupExportImage(exportImage);
-        setupVideoCapture(startCapture, stopCapture);
-        setupPaneDrag();
-        setupVideoExportModal();
-        setupWindow(resizeAndRedraw);
-        await drawBlackSquare();
-        resizeAndRedraw();
-        uiLoop();
-        renderLoop();
-    }
+
 
 await appSetup();

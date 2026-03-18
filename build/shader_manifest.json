@@ -25,6 +25,7 @@
   "statsprobe.frag": "statsprobe.f24797a1.frag",
   "affine_transform.frag": "affine_transform.e2f5d144.frag",
   "vector_field_stuff.glsl": "vector_field_stuff.3fef904a.glsl",
+  "threshold.frag": "threshold.3db3b2eb.frag",
   "colorshred.frag": "colorshred.8527e6b8.frag",
   "posterizer.frag": "posterizer.d31c06ca.frag",
   "pcaprobe.frag": "pcaprobe.a27e7a4a.frag",

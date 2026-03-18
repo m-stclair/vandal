@@ -46,7 +46,8 @@ const effectFiles = [
     "palette_synth.js",
     "debug.js",
     "basisParentheses.js",
-    "fieldParentheses.js"
+    "fieldParentheses.js",
+    "threshold.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

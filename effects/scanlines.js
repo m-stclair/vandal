@@ -64,8 +64,6 @@ export default {
     },
     glState: null,
     isGPU: true,
-
-
 }
 
 export const effectMeta = {

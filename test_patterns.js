@@ -1,4 +1,4 @@
-import {clearRenderCache, resizeAndRedraw, setOriginalImage} from "./state.js";
+import {clearRenderCache, resizeAndRedraw, renderer} from "./state.js";
 import {gid} from "./utils/helpers.js";
 import {hsv2Rgb} from "./utils/colorutils.js";
 import {placeholderOption} from "./ui.js";
@@ -9,7 +9,7 @@ function uploadFromCanvas(ocv) {
         const url = URL.createObjectURL(blob);
         const img = new Image(ocv.width, ocv.height);
         img.onload = () => {
-            setOriginalImage(img);
+            renderer.setHTMLSource(img);
             resizeAndRedraw();
         };
         clearRenderCache();

@@ -31,7 +31,6 @@ import {
     resizeAndRedraw,
     saveState,
     setFilters,
-    setOriginalImage,
     toggleEffectSelection,
     uiState, setFreezeAnimationButtonFlag, lockRender, unlockRender, flushEffectStack
 } from "./state.js";
@@ -43,7 +42,7 @@ import {resolveAnim} from "./utils/animutils.js";
 
 // noinspection ES6UnusedImports
 import {EffectPicker} from './components/effectpicker.js'
-import {pdrInitializedFlag, initPDR, getPyodide, getProductInfo, loadPdrImage} from "./pdr.js";
+import {pdrInitializedFlag, initPDR, getPyodide, getProductInfo, getArrayImage} from "./pdr.js";
 import {drawPattern} from "./test_patterns.js";
 import {getAppPresetView} from "./utils/presets.js";
 
@@ -53,7 +52,7 @@ let startTime = null;
 let timePhase = 0;
 
 
-function handleUpload(e) {
+function handleHTMLUpload(e) {
     let file;
     if (!(e instanceof File)) {
         file = e.target.files[0];
@@ -64,7 +63,7 @@ function handleUpload(e) {
 
     const img = new Image();
     img.onload = () => {
-        setOriginalImage(img);
+        renderer.setHTMLSource(img);
         resizeAndRedraw();
     }
     img.src = URL.createObjectURL(file);
@@ -85,13 +84,6 @@ function pixelsToImage(pdrResult, callbackFactory) {
     return img;
 }
 
-function glitchLoadCallbackFactory(self) {
-    return () => {
-        setOriginalImage(self);
-        resizeAndRedraw();
-    }
-}
-
 const dataObjectSelect = gid("data-object-select");
 const imageBandSelect = gid("image-band-select");
 
@@ -103,8 +95,9 @@ async function handlePdrBandSelect() {
     const path = pdrProductInfo['path'];
     const objname = dataObjectSelect.value;
     const band = imageBandSelect.value;
-    const result = await loadPdrImage(path, objname, band);
-    pixelsToImage(result, glitchLoadCallbackFactory)
+    const arrayData = await getArrayImage(path, objname, Number(band));
+    renderer.setFloatRGBA32Source(arrayData.pixels, arrayData.width, arrayData.height);
+    resizeAndRedraw();
 }
 
 async function handlePdrObjectChange() {
@@ -238,7 +231,7 @@ function updateVisualStyles(cvs = canvas) {
 
 async function exportImage() {
     Lock.image = true;
-    const [w, h] = [renderer.cachedImage.width, renderer.cachedImage.height]
+    const [w, h] = [renderer.source.width, renderer.source.height]
     const pixels = await renderer.applyFullRes(animating ? timePhase : 0);
     Lock.image = false;
     const imgArr = new Uint8ClampedArray(pixels.length);
@@ -298,7 +291,7 @@ function firePipeline(ctx = defaultCtx, t = null) {
     } else {
         time = t;
     }
-    if (!renderer.cachedImage) return;
+    if (!renderer.source) return;
     const finalTexture = renderer.applyEffects(time);
     renderer.writeToCanvas(finalTexture);
 }
@@ -405,7 +398,7 @@ async function appSetup() {
         toggleBar.classList.toggle('collapsed');
     });
     await setupStaticButtons(
-        handleUpload,
+        handleHTMLUpload,
         handlePdrUpload,
         addSelectedEffect,
         saveState,
@@ -426,7 +419,7 @@ async function appSetup() {
         lockRender,
         unlockRender
     );
-    setupDragAndDrop(handleUpload);
+    setupDragAndDrop(handleHTMLUpload);
     setupExportImage(exportImage);
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();

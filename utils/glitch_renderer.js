@@ -153,11 +153,13 @@ export class GlitchRenderer {
         this.inputDirty = true;
     }
 
-    setFloatRGBA32Source(f32Array, width, height, clipLo = [0, 0, 0], clipHi = [1, 1, 1]) {
+    setFloatRGBA32Source(f32Array, width, height, scale = 1, offset = 0, clipLo = [0, 0, 0], clipHi = [1, 1, 1]) {
         this.source = {
             kind: "rgba32f",
             width,
             height,
+            scale,
+            offset,
             image: null,
             data: f32Array,
             clipLo: [...clipLo],
@@ -182,37 +184,6 @@ export class GlitchRenderer {
         this.source.clipLo = [...clipLo];
         this.source.clipHi = [...clipHi];
         this.inputDirty = true;
-    }
-
-    compileUpsampleProgram() {
-        const gl = this.gl;
-        const upvert = gl.createShader(gl.VERTEX_SHADER);
-        gl.shaderSource(upvert, ingressVertSrc);
-        gl.compileShader(upvert);
-        if (!gl.getShaderParameter(upvert, gl.COMPILE_STATUS)) {
-            throw new Error(gl.getShaderInfoLog(upvert));
-        }
-        const upfrag = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(upfrag, htmlIngressFragSrc);
-        gl.compileShader(upfrag);
-        if (!gl.getShaderParameter(upfrag, gl.COMPILE_STATUS)) {
-            throw new Error(gl.getShaderInfoLog(upfrag));
-        }
-        const upProg = gl.createProgram();
-        gl.attachShader(upProg, upvert);
-        gl.attachShader(upProg, upfrag);
-        gl.linkProgram(upProg);
-        if (!gl.getProgramParameter(upProg, gl.LINK_STATUS)) {
-            const info = gl.getProgramInfoLog(upProg);
-            throw new Error(`Could not compile WebGL program. \n\n${info}`);
-        }
-        gl.useProgram(upProg);
-        const upsampleUniforms = {
-            image: gl.getUniformLocation(upProg, "u_source"),
-            viewSpan: gl.getUniformLocation(upProg, "u_viewSpan"),
-            center: gl.getUniformLocation(upProg, "u_center")
-        }
-        return [upProg, upsampleUniforms];
     }
 
     initSharedResources() {
@@ -473,7 +444,7 @@ export class GlitchRenderer {
 
     applyEffects(t) {
         if (this.inputDirty) {
-            if (!this.cachedImage) return;
+            if (!this.source) return;
             const success = this.loadImage();
             if (!success) {
                 console.error("failed to initialize input texture");

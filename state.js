@@ -146,20 +146,6 @@ export function getEffectStack() {
 }
 
 
-// uploaded image as HTMLImageElement, used to generate resized
-// raster in canvas before applying effects
-let originalImage = null;
-
-export function setOriginalImage(img) {
-    originalImage = img;
-    renderer.setHTMLSource(img);
-}
-
-export function getOriginalImage() {
-    return originalImage;
-}
-
-
 // canvas property modification
 export function setFilters(filters, cvs=canvas) {
     cvs.style.filter = filters;
@@ -244,8 +230,6 @@ function NestingDict() {
 export const uiState = NestingDict();
 
 export function resizeAndRedraw() {
-    const originalImage = getOriginalImage();
-    if (!originalImage) return;
     Lock.image = true;
     try {
         const leftPane = document.getElementById('leftPane');

@@ -8,6 +8,7 @@ const effectFiles = [
     // 'blur.js',
     // 'blur_svg.js',
     'aberration.js',
+    'halftone.js',
     // 'wave_old.js',
     'wave.js',
     'scanlines.js',

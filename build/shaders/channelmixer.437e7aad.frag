@@ -14,6 +14,11 @@ uniform vec3 u_mix3;
 uniform vec3 u_offset;
 out vec4 outColor;
 
+mat2 rot(float a) {
+    float s = sin(a), c = cos(a);
+    return mat2(c, -s, s, c);
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec4 pixel = texture(u_image, uv);

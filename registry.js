@@ -5,6 +5,7 @@ const effectFiles = [
     'chromawave.js',
     'pixelsort.js',
     'invert.js',
+    'dither.js',
     // 'blur.js',
     // 'blur_svg.js',
     'aberration.js',

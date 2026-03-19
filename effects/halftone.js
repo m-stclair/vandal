@@ -51,7 +51,7 @@ export default {
         {'type': 'modSlider', 'key': 'cellSize', 'label': 'Cell Size', 'min': 2, 'max': 20, 'step': 1},
         {
             'type': 'modSlider', 'key': 'blackAngle', 'label': 'Angle', 'min': 0, 'max': 359, 'step': 1,
-            showIf: {key: "HALFTONE_MODE", equals: HalftoneEnum.HALFTONE_BLACK}
+            showIf: {key: "HALFTONE_MODE", notEquals: HalftoneEnum.HALFTONE_CMYK}
         },
         {
             type: 'group',
@@ -114,9 +114,9 @@ export default {
 
 export const effectMeta = {
     group: "Stylize",
-    tags: ["print", "pattern", "analog"],
+    tags: ["print", "pattern", "analog", "poster"],
     description: (
-        "Halftone effect."
+        "Halftone print effect with simple black and CMYK options."
     ),
     canAnimate: true,
     realtimeSafe: true,

@@ -152,7 +152,7 @@ let originalImage = null;
 
 export function setOriginalImage(img) {
     originalImage = img;
-    renderer.setCachedImage(img);
+    renderer.setHTMLSource(img);
 }
 
 export function getOriginalImage() {

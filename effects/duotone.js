@@ -79,7 +79,7 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE,
+            BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, blendAmount,
             darkColor, lightColor, gamma, shadowPoint, highlightPoint
         } = resolveAnimAll(instance.config, t);
 
@@ -94,7 +94,8 @@ export default {
             u_shadowPoint: {value: shadowPoint, type: "float"},
             u_highlightPoint: {value: highlightPoint, type: "float"},
             u_darkColor: {value: darkLab, type: "vec3"},
-            u_lightColor: {value: lightLab, type: "vec3"}
+            u_lightColor: {value: lightLab, type: "vec3"},
+            u_blendAmount: {value: blendAmount, type: "float"}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
@@ -119,6 +120,12 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
-  parameterHints: {},
+  parameterHints: {
+      lightColor: {"min": 0.3, "max": 1},
+      darkColor: {"min": 0, "max": 0.2},
+      gamma: {"min": 0.8, "max": 1.2},
+      shadowPoint: {"min": 0.1, "max": 0.3},
+      highlightPoint: {"min": 0.7, "max": 0.9}
+  },
   // notInRandom: true
 };

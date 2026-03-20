@@ -86,8 +86,7 @@ function pickRandomSubset(arr, n) {
 function pickRandomSubsetWithReplacement(arr, n) {
     const out = [];
     for (let i = 0; i < n; i++) {
-        const shuffled = [...arr].sort(() => Math.random() - 0.5);
-        out.push(shuffled[0]);
+        out.push(arr[Math.floor(Math.random() * arr.length)]);
     }
     return out;
 }
@@ -255,9 +254,10 @@ function selectRandomParam(hints, param) {
         );
     } else if (ptype === "vector") {
         let vec = [];
-        vec = [];
+        const min = hints[param.key]?.min ?? param.min;
+        const max = hints[param.key]?.max ?? param.max;
         for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
-            vec.push(randBetween(param.min, param.max));
+            vec.push(randBetween(min, max));
         }
         while (param.max <= 2 && (!vec.some((v) => v > 0.2) || !vec.some((v) => v < 0.8))) {
             // this is a silly heuristic: "don't turn all the colors to black "

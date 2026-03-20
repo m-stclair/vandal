@@ -6,6 +6,7 @@ const effectFiles = [
     'pixelsort.js',
     'invert.js',
     'dither.js',
+    'duotone.js',
     // 'blur.js',
     // 'blur_svg.js',
     'aberration.js',

@@ -6,6 +6,7 @@
   "channelmixer.frag": "channelmixer.437e7aad.frag",
   "scanlines.frag": "scanlines.24cef09b.frag",
   "gen_debug.frag": "gen_debug.b876e8dc.frag",
+  "duotone.frag": "duotone.20dfe291.frag",
   "noisemixer.frag": "noisemixer.102ce338.frag",
   "palettesquare.frag": "palettesquare.c0bdbffd.frag",
   "blockprobe.frag": "blockprobe.6a08e77a.frag",

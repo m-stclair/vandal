@@ -76,7 +76,7 @@ export default {
         //  palette -- when (1) we are the first active effect in the chain,
         //  (2) there hasn't been a base image swap, and (3) no parameters
         //  relevant to palette _selection_ have changed (e.g., someone
-        //  changed a blend setting).
+        //  changed a blend setting). but the probe is very cheap.
         const probe = instance.probe;
         const selectionWeights = {
             midtone: selectWeights[0],

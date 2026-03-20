@@ -2,18 +2,18 @@ import datetime as dt
 import os
 
 ROOT_INCLUDE = [
-    "index.html",
-    "favicon.ico",
-    "labpage.css",
-    "registry.js",
-    "state.js",
-    "test_patterns.js",
-    "ui.js",
-    "ui_builder.js",
-    "widgets.js",
-    "cache-worker.js",
-    "manifest.json",
-    "big_icon.png"
+    # "index.html",
+    # "favicon.ico",
+    # "labpage.css",
+    # "registry.js",
+    # "state.js",
+    # "test_patterns.js",
+    # "ui.js",
+    # "ui_builder.js",
+    # "widgets.js",
+    # "cache-worker.js",
+    # "manifest.json",
+    # "big_icon.png"
 ]
 
 def findish():
@@ -21,7 +21,11 @@ def findish():
     for dn, _, fns in os.walk("."):
         if dn == "." or ".git" in dn or ".idea" in dn or "__pycache__" in dn:
             continue
-        manifest_entries += [f"{dn}/{fn}" for fn in fns]
+        if "build" not in dn:
+            continue
+        manifest_entries += [
+            f"{dn}/{fn}" for fn in fns if "shader_manifest" not in fn
+        ]
     return manifest_entries
 
 
@@ -30,28 +34,61 @@ def make_manifest():
 
 
 def generate_serviceworker():
-    return f"""const CACHE_NAME = 'vandal-cache-{dt.datetime.now().timestamp()}';
-const ASSETS_TO_CACHE = {make_manifest()};
+    var = f"""const CACHE_NAME = 'vandal-cache-{dt.datetime.now().timestamp()}';
+    const ASSETS_TO_CACHE = {make_manifest()};"""
 
-self.addEventListener('install', event => {{
+    const = """
+    const SHADER_PREFIX = `${self.location.origin}/build/shaders/`;
+
+    self.addEventListener('install', event => {
   self.skipWaiting()
   event.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {{
-        for (let a of ASSETS_TO_CACHE) {{
-            console.log(a)
-            cache.add(a)
-        }}
-    }}));
-}});
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE)))});
 
-self.addEventListener('activate', event => {{self.clients.claim();}});
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
+    );
+    await self.clients.claim();
+  })());
+});
 
-self.addEventListener('fetch', event => {{
-  event.respondWith(
-    caches.match(event.request).then(resp => resp || fetch(event.request))
-  );
-}});
-    """
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  // Network-first for HTML/navigation
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    event.respondWith((async () => {
+      try {
+        return await fetch(req);
+      } catch {
+        const cached = await caches.match(req);
+        return cached || Response.error();
+      }
+    })());
+    return;
+  }
+  
+  // Only cache same-origin shader assets.
+  if (url.origin !== self.location.origin || !url.href.startsWith(SHADER_PREFIX)) {
+    return;
+  }
+
+  event.respondWith((async () => {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+
+    const fresh = await fetch(req);
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(req, fresh.clone());
+    return fresh;
+  })());
+});
+"""
+    return var + const
 
 
 def write_serviceworker():

@@ -5,9 +5,13 @@ const effectFiles = [
     'chromawave.js',
     'pixelsort.js',
     'invert.js',
+    'dither.js',
+    'duotone.js',
+    'engrave.js',
     // 'blur.js',
     // 'blur_svg.js',
     'aberration.js',
+    'halftone.js',
     // 'wave_old.js',
     'wave.js',
     'scanlines.js',
@@ -46,7 +50,8 @@ const effectFiles = [
     "palette_synth.js",
     "debug.js",
     "basisParentheses.js",
-    "fieldParentheses.js"
+    "fieldParentheses.js",
+    "threshold.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

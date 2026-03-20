@@ -55,7 +55,7 @@ export default {
 
         let kernelInfo;
         const kernelSettings = [kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness];
-        if (instance.auxiliaryCache.lastKernelSettings !== kernelSettings) {
+        if (String(instance.auxiliaryCache.lastKernelSettings) !== String(kernelSettings)) {
             const MAX_KERNEL_SIZE = 255;
             kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
             if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {

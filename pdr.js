@@ -63,13 +63,13 @@ function requirePdrInterfaceInit() {
 export async function getArrayImage(path, objname, band) {
     requirePdrInterfaceInit();
     const result = await py.fns.get_array_image(path, objname, band);
-    const [pixels, scale, offset, width, height] = result.toJs();
+    const [pixels, scale, offset, width, height, mean, std, p02, p98] = result.toJs();
     result.destroy();
     // NOTE: although `result.destroy()` decrefs the return value of `get_array_image()`,
     //  the memory visible to JS as `arrayData.pixels` will _not_ be freed as long as `arr`
     //  survives in JS, even though the `ndarray` that originally 'owned' that memory
     //  will be collected. Pyodide does some kind of witchcraft with TypedArray.
-    return {pixels, scale, offset, width, height};
+    return {pixels, scale, offset, width, height, mean, std, p02, p98};
 }
 
 export async function getProductInfo(path) {

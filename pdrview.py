@@ -19,12 +19,16 @@ class BandPixels:
     pixels: np.ndarray  # always 0-1 f32 padded to RGBA BIP
     scale: float
     offset: float
+    # these statistics are all also scaled/offset to the 0-1 array
+    mean: float
+    std: float
+    p02: float
+    p98: float
 
 
 # TODO: decide how many of these we actually want to cache
 @dataclasses.dataclass
 class ArrayObject:
-    # pixels scaled to 0-1 in float32, padded to 1-D RGBA BIP
     band_pixels: dict[str | int, BandPixels]
     info: ArrayInfo
     # MaskedArray with nonfinite values & special constants masked
@@ -112,17 +116,40 @@ def prep_masked_array(data: pdr.Data, objname: str) -> np.ma.MaskedArray:
     return arr
 
 
-def _scale_and_set(
-    obj: ArrayObject, band: int | str, pixels: np.ndarray
-) -> BandPixels:
+def _compute_stats(pixels: np.ndarray) -> dict:
+    """pixels here is a raw single-band or pre-pad array, no alpha contamination"""
+    flat = pixels.compressed() if isinstance(pixels, np.ma.MaskedArray) else pixels.ravel()
+    flat = flat[np.isfinite(flat)]
+    p02, p98 = np.percentile(flat, [2, 98])
+    return {
+        'mean': float(np.mean(flat)),
+        'std': float(np.std(flat)),
+        'p02': float(p02),
+        'p98': float(p98),
+    }
+
+
+def _scale_and_set(obj, band, pixels, raw_stats) -> BandPixels:
     offset = np.nanmin(pixels)
     scale = np.nanmax(pixels) - offset
     scaled = ((pixels - offset) / scale).astype('f4')
-    # TODO: make sure this retains mask
     if isinstance(scaled, np.ma.MaskedArray):
         scaled[scaled.mask] = np.nan
         scaled = scaled.data
-    bandpixels = BandPixels(pixels=scaled, scale=scale, offset=offset)
+
+    # transform stats into 0-1 space
+    def rescale(v):
+        return (v - offset) / scale
+
+    padded = to_rgba_bip_1d(scaled)
+    bandpixels = BandPixels(
+        pixels=padded,
+        scale=scale, offset=offset,
+        mean=rescale(raw_stats['mean']),
+        std=raw_stats['std'] / scale,
+        p02=rescale(raw_stats['p02']),
+        p98=rescale(raw_stats['p98']),
+    )
     obj.band_pixels[band] = bandpixels
     return bandpixels
 
@@ -132,10 +159,12 @@ def _get_set_grayscale(obj: ArrayObject, band: int) -> BandPixels:
         return bandpixels
     if obj.info.bands == 1:
         band = 0
-        pixels = to_rgba_bip_1d(obj.masked)
+        arr = obj.masked
     else:
-        pixels = to_rgba_bip_1d(obj.masked[band])
-    return _scale_and_set(obj, band, pixels)
+        arr = obj.masked[band]
+    raw_stats = _compute_stats(arr)
+    pixels = to_rgba_bip_1d(arr)
+    return _scale_and_set(obj, band, pixels, raw_stats)
 
 
 def get_scaled_rgba_bip(
@@ -160,8 +189,10 @@ def get_scaled_rgba_bip(
     if not isinstance(band, int) and obj.info.bands in (3, 4):
         if (pixels := obj.band_pixels.get("RGB")) is not None:
             return pixels
-        pixels = to_rgba_bip_1d(obj.masked[:3])
-        return _scale_and_set(obj, "RGB", pixels)
+        arr = obj.masked[:3]
+        raw_stats = _compute_stats(arr)
+        pixels = to_rgba_bip_1d(arr)
+        return _scale_and_set(obj, "RGB", pixels, raw_stats)
     # TODO: add arbitrary RGB band selection
     if not isinstance(band, int):
         band = obj.info.bands // 2
@@ -212,7 +243,11 @@ def get_array_image(
         float(bandpixels.scale),
         float(bandpixels.offset),
         int(info.width),
-        int(info.height)
+        int(info.height),
+        float(bandpixels.mean),
+        float(bandpixels.std),
+        float(bandpixels.p02),
+        float(bandpixels.p98)
     ]
 
 
@@ -263,40 +298,3 @@ def to_rgba_bip_1d(arr: np.ndarray) -> np.ndarray:
         )
 
     return rgba.reshape(-1)
-
-
-
-# def get_browsified(data, objname, band=None):
-#     # TODO: overly permissive
-#     try:
-#         band = int(band)
-#         override_rgba = True
-#     except ValueError:
-#         band = None
-#         override_rgba = False
-#     if objname in DATA_REGISTRY[data.filename]['scaled_objects']:
-#         arr: np.ma.MaskedArray = (
-#             DATA_REGISTRY[data.filename]['scaled_objects'][objname]
-#         )
-#     else:
-#         arr: np.ndarray = data[objname]
-#         if not isinstance(arr, np.ndarray):
-#             raise TypeError(f"{objname} is not an array; cannot display.")
-#         # apply scale/offset, mask special constants, etc.
-#         arr = data.get_scaled(objname)
-#         arr = np.ma.MaskedArray(arr)
-#         arr[~np.isfinite(arr) + arr.mask] = np.nan
-#         DATA_REGISTRY[data.filename]['scaled_objects'][objname] = arr.data
-#         # we only ever used the scaled object; don't double-cache
-#         delattr(data, objname)
-#     # let PIL do the alpha-padding and rotation work
-#     browsified: Image = _browsify_array(
-#         arr,
-#         outbase="",
-#         save=False,
-#         image_clip=(1, 1),
-#         band_ix=band,
-#         override_rgba=override_rgba
-#     ).convert('RGBA')
-#     image_arr = np.ascontiguousarray(browsified)
-#     return image_arr.ravel(), image_arr.shape

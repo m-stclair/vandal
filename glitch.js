@@ -21,6 +21,7 @@ import {
     getEffectById,
     getEffectStack,
     getAnimationFrozen,
+    inputStretchEffect,
     loadState,
     Lock,
     makeEffectInstance,

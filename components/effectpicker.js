@@ -128,7 +128,7 @@ export class EffectPicker extends HTMLElement {
 
         for (const entry of Object.values(registry)) {
             const {name, meta} = entry;
-            if (!name || !meta) continue;
+            if (!name || !meta || meta.notPickable) continue;
             const matchesSearch =
                 name.toLowerCase().includes(search.toLowerCase()) ||
                 meta.description.toLowerCase().includes(search.toLowerCase());

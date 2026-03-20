@@ -118,6 +118,7 @@ export interface EffectInstance {
     // user-edited name
     label?: string;
     solo: boolean;
+    requires_f32: boolean;
 }
 
 export interface EffectMeta {
@@ -133,7 +134,8 @@ export interface EffectMeta {
   // Optional extensions
   experimental?: boolean;
   hidden?: boolean;
-  kind: "pixel" | "visual"
+  kind: "pixel" | "visual";
+  notPickable?: boolean
 }
 
 export interface RegistryEntry {

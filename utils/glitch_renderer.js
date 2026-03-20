@@ -38,17 +38,9 @@ out vec4 outColor;
 uniform vec2 u_center;
 uniform vec2 u_viewSpan;
 
-uniform vec3 u_clipLo;
-uniform vec3 u_clipHi;
-
 void main() {
     vec2 srcUV = clamp(u_center + (v_uv - 0.5) * u_viewSpan, 0.0, 1.0);
-    vec4 raw = texture(u_source, srcUV);
-
-    vec3 denom = max(u_clipHi - u_clipLo, vec3(1e-20));
-    vec3 norm = clamp((raw.rgb - u_clipLo) / denom, 0.0, 1.0);
-
-    outColor = vec4(norm, 1.0);
+    outColor = vec4(texture(u_source, srcUV).rgb, 1.0);
 }`;
 
 const outputFragSrc = `#version 300 es
@@ -99,11 +91,11 @@ export class GlitchRenderer {
         this.inputHeight = null;
         this.inputWidth = null;
         this.ingress = this.compileIngressPrograms();
-        this.floatLinear = !!this.gl.getExtension("OES_texture_float_linear");        this.renderCache = new Map();
+        this.floatLinear = !!this.gl.getExtension("OES_texture_float_linear");
+        this.renderCache = new Map();
         this.outputVert = null;
         this.outputFrag = null;
         this.outputProg = null;
-        this.cachedImage = null;
         this.source = null;
         this.defaultFBO = this.gl.createFramebuffer();
         this.locked = false;
@@ -111,6 +103,11 @@ export class GlitchRenderer {
         this.zoom = 1.0
         this.centerX = 0.5
         this.centerY = 0.5
+        this.f32_format = {
+            internalFormat: this.gl.RGBA32F,
+            formatEnum: this.gl.RGBA,
+            typeEnum: this.gl.FLOAT
+        }
         console.log(this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE))
     }
 
@@ -137,8 +134,6 @@ export class GlitchRenderer {
             height,
             image: img,
             data: null,
-            clipLo: [0, 0, 0],
-            clipHi: [1, 1, 1],
         };
 
         if (this.sourceTexture) {
@@ -153,7 +148,7 @@ export class GlitchRenderer {
         this.inputDirty = true;
     }
 
-    setFloatRGBA32Source(f32Array, width, height, scale = 1, offset = 0, clipLo = [0, 0, 0], clipHi = [1, 1, 1]) {
+    setFloatRGBA32Source(f32Array, width, height, scale = 1, offset = 0) {
         this.source = {
             kind: "rgba32f",
             width,
@@ -162,8 +157,6 @@ export class GlitchRenderer {
             offset,
             image: null,
             data: f32Array,
-            clipLo: [...clipLo],
-            clipHi: [...clipHi],
         };
 
         if (this.sourceTexture) {
@@ -178,13 +171,6 @@ export class GlitchRenderer {
         this.inputDirty = true;
     }
 
-    // TODO: we want to actually put this in an effect instead
-    setClipWindow(clipLo, clipHi) {
-        if (!this.source || this.source.kind !== "rgba32f") return;
-        this.source.clipLo = [...clipLo];
-        this.source.clipHi = [...clipHi];
-        this.inputDirty = true;
-    }
 
     initSharedResources() {
         this.vao = this.createFullscreenQuad(this.gl);
@@ -234,8 +220,6 @@ export class GlitchRenderer {
             source: gl.getUniformLocation(floatProgram, "u_source"),
             viewSpan: gl.getUniformLocation(floatProgram, "u_viewSpan"),
             center: gl.getUniformLocation(floatProgram, "u_center"),
-            clipLo: gl.getUniformLocation(floatProgram, "u_clipLo"),
-            clipHi: gl.getUniformLocation(floatProgram, "u_clipHi"),
         };
 
         return {
@@ -337,9 +321,9 @@ export class GlitchRenderer {
         return this.ensureInputTexture(f32Array, width, height);
     }
 
-    getEffectFBO(id, width, height, name) {
+    getEffectFBO(id, width, height, name, format = null) {
         if (!this.fxbuffers[id]) {
-            this.fxbuffers[id] = this.make_framebuffer(width, height, id, name);
+            this.fxbuffers[id] = this.make_framebuffer(width, height, id, name, format);
         }
         return this.fxbuffers[id];
     }
@@ -352,7 +336,8 @@ export class GlitchRenderer {
         this.fxbuffers[id] = undefined;
     }
 
-    make_framebuffer(width, height, id, name) {
+    make_framebuffer(width, height, id, name, format=null) {
+        const fmt = format ?? this.format;
         const gl = this.gl;
         const tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -512,7 +497,8 @@ export class GlitchRenderer {
                     if (fx.glState.renderer !== this) {
                         throw new Error("GL effect not attached to this renderer")
                     }
-                    const fbo = this.getEffectFBO(fx.id, width, height, fx.name);
+                    const fmt = fx.requires_f32 ? this.f32_format : null;
+                    const fbo = this.getEffectFBO(fx.id, width, height, fx.name, fmt);
                     if (fx.glState) {
                         fx.glState.uniformsDirty = !(configHash === this.renderCache.get(fx.id)?.configHash);
                     }
@@ -747,18 +733,6 @@ export class GlitchRenderer {
             gl.uniform1i(uniforms.source, 0);
             gl.uniform2f(uniforms.viewSpan, spanX, spanY);
             gl.uniform2f(uniforms.center, this.centerX, this.centerY);
-            gl.uniform3f(
-                uniforms.clipLo,
-                this.source.clipLo[0],
-                this.source.clipLo[1],
-                this.source.clipLo[2]
-            );
-            gl.uniform3f(
-                uniforms.clipHi,
-                this.source.clipHi[0],
-                this.source.clipHi[1],
-                this.source.clipHi[2]
-            );
         } else {
             throw new Error(`Unknown source kind: ${this.source.kind}`);
         }

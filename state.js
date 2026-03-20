@@ -2,6 +2,7 @@ import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
 import {webGLState} from "./utils/webgl_state.js";
 import {GlitchRenderer} from "./utils/glitch_renderer.js"
+import {effectRegistry} from "./registry";
 
 
 export const Dirty = {image: true, ui: true}
@@ -173,6 +174,8 @@ export function makeEffectInstance(mod) {
     instance.ready = hook?.then ? hook : Promise.resolve();
     return instance;
 }
+
+export const inputStretchEffect = makeEffectInstance(effectRegistry['Input Stretch']);
 
 // state save/load
 

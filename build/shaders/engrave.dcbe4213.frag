@@ -1,4 +1,4 @@
-# version 300 es
+#version 300 es
 
 precision mediump float;
 
@@ -8,14 +8,20 @@ uniform sampler2D u_image;
 uniform vec2 u_resolution;
 
 // Artistic controls
-uniform float u_brightness = 1.0;
-uniform float u_contrast   = 1.0;
-uniform float u_scale      = 1.0;   // overall hatch scale
-uniform float u_jitter     = 0.35;  // low-frequency line wobble
-uniform float u_opacity = 1.0;   // how strongly ink overrides source
-uniform float u_paperTint  = 1.0;   // 1.0 = use source as paper, 0.0 = flat paper
-uniform vec3  u_inkColor   = vec3(0.05, 0.05, 0.05);
-uniform vec3  u_paperColor = vec3(0.96, 0.95, 0.92);
+uniform float u_brightness;
+uniform float u_contrast;
+uniform float u_scale;
+uniform float u_jitter;
+uniform float u_inkOpacity;
+uniform float u_paperOpacity;
+uniform vec3 u_inkColor;
+uniform vec3 u_paperColor;
+uniform float u_blendAmount;
+uniform float u_lineWidth;
+uniform float u_lineWidthSensitivity;
+uniform float u_angle;
+uniform float u_lineSpacing;
+uniform float u_lineSpacingSensitivity;
 
 #include "noise.glsl"
 #include "colorconvert.glsl"
@@ -75,25 +81,21 @@ float hatchLayer(
 
 void main()
 {
+
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
-    vec3 srgbIn = texture(uSource, uv).rgb;
-
-    // "Paper" can either be the original image, a flat paper tone,
-    // or something between. This keeps the effect usable as either
-    // an overlay or a full stylization pass.
-    vec3 paper = mix(uPaperColor, srgbIn, uPaperTint);
+    vec3 srgbIn = texture(u_image, uv).rgb;
 
     // Tone extraction
     float luma = srgb2NormLab(srgbIn).x;
-    luma = (luma - 0.5) * uContrast + 0.5;
+    luma = (luma - 0.5) * u_contrast + 0.5;
     luma *= u_brightness;
     luma = clamp(luma, 0.0, 1.0);
 
     float tone = 1.0 - luma; // 0 = white, 1 = black
 
     // Work in pixel space so the hatch is stable on screen
-    vec2 p = fragPx * u_scale;
+    vec2 p = gl_FragCoord.xy * u_scale;
 
     // Layer design:
     // - Light shadows: sparse single hatch
@@ -105,49 +107,55 @@ void main()
     // continuously vary one lonely stripe field forever.
 
     float ink = 0.0;
+    float widthRange = u_lineWidth * u_lineWidthSensitivity;
+    float baseWidth = mix(u_lineWidth - widthRange, u_lineWidth + widthRange, tone);
+    float spacingRange = u_lineSpacing * u_lineSpacingSensitivity;
+    float baseSpacing = mix(u_lineSpacing - spacingRange, u_lineSpacing + spacingRange, smoothstep(0.1, 0.95, tone));
 
-    // Layer 1: sparse /
+    // Layer 1: sparse
     ink += hatchLayer(
-        p, tone,
-        radians(25.0),
-        18.0,    // spacing in pixels
-        0.10,    // line half-width in phase units
+        p,
+        tone,
+        radians(u_angle),
+        baseSpacing,    // spacing in pixels
+        baseWidth,    // line half-width in phase units
         0.18,    // threshold
         0.05,    // softness
         0.030,   // jitter frequency
         u_jitter
     );
 
-    // Layer 2: sparse \
+    // Layer 2: sparse
     ink += hatchLayer(
-        p, tone,
-        radians(-25.0),
-        18.0,
-        0.10,
+        p,
+        tone,
+        radians(-u_angle),
+        baseSpacing,
+        baseWidth,
         0.38,
         0.05,
         0.032,
         u_jitter
     );
 
-    // Layer 3: denser /
+    // Layer 3: denser
     ink += hatchLayer(
         p, tone,
-        radians(25.0),
-        10.0,
-        0.08,
+        radians(u_angle),
+        baseSpacing * 0.55,
+        baseWidth * 0.8,
         0.58,
         0.05,
         0.040,
         u_jitter * 0.8
     );
 
-    // Layer 4: denser \
+    // Layer 4: denser
     ink += hatchLayer(
         p, tone,
-        radians(-25.0),
-        10.0,
-        0.08,
+        radians(-u_angle),
+        baseSpacing * 0.55,
+        baseWidth * 0.8,
         0.72,
         0.05,
         0.042,
@@ -166,6 +174,12 @@ void main()
         u_jitter * 0.5
     );
 
+    // "Paper" can either be the original image, a flat paper tone,
+    // or something between. This keeps the effect usable as either
+    // an overlay or a full stylization pass.
+    vec3 paper = mix(srgbIn, u_paperColor, u_paperOpacity);
+
+
     // Normalize / compress accumulated ink a bit
     ink = 1.0 - exp(-ink * 0.9);
     ink = clamp(ink, 0.0, 1.0);
@@ -174,9 +188,9 @@ void main()
     // This gives a bit of tone bed under the hatching.
     float darkWash = smoothstep(0.35, 1.0, tone) * 0.18;
 
-    float finalInk = clamp(ink + darkWash, 0.0, 1.0) * u_opacity;
+    float finalInk = clamp(ink + darkWash, 0.0, 1.0) * u_inkOpacity;
 
     vec3 result = mix(paper, u_inkColor, finalInk);
 
-    outColor = vec4(blendWithColorSpace(srgbIn, result), 1.0);
+    outColor = vec4(blendWithColorSpace(srgbIn, result, u_blendAmount), 1.0);
 }

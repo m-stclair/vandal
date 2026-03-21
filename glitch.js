@@ -324,7 +324,7 @@ async function appSetup() {
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);
     await drawPattern('spiral');
-    await loadState(getAppPresetView("Blank"), effectRegistry, false);
+    await loadState(getAppPresetView("Chromasplash"), effectRegistry, false);
     renderLoop();
     uiLoop();
 }

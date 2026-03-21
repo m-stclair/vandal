@@ -1,5 +1,4 @@
 import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/helpers.js";
-import {clampAnimationParams} from "./utils/animutils.js";
 import {requestRender, requestUIDraw} from "./state.js";
 
 
@@ -610,7 +609,6 @@ function ReferenceImage(id, config, uiSpec, fx) {
 }
 
 export default {
-    formatFloatWidth,
     makeButton,
     makeSlider,
     makeMatrixSlider,

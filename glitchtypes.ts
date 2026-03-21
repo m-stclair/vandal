@@ -119,6 +119,7 @@ export interface EffectInstance {
     label?: string;
     solo: boolean;
     requires_f32: boolean;
+    pinned?: boolean;
 }
 
 export interface EffectMeta {

@@ -4,6 +4,11 @@ import json
 import multidict
 import numpy as np
 import pdr
+from pyodide.ffi import to_js
+
+
+def to_js_unproxied(*args, **kwargs):
+    return to_js(*args, **kwargs, create_pyproxies=False)
 
 
 @dataclasses.dataclass
@@ -50,11 +55,6 @@ class RegistryEntry:
 DATA_REGISTRY: dict[str, RegistryEntry] = {}
 
 
-def load_product(path: str):
-    data = pdr.read(path)
-    DATA_REGISTRY[path] = RegistryEntry(data=data, objects={})
-
-
 def init_array_object(data: pdr.Data, objname: str) -> ArrayObject | None:
     arr = data[objname]
     if not isinstance(arr, np.ndarray):
@@ -89,23 +89,34 @@ def populate_registry_entry(entry: RegistryEntry):
     entry.populated = True
 
 
-def load_if_required(path: str) -> RegistryEntry:
-    if path not in DATA_REGISTRY.keys():
-        load_product(path)
-    entry = DATA_REGISTRY[path]
-    if not entry.populated:
-        populate_registry_entry(entry)
-    return entry
+# TODO: right now, this unconditionally clears all previous entries from the
+#  cache. We probably want to be smarter about this. But our memory is very
+#  limited.
+def clear_cache(path):
+    for p in tuple(DATA_REGISTRY.keys()):
+        if p != path:
+            del DATA_REGISTRY[p]
 
 
-def describe_data_from_registry(path: str) -> str:
-    out = {}
-    entry = load_if_required(path)
-    for objname, obj in entry.objects.items():
-        if isinstance(obj, DummyObject):
-            continue
-        out[objname] = dataclasses.asdict(obj.info)
-    return json.dumps({"objects": out, 'path': entry.data.filename})
+@dataclasses.dataclass
+class LoadResult:
+    ok: bool
+    entry: RegistryEntry | None = None
+    error: Exception | None = None
+
+
+def load_if_required(path: str) -> LoadResult:
+    if path in DATA_REGISTRY.keys():
+        return LoadResult(ok=True, entry=DATA_REGISTRY[path])
+    try:
+        data = pdr.read(path)
+    except Exception as e:
+        return LoadResult(ok=False, error=e)
+    clear_cache(path)
+    entry = RegistryEntry(data=data, objects={})
+    populate_registry_entry(entry)
+    DATA_REGISTRY[path] = entry
+    return LoadResult(ok=True, entry=entry)
 
 
 def prep_masked_array(data: pdr.Data, objname: str) -> np.ma.MaskedArray:
@@ -155,29 +166,33 @@ def _scale_and_set(obj, band, pixels, raw_stats) -> BandPixels:
 
 
 def _get_set_grayscale(obj: ArrayObject, band: int) -> BandPixels:
+    print("grayscale path")
     if (bandpixels := obj.band_pixels.get(band)) is not None:
         return bandpixels
     if obj.info.bands == 1:
+        print("singleband path")
         band = 0
         arr = obj.masked
     else:
+        print(f"multiband path at band {band}")
         arr = obj.masked[band]
     raw_stats = _compute_stats(arr)
-    pixels = to_rgba_bip_1d(arr)
-    return _scale_and_set(obj, band, pixels, raw_stats)
+    return _scale_and_set(obj, band, arr, raw_stats)
 
 
 def get_scaled_rgba_bip(
-    path: str, objname: str, band: str | int | None = None
+    result: LoadResult, objname: str, band: str | int | None = None
 ) -> BandPixels:
-    entry = load_if_required(path)
+    entry = result.entry
     if objname not in entry.objects:
-        raise ValueError(f"no array named {objname} in {path}")
+        raise ValueError(f"no array named {objname} in {entry.data.filename}")
     obj = entry.objects[objname]
     if isinstance(obj, DummyObject):
         raise TypeError(f"{objname} is not an array")
     if obj.masked is None:
         masked = prep_masked_array(entry.data, objname)
+        print(f"setting masked for {objname}")
+        print(f"masked shape is {masked.shape}")
         obj.masked = masked
     # NOTE: these look repetitive, but they're legitimately distinct cases
     # 2D array case (always grayscale)
@@ -191,8 +206,7 @@ def get_scaled_rgba_bip(
             return pixels
         arr = obj.masked[:3]
         raw_stats = _compute_stats(arr)
-        pixels = to_rgba_bip_1d(arr)
-        return _scale_and_set(obj, "RGB", pixels, raw_stats)
+        return _scale_and_set(obj, "RGB", arr, raw_stats)
     # TODO: add arbitrary RGB band selection
     if not isinstance(band, int):
         band = obj.info.bands // 2
@@ -235,25 +249,43 @@ def get_array_image(
     objname: str | None = None,
     band: str | int | None = None
 ):
-    load_if_required(path)
-    bandpixels = get_scaled_rgba_bip(path, objname, band)
-    info = DATA_REGISTRY[path].objects[objname].info
-    return [
-        bandpixels.pixels,
-        float(bandpixels.scale),
-        float(bandpixels.offset),
-        int(info.width),
-        int(info.height),
-        float(bandpixels.mean),
-        float(bandpixels.std),
-        float(bandpixels.p02),
-        float(bandpixels.p98)
-    ]
+    try:
+        result = load_if_required(path)
+        if not result.ok:
+            raise ValueError(f"Failed to load {path}: {result.error}")
+        bandpixels = get_scaled_rgba_bip(result, objname, band)
+        info = result.entry.objects[objname].info
+        return to_js_unproxied({
+            "ok": True,
+            "pixels": bandpixels.pixels,
+            "scale": float(bandpixels.scale),
+            "offset": float(bandpixels.offset),
+            "width": int(info.width),
+            "height": int(info.height),
+            "mean": float(bandpixels.mean),
+            "std": float(bandpixels.std),
+            "p02": float(bandpixels.p02),
+            "p98": float(bandpixels.p98),
+        })
+    except Exception as e:
+        return to_js_unproxied({
+            "ok": False, "error": f"{type(e).__name__}: {e}"
+        })
 
 
 def get_product_info(path: str) -> str:
-    load_if_required(path)
-    return describe_data_from_registry(path)
+    result = load_if_required(path)
+    if not result.ok:
+        return to_js_unproxied({
+            "ok": False,
+            "error": f"{type(result.error).__name__}: {result.error}",
+        })
+    out = {}
+    for objname, obj in result.entry.objects.items():
+        if isinstance(obj, DummyObject):
+            continue
+        out[objname] = dataclasses.asdict(obj.info)
+    return to_js_unproxied({"ok": True, "objects": json.dumps(out)})
 
 
 def to_rgba_bip_1d(arr: np.ndarray) -> np.ndarray:
@@ -279,12 +311,14 @@ def to_rgba_bip_1d(arr: np.ndarray) -> np.ndarray:
     arr = np.asarray(arr)
 
     if arr.ndim == 2:
+        print("grayscale BIP conversion path")
         # Grayscale: replicate into R, G, B
         h, w = arr.shape
         alpha = np.ones((h, w), dtype=arr.dtype)
         rgba = np.stack((arr, arr, arr, alpha), axis=-1)  # (H, W, 4)
 
     elif arr.ndim == 3 and arr.shape[0] == 3:
+        print("RGB BIP conversion path")
         # BSQ: (3, H, W) -> split into R, G, B
         r, g, b = arr
         h, w = r.shape

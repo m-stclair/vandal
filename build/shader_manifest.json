@@ -20,6 +20,7 @@
   "bloom.glsl": "bloom.495bcf7e.glsl",
   "colormap.frag": "colormap.e4c236bd.frag",
   "jzazbz.frag": "jzazbz.c63174b8.frag",
+  "input_stretch.frag": "input_stretch.016bfaef.frag",
   "contour_synth.frag": "contour_synth.3dc827f4.frag",
   "basis_parentheses.frag": "basis_parentheses.692ec6c1.frag",
   "delayline.frag": "delayline.28ba4c1b.frag",

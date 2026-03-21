@@ -46,11 +46,6 @@ export function setupPaneDrag() {
     });
 }
 
-
-// effect stack container
-
-const effectStackElement = document.getElementById("effectStack");
-
 export function moveEffectInStack(effectStack, from, to) {
     if (from < 0 || from >= effectStack.length) return;
     to = Math.max(0, Math.min(to, effectStack.length));
@@ -257,10 +252,6 @@ export function setupVideoExportModal() {
         }
     });
 }
-
-const dropZone = document.getElementById('drop-zone-fullscreen');
-
-// const fileInput = document.getElementById('file-input');
 
 export function setupDragAndDrop(handleUpload) {
     document.addEventListener('dragover', e => e.preventDefault());

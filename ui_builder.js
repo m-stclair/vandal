@@ -1,30 +1,19 @@
 import widgets, {renderFoldoutToggle} from "./widgets.js"
 import {moveEffectInStack, placeholderOption} from "./ui.js";
 import {
-    clearRenderCache, flushEffectStack,
+    clearRenderCache,
     getSelectedEffectId,
     isSelectedEffect,
-    makeEffectInstance, requestRender, requestUIDraw,
+    makeEffectInstance,
+    requestRender,
+    requestUIDraw,
     toggleEffectSelection
 } from "./state.js";
 import {effectRegistry} from "./registry.js";
-import {getEffectPresetView, listEffectPresets, saveEffectPreset} from "./utils/presets.js";
+import {
+    getEffectPresetView, listEffectPresets, saveEffectPreset
+} from "./utils/presets.js";
 
-
-// TODO, maybe: these don't handle cases in which a config entry is of the form {value: x, mod: {...}}.
-//  however, I don't think we ever want to make UI visibility contingent on an animated value!
-function isVisibilityDriver(key, configArray) {
-    return configArray.some(item => {
-        // Look at this item’s showIf
-        const clauses = Array.isArray(item.showIf) ? item.showIf : [item.showIf];
-        if (clauses.some(clause => clause?.key === key)) return true;
-
-        // Recurse into children, if present
-        if (item.children) return isVisibilityDriver(key, item.children);
-
-        return false;
-    });
-}
 
 function collectVisibilityDrivers(configArray, keyTriggersUIDraw) {
     for (const item of configArray) {
@@ -309,7 +298,7 @@ function createControlGroup(fx, effectStack, uiState, i) {
     const downBtn = document.createElement("button");
     downBtn.textContent = "↓";
     downBtn.title = "Move down";
-    downBtn.disabled = i === effectStack.length - 1;
+    downBtn.disabled = i === effectStack.length - 1 || fx.pinned;
     downBtn.className = "effectButton";
     downBtn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -320,6 +309,7 @@ function createControlGroup(fx, effectStack, uiState, i) {
 
     const dupBtn = document.createElement("button");
     dupBtn.textContent = "⧉";
+    dupBtn.disabled = fx.pinned;
     dupBtn.title = "Duplicate effect";
     dupBtn.className = "effectButton";
     dupBtn.addEventListener("click", async (e) => {
@@ -346,6 +336,7 @@ function createControlGroup(fx, effectStack, uiState, i) {
     const delBtn = document.createElement('button');
     delBtn.textContent = '×';
     delBtn.className = "effectButton";
+    delBtn.disabled = fx.pinned;
     delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (fx.cleanupHook) {

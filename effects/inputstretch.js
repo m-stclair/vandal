@@ -46,9 +46,9 @@ export default {
     },
     uiLayout: [
         {'type': 'select', 'key': 'clipMode', 'label': 'Range Clip', 'options': ClipOpts},
-        {'type': 'select', 'key': 'clipMode', 'label': 'Range Stretch', 'options': StretchOpts},
+        {'type': 'select', 'key': 'stretchMode', 'label': 'Range Stretch', 'options': StretchOpts},
         {
-            'type': 'slider',
+            'type': 'range',
             'key': 'stdevClip',
             'label': 'Standard Deviations',
             'min': 0.1,
@@ -64,20 +64,23 @@ export default {
             clipMode, stdevClip, stretchMode
         } = resolveAnimAll(instance.config, t);
 
+        const clipModeN = Number(clipMode);
         const mean = instance.auxiliaryCache.mean;
         const std = instance.auxiliaryCache.std;
         const p02 = instance.auxiliaryCache.p02;
         const p98 = instance.auxiliaryCache.p98;
         let min, max;
 
-        if (clipMode === ClipEnum.STDEV) {
+        if (clipModeN === ClipEnum.STDEV) {
             if (mean === undefined || std === undefined) {;
                 [min, max] = [0, 1];
             } else {
                 min = mean - stdevClip * std;
+                min = min < 0 ? 0 : min;
                 max = mean + stdevClip * std;
+                max = max > 1 ? 1 : max;
             }
-        } else if (clipMode === ClipEnum.P02_P98) {
+        } else if (clipModeN === ClipEnum.P02_P98) {
             if (p02 === undefined || p98 === undefined) {
                 [min, max] = [0, 1];
             } else {

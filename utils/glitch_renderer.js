@@ -577,11 +577,22 @@ export class GlitchRenderer {
             this.sourceTexture = null;
         }
 
-
         const tex = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, tex);
 
-        gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, false);
+        // Reset all unpack state
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+
+        if (gl instanceof WebGL2RenderingContext) {
+            gl.pixelStorei(gl.UNPACK_ROW_LENGTH, 0);
+            gl.pixelStorei(gl.UNPACK_SKIP_ROWS, 0);
+            gl.pixelStorei(gl.UNPACK_SKIP_PIXELS, 0);
+            gl.pixelStorei(gl.UNPACK_IMAGE_HEIGHT, 0);
+            gl.pixelStorei(gl.UNPACK_SKIP_IMAGES, 0);
+        }
 
         gl.texImage2D(
             gl.TEXTURE_2D,

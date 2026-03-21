@@ -2,7 +2,7 @@ import {gid, uuidv4} from "./utils/helpers.js";
 import {normalizeImageData} from "./utils/imageutils.js";
 import {webGLState} from "./utils/webgl_state.js";
 import {GlitchRenderer} from "./utils/glitch_renderer.js"
-import {effectRegistry} from "./registry";
+import {effectRegistry} from "./registry.js";
 
 
 export const Dirty = {image: true, ui: true}
@@ -134,7 +134,19 @@ export const setFreezeAnimationButtonFlag = (v) => {
 
 
 export function flushEffectStack() {
+    forEachEffect(
+        (fx) => {
+            if (fx.pinned) {
+
+            } else if (fx.cleanupHook) {
+                fx.cleanupHook(fx);
+            }
+        })
     effectStack.length = 0;
+    if (renderer.source.kind === "rgba32f") {
+        // never get rid of the singleton input stretch
+        addEffectToStack(inputStretchEffect);
+    }
 }
 
 export function addEffectToStack(fx) {
@@ -176,6 +188,8 @@ export function makeEffectInstance(mod) {
 }
 
 export const inputStretchEffect = makeEffectInstance(effectRegistry['Input Stretch']);
+await inputStretchEffect.ready;
+inputStretchEffect.pinned = true;
 
 // state save/load
 
@@ -248,17 +262,10 @@ export function resizeAndRedraw() {
 }
 
 
-// TODO: big gun type situation
 export function resetStack() {
     renderer.reset_pipeline();
-    forEachEffect(
-        (fx) => {
-            if (fx.cleanupHook) {
-                fx.cleanupHook(fx);
-            }
-        })
-        flushEffectStack();
-        requestUIDraw();
+    flushEffectStack();
+    requestUIDraw();
 }
 
 export function lockRender() {

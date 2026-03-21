@@ -89,17 +89,37 @@ const dataObjectSelect = gid("data-object-select");
 const imageBandSelect = gid("image-band-select");
 
 // info for 'active' product
-let pdrProductInfo = null;
+let pdrProductInfo = {};
+
+let currentImageRequest = 0;
 
 async function handlePdrBandSelect() {
-    if (!pdrProductInfo) return;
-    const path = pdrProductInfo['path'];
-    const objname = dataObjectSelect.value;
-    const band = imageBandSelect.value;
-    const arrayData = await getArrayImage(path, objname, Number(band));
-    renderer.setFloatRGBA32Source(arrayData.pixels, arrayData.width, arrayData.height);
-    resizeAndRedraw();
+    if (!pdrProductInfo.name) return;
+    const requestId = ++currentImageRequest;
+
+    try {
+        const fn = pdrProductInfo.name;
+        const objname = dataObjectSelect.value;
+        const band = imageBandSelect.value;
+        const arrayData = await getArrayImage(fn, objname, Number(band));
+
+        if (requestId !== currentImageRequest) {
+            console.warn("Debounced PDR band select request");
+            return;
+        }
+
+        renderer.setFloatRGBA32Source(arrayData.pixels, arrayData.width, arrayData.height);
+        inputStretchEffect.auxiliaryCache.mean = arrayData.mean;
+        inputStretchEffect.auxiliaryCache.std = arrayData.std;
+        inputStretchEffect.auxiliaryCache.p02 = arrayData.p02;
+        inputStretchEffect.auxiliaryCache.p98 = arrayData.p98;
+        resizeAndRedraw();
+    } catch (err) {
+        console.error(err)
+        // TODO: some behavior about showing the load error
+    }
 }
+
 
 async function handlePdrObjectChange() {
     if (!pdrProductInfo) return;
@@ -154,6 +174,12 @@ async function populatePdrUI() {
     dataObjectSelect.options[0].selected = true;
 }
 
+function setupInputStretch() {
+    const effectStack = getEffectStack();
+    if (effectStack[0] === inputStretchEffect) return;
+    effectStack.unshift(inputStretchEffect);
+}
+
 
 async function handlePdrUpload(e) {
     // this needs to be plural to permit uploading detached labels
@@ -161,15 +187,26 @@ async function handlePdrUpload(e) {
     if (!file) return;
     const bytes = await file.arrayBuffer();
     const pyodide = await getPyodide();
-    pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
     await initPDR();
     console.log('init')
-    pdrProductInfo = await getProductInfo(file.name);
-    lockRender();
-    await populatePdrUI();
-    await handlePdrObjectChange();
-    requestRender();
-    unlockRender();
+    pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
+    try {
+        const objects = await getProductInfo(file.name);
+        pdrProductInfo.name = file.name;
+        pdrProductInfo.objects = objects;
+        // TODO: delete previous files
+        lockRender();
+        await populatePdrUI();
+        setupInputStretch();
+        await handlePdrObjectChange();
+        requestUIDraw();
+        requestRender();
+        unlockRender();
+    } catch (e) {
+        console.error(e);
+        pyodide.FS.unlink(file.name);
+    }
+
 }
 
 

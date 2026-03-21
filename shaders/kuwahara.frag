@@ -14,8 +14,12 @@ uniform vec2  u_texelSize;
 uniform float u_radius;
 uniform float u_sharpness;
 uniform float u_eccentricity;
+uniform float u_blendAmount;
 
 out vec4 outColor;
+
+#include "colorconvert.glsl"
+#include "blend.glsl"
 
 void main() {
 
@@ -114,5 +118,6 @@ void main() {
         }
     }
 
-    outColor = vec4(bestMean, 1.0);
+    vec4 color = texture(u_image, uv);
+    outColor = vec4(blendWithColorSpace(color.rgb, bestMean, u_blendAmount), 1.0);
 }

@@ -4,20 +4,20 @@ import {structureTensorPass} from "./probes/structuretensor.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
-const shaderPath = "kuwahara.frag";
+const shaderPath = "structureflow.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl", "blend.glsl": "includes/blend.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Kuwahara",
+    name: "Structure Flow",
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
             BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, chromaBoost,
-            texelSizeX, texelSizeY, radius, sharpness, eccentricity, USE_KERNEL
+            magnitude, anisoDrag, edgeAngle, kernelRadius, USE_KERNEL
         } = resolveAnimAll(instance.config, t);
 
         instance.structureTensorPass.calculate(
@@ -25,9 +25,10 @@ export default {
             inputTex,
             width,
             height,
-            texelSizeX,
-            texelSizeY,
-            USE_KERNEL
+            1,
+            1,
+            USE_KERNEL,
+            kernelRadius
         )
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -38,10 +39,10 @@ export default {
                 value: instance.structureTensorPass.outputFBO.texture,
                 type: "texture2D"
             },
-            u_texelSize: {value: [texelSizeX, texelSizeY], type: "vec2"},
-            u_radius: {value: radius, type: "float"},
-            u_sharpness: {value: sharpness, type: "float"},
-            u_eccentricity: {value: eccentricity, type: "float"},
+            u_texelSize: {value: [1 / width, 1 / height], type: "vec2"},
+            u_magnitude: {value: magnitude, type: "float"},
+            u_anisoDrag: {value: anisoDrag, type: "float"},
+            u_edgeAngle: {value: edgeAngle * Math.PI / 180, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
             u_chromaBoost: {value: chromaBoost, type: "float"}
         }
@@ -75,64 +76,56 @@ export default {
     isGPU: true,
     pass: null,
     defaultConfig: {
-        texelSizeX: 1,
-        texelSizeY: 1,
-        radius: 4,
-        sharpness: 2.5,
-        eccentricity: 1,
+        magnitude: 3,
+        anisoDrag: 0.2,
+        edgeContribution: 1,
+        edgeAngle: 90,
         USE_KERNEL: false,
+        kernelRadius: 3,
         BLENDMODE: BlendModeEnum.MIX,
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         chromaBoost: 1,
-
     },
     uiLayout: [
         {
-            key: "texelSizeX",
-            label: "Texel Stretch X",
-            type: "range",
-            min: 1,
-            max: 8,
-            step: 1,
-        },
-        {
-            key: "texelSizeY",
-            label: "Texel Stretch Y",
-            type: "range",
-            min: 1,
-            max: 8,
-            step: 1,
-        },
-        {
-            key: "radius",
-            label: "Radius",
-            type: "range",
-            min: 3,
-            max: 16,
-            step: 1,
-        },
-        {
-            key: "sharpness",
-            label: "Sharpness",
-            type: "range",
-            min: 1,
-            max: 8,
+            key: "magnitude",
+            label: "Strength",
+            type: "modSlider",
+            min: 0,
+            max: 25,
             steps: 100,
         },
         {
-            key: "eccentricity",
-            label: "Eccentricity",
-            type: "range",
+            key: "anisoDrag",
+            label: "Texture Drag",
+            type: "modSlider",
             min: 0,
-            max: 6,
-            steps: 100
+            max: 1,
+            steps: 100,
+        },
+        {
+            key: "edgeAngle",
+            label: "Edge Angle",
+            type: "modSlider",
+            min: 0,
+            max: 360,
+            step: 1
         },
         {
             key: "USE_KERNEL",
             label: "Smoothing",
             type: "checkbox",
+        },
+        {
+            key: "kernelRadius",
+            label: "Smoothing Radius",
+            type: "range",
+            min: 3,
+            max: 5,
+            step: 1,
+            showIf: {"key": "USE_KERNEL", "equals": true}
         },
         blendControls()
     ]
@@ -140,10 +133,11 @@ export default {
 
 export const effectMeta = {
   group: "Stylize",
-  tags: ["paint", "brush", "edge", "blur"],
-  description: "Applies a Kuwahara filter for painterly effects.",
+  tags: ["edge", "blur", "smooth"],
+  description: "Selective blur along edges, optionally attenuated by local texture.",
   backend: "gpu",
-  canAnimate: false,
-  realtimeSafe: false,
+  canAnimate: true,
+  realtimeSafe: true,
+  parameterHints: {"USE_KERNEL": {"always": false}},
   notInRandom: true
 };

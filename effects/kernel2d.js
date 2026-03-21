@@ -68,13 +68,13 @@ export default {
         }
         instance.auxiliaryCache.lastKernelSettings = kernelSettings;
         const uniformSpec = {
-        u_resolution: {type: "vec2", value: [width, height]},
-        u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-        u_kernelWidth: {type: "int", value: kernelInfo.width},
-        u_kernelHeight: {type: "int", value: kernelInfo.height},
-        u_blendamount: {type: "float", value: blendAmount},
-        u_chromaBoost: {type: "float", value: chromaBoost}
-    };
+            u_resolution: {type: "vec2", value: [width, height]},
+            u_kernel: {type: "floatArray", value: kernelInfo.kernel},
+            u_kernelWidth: {type: "int", value: kernelInfo.width},
+            u_kernelHeight: {type: "int", value: kernelInfo.height},
+            u_blendamount: {type: "float", value: blendAmount},
+            u_chromaBoost: {type: "float", value: chromaBoost}
+        };
 
         const defines = {
             KERNEL_SIZE: kernelInfo.kernel.length,

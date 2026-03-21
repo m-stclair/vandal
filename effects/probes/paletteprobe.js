@@ -126,5 +126,5 @@ export const paletteprobe = {
         // const normalized = expanded.map(e => normalizeLab(e));
         return expanded.sort((a, b) => a[0] - b[0]);
     },
-    initHook: fragSources.load
+    initHook: fragSources.load,
 }

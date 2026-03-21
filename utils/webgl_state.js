@@ -92,6 +92,7 @@ export class webGLState {
             const info = gl.getActiveUniform(program, i);
             locations[info.name] = gl.getUniformLocation(program, info.name);
         }
+
         return locations;
     }
 
@@ -154,11 +155,14 @@ export class webGLState {
                     const value = gl.createTexture()
                     this.allocateTexture(this.format, width, height, value);
                 }
+                // checkTexture(gl, value);
                 gl.bindTexture(gl.TEXTURE_2D, value);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+                // in this case, UniformSetters[type] is just gl.uniform1i(loc, val)
                 UniformSetters[type](gl, loc, 1);
                 return;
             }

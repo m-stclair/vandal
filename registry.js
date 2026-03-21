@@ -8,6 +8,7 @@ const effectFiles = [
     'dither.js',
     'duotone.js',
     'engrave.js',
+    'kuwahara.js',
     // 'blur.js',
     // 'blur_svg.js',
     'aberration.js',

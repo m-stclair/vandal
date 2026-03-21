@@ -1,6 +1,75 @@
 // Built-in effect stack presets (not stored in localStorage)
 export const builtInPresets = [
     {
+        "name": "Dancing Lithograph",
+        "config": [
+            {
+                "name": "Dither",
+                "config": {
+                    "scale": 408.17237024620744,
+                    "tint": [
+                        0.36,
+                        1,
+                        0.19
+                    ],
+                    "seed": {
+                        "value": 1,
+                        "mod": {
+                            "type": "hold",
+                            "freq": 3.066312293049551,
+                            "phase": 0,
+                            "scale": 16.968000000000004,
+                            "offset": 250.5
+                        }
+                    },
+                    "levels": 3,
+                    "BLENDMODE": 1,
+                    "BLEND_CHANNEL_MODE": 0,
+                    "COLORSPACE": 0,
+                    "chromaBoost": 1,
+                    "components": [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0.43
+                    ],
+                    "blendAmount": 1,
+                    "colormap": "none"
+                }
+            },
+            {
+                "name": "Halftone",
+                "config": {
+                    "blendAmount": 0.35,
+                    "COLORSPACE": "7",
+                    "BLENDMODE": 1,
+                    "BLEND_CHANNEL_MODE": 0,
+                    "halftoneMode": 0,
+                    "chromaBoost": 1,
+                    "cellSize": 6,
+                    "blackAngle": {
+                        "value": 97,
+                        "mod": {
+                            "type": "none"
+                        }
+                    },
+                    "cAngle": 15,
+                    "mAngle": 75,
+                    "yAngle": 0,
+                    "kAngle": 45,
+                    "cOffset": 5,
+                    "mOffset": 5,
+                    "yOffset": 5,
+                    "kOffset": 5,
+                    "HALFTONE_MODE": "0"
+                }
+            }
+        ]
+    },
+    {
         name: "Monkey Island",
         config: [
             {

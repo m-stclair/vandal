@@ -30,6 +30,8 @@
   "threshold.frag": "threshold.3db3b2eb.frag",
   "colorshred.frag": "colorshred.8527e6b8.frag",
   "halftone.frag": "halftone.a49b07f8.frag",
+  "kuwahara.frag": "kuwahara.e4d968b4.frag",
+  "structure_tensor.frag": "structure_tensor.735f1502.frag",
   "dither.frag": "dither.3cc58d63.frag",
   "posterizer.frag": "posterizer.d31c06ca.frag",
   "pcaprobe.frag": "pcaprobe.a27e7a4a.frag",

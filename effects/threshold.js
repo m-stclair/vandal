@@ -95,6 +95,9 @@ export const effectMeta = {
         "channel key (luma, chroma, or hue). Optionally converts the " +
         "image to binary black/white."
     ),
+    parameterHints: {
+        "target": {min: 0.5, max: 0.75},
+    },
     canAnimate: true,
     realtimeSafe: true,
 }

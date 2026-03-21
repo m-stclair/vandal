@@ -259,13 +259,13 @@ function selectRandomParam(hints, param) {
         for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
             vec.push(randBetween(min, max));
         }
-        while (param.max <= 2 && (!vec.some((v) => v > 0.2) || !vec.some((v) => v < 0.8))) {
+        while (param.max <= 2 && ((!vec.some((v) => v > 0.2) && max > 0.2)) || (!vec.some((v) => v < 0.8)) && min < 0.8) {
             // this is a silly heuristic: "don't turn all the colors to black "
             // or white, although these aren't all colors"
             // TODO: DRY, michael, DRY
             vec = [];
             for (let i = 0; i < (param.length ?? param.subLabels.length); i++) {
-                vec.push(randBetween(param.min, param.max));
+                vec.push(randBetween(min, max));
             }
         }
         return vec;
@@ -294,7 +294,6 @@ export async function randomizeEffectStack() {
     const numEffects = roll1d4();
 
     const selected = pickRandomSubsetWithReplacement(allEffects, numEffects);
-
     for (const effect of selected) {
         const fx = makeEffectInstance(effect)
         fx.config = generateRandomizedConfig(fx.uiLayout, effect.meta);

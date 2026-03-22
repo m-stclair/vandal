@@ -232,6 +232,16 @@ export function setupVideoCapture(startCapture, stopCapture) {
     document.getElementById('stopCaptureOverlay').onclick = () => stopCapture();
 }
 
+export const pdrErrorModal = gid("pdr-error-modal");
+export const pdrErrorModalContent = gid("pdr-error-modal-content");
+
+export function setupPDRErrorModal() {
+    const closeButton = gid("close-pdr-error-modal");
+    closeButton.addEventListener("click", () => {
+        pdrErrorModal.style.display = "none";
+        pdrErrorModalContent.innerHTML = "";
+    });
+}
 
 export function setupVideoExportModal() {
     const modal = document.getElementById("exportControlsModal");

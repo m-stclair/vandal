@@ -1,9 +1,10 @@
 import {
+    pdrErrorModal, pdrErrorModalContent,
     placeholderOption,
     pruneForMobile,
     setupDragAndDrop,
     setupExportImage,
-    setupPaneDrag,
+    setupPaneDrag, setupPDRErrorModal,
     setupPresetUI,
     setupStaticButtons,
     setupVideoCapture,
@@ -180,17 +181,27 @@ function setupInputStretch() {
     effectStack.unshift(inputStretchEffect);
 }
 
+const pdrLoadingModal = gid("pdr-loading-modal");
+const pdrLoadingModalContent = gid("pdr-loading-modal-content");
 
 async function handlePdrUpload(e) {
-    // this needs to be plural to permit uploading detached labels
+    // TODO: this needs to be plural to permit uploading detached labels
     const file = e.target.files[0];
     if (!file) return;
     const bytes = await file.arrayBuffer();
-    const pyodide = await getPyodide();
-    await initPDR();
-    console.log('init')
-    pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
+    pdrLoadingModal.style.display = "block";
+    if (!pdrInitializedFlag) {
+        pdrLoadingModalContent.innerText = "Setting up PDR..."
+    }
+    let pyodide = null;
     try {
+        pyodide = await getPyodide();
+        await initPDR();
+        // TODO: this is not visible. I think the pyodide stuff might need to
+        //  be offloaded into a webworker, or we need to guard this in
+        //  requestanimationframe or something
+        pdrLoadingModalContent.innerText = `loading ${file.name}...`
+        pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
         const objects = await getProductInfo(file.name);
         pdrProductInfo.name = file.name;
         pdrProductInfo.objects = objects;
@@ -204,9 +215,16 @@ async function handlePdrUpload(e) {
         unlockRender();
     } catch (e) {
         console.error(e);
-        pyodide.FS.unlink(file.name);
+        pdrLoadingModal.style.display = "none";
+        pdrErrorModalContent.innerText = e;
+        pdrErrorModal.style.display = "block";
+        if (pyodide) {
+            pyodide.FS.unlink(file.name);
+        }
+    } finally {
+        pdrLoadingModal.style.display = "none"
+        pdrLoadingModalContent.innerText = ""
     }
-
 }
 
 
@@ -462,6 +480,7 @@ async function appSetup() {
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
     setupVideoExportModal();
+    setupPDRErrorModal();
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);

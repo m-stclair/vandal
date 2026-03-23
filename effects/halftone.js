@@ -6,7 +6,7 @@ import {
     hasChromaBoostImplementation,
     makeEnum
 } from "../utils/glsl_enums.js";
-import {blendControls, group} from "../utils/ui_configs.js";
+import {blendControls} from "../utils/ui_configs.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
 const shaderPath = "halftone.frag"
@@ -33,7 +33,7 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
-        halftoneMode: HalftoneEnum.HALFTONE_BLACK,
+        HALFTONE_MODE: HalftoneEnum.HALFTONE_BLACK,
         chromaBoost: 1,
         cellSize: 5,
         blackAngle: 0,

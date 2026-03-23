@@ -1,37 +1,43 @@
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
-import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../../utils/kernels.js";
+import {generate2DKernel, subsampleKernel2D} from "../../utils/kernels.js";
 
-const structureTensorFragSources = loadFragSrcInit("structure_tensor.frag", {});
+const fragSources = loadFragSrcInit("kernel_pass.glsl", {});
 
-export const structureTensorPass = {
-    calculate(pass, inputTex, width, height, texelSizeX, texelSizeY, USE_KERNEL, kernelRadius = 3) {
-        initGLEffect(pass, structureTensorFragSources);
+export const kernelPass = {
+    calculate(pass, inputTex, width, height, kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness) {
+        initGLEffect(pass, fragSources);
         pass.setupFBO(pass, width, height);
 
         let kernelInfo;
+        const kernelSettings = [kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness];
         const MAX_KERNEL_SIZE = 255;
-        const kernelSettings = [KernelTypeEnum.GAUSSIAN, kernelRadius, kernelRadius]
-            kernelInfo = generate2DKernel(...kernelSettings, 1);
+        if (String(pass.auxiliaryCache.lastKernelSettings) !== String(kernelSettings)) {
+            kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
             if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
-                kernelInfo = subsampleKernel2D(...kernelSettings, MAX_KERNEL_SIZE);
+                kernelInfo = subsampleKernel2D(kernelInfo.kernel, kernelInfo.width, kernelInfo.height, MAX_KERNEL_SIZE);
             }
-
+            pass.auxiliaryCache.lastKernelSettings = kernelSettings;
+            pass.auxiliaryCache.kernelInfo = kernelInfo;
+        } else {
+            kernelInfo = pass.auxiliaryCache.kernelInfo;
+        }
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
-            u_texelSize: {value: [texelSizeX, texelSizeY], type: "vec2"},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-            u_kernelRadius: {type: "int", value: kernelInfo.width},
+            u_kernelWidth: {type: "int", value: kernelInfo.width},
+            u_kernelHeight: {type: "int", value: kernelInfo.height},
         };
         const defines = {
-            USE_KERNEL:  USE_KERNEL ? 1 : 0,
             KERNEL_SIZE: kernelInfo.kernel.length
         }
         pass.glState.renderGL(inputTex, pass.outputFBO, uniformSpec, defines);
+        return pass.outputFBO;
     },
     initHook: async (pass, renderer) => {
-        pass.glState = new webGLState(renderer, "none", "none")
-        await structureTensorFragSources.load(pass, renderer);
+        pass.auxiliaryCache = {}
+        pass.glState = new webGLState(renderer, "kernel-pass", pass.id)
+        await fragSources.load(pass, renderer);
     },
     cleanupHook: async(pass) => {
         if (pass.outputFBO?.fbo) {

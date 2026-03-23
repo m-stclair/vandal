@@ -22,6 +22,17 @@ export function makeEnum(names) {
 }
 
 export const {
+    enum: CalcModeEnum,
+    names: CalculateModeNames,
+    options: CalculateModeOpts
+} = makeEnum([
+    'DIFFERENTIAL',
+    'ISOPHOTE',
+    'STRUCTURE_TENSOR'
+])
+
+
+export const {
     enum: ColorspaceEnum,
     names: ColorspaceNames,
     options: ColorspaceOpts

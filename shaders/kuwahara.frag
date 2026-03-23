@@ -8,7 +8,7 @@ precision mediump float;
 #define N_SECTORS 8
 
 uniform sampler2D u_image;
-uniform sampler2D u_structureTensor;  // pass 1 output
+uniform sampler2D u_calcPass;  // pass 1 output
 uniform vec2 u_resolution;
 uniform vec2  u_texelSize;
 uniform float u_radius;
@@ -26,7 +26,7 @@ void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec2 texelSize = u_texelSize / u_resolution;
 
-    vec2  td          = texture(u_structureTensor, uv).rg;
+    vec2  td          = texture(u_calcPass, uv).rg;
     float angle = td.r * PI - PI * 0.5;
     float anisotropy  = td.g;
 

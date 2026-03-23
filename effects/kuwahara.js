@@ -1,8 +1,14 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {structureTensorPass} from "./probes/structuretensor.js";
+import {calcPass} from "./probes/calcpass.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendTargetEnum,
+    CalcModeEnum,
+    ColorspaceEnum,
+    hasChromaBoostImplementation
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "kuwahara.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl", "blend.glsl": "includes/blend.glsl"};
@@ -17,25 +23,28 @@ export default {
         initGLEffect(instance, fragSources);
         const {
             BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, chromaBoost,
-            texelSizeX, texelSizeY, radius, sharpness, eccentricity, USE_KERNEL
+            texelSizeX, texelSizeY, radius, sharpness, eccentricity, useKernel,
+            kernelRadius
         } = resolveAnimAll(instance.config, t);
 
-        instance.structureTensorPass.calculate(
-            instance.structureTensorPass,
+        const calcPassFBO = instance.calcPass.calculate(
+            instance.calcPass,
             inputTex,
             width,
             height,
             texelSizeX,
             texelSizeY,
-            USE_KERNEL
+            useKernel,
+            kernelRadius,
+            CalcModeEnum.STRUCTURE_TENSOR
         )
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
-            u_structureTensor: {
-                value: instance.structureTensorPass.outputFBO.texture,
+            u_calcPass: {
+                value: calcPassFBO.texture,
                 type: "texture2D"
             },
             u_texelSize: {value: [texelSizeX, texelSizeY], type: "vec2"},
@@ -57,16 +66,17 @@ export default {
     },
     initHook: async (instance, renderer) => {
         await fragSources.load();
-        instance.structureTensorPass = {
-            initHook: structureTensorPass.initHook,
-            cleanupHook: structureTensorPass.cleanupHook,
-            setupFBO: structureTensorPass.setupFBO,
-            calculate: structureTensorPass.calculate,
+        instance.calcPass = {
+            initHook: calcPass.initHook,
+            cleanupHook: calcPass.cleanupHook,
+            setupFBO: calcPass.setupFBO,
+            calculate: calcPass.calculate,
             outputFBO: null,
             width: null,
-            height: null
+            height: null,
+            id: `${instance.id}-calc-pass`
         }
-        await instance.structureTensorPass.initHook(instance.structureTensorPass, renderer);
+        await instance.calcPass.initHook(instance.calcPass, renderer);
     },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
@@ -80,13 +90,13 @@ export default {
         radius: 4,
         sharpness: 2.5,
         eccentricity: 1,
-        USE_KERNEL: false,
+        useKernel: false,
         BLENDMODE: BlendModeEnum.MIX,
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         chromaBoost: 1,
-
+        kernelRadius: 3
     },
     uiLayout: [
         {
@@ -130,9 +140,18 @@ export default {
             steps: 100
         },
         {
-            key: "USE_KERNEL",
+            key: "useKernel",
             label: "Smoothing",
             type: "checkbox",
+        },
+        {
+            key: "kernelRadius",
+            label: "Smoothing Radius",
+            type: "range",
+            min: 3,
+            max: 10,
+            step: 1,
+            showIf: {"key": "useKernel", "equals": true}
         },
         blendControls()
     ]

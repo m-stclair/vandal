@@ -1,8 +1,8 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {structureTensorPass} from "./probes/structuretensor.js";
+import {calcPass} from "./probes/calcpass.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, CalcModeEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "structureflow.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl", "blend.glsl": "includes/blend.glsl"};
@@ -16,35 +16,34 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, chromaBoost,
-            magnitude, anisoDrag, edgeAngle, kernelRadius, USE_KERNEL
+            BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, CALCULATE_MODE,
+            chromaBoost, magnitude, anisoDrag, angle, kernelRadius, useKernel,
+            temperature
         } = resolveAnimAll(instance.config, t);
 
-        instance.structureTensorPass.calculate(
-            instance.structureTensorPass,
+        const calcPassFBO = instance.calcPass.calculate(
+            instance.calcPass,
             inputTex,
             width,
             height,
             1,
             1,
-            USE_KERNEL,
-            kernelRadius
+            useKernel,
+            kernelRadius,
+            CALCULATE_MODE
         )
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
-            u_structureTensor: {
-                value: instance.structureTensorPass.outputFBO.texture,
-                type: "texture2D"
-            },
+            u_calcPass: {value: calcPassFBO.texture, type: "texture2D"},
             u_texelSize: {value: [1 / width, 1 / height], type: "vec2"},
             u_magnitude: {value: magnitude, type: "float"},
             u_anisoDrag: {value: anisoDrag, type: "float"},
-            u_edgeAngle: {value: edgeAngle * Math.PI / 180, type: "float"},
+            u_angle: {value: angle * Math.PI / 180, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"}
+            u_chromaBoost: {value: chromaBoost, type: "float"},
         }
 
         const defines = {
@@ -52,22 +51,23 @@ export default {
             COLORSPACE: COLORSPACE,
             APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            CALCULATE_MODE: CALCULATE_MODE
         }
 
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: async (instance, renderer) => {
         await fragSources.load();
-        instance.structureTensorPass = {
-            initHook: structureTensorPass.initHook,
-            cleanupHook: structureTensorPass.cleanupHook,
-            setupFBO: structureTensorPass.setupFBO,
-            calculate: structureTensorPass.calculate,
+        instance.calcPass = {
+            initHook: calcPass.initHook,
+            cleanupHook: calcPass.cleanupHook,
+            setupFBO: calcPass.setupFBO,
+            calculate: calcPass.calculate,
             outputFBO: null,
             width: null,
             height: null
         }
-        await instance.structureTensorPass.initHook(instance.structureTensorPass, renderer);
+        await instance.calcPass.initHook(instance.calcPass, renderer);
     },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
@@ -77,10 +77,10 @@ export default {
     pass: null,
     defaultConfig: {
         magnitude: 3,
-        anisoDrag: 0.2,
-        edgeContribution: 1,
-        edgeAngle: 90,
-        USE_KERNEL: false,
+        anisoDrag: 0,
+        angle: 90,
+        CALCULATE_MODE: CalcModeEnum.STRUCTURE_TENSOR,
+        useKernel: false,
         kernelRadius: 3,
         BLENDMODE: BlendModeEnum.MIX,
         COLORSPACE: ColorspaceEnum.RGB,
@@ -102,19 +102,29 @@ export default {
             label: "Texture Drag",
             type: "modSlider",
             min: 0,
-            max: 1,
-            steps: 100,
+            max: 50,
+            steps: 200,
+            showIf: {"key": "CALCULATE_MODE", "equals": CalcModeEnum.STRUCTURE_TENSOR}
         },
         {
-            key: "edgeAngle",
-            label: "Edge Angle",
+            key: "angle",
+            label: "Angle",
             type: "modSlider",
             min: 0,
             max: 360,
-            step: 1
+            step: 1,
         },
         {
-            key: "USE_KERNEL",
+            key: "CALCULATE_MODE",
+            label: "Mode",
+            type: "select",
+            options: [
+                {label: "Structure", value: CalcModeEnum.STRUCTURE_TENSOR},
+                {label: "Isophote", value: CalcModeEnum.ISOPHOTE}
+            ]
+        },
+        {
+            key: "useKernel",
             label: "Smoothing",
             type: "checkbox",
         },
@@ -123,9 +133,9 @@ export default {
             label: "Smoothing Radius",
             type: "range",
             min: 3,
-            max: 5,
+            max: 10,
             step: 1,
-            showIf: {"key": "USE_KERNEL", "equals": true}
+            showIf: {"key": "useKernel", "equals": true}
         },
         blendControls()
     ]
@@ -138,6 +148,6 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
-  parameterHints: {"USE_KERNEL": {"always": false}},
+  parameterHints: {"useKernel": {"always": false}},
   notInRandom: true
 };

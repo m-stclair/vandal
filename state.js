@@ -3,25 +3,22 @@ import {normalizeImageData} from "./utils/imageutils.js";
 import {webGLState} from "./utils/webgl_state.js";
 import {GlitchRenderer} from "./utils/glitch_renderer.js"
 
+// shared rendering objects
+export const canvas = document.getElementById('glitchCanvas');
+
+canvas.style.willChange = 'transform';
+export function clearRenderCache() {
+    renderer.renderCache.clear();
+}
+
+export const defaultCtx = canvas.getContext("webgl2", { alpha: false, antialias: true });
+export const renderer = new GlitchRenderer(defaultCtx);
 
 export const Dirty = {image: true, ui: true}
 export const Lock = {image: false, ui: false}
 export const requestRender = () => Dirty.image = true;
 export const requestUIDraw = () => Dirty.ui = true;
-export const requestRedraw = () => {
-    Dirty.image = true;
-    renderer.inputDirty = true;
-}
 
-// shared rendering objects
-export const canvas = document.getElementById('glitchCanvas');
-canvas.style.willChange = 'transform';
-export const defaultCtx = canvas.getContext("webgl2", { alpha: false, antialias: true });
-
-export const renderer = new GlitchRenderer(defaultCtx);
-export function clearRenderCache() {
-    renderer.renderCache.clear();
-}
 
 canvas.addEventListener(
     "wheel", (e) => {

@@ -48,11 +48,13 @@ const effectFiles = [
     // "flowParentheses.js",
     // "badTV.js",
     // "palette_synth.js",
-    "debug.js",
+    // "debug.js",
+    "slamshade.js",
     // "basisParentheses.js",
     // "fieldParentheses.js",
     // "threshold.js",
-    "inputstretch.js"
+    "inputstretch.js",
+    "fill_nan.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 
@@ -76,10 +78,10 @@ for (const effect of Object.values(effectRegistry)) {
   effectGroups[group].push(effect);
 }
 
-console.log("effect registry")
-console.log(Object.values(effectRegistry))
-console.log("effect metadata")
-console.log(Object.values(effectRegistry).map((v) => v.meta));
+// console.log("effect registry")
+// console.log(Object.values(effectRegistry))
+// console.log("effect metadata")
+// console.log(Object.values(effectRegistry).map((v) => v.meta));
 
 /** @typedef {import('./glitchtypes.ts').EffectModule} EffectModule */
 /** @type {Array<{name: string, mod: EffectModule}>} */

@@ -108,7 +108,6 @@ export class GlitchRenderer {
             formatEnum: this.gl.RGBA,
             typeEnum: this.gl.FLOAT
         }
-        console.log(this.gl.getParameter(this.gl.MAX_TEXTURE_SIZE))
     }
 
     lock() {

@@ -3,7 +3,7 @@
 import {assertHas} from "./helpers.js";
 import {builtInPresets} from "../presets/app.js";
 
-const STORAGE_PREFIX = 'vandal';
+const STORAGE_PREFIX = 'pdr-vandal';
 
 function lsKey(...parts) {
     return [STORAGE_PREFIX, ...parts].join(':');
@@ -135,5 +135,5 @@ export {
 };
 
 
-console.log("app presets")
-console.log(appPresets)
+// console.log("app presets")
+// console.log(appPresets)

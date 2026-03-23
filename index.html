@@ -52,30 +52,30 @@
 </div>
 
 
+
 <div id="appRoot">
-
-<input type="file" id="upload" accept = "image/png,image/jpeg,image/webp" style="display: none"/>
-<div id="topBar">
-<label for="upload" class="file-upload-button">Choose File</label>
-
-||
-<input type="file" id="pdr-upload" style="display: none" multiple/>
-<label for="pdr-upload" class="file-upload-button">PDR File</label>
-
+    <div id="topBar">
+    <input type="file" id="pdr-upload" style="display: none" multiple/>
+    <label for="pdr-upload" class="file-upload-button">Open With PDR</label>
+    ||
+    <label for="upload" class="file-upload-button">Open With Browser</label>
+    <input type="file" id="upload" accept = "image/png,image/jpeg,image/webp" style="display: none"/>
 
     ||
-  <button id="exportImage">PNG</button>
-||
-  <button id="openExportControlsModal">Video</button>
-||
-  <select id="presetSelect"></select>
-  <button id="presetSave">Save</button>
-  <button id="presetDelete">Delete</button>
-  ||
+    <button id="exportImage">PNG</button>
+<!--    ||-->
+<!--    <button id="openExportControlsModal">Video</button>-->
+<!--    ||-->
+<!--    <select id="presetSelect"></select>-->
+<!--    <button id="presetSave">Save</button>-->
+<!--    <button id="presetDelete">Delete</button>-->
+    ||
     <select id="test-pattern-select"></select>
-    || <button id="randomStack">Random</button>
+<!--    || <button id="randomStack">Random</button>-->
     || <button id="freezeAnimation">freeze</button>
 </div>
+
+
 
 <div id="mainLayout">
     <div id="leftPane">

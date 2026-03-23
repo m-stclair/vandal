@@ -25,8 +25,8 @@ export class EffectPicker extends HTMLElement {
 
         // Now safe to access DOM elements
         this.searchInput = this.shadow.getElementById("search-input");
-        this.tagToggle = this.shadow.getElementById("tag-toggle");
-        this.tagFilters = this.shadow.getElementById("tag-filters");
+        // this.tagToggle = this.shadow.getElementById("tag-toggle");
+        // this.tagFilters = this.shadow.getElementById("tag-filters");
         this.effectList = this.shadow.getElementById("effect-list");
         this.groupIsOpen = {}
         this.initEffectBrowser();
@@ -99,8 +99,8 @@ export class EffectPicker extends HTMLElement {
         this.searchInput.addEventListener("input", () => {
             const isEmpty = this.searchInput.value.trim() === "";
             this.inSearchMode = !isEmpty;
-            this.tagToggle.style.display = isEmpty ? "block" : "none";
-            this.tagFilters.classList.toggle("expanded", isEmpty && this.tagsExpanded);
+            // this.tagToggle.style.display = isEmpty ? "block" : "none";
+            // this.tagFilters.classList.toggle("expanded", isEmpty && this.tagsExpanded);
             this.renderGroupedEffectList(effectRegistry, this.activeTags, this.searchInput.value);
         });
 
@@ -108,18 +108,18 @@ export class EffectPicker extends HTMLElement {
             if (e.key === "Escape") {
                 this.searchInput.value = "";
                 this.inSearchMode = false;
-                this.tagToggle.style.display = "block";
-                this.tagFilters.classList.toggle("expanded", this.tagsExpanded);
+                // this.tagToggle.style.display = "block";
+                // this.tagFilters.classList.toggle("expanded", this.tagsExpanded);
                 this.renderGroupedEffectList(effectRegistry, this.activeTags, "");
             }
         });
 
-        this.tagToggle.onclick = () => {
-            this.tagsExpanded = !this.tagsExpanded;
-            this.tagFilters.classList.toggle("expanded", this.tagsExpanded);
-        };
+        // this.tagToggle.onclick = () => {
+        //     this.tagsExpanded = !this.tagsExpanded;
+        //     this.tagFilters.classList.toggle("expanded", this.tagsExpanded);
+        // };
 
-        renderTags();
+        // renderTags();
     }
 
     renderGroupedEffectList(registry, activeTags, search, initializing = false) {

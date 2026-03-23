@@ -1,14 +1,14 @@
 import {
     pdrErrorModal, pdrErrorModalContent,
-    placeholderOption,
+    // placeholderOption,
     pruneForMobile,
-    setupDragAndDrop,
+    // setupDragAndDrop,
     setupExportImage,
     setupPaneDrag, setupPDRErrorModal,
-    setupPresetUI,
+    // setupPresetUI,
     setupStaticButtons,
     setupVideoCapture,
-    setupVideoExportModal,
+    // setupVideoExportModal,
     setupWindow
 } from "./ui.js";
 
@@ -130,6 +130,12 @@ async function handlePdrObjectChange() {
     if (objInfo === undefined) {
         throw new Error(`${objname} not in product`)
     }
+    const maxDimension = renderer.gl.getParameter(renderer.gl.MAX_TEXTURE_SIZE);
+    if (objInfo.width > maxDimension || objInfo.height > maxDimension) {
+        showPDRErrorModal(
+            `Array too large for this browser (max dimension is ${maxDimension}).`
+        )
+    }
     imageBandSelect.options.length = 0;
     if (objInfo['bands'] === 3 || objInfo['bands'] === 4) {
         const opt = document.createElement('option')
@@ -193,11 +199,6 @@ function delayNextPaint() {
     );
 }
 
-function showPDRErrorModal(e) {
-    pdrErrorModalContent.innerText = e;
-    pdrErrorModal.style.display = "block";
-}
-
 function lockApp() {
     appRoot.inert = true;
     document.body.classList.add("busy");
@@ -208,6 +209,12 @@ function unlockApp() {
     document.body.classList.remove("busy");
 }
 
+function showPDRErrorModal(e) {
+    lockApp();
+    pdrErrorModalContent.innerText = e;
+    pdrErrorModal.style.display = "block";
+}
+
 async function handlePdrUpload(e) {
     // TODO: this needs to be plural to permit uploading detached labels
     const firstFile = e.target.files[0];
@@ -215,7 +222,7 @@ async function handlePdrUpload(e) {
     lockApp();
     pdrLoadingModal.style.display = "block";
     if (!pdrInitializedFlag) {
-        pdrLoadingModalContent.innerText = "Setting up PDR..."
+        pdrLoadingModalContent.innerText = "Setting up PDR (wait ~20 seconds)..."
     }
     let pyodide = null;
     try {
@@ -505,21 +512,21 @@ async function appSetup() {
         requestUIDraw,
         setFreezeAnimationButtonFlag
     );
-    setupPresetUI(
-        saveState,
-        loadState,
-        resetStack,
-        requestRender,
-        requestUIDraw,
-        effectRegistry,
-        lockRender,
-        unlockRender
-    );
-    setupDragAndDrop(handleHTMLUpload);
+    // setupPresetUI(
+    //     saveState,
+    //     loadState,
+    //     resetStack,
+    //     requestRender,
+    //     requestUIDraw,
+    //     effectRegistry,
+    //     lockRender,
+    //     unlockRender
+    // );
+    // setupDragAndDrop(handleHTMLUpload);
     setupExportImage(exportImage);
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
-    setupVideoExportModal();
+    // setupVideoExportModal();
     setupPDRErrorModal(unlockApp);
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
                    requestRender, startCapture);

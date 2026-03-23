@@ -58,10 +58,10 @@ export function moveEffectInStack(effectStack, from, to) {
 // top-level buttons
 const uploadButton = gid('upload');
 const uploadPDRButton = gid('pdr-upload');
-const saveBtn = gid("save-stack");
-const loadBtn = gid("load-stack");
-const clearBtn = gid("clear-stack");
-const textarea = gid("stack-json");
+// const saveBtn = gid("save-stack");
+// const loadBtn = gid("load-stack");
+// const clearBtn = gid("clear-stack");
+// const textarea = gid("stack-json");
 
 
 export function setupStaticButtons(
@@ -71,25 +71,25 @@ export function setupStaticButtons(
 ) {
     uploadButton.addEventListener('change', handleUpload);
     uploadPDRButton.addEventListener('change', async (e) => await handlePdrUpload(e));
-    saveBtn.addEventListener("click", () => {
-        textarea.value = saveState();
-        navigator.clipboard?.writeText(textarea.value).then(() =>
-            console.log("Stack JSON copied to clipboard")
-        );
-    });
-    clearBtn.addEventListener("upclick", () => {
-        resetStack();
-        requestUIDraw();
-        requestRender();
-    });
-    const freezeBtn = gid("freezeAnimation")
-    freezeBtn.addEventListener("click",
-        () => {
-            freezeBtn.classList.toggle("frozen");
-            setFreezeAnimationButtonFlag(freezeBtn.classList.contains("frozen"))
-        }
-    )
-    gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
+    // saveBtn.addEventListener("click", () => {
+    //     textarea.value = saveState();
+    //     navigator.clipboard?.writeText(textarea.value).then(() =>
+    //         console.log("Stack JSON copied to clipboard")
+    //     );
+    // });
+    // clearBtn.addEventListener("upclick", () => {
+    //     resetStack();
+    //     requestUIDraw();
+    //     requestRender();
+    // });
+    // const freezeBtn = gid("freezeAnimation")
+    // freezeBtn.addEventListener("click",
+    //     () => {
+    //         freezeBtn.classList.toggle("frozen");
+    //         setFreezeAnimationButtonFlag(freezeBtn.classList.contains("frozen"))
+    //     }
+    // )
+    // gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
 }
 
 
@@ -244,25 +244,25 @@ export function setupPDRErrorModal(unlockApp) {
     });
 }
 
-export function setupVideoExportModal() {
-    const modal = document.getElementById("exportControlsModal");
-    const openModalButton = document.getElementById("openExportControlsModal");
-    const closeModalButton = document.getElementById("closeExportControlsModal");
-
-    openModalButton.addEventListener("click", () => {
-        modal.style.display = "block";
-    });
-
-    closeModalButton.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
-
-    window.addEventListener("click", (event) => {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
-    });
-}
+// export function setupVideoExportModal() {
+//     const modal = document.getElementById("exportControlsModal");
+//     const openModalButton = document.getElementById("openExportControlsModal");
+//     const closeModalButton = document.getElementById("closeExportControlsModal");
+//
+//     openModalButton.addEventListener("click", () => {
+//         modal.style.display = "block";
+//     });
+//
+//     closeModalButton.addEventListener("click", () => {
+//         modal.style.display = "none";
+//     });
+//
+//     window.addEventListener("click", (event) => {
+//         if (event.target === modal) {
+//             modal.style.display = "none";
+//         }
+//     });
+// }
 
 export function setupDragAndDrop(handleUpload) {
     document.addEventListener('dragover', e => e.preventDefault());

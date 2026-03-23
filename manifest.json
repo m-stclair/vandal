@@ -1,7 +1,7 @@
 {
-  "name": "Vandal",
-  "short_name": "Vandal",
-  "start_url": "/vandal",
+  "name": "PDR Vandal",
+  "short_name": "PDR Vandal",
+  "start_url": "/pdr",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",

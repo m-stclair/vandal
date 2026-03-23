@@ -1,19 +1,11 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {
-    BlendModeEnum,
-    BlendTargetEnum,
-    ColorspaceEnum,
-    hasChromaBoostImplementation,
     makeEnum
 } from "../utils/glsl_enums.js";
-import {blendControls, group} from "../utils/ui_configs.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
 const shaderPath = "input_stretch.frag"
-const includePaths = {
-    'colorconvert.glsl': 'includes/colorconvert.glsl',
-    'blend.glsl': 'includes/blend.glsl',
-};
+const includePaths = {}
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 const {
@@ -32,7 +24,8 @@ const {
     options: StretchOpts
 } = makeEnum([
     'LIN',
-    'LOG',
+    'LOGLIKE',
+    'TANH'
 ])
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -42,7 +35,8 @@ export default {
     defaultConfig: {
         clipMode: ClipEnum.NONE,
         stretchMode: StretchEnum.LIN,
-        stdevClip: 2
+        stdevClip: 2,
+        stretchParam: 2
     },
     uiLayout: [
         {'type': 'select', 'key': 'clipMode', 'label': 'Range Clip', 'options': ClipOpts},
@@ -55,13 +49,22 @@ export default {
             'max': 10,
             'step': 0.1,
             'showIf': {key: "clipMode", equals: ClipEnum.STDEV}
+        },
+        {
+            'type': 'range',
+            'key': 'stretchParam',
+            'label': 'Stretch Parameter',
+            'min': 0.1,
+            'max': 10,
+            'step': 0.1,
+            'showIf': {key: "stretchMode", notEquals: StretchEnum.LIN}
         }
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            clipMode, stdevClip, stretchMode
+            clipMode, stdevClip, stretchMode, stretchParam
         } = resolveAnimAll(instance.config, t);
 
         const clipModeN = Number(clipMode);
@@ -92,7 +95,8 @@ export default {
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_min: {type: "float", value: min},
-            u_max: {type: "float", value: max}
+            u_max: {type: "float", value: max},
+            u_stretchParam: {type: "float", value: stretchParam}
         }
         const defines = {
             STRETCH_MODE: stretchMode

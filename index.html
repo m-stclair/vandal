@@ -20,39 +20,13 @@
 
 </div>
 
-<div id="appRoot">
-
-<input type="file" id="upload" accept = "image/png,image/jpeg,image/webp" style="display: none"/>
-<div id="topBar">
-<label for="upload" class="file-upload-button">Choose File</label>
-
-||
-<input type="file" id="pdr-upload"  style="display: none"/>
-<label for="pdr-upload" class="file-upload-button">PDR File</label>
-
-
-    ||
-  <button id="exportImage">PNG</button>
-||
-  <button id="openExportControlsModal">Video</button>
-||
-  <select id="presetSelect"></select>
-  <button id="presetSave">Save</button>
-  <button id="presetDelete">Delete</button>
-  ||
-    <select id="test-pattern-select"></select>
-    || <button id="randomStack">Random</button>
-    || <button id="freezeAnimation">freeze</button>
-</div>
-
-
 <div id="pdr-loading-modal" class="modal">
     <div class="modal-content">
     <p id="pdr-loading-modal-content"></p>
     </div>
 </div>
 
-<div id="pdr-error-modal" class="modal">
+<div id="pdr-error-modal" class="modal" style="background:#810">
     <div class="modal-content">
     <p id="pdr-error-modal-content"></p>
     <span class="close-btn" id="close-pdr-error-modal">&times;</span>
@@ -75,6 +49,32 @@
       <button id="startCapture">🎬 Start</button>
     </div>
   </div>
+</div>
+
+
+<div id="appRoot">
+
+<input type="file" id="upload" accept = "image/png,image/jpeg,image/webp" style="display: none"/>
+<div id="topBar">
+<label for="upload" class="file-upload-button">Choose File</label>
+
+||
+<input type="file" id="pdr-upload" style="display: none" multiple/>
+<label for="pdr-upload" class="file-upload-button">PDR File</label>
+
+
+    ||
+  <button id="exportImage">PNG</button>
+||
+  <button id="openExportControlsModal">Video</button>
+||
+  <select id="presetSelect"></select>
+  <button id="presetSave">Save</button>
+  <button id="presetDelete">Delete</button>
+  ||
+    <select id="test-pattern-select"></select>
+    || <button id="randomStack">Random</button>
+    || <button id="freezeAnimation">freeze</button>
 </div>
 
 <div id="mainLayout">

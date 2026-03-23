@@ -235,11 +235,12 @@ export function setupVideoCapture(startCapture, stopCapture) {
 export const pdrErrorModal = gid("pdr-error-modal");
 export const pdrErrorModalContent = gid("pdr-error-modal-content");
 
-export function setupPDRErrorModal() {
+export function setupPDRErrorModal(unlockApp) {
     const closeButton = gid("close-pdr-error-modal");
     closeButton.addEventListener("click", () => {
         pdrErrorModal.style.display = "none";
         pdrErrorModalContent.innerHTML = "";
+        unlockApp();
     });
 }
 

@@ -193,14 +193,27 @@ function delayNextPaint() {
     );
 }
 
-async function handlePdrUpload(e) {
-    // TODO: this needs to be plural to permit uploading detached labels
-    const file = e.target.files[0];
-    if (!file) return;
+function showPDRErrorModal(e) {
+    pdrErrorModalContent.innerText = e;
+    pdrErrorModal.style.display = "block";
+}
+
+function lockApp() {
     appRoot.inert = true;
     document.body.classList.add("busy");
+}
+
+function unlockApp() {
+    appRoot.inert = false;
+    document.body.classList.remove("busy");
+}
+
+async function handlePdrUpload(e) {
+    // TODO: this needs to be plural to permit uploading detached labels
+    const firstFile = e.target.files[0];
+    if (!firstFile) return;
+    lockApp();
     pdrLoadingModal.style.display = "block";
-    const bytes = await file.arrayBuffer();
     if (!pdrInitializedFlag) {
         pdrLoadingModalContent.innerText = "Setting up PDR..."
     }
@@ -208,16 +221,29 @@ async function handlePdrUpload(e) {
     try {
         pyodide = await getPyodide();
         await initPDR();
-        // TODO: this is not visible. I think the pyodide stuff might need to
-        //  be offloaded into a webworker, or we need to guard this in
-        //  requestanimationframe or something
-        pdrLoadingModalContent.innerText = `loading ${file.name}...`
+        pdrLoadingModalContent.innerText = `loading ${firstFile.name}...`
         await delayNextPaint();
-        pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
-        const objects = await getProductInfo(file.name);
-        pdrProductInfo.name = file.name;
+        for (const f of e.target.files) {
+            pyodide.FS.writeFile(f.name, new Uint8Array(await f.arrayBuffer()));
+        }
+        // TODO: pdr will usually handle figuring out whether this is a detached label
+        //  or a data file, but it can become problematic if there are files
+        //  in the product that don't share filename stems with a detached label
+        //  and one of those is, unfortunately, the first one -- we may need some
+        //  little heuristic. e.g., this could happen for M3 products.
+        const objects = await getProductInfo(firstFile.name);
+        if (Object.keys(objects).length === 0) {
+            showPDRErrorModal("no arrays found in file");
+            return;
+        }
+        pdrProductInfo.name = firstFile.name;
         pdrProductInfo.objects = objects;
-        // TODO: delete previous files
+        if (pdrProductInfo.files) {
+            for (const f of pdrProductInfo.files) {
+                pyodide.FS.unlink(f);
+            }
+        }
+        pdrProductInfo.files = [...e.target.files].map((f) => f.name);
         lockRender();
         await populatePdrUI();
         setupInputStretch();
@@ -225,19 +251,19 @@ async function handlePdrUpload(e) {
         requestUIDraw();
         requestRender();
         unlockRender();
+        unlockApp();
     } catch (e) {
         console.error(e);
         pdrLoadingModal.style.display = "none";
-        pdrErrorModalContent.innerText = e;
-        pdrErrorModal.style.display = "block";
+        showPDRErrorModal(e);
         if (pyodide) {
-            pyodide.FS.unlink(file.name);
+            for (const f of e.target.files) {
+                pyodide.FS.unlink(f.name);
+            }
         }
     } finally {
         pdrLoadingModal.style.display = "none"
         pdrLoadingModalContent.innerText = ""
-        appRoot.inert = false;
-        document.body.classList.remove("busy");
     }
 }
 
@@ -494,7 +520,7 @@ async function appSetup() {
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag();
     setupVideoExportModal();
-    setupPDRErrorModal();
+    setupPDRErrorModal(unlockApp);
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);

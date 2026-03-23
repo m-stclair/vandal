@@ -183,13 +183,24 @@ function setupInputStretch() {
 
 const pdrLoadingModal = gid("pdr-loading-modal");
 const pdrLoadingModalContent = gid("pdr-loading-modal-content");
+const appRoot = gid("appRoot");
+
+function delayNextPaint() {
+    return new Promise(resolve =>
+        requestAnimationFrame(() =>
+            requestAnimationFrame(resolve)
+        )
+    );
+}
 
 async function handlePdrUpload(e) {
     // TODO: this needs to be plural to permit uploading detached labels
     const file = e.target.files[0];
     if (!file) return;
-    const bytes = await file.arrayBuffer();
+    appRoot.inert = true;
+    document.body.classList.add("busy");
     pdrLoadingModal.style.display = "block";
+    const bytes = await file.arrayBuffer();
     if (!pdrInitializedFlag) {
         pdrLoadingModalContent.innerText = "Setting up PDR..."
     }
@@ -201,6 +212,7 @@ async function handlePdrUpload(e) {
         //  be offloaded into a webworker, or we need to guard this in
         //  requestanimationframe or something
         pdrLoadingModalContent.innerText = `loading ${file.name}...`
+        await delayNextPaint();
         pyodide.FS.writeFile(file.name, new Uint8Array(bytes));
         const objects = await getProductInfo(file.name);
         pdrProductInfo.name = file.name;
@@ -224,6 +236,8 @@ async function handlePdrUpload(e) {
     } finally {
         pdrLoadingModal.style.display = "none"
         pdrLoadingModalContent.innerText = ""
+        appRoot.inert = false;
+        document.body.classList.remove("busy");
     }
 }
 

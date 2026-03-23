@@ -577,6 +577,16 @@ canvas {
     justify-content: flex-start;
 }
 
+.busy #appRoot {
+  pointer-events: none;
+  user-select: none;
+  filter: grayscale(0.2);
+}
+
+#pdr-loading-modal {
+    pointer-events: auto;
+}
+
 
 /* For Firefox */
 html {

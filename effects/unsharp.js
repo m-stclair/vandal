@@ -9,7 +9,7 @@ import {
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "kernel2d.glsl";
+const shaderPath = "unsharp.frag";
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
@@ -19,7 +19,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "2D Kernel",
+    name: "Unsharp",
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
@@ -29,9 +29,36 @@ export default {
         kernelName: "gaussian",
         kernelRadiusX: 3,
         kernelRadiusY: 3,
-        kernelSoftness: 10
+        kernelSoftness: 10,
+        strength: 1,
+        threshold: 0.05,
+        knee: 0.01,
     },
     uiLayout: [
+        {
+            key: "strength",
+            label: "Strength",
+            type: "modSlider",
+            min: 0,
+            max: 3,
+            step: 0.05
+        },
+        {
+            key: "threshold",
+            label: "Threshold",
+            type: "modSlider",
+            min: 0,
+            max: 0.2,
+            step: 0.01
+        },
+        {
+            key: "knee",
+            label: "Knee",
+            type: "modSlider",
+            min: 0,
+            max: 0.2,
+            step: 0.01
+        },
         {
             key: 'kernelName',
             label: 'Kernel Shape',
@@ -47,6 +74,7 @@ export default {
         initGLEffect(instance, fragSources);
         let {
             kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness,
+            strength, threshold, knee,
             BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, blendAmount,
             chromaBoost
         } = resolveAnimAll(instance.config, t);
@@ -65,13 +93,17 @@ export default {
             kernelInfo = instance.auxiliaryCache.kernelInfo;
         }
         instance.auxiliaryCache.lastKernelSettings = kernelSettings;
+
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             u_kernelWidth: {type: "int", value: kernelInfo.width},
             u_kernelHeight: {type: "int", value: kernelInfo.height},
             u_blendamount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost}
+            u_chromaBoost: {type: "float", value: chromaBoost},
+            u_strength: {type: "float", value: strength},
+            u_threshold: {type: "float", value: threshold},
+            u_knee: {type: "float", value: knee}
         };
 
         const defines = {
@@ -100,6 +132,7 @@ export const effectMeta = {
     description: "Applies a generic 2D convolution kernel; use for blur, emboss, sharpening, etc.",
     canAnimate: true,
     realtimeSafe: true,
+    notInRandom: true,
     parameterHints: {
         blendAmount: {min: 0.75, max: 1},
         kernelRadiusX: {min: 2, max: 9},

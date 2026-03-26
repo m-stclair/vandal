@@ -10,7 +10,6 @@ out vec4 outColor;
 
 #define PI     3.14159265358979
 
-#define CALCULATE_MODE_DIFFERENTIAL 0
 #define CALCULATE_MODE_ISOPHOTE 1
 #define CALCULATE_MODE_STRUCTURE_TENSOR 2
 
@@ -53,7 +52,7 @@ vec4 structureTensor(sampler2D tex, vec2 uv, vec2 texel) {
     float angle       = 0.5 * atan(2.0 * Jxy, Jxx - Jyy);
     float angleNorm = (angle + PI * 0.5) / PI;
     float anisotropy  = (lam1 - lam2) / (lam1 + lam2 + 1e-6);
-    return vec4(angleNorm, anisotropy, 0.0, 1.0);
+    return vec4(angleNorm, anisotropy, lx, ly);
 }
 
 vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {

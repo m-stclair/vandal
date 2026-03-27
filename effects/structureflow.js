@@ -18,7 +18,6 @@ export default {
         const {
             BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, CALCULATE_MODE,
             chromaBoost, magnitude, anisoDrag, angle, kernelRadius, useKernel,
-            temperature
         } = resolveAnimAll(instance.config, t);
 
         const calcPassFBO = instance.calcPass.calculate(
@@ -71,6 +70,7 @@ export default {
     },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
+        instance.calcPass.cleanupHook(instance.calcPass);
     },
     glState: null,
     isGPU: true,
@@ -120,7 +120,8 @@ export default {
             type: "select",
             options: [
                 {label: "Structure", value: CalcModeEnum.STRUCTURE_TENSOR},
-                {label: "Isophote", value: CalcModeEnum.ISOPHOTE}
+                {label: "Isophote", value: CalcModeEnum.ISOPHOTE},
+                {label: "Flowline", value: CalcModeEnum.FLOWLINE}
             ]
         },
         {

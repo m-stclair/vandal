@@ -39,7 +39,7 @@ export const kernelPass = {
         pass.glState = new webGLState(renderer, "kernel-pass", pass.id)
         await fragSources.load(pass, renderer);
     },
-    cleanupHook: async(pass) => {
+    cleanupHook: (pass) => {
         if (pass.outputFBO?.fbo) {
             pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
             pass.outputFBO = null;
@@ -51,7 +51,7 @@ export const kernelPass = {
                 pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
                 pass.outputFBO = null;
             }
-            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "kuwaharaStructureTensor", "kuwaharaStructureTensor");
+            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "kernelpass", "kernelpass");
         }
     }
 }

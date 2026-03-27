@@ -28,7 +28,8 @@ export const {
 } = makeEnum([
     'DIFFERENTIAL',
     'ISOPHOTE',
-    'STRUCTURE_TENSOR'
+    'STRUCTURE_TENSOR',
+    'FLOWLINE'
 ])
 
 

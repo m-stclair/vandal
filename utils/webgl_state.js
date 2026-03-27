@@ -141,7 +141,7 @@ export class webGLState {
 
     uploadUniforms(uniformSpec) {
         const gl = this.gl;
-        // Upload other uniforms
+        let textureIndex = 0;
         Object.entries(uniformSpec).forEach(([name, {value, type, width, height, binding}]) => {
             if (!this.uniforms[name]) {
                 // TODO: a hack. ACTIVE_UNIFORMS doesn't detect arrays well?
@@ -149,13 +149,12 @@ export class webGLState {
             }
             const loc = this.uniforms[name];
             if (type === "texture2D") {
-                // TODO: terrible to unconditionally pick texture1!
-                gl.activeTexture(gl.TEXTURE1);
+                textureIndex++;
+                gl.activeTexture(gl.TEXTURE0 + textureIndex);
                 if (value instanceof Array) {
                     const value = gl.createTexture()
                     this.allocateTexture(this.format, width, height, value);
                 }
-                // checkTexture(gl, value);
                 gl.bindTexture(gl.TEXTURE_2D, value);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -163,7 +162,7 @@ export class webGLState {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
                 // in this case, UniformSetters[type] is just gl.uniform1i(loc, val)
-                UniformSetters[type](gl, loc, 1);
+                UniformSetters[type](gl, loc, textureIndex);
                 return;
             }
 

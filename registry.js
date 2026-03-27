@@ -54,7 +54,8 @@ const effectFiles = [
     "basisParentheses.js",
     "fieldParentheses.js",
     "threshold.js",
-    "unsharp.js"
+    "unsharp.js",
+    "dog.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

@@ -12,6 +12,7 @@ out vec4 outColor;
 
 #define CALCULATE_MODE_ISOPHOTE 1
 #define CALCULATE_MODE_STRUCTURE_TENSOR 2
+#define CALCULATE_MODE_FLOWLINE 3
 
 #ifndef CALCULATE_MODE
 #define CALCULATE_MODE 2
@@ -92,6 +93,42 @@ vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     return vec4(iCurvature, Ix, Iy, atan(Ix, Iy));
 }
 
+
+vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
+    // First-order partials (identical setup to isophote version)
+    float l = texture(tex, uv - vec2(texel.x, 0.0)).r;
+    float r = texture(tex, uv + vec2(texel.x, 0.0)).r;
+    float b = texture(tex, uv - vec2(0.0, texel.y)).r;
+    float t = texture(tex, uv + vec2(0.0, texel.y)).r;
+    float c = texture(tex, uv).r;
+
+    float Ix = (r - l) / 2.0;
+    float Iy = (t - b) / 2.0;
+
+    // Second-order partials
+    float Ixx = r - 2.0 * c + l;
+    float Iyy = t - 2.0 * c + b;
+
+    // Mixed partial
+    float tl = texture(tex, uv + vec2(-texel.x,  texel.y)).r;
+    float tr = texture(tex, uv + vec2( texel.x,  texel.y)).r;
+    float bl = texture(tex, uv + vec2(-texel.x, -texel.y)).r;
+    float br = texture(tex, uv + vec2( texel.x, -texel.y)).r;
+    float Ixy = (tr - tl - br + bl) / 4.0;
+
+    float gradSq = Ix * Ix + Iy * Iy;
+    float denom  = pow(gradSq, 1.5);
+
+    float fCurvature;
+    if (denom < 1e-10) {
+        fCurvature = 0.0;
+    } else {
+        fCurvature = (Ixy * (Ix*Ix - Iy*Iy) + Ix * Iy * (Iyy - Ixx)) / denom;
+    }
+    return vec4(fCurvature, Ix, Iy, atan(Ix, Iy));
+}
+
+
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec2 texel = u_texelSize / u_resolution;
@@ -99,6 +136,11 @@ void main() {
     outColor = structureTensor(u_image, uv, texel);
 #elif CALCULATE_MODE == CALCULATE_MODE_ISOPHOTE
     outColor = isophoteCurvature(u_image, uv, texel);
+#elif CALCULATE_MODE == CALCULATE_MODE_FLOWLINE
+    outColor = flowlineCurvature(u_image, uv, texel);
+#else
+    // error
+    outColor = vec4(1.0, 0.0, 1.0, 1.0);
 #endif
 }
 

@@ -80,6 +80,7 @@ export default {
     },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
+        instance.calcPass.cleanupHook(instance.calcPass);
     },
     glState: null,
     isGPU: true,

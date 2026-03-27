@@ -44,13 +44,13 @@ export const calcPass = {
         };
         await pass.kernelPass.initHook(pass.kernelPass, renderer);
     },
-    cleanupHook: async(pass) => {
+    cleanupHook: (pass) => {
         if (pass.outputFBO?.fbo) {
             pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
             pass.outputFBO = null;
         }
         if (pass.kernelPass) {
-            await pass.kernelPass.cleanupHook(pass.kernelPass);
+            pass.kernelPass.cleanupHook(pass.kernelPass);
         }
     },
     setupFBO: (pass, width, height) => {

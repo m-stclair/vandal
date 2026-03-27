@@ -141,6 +141,7 @@ async function exportImage() {
     canvas.height = h;
     canvas.getContext("2d").putImageData(imgData, 0, 0);
     canvas.toBlob(blob => downloadBlob(blob, vandalStamp('png')), "image/png");
+    requestRender();
 }
 
 
@@ -294,7 +295,7 @@ async function appSetup() {
         effectStack.classList.toggle('collapsed');
         toggleBar.classList.toggle('collapsed');
     });
-    await setupStaticButtons(
+    setupStaticButtons(
         handleUpload,
         addSelectedEffect,
         saveState,

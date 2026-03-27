@@ -62,7 +62,6 @@ export function moveEffectInStack(effectStack, from, to) {
 
 // top-level buttons
 const saveBtn = gid("save-stack");
-const loadBtn = gid("load-stack");
 const clearBtn = gid("clear-stack");
 const textarea = gid("stack-json");
 
@@ -86,7 +85,7 @@ export function setupStaticButtons(
             console.log("Stack JSON copied to clipboard")
         );
     });
-    clearBtn.addEventListener("upclick", () => {
+    clearBtn.addEventListener("click", () => {
         resetStack();
         requestUIDraw();
         requestRender();

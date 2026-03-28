@@ -22,6 +22,21 @@ uniform float u_lineWidthSensitivity;
 uniform float u_angle;
 uniform float u_lineSpacing;
 uniform float u_lineSpacingSensitivity;
+uniform float u_anisoDrag;
+uniform float u_originX;
+
+#ifndef USE_STRUCTURE
+#define USE_STRUCTURE 0
+#endif
+
+#if USE_STRUCTURE == 1
+// Optional structure tensor driver. we leave the irrelevant float
+// uniforms in for both cases, but there's no sense uploading a
+// dummy texture if we don't need it
+uniform sampler2D u_calcPass;
+#endif
+
+#define PI     3.14159265358979
 
 #include "noise.glsl"
 #include "colorconvert.glsl"
@@ -94,6 +109,17 @@ void main()
 
     float tone = 1.0 - luma; // 0 = white, 1 = black
 
+    #if USE_STRUCTURE == 1
+        // normalized angle, anisotropy
+        vec2 structureTensor = texture(u_calcPass, uv).rg;
+        float angle = structureTensor.r * PI - PI * 0.5;
+        angle = floor(angle * 4.0) / 4.0;
+        // there is no justification for using the cube, just looks better on most images
+        tone = tone / (1.0 + structureTensor.g * structureTensor.g * structureTensor.g * u_anisoDrag);
+    #else
+        float angle = u_angle;
+    #endif
+
     // Work in pixel space so the hatch is stable on screen
     vec2 p = gl_FragCoord.xy * u_scale;
 
@@ -116,7 +142,7 @@ void main()
     ink += hatchLayer(
         p,
         tone,
-        radians(u_angle),
+        angle,
         baseSpacing,    // spacing in pixels
         baseWidth,    // line half-width in phase units
         0.18,    // threshold
@@ -129,7 +155,7 @@ void main()
     ink += hatchLayer(
         p,
         tone,
-        radians(-u_angle),
+        -angle,
         baseSpacing,
         baseWidth,
         0.38,
@@ -141,7 +167,7 @@ void main()
     // Layer 3: denser
     ink += hatchLayer(
         p, tone,
-        radians(u_angle),
+        angle,
         baseSpacing * 0.55,
         baseWidth * 0.8,
         0.58,
@@ -153,7 +179,7 @@ void main()
     // Layer 4: denser
     ink += hatchLayer(
         p, tone,
-        radians(-u_angle),
+        -angle,
         baseSpacing * 0.55,
         baseWidth * 0.8,
         0.72,
@@ -164,8 +190,9 @@ void main()
 
     // Layer 5: near-black tightening pass, slightly different angle
     ink += hatchLayer(
-        p, tone,
-        radians(0.0),
+        p,
+        tone,
+        angle * 1.1,
         7.0,
         0.07,
         0.86,
@@ -178,7 +205,6 @@ void main()
     // or something between. This keeps the effect usable as either
     // an overlay or a full stylization pass.
     vec3 paper = mix(srgbIn, u_paperColor, u_paperOpacity);
-
 
     // Normalize / compress accumulated ink a bit
     ink = 1.0 - exp(-ink * 0.9);

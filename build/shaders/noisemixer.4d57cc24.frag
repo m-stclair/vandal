@@ -60,7 +60,7 @@ out vec4 outColor;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
-    vec2 uvs = uv + uniformNoise(u_seed);
+    vec2 uvs = uv + uniformNoise(u_seed + 1.0);
     float xScl = uvs.x * u_freqx;
     float yScl = uvs.y * u_freqy;
     float noiseVal = 0.0;
@@ -70,8 +70,8 @@ void main() {
     noiseVal += cnoise(vec2(xScl, yScl)) * u_perlin * 1.4;
     vec2 gradientOut = vec2(0.0, 0.0); // scratch space for periodic simplex noise algo
     noiseVal += psrdnoise(vec2(xScl, yScl), vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
-    noiseVal += gaussianNoise(vec2(xScl, yScl)) * u_gauss;
-    noiseVal += brownNoise(vec2(xScl, yScl)) * u_brown;
+    noiseVal += gaussianNoise(uvs) * u_gauss;
+    noiseVal += brownNoise(uvs) * u_brown;
     noiseVal += valueNoise(vec2(xScl, yScl)) * u_value;
     vec2 cellnoise = cellular(vec2(xScl, yScl)) * u_worley;
     noiseVal += (cellnoise.x + cellnoise.y) / 2.;

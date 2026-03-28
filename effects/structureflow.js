@@ -94,15 +94,15 @@ export default {
             label: "Strength",
             type: "modSlider",
             min: 0,
-            max: 25,
-            steps: 100,
+            max: 50,
+            steps: 200,
         },
         {
             key: "anisoDrag",
             label: "Texture Drag",
             type: "modSlider",
             min: 0,
-            max: 50,
+            max: 100,
             steps: 200,
             showIf: {"key": "CALCULATE_MODE", "equals": CalcModeEnum.STRUCTURE_TENSOR}
         },

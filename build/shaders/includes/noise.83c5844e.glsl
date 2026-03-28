@@ -107,14 +107,18 @@ vec3 perlinNoise2D(
     );
 }
 
+float hash(vec2 p) {
+    return fract(sin(dot(p ,vec2(127.1,311.7))) * 43758.5453123);
+}
 
 // Box-Muller transform to generate Gaussian noise
 float gaussianNoise(vec2 p) {
-    float u1 = hash(p.x, p.y);
-    float u2 = hash(p.x + 1.0, p.y);
+    float u1 = max(hash(vec2(p.x, p.y)), 1e-6);;
+    float u2 = hash(vec2(p.x + 1.0, p.y));
     float z0 = sqrt(-2.0 * log(u1)) * cos(2.0 * 3.14159 * u2);
     return z0;
 }
+
 
 // NOTE: just starts ringing way too fast
 // 1/f noise function (Pink noise)
@@ -133,10 +137,6 @@ float pinkNoise(vec2 p) {
     return total;
 }
 
-float hash(vec2 p) {
-    return fract(sin(dot(p ,vec2(127.1,311.7))) * 43758.5453123);
-}
-
 float brownNoise(vec2 uv) {
     float sum = 0.0;
     float amplitude = 1.0;
@@ -145,16 +145,16 @@ float brownNoise(vec2 uv) {
 
     // 1/f² weighting: each octave contributes more than the next
     for (int i = 0; i < 5; i++) {
-        float n = gaussianNoise(uv * scale); // replace with your gaussianNoise(vec2) if desired
+        float n = gaussianNoise(uv * scale);
         sum += n * amplitude;
         total += amplitude;
 
-        scale *= 0.5;      // increase frequency
+        scale *= 0.5;
         amplitude *= 2.0;  // inverse-square amplitude (≈1/f²)
     }
-
-    return sum / total; // normalize
+    return sum / total;
 }
+
 
 // Smoothstep interpolation
 float smoothstepInterp(float a, float b, float t) {

@@ -3,10 +3,10 @@ import {cmapLuts, colormaps, LUTSIZE} from "../utils/colormaps.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
-    BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation, GateModeEnum, GateModeOpts,
-    ZoneShapeEnum,
+    BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation, CalcModeEnum,
 } from "../utils/glsl_enums.js";
-import {blendControls, zoneControls} from "../utils/ui_configs.js";
+import {blendControls} from "../utils/ui_configs.js";
+import {calcPass} from "./probes/calcpass.js";
 
 const shaderPath = "dither.frag"
 const includePaths = {
@@ -35,9 +35,11 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         chromaBoost: 1,
-        components: [0, 0, 0, 0, 0.5, 0, 0],
+        components: [0, 0, 0, 0.1, 0.5, 0, 0],
         blendAmount: 1,
         colormap: "none",
+        USE_STRUCTURE: false,
+        edgeStrength: 1
     },
     uiLayout: [
         {
@@ -58,10 +60,19 @@ export default {
                     length: 7
                 },
                 {key: "scale", label: "Scale", type: "modSlider", min: 250, max: 5000, steps: 300, scale: "log"},
-                {key: "levels", label: "levels", type: "modSlider", min: 2, max: 16, step: 1}
+                {key: "levels", label: "Levels", type: "modSlider", min: 2, max: 16, step: 1},
+                {
+                    key: "edgeStrength",
+                    label: "Edge Strength",
+                    type: "modSlider",
+                    min: 0,
+                    max: 10,
+                    steps: 100,
+                    showIf: {key: "USE_STRUCTURE", equals: true}
+                },
+                {key: "USE_STRUCTURE", label: "Use Structure", type: "checkbox"}
             ]
         },
-        blendControls(),
         {
             type: 'group',
             label: 'Color',
@@ -83,15 +94,14 @@ export default {
                     length: 3,
                     step: 0.01,
                 },
-                ]
+            ]
         },
-        {key: "APPLY_MASK", label: "Apply Mask", type: "checkbox"},
-        {...zoneControls(), showIf: {'key': 'APPLY_MASK', 'equals': true}},
+        blendControls(),
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources)
         const {
-            seed, scale, components, levels,
+            seed, scale, components, levels, USE_STRUCTURE, edgeStrength,
             BLENDMODE, COLORSPACE, tint, blendAmount, colormap,
             BLEND_CHANNEL_MODE, chromaBoost
         } = resolveAnimAll(instance.config, t);
@@ -114,6 +124,7 @@ export default {
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmount, type: "float"},
             u_chromaBoost: {type: "float", value: chromaBoost},
+            u_edgeStrength: {type: "float", value: edgeStrength}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
@@ -121,7 +132,24 @@ export default {
             COLORSPACE: COLORSPACE,
             APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            USE_STRUCTURE: USE_STRUCTURE
         }
+        if (USE_STRUCTURE) {
+            const calcPassTexture = instance.calcPass.calculate(
+                instance.calcPass,
+                inputTex,
+                width,
+                height,
+                1,
+                1,
+                true,
+                3,
+                CalcModeEnum.STRUCTURE_TENSOR
+            ).texture
+            // this uniform is #defined out if !USE_STRUCTURE
+            uniformSpec.u_calcPass = {value: calcPassTexture, type: "texture2D"};
+        }
+
         if (colormap !== "none") {
             uniformSpec["u_cmap"] = {
                 value: instance.glState.getOrCreateLUT(colormap, cmapLuts[colormap]),
@@ -132,11 +160,22 @@ export default {
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
-    initHook: fragSources.load,
+    initHook: async (instance, renderer) => {
+        await fragSources.load();
+        instance.calcPass = {
+            initHook: calcPass.initHook,
+            cleanupHook: calcPass.cleanupHook,
+            setupFBO: calcPass.setupFBO,
+            calculate: calcPass.calculate,
+            outputFBO: null,
+            width: null,
+            height: null
+        };
+        await instance.calcPass.initHook(instance.calcPass, renderer);
+    },
     cleanupHook(instance) {
-        if (instance.glState?.renderer) {
-            instance.glState.renderer.deleteEffectFBO(instance.id);
-        }
+        instance.glState.renderer.deleteEffectFBO(instance.id);
+        instance.calcPass.cleanupHook(instance.calcPass);
     },
     glState: null,
     isGPU: true

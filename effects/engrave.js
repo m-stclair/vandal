@@ -1,8 +1,9 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, CalcModeEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {rgb2Lab} from "../utils/colorutils.js";
+import {calcPass} from "./probes/calcpass.js";
 
 const shaderPath = "engrave.frag";
 const includePaths = {
@@ -36,8 +37,9 @@ export default {
         lineWidthSensitivity: 0,
         lineSpacing: 18,
         lineSpacingSensitivity: 0,
-        angle: 25
-
+        angle: 25,
+        USE_STRUCTURE: false,
+        anisoDrag: 0,
     },
 
     uiLayout: [
@@ -85,7 +87,17 @@ export default {
                     type: "modSlider",
                     min: 0,
                     max: 90,
-                    step: 1
+                    step: 1,
+                    showIf: {key: "USE_STRUCTURE", equals: false}
+                },
+                {
+                    key: "anisoDrag",
+                    label: "Texture Toning",
+                    type: "modSlider",
+                    min: -1,
+                    max: 1,
+                    steps: 100,
+                    showIf: {key: "USE_STRUCTURE", equals: true}
                 },
                 {
                     key: "scale",
@@ -104,6 +116,11 @@ export default {
                     step: 0.01,
                 },
             ]
+        },
+        {
+            key: "USE_STRUCTURE",
+            label: "Use Structure",
+            type: "checkbox"
         },
         {
             type: "group",
@@ -179,11 +196,14 @@ export default {
             brightness, contrast, scale, jitter, angle,
             lineWidth, lineWidthSensitivity,
             lineSpacing, lineSpacingSensitivity,
-            inkOpacity, inkColor, paperOpacity, paperColor
+            inkOpacity, inkColor, paperOpacity, paperColor,
+            USE_STRUCTURE, anisoDrag
         } = resolveAnimAll(instance.config, t);
         //
         // const darkLab = rgb2Lab(...darkColor);
         // const lightLab = rgb2Lab(...lightColor);
+
+
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
@@ -202,19 +222,51 @@ export default {
             u_inkOpacity: {value: inkOpacity, type: "float"},
             u_paperOpacity: {value: paperOpacity, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_angle: {value: angle, type: "float"}
+            u_angle: {value: angle * Math.PI / 180, type: "float"},
+            u_anisoDrag: {value: anisoDrag, type: "float"},
         };
+
+        if (USE_STRUCTURE) {
+            const calcPassTexture = instance.calcPass.calculate(
+                instance.calcPass,
+                inputTex,
+                width,
+                height,
+                1,
+                1,
+                true,
+                4,
+                CalcModeEnum.STRUCTURE_TENSOR
+            ).texture
+            // this uniform is #defined out if !USE_STRUCTURE
+            uniformSpec.u_calcPass = {value: calcPassTexture, type: "texture2D"};
+        }
+
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
             APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            USE_STRUCTURE: USE_STRUCTURE ? 1 : 0
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
-    initHook: fragSources.load,
+    initHook: async (instance, renderer) => {
+        await fragSources.load();
+        instance.calcPass = {
+            initHook: calcPass.initHook,
+            cleanupHook: calcPass.cleanupHook,
+            setupFBO: calcPass.setupFBO,
+            calculate: calcPass.calculate,
+            outputFBO: null,
+            width: null,
+            height: null
+        };
+        await instance.calcPass.initHook(instance.calcPass, renderer);
+    },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
+        instance.calcPass.cleanupHook(instance.calcPass);
     },
     glState: null,
     isGPU: true,

@@ -1,6 +1,20 @@
 // Built-in effect stack presets (not stored in localStorage)
 export const builtInPresets = [
     {
+        "name":"Chalk Pastel",
+        "config":[
+            {"name":"2D Kernel","config":{"BLENDMODE":"9","BLEND_CHANNEL_MODE":"1","COLORSPACE":"2","blendAmount":1,"chromaBoost":1,"kernelName":"altsign","kernelRadiusX":9,"kernelRadiusY":19,"kernelSoftness":9.17}},
+            {"name":"Kuwahara","config":{"texelSizeX":1,"texelSizeY":2,"radius":6,"sharpness":2.5,"eccentricity":1.38,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"kernelRadius":5}}
+        ]
+    },
+    {
+        "name":"Soft Oil",
+        "config":[
+            {"name":"DoG","config":{"radius1":3,"radius2":9,"softness1":1.8,"softness2":3,"temperature":10.4,"weight":0.97,"BLENDMODE":"9","COLORSPACE":"7","BLEND_CHANNEL_MODE":"1","blendAmount":1,"chromaBoost":1}},
+            {"name":"Kuwahara","config":{"texelSizeX":1,"texelSizeY":2,"radius":6,"sharpness":2.5,"eccentricity":1.38,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"kernelRadius":5}}
+        ]
+    },
+    {
         "name": "Dancing Lithograph",
         "config": [
             {

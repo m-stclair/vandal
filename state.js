@@ -246,7 +246,7 @@ export function resizeAndRedraw() {
     Lock.image = true;
     try {
         const leftPane = document.getElementById('leftPane');
-        const width = leftPane.clientWidth - 20;
+        const width = leftPane.clientWidth;
         const height = window.innerHeight * 0.9;
         canvas.width = width;
         canvas.height = height;

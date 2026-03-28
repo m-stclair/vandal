@@ -322,5 +322,6 @@ export function pruneForMobile(exportImage, loadState, registry,
     topBar.classList.add('mobile');
     gid("mainLayout").style.maxHeight = "80vh";
     gid("mobile-topbar-target").appendChild(topBar);
+    gid("mobile-topbar-target").style.display = "block"
 }
 

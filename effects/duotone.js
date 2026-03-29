@@ -125,7 +125,8 @@ export const effectMeta = {
       darkColor: {"min": 0, "max": 0.2},
       gamma: {"min": 0.8, "max": 1.2},
       shadowPoint: {"min": 0.1, "max": 0.3},
-      highlightPoint: {"min": 0.7, "max": 0.9}
+      highlightPoint: {"min": 0.7, "max": 0.9},
+      blendAMount: {"min": 0.75, "max": 1}
   },
   // notInRandom: true
 };

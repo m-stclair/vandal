@@ -22,6 +22,20 @@ export function makeEnum(names) {
 }
 
 export const {
+    enum: MorphEnum,
+    names: MorphNames,
+    options: MorphOpts
+} = makeEnum([
+    'EROSION',
+    'DILATION',
+    'OPENING',
+    'CLOSING',
+    'TOP_HAT',
+    'BLACK_HAT',
+    'GRADIENT'
+]);
+
+export const {
     enum: CalcModeEnum,
     names: CalculateModeNames,
     options: CalculateModeOpts

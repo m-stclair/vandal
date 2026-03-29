@@ -156,23 +156,22 @@ export function preprocessGLSL(source, options = {}) {
 export function loadFragSrcInit(shaderPath, includePaths) {
     let shader = null;
     let includeMap = null;
+    includePaths = includePaths ? includePaths : {};
 
     async function load() {
         const fragURL = new URL(`../build/shaders/${manifest[shaderPath]}`, import.meta.url);
         const sresp = await fetch(fragURL);
         if (!sresp.ok) throw new Error(`Failed to load shader: ${fragURL}`);
         shader = await sresp.text();
-        if (includePaths) {
-            includeMap = {};
-            Object.entries(includePaths).map(([name, path]) => {
-                const url = new URL(`../build/shaders/${manifest[path]}`, import.meta.url);
-                includeMap[name] = fetch(url);
-            })
-            for (const [name, promise] of Object.entries(includeMap)) {
-                const resp = await promise;
-                if (!resp.ok) throw new Error(`Failed to load shader: ${name}`);
-                includeMap[name] = await resp.text();
-            }
+        includeMap = {};
+        Object.entries(includePaths).map(([name, path]) => {
+            const url = new URL(`../build/shaders/${manifest[path]}`, import.meta.url);
+            includeMap[name] = fetch(url);
+        })
+        for (const [name, promise] of Object.entries(includeMap)) {
+            const resp = await promise;
+            if (!resp.ok) throw new Error(`Failed to load shader: ${name}`);
+            includeMap[name] = await resp.text();
         }
     }
 

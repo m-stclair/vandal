@@ -28,7 +28,7 @@ export default {
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
-        initGLEffect(instance, fragSources)
+        initGLEffect(instance, fragSources);
         const {
             COLORSPACE,  invert0, invert1, invert2
         } = resolveAnimAll(instance.config, t);

@@ -99,7 +99,7 @@ export default {
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             u_kernelWidth: {type: "int", value: kernelInfo.width},
             u_kernelHeight: {type: "int", value: kernelInfo.height},
-            u_blendamount: {type: "float", value: blendAmount},
+            u_blendAmount: {type: "float", value: blendAmount},
             u_chromaBoost: {type: "float", value: chromaBoost},
             u_strength: {type: "float", value: strength},
             u_threshold: {type: "float", value: threshold},
@@ -110,7 +110,6 @@ export default {
             KERNEL_SIZE: kernelInfo.kernel.length,
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
@@ -128,14 +127,13 @@ export default {
 
 export const effectMeta = {
     group: "Utility",
-    tags: ["kernel", "blur", "sharpen", "emboss", "webgl", "filter", "convolution"],
-    description: "Applies a generic 2D convolution kernel; use for blur, emboss, sharpening, etc.",
+    tags: ["kernel", "sharpen", "emboss", "filter", "convolution"],
+    description: "Classic unsharp mask process with configurable kernels.",
     canAnimate: true,
     realtimeSafe: true,
-    notInRandom: true,
     parameterHints: {
         blendAmount: {min: 0.75, max: 1},
-        kernelRadiusX: {min: 2, max: 9},
-        kernelRadiusY: {min: 2, max: 9}
+        kernelHeight: {min: 2, max: 9},
+        kernelWidth: {min: 2, max: 9}
     }
 };

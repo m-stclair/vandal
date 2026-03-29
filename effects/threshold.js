@@ -97,6 +97,7 @@ export const effectMeta = {
     ),
     parameterHints: {
         "target": {min: 0.5, max: 0.75},
+        "width": {min: 0.1, max: 0.3}
     },
     canAnimate: true,
     realtimeSafe: true,

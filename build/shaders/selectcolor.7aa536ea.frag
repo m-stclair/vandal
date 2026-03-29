@@ -24,10 +24,13 @@ void main() {
     vec3 inColor = texture(u_image, uv).rgb;
     vec3 lch = srgb2NormLCH(inColor);
     float d = abs(mod(lch.z - u_hueCenter + 0.5, 1.0) - 0.5);
-    float t = smoothstep(u_hueWidth - u_knee, u_hueWidth, d);
+    // knee is asymmetrical in these cases so that it remains conceptually
+    // a "softness" parameter in both
 #if FLIP == 0
+    float t = smoothstep(u_hueWidth, u_hueWidth + u_knee, d);
     lch.y *= (1.0 - t);
 #else
+    float t = smoothstep(u_hueWidth - u_knee, u_hueWidth, d);
     lch.y *= t;
 #endif
     outColor = vec4(blendWithColorSpace(inColor, normLCH2SRGB(lch), u_blendAmount), 1.0);

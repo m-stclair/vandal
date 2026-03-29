@@ -12,7 +12,7 @@ uniform float u_kernel[KERNEL_SIZE];
 uniform int u_kernelWidth;
 uniform int u_kernelHeight;
 uniform float u_threshold;
-uniform float u_blendamount;
+uniform float u_blendAmount;
 uniform float u_strength;
 uniform float u_knee;
 
@@ -52,5 +52,5 @@ void main() {
     vec3 sharpLab = vec3(lumaSharp, baseLab.y, baseLab.z);
     vec3 sharpSRGB = normLab2SRGB(sharpLab);
 
-    outColor = vec4(blendWithColorSpace(baseSRGB, sharpSRGB, u_blendamount), 1.0);
+    outColor = vec4(blendWithColorSpace(baseSRGB, sharpSRGB, u_blendAmount), 1.0);
 }

@@ -35,7 +35,7 @@ void main() {
 #elif THRESHOLD_MODE == THRESHOLD_CHROMA_KEY
     pass = abs(lch.y - u_target) < u_width;
 #elif THRESHOLD_MODE == THRESHOLD_HUE_KEY
-    pass = abs(mod(lch.x - u_target, 0.5)) < u_width;
+    pass = abs(mod(lch.z - u_target, 0.5)) < u_width;
 #else
     pass = false;
 #endif

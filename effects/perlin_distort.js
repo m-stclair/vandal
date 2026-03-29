@@ -175,7 +175,7 @@ export default {
 
 export const effectMeta = {
     group: "Distortion",
-    tags: ["noise", "distortion", "webgl"],
+    tags: ["noise", "distortion", "warp"],
     description: "Projects the image onto a surface generated from Perlin noise. "
         + "Creates organic-but-retro warps, curves, and plastic tumbler patterns.",
     canAnimate: true,

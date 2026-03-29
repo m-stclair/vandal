@@ -78,11 +78,6 @@ function roll1d4() {
     return Math.floor(Math.random() * 4) + 1;
 }
 
-function pickRandomSubset(arr, n) {
-    const shuffled = [...arr].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, n);
-}
-
 function pickRandomSubsetWithReplacement(arr, n) {
     const out = [];
     for (let i = 0; i < n; i++) {
@@ -274,12 +269,27 @@ function selectRandomParam(hints, param) {
     }
 }
 
+function filterKeys(obj, arr) {
+    return Object.fromEntries(
+        Object.entries(obj).filter(([k, _v]) => arr.includes(k))
+    );
+}
+
 function generateRandomizedConfig(layout, meta) {
     const config = {};
     const flatParams = flattenUiLayout(layout);
     const hints = meta.parameterHints ?? {};
     for (const param of flatParams || []) {
         config[param.key] = selectRandomParam(hints, param, config);
+    }
+    if (hints.notAll0) {
+        let filtered = filterKeys(config, hints.notAll0);
+        while (Object.values(filtered).every((v) => !v)) {
+            for (const k of hints.notAll0) {
+                config[k] = Math.random() < 0.5;
+            }
+            filtered = filterKeys(config, hints.notAll0);
+        }
     }
     return config;
 }

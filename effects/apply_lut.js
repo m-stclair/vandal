@@ -229,8 +229,9 @@ export default {
 export const effectMeta = {
     group: "Color",
     tags: ["color", "colormap", "gpu", "lookup", "palette"],
-    description: "Applies a colormap transformation using a 1D palette LUT. "
-        + "Useful for remapping luminance or applying false color.",
+    description: "Configurable color reassignment using a LUT derived from a " +
+        "built-in colormap or a provided file. Offers a variety of perceptual weighting " +
+        "and palette blending options.",
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {

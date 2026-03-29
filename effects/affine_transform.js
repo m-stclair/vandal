@@ -114,7 +114,7 @@ export default {
 
 export const effectMeta = {
     group: "Geometry",
-    tags: ["webgl", "geometry", "zoom", "shift", "crop", "rotate", "transform", "realtime"],
+    tags: ["geometry", "zoom", "shift", "crop", "rotate", "transform"],
     description: "Zoom, rotate, spin, shear, shift, squeeze, crop, stretch, etc.",
     canAnimate: true,
     realtimeSafe: true,

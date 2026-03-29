@@ -260,7 +260,7 @@ export default {
 
 export const effectMeta = {
     group: "Synthesis",
-    tags: ["noise", "perlin", "mixer", "simplex", "worley", "white", "synth", "webgl", "realtime"],
+    tags: ["noise", "perlin", "mixer", "simplex", "worley", "white", "synth"],
     description: "Generates highly-configurable noise. Offers a variety of blending " +
         "methods for application to images; also suitable as a standalone pattern " +
         "generator.",

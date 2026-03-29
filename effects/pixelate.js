@@ -56,9 +56,9 @@ export default {
 
 export const effectMeta = {
     group: "Stylize",
-    tags: ["pixel", "quantize", "gpu", "lofi"],
-    description: "Reduces image resolution by averaging blocks of pixels, " +
-        "producing a pixelated appearance. Block size can be animated.",
+    tags: ["pixel", "quantize", "lofi"],
+    description: "Reduces image resolution by averaging blocks of pixels. " +
+        "Block size can be animated.",
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {

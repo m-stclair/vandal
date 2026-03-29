@@ -22,7 +22,7 @@ const effectFiles = [
     'colorshred.js',
     // 'jointshred.js',
     'edgetrace.js',
-    'morphops_svg.js',
+    // 'morphops_svg.js',
     // 'hillshade.js',
     'pixelate.js',
     // "pixelate_old.js",
@@ -30,7 +30,7 @@ const effectFiles = [
     // "palette_debug.js",
     // "reinhardTransfer.js",
     "contour_synth.js",
-    "jztest.js",
+    // "jztest.js",
     // "fir.js",
     "delayline.js",
     "affine_transform.js",
@@ -56,7 +56,14 @@ const effectFiles = [
     "threshold.js",
     "unsharp.js",
     "dog.js",
-    "selectcolor.js"
+    "selectcolor.js",
+    "voronoi.js",
+    "solarize.js",
+    "morphology.js",
+    "vignette.js",
+    "polar_transform.js",
+    "exposure.js",
+    "huerotate.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

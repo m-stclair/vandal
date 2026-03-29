@@ -187,7 +187,7 @@ export default {
 };
 export const effectMeta = {
     group: "Operators",
-    tags: ["sort", "webgl", "blur", "paint"],
+    tags: ["sort", "blur", "paint", "warp"],
     description: "Ink in water, hourglass sandlight, dissection, pixel clouds. " +
         "Applies a spatial displacement field to an image, with rotation and magnitude " +
         "separately modulated by luma, hue, saturation, or specified color channels. ",

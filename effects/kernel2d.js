@@ -96,7 +96,7 @@ export default {
 
 export const effectMeta = {
     group: "Utility",
-    tags: ["kernel", "blur", "sharpen", "emboss", "webgl", "filter", "convolution"],
+    tags: ["kernel", "blur", "sharpen", "emboss", "filter", "convolution"],
     description: "Applies a generic 2D convolution kernel; use for blur, emboss, sharpening, etc.",
     canAnimate: true,
     realtimeSafe: true,

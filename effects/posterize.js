@@ -94,13 +94,14 @@ export default {
 
 export const effectMeta = {
   group: "Color",
-  tags: ["color", "posterize", "quantization", "webgl", "mix"],
+  tags: ["color", "posterize", "quantization", "mix"],
   description:  "Classic posterization / quantization effect with multiple " +
                 "quantization modes and colorspaces.",
   canAnimate: true,
   realtimeSafe: true,
   parameterHints: {
       blendAmount: {min: 0.75, max: 1},
-      POSTERIZE_MODE: {weights: {[PosterizeEnum.NONE]: 0}}
+      POSTERIZE_MODE: {weights: {[PosterizeEnum.NONE]: 0}},
+      notAll0: ["c1", "c2", "c3"]
   }
 };

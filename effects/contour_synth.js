@@ -149,6 +149,6 @@ export const effectMeta = {
       "edge detector, a terrain visualizer, and an FM synth. Also suitable " +
       "as a standalone pattern generator.",
     backend: "gpu",
-    animated: true,
+    canAnimate: true,
     realtimeSafe: true,
 }

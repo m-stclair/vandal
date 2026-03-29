@@ -126,7 +126,7 @@ export interface EffectMeta {
   group: string;
   tags: string[];
   description: string;
-  backend: "cpu" | "webgl" | "hybrid";
+  backend: "cpu" | "gpu" | "hybrid";
   canAnimate: boolean;
   animatedByDefault?: boolean; // Default config has non-zero mod depth or animation hook
   realtimeSafe: boolean;
@@ -142,7 +142,7 @@ export interface RegistryEntry {
   group: string;
   tags: string[];
   description: string;
-  backend: "cpu" | "webgl" | "hybrid";
+  backend: "cpu" | "gpu" | "hybrid";
   animated: boolean;
   realtimeSafe: boolean;
   defaultConfig: ConfigObject;

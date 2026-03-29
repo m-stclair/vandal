@@ -186,7 +186,7 @@ export const effectMeta = {
         "Useful for creating radiant overlays, ink-on-pastel, false-color maps, or psychedelic " +
         "sunburst effects.",
     backend: "gpu",
-    animated: true,
+    canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
         threshold: {min: 0, max: 0.6},

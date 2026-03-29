@@ -14,6 +14,7 @@
   "gen_debug.frag": "gen_debug.b876e8dc.frag",
   "noisemixer.frag": "noisemixer.4d57cc24.frag",
   "kuwahara.frag": "kuwahara.34c8688a.frag",
+  "selectcolor.frag": "selectcolor.aa9b0e6e.frag",
   "look.frag": "look.5bca1485.frag",
   "gridpattern.frag": "gridpattern.771f2b9d.frag",
   "colorshred.frag": "colorshred.8527e6b8.frag",

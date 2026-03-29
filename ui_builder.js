@@ -92,7 +92,7 @@ function buildWidget(instance, uiSpec, fxUIState, drawTriggers) {
         });
     }
     if (drawTriggers.has(key)) {
-        widget.addEventListener('input', () => {
+        widget.addEventListener('change', () => {
             requestUIDraw()
         });
     }

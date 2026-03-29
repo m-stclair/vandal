@@ -15,6 +15,7 @@ uniform float u_blendamount;
 uniform float u_bandingSteps;
 uniform float u_duty;
 uniform vec2 u_origin;
+uniform float u_bandHue;
 
 out vec4 outColor;
 
@@ -106,7 +107,7 @@ vec4 chromawave(vec2 uv) {
 #endif
 
 #if USE_BANDING == 1
-    hue = quantize(hue, u_bandingSteps + 1.);
+    hue = quantize(hue, u_bandingSteps + 1.) + u_bandHue;
 #endif
 #if CHROMAWAVE_BLEED == 1
     hue = mix(hue, inHSL.x, u_bleed);

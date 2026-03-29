@@ -34,7 +34,7 @@ export default {
         originX: 0.5,
         originY: 0.5,
         spatialPattern: "radial",
-
+        bandHue: 0
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
@@ -85,7 +85,8 @@ export default {
         group("Waveform Controls", [
             {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
             {type: "range", key: "bandingSteps", label: "Bands", min: 0, max: 5, step: 1},
-            {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01}
+            {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01},
+            {type: "modSlider", key: "bandHue", label: "Band Hue", min: 0, max: 1, steps: 100, showIf: {key: "bandingSteps", notEquals: 0}}
         ], {color: "#1a0000"}),
 
         blendControls(),
@@ -111,7 +112,8 @@ export default {
             originY,
             spatialPattern,
             BLEND_CHANNEL_MODE,
-            chromaBoost
+            chromaBoost,
+            bandHue
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm;
@@ -150,7 +152,8 @@ export default {
             u_duty: {type: "float", value: dutyCycle},
             u_bandingSteps: {type: "float", value: bandingSteps},
             u_origin: {type: "vec2", value: [originX * width, originY * height]},
-            u_chromaBoost: {type: "float", value: chromaBoost}
+            u_chromaBoost: {type: "float", value: chromaBoost},
+            u_bandHue: {type: "float", value: bandHue}
         };
         const defines = {
             COLORSPACE: COLORSPACE,

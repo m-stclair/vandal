@@ -58,7 +58,6 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
         }
 
@@ -96,7 +95,6 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
-        chromaBoost: 1,
         kernelRadius: 3
     },
     uiLayout: [

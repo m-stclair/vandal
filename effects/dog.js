@@ -89,7 +89,7 @@ export default {
         radius1: 2,
         radius2: 8,
         softness1: 1.5,
-        softness2: 5.5,
+        softness2: 2.5,
         temperature: 10,
         weight: 0.98,
         BLENDMODE: BlendModeEnum.MIX,

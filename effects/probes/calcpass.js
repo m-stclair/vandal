@@ -59,7 +59,7 @@ export const calcPass = {
                 pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
                 pass.outputFBO = null;
             }
-            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "kuwaharaStructureTensor", "kuwaharaStructureTensor");
+            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "calcpass", pass.id);
         }
     }
 }

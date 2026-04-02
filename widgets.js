@@ -212,10 +212,10 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
         animUIState.freqValue = freq.position();
         animUIState.depthValue = depth.position();
         animUIState.biasValue = bias.position();
-        if (modulated && !animUIState.animating) {
+        if (modulated && animUIState.animating !== true) {
             requestUIDraw();
             requestRender();
-        } else if (!modulated && animUIState.animating) {
+        } else if (!modulated && animUIState.animating === true) {
             requestUIDraw();
         }
         animUIState.animating = modulated;

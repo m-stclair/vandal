@@ -5,7 +5,7 @@ import {
     BlendTargetEnum,
     ColorspaceEnum, hasChromaBoostImplementation
 } from "../utils/glsl_enums.js";
-import {generateKernel, KernelTypeEnum} from "../utils/kernels.js";
+import {generateKernel, KernelTypeEnum, normalizeKernel} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "bloom.glsl"
@@ -104,7 +104,7 @@ export default {
             chromaOffset, BLOOM_CHROMA_TAIL, kernelName, kernelSoftness,
             chromaBoost
         } = resolveAnimAll(instance.config, t);
-        const kernel = generateKernel(kernelName, kernelRadius, kernelSoftness);
+        const kernel = normalizeKernel(generateKernel(kernelName, kernelRadius, kernelSoftness));
         // console.log(kernel);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},

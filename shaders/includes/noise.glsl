@@ -6,20 +6,17 @@ float hash(float x, float seed) {
     return fract(sin(x * 12.9898 + 78.223) * seed);
 }
 
-float uniformNoise(vec2 xy) {
-    return fract(sin(xy.x * xy.y * 12.9898 + 78.233) * 43758.5453);
-}
-
-float uniformNoise(float x) {
-    return fract(sin(x * 12.9898 + 78.233) * 43758.5453);
-}
-
 vec2 hash2d_uv(vec2 uv) {
     // Large irrational multipliers reduce grid alignment
     const vec2 k = vec2(127.1, 311.7);
     float n = sin(dot(uv, k)) * 43758.5453;
     return fract(vec2(n, n * 1.2154));
 }
+
+float hash(vec2 p) {
+    return fract(sin(dot(p ,vec2(127.1,311.7))) * 43758.5453123);
+}
+
 
 vec2 grad(float ix, float iy, float seed) {
     float h = hash(ix, iy, seed);
@@ -107,9 +104,14 @@ vec3 perlinNoise2D(
     );
 }
 
-float hash(vec2 p) {
-    return fract(sin(dot(p ,vec2(127.1,311.7))) * 43758.5453123);
+float uniformNoise(vec2 xy) {
+    return fract(sin(xy.x * xy.y * 12.9898 + 78.233) * 43758.5453);
 }
+
+float uniformNoise(float x) {
+    return fract(sin(x * 12.9898 + 78.233) * 43758.5453);
+}
+
 
 // Box-Muller transform to generate Gaussian noise
 float gaussianNoise(vec2 p) {
@@ -120,7 +122,6 @@ float gaussianNoise(vec2 p) {
 }
 
 
-// NOTE: just starts ringing way too fast
 // 1/f noise function (Pink noise)
 float pinkNoise(vec2 p) {
     float total = 0.0;

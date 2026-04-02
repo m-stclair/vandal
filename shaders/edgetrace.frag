@@ -6,6 +6,7 @@ uniform vec2 u_resolution;
 uniform float u_threshold;
 uniform float u_blendamount;
 uniform vec3 u_tint;
+uniform float u_baseOpacity;
 
 out vec4 outColor;
 
@@ -39,9 +40,10 @@ void main() {
 
     float edgeStrength = sobelEdge(uv);
     float edgeMask = step(u_threshold, edgeStrength);
-    vec3 edgeColor = vec3(edgeMask);
     vec3 original = texture(u_image, uv).rgb;
-    edgeColor *= u_tint;
-    vec3 blended = blendWithColorSpace(original, edgeColor, u_blendamount);
+    vec3 bleed = original * u_baseOpacity;
+    vec3 result = mix(bleed, u_tint, edgeMask);
+
+    vec3 blended = blendWithColorSpace(original, result, u_blendamount);
     outColor = vec4(blended, 1);
 }

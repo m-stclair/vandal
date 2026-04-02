@@ -22,11 +22,12 @@ export default {
         blendAmount: 1,
         threshold: 0.35,
         tint: [1, 1, 1],
-        chromaBoost: 1
+        chromaBoost: 1,
+        baseOpacity: 0
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
-        blendControls(),
+        {type: "modSlider", key: "baseOpacity", label: "Base Opacity", min: 0, max: 1, step: 0.01},
         {
             key: "tint",
             label: "Tint",
@@ -36,6 +37,7 @@ export default {
             max: 1,
             step: 0.01,
         },
+        blendControls(),
     ],
 
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -43,7 +45,7 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE, threshold, tint,
-            chromaBoost
+            chromaBoost, baseOpacity
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -53,6 +55,7 @@ export default {
             u_threshold: {type: "float", value: threshold},
             u_tint: {type: "vec3", value: tint},
             u_chromaBoost: {type: "float", value: chromaBoost},
+            u_baseOpacity: {type: "float", value: baseOpacity}
         };
         const defines = {
             COLORSPACE: COLORSPACE,

@@ -50,8 +50,8 @@ export function generateKernel(type, radius = 3, softness = 1.0) {
                 w = i - Math.floor(radius / 2);
                 break;
             case 'impulse':
-                for (let i = 0; i < size; i++) {
-                    kernel[i] = (i === half - 2) ? 1 : (i === half + 2) ? -1 : 0;
+                for (let j = 0; j < size; j++) {
+                    kernel[j] = (j === half - 2) ? 1 : (j === half + 2) ? -1 : 0;
                 }
                 return kernel;
             default:
@@ -60,20 +60,10 @@ export function generateKernel(type, radius = 3, softness = 1.0) {
         kernel[i] = w;
         sum += w;
     }
-    if (type !== 'altsign') {
-        // DO NOT NORMALIZE
-        for (let i = 0; i < size; i++) {
-            kernel[i] /= sum;
-        }
-    }
-    if (type === "saw") {
-        const sum = kernel.reduce((a, b) => a + b, 0);
-        return kernel.map(v => v / sum);
-    }
     return kernel;
 }
 
-function normalizeKernel(kernel) {
+export function normalizeKernel(kernel) {
     const sum = kernel.reduce((a, b) => a + b, 0);
     if (sum === 0) return kernel;
     return kernel.map(v => v / sum);

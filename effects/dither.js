@@ -27,7 +27,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 export default {
     name: "Dither",
     defaultConfig: {
-        scale: 1100,
+        scale: 1050,
         tint: [1, 1, 1],
         seed: 1,
         levels: 2,
@@ -59,7 +59,7 @@ export default {
                     step: 0.01,
                     length: 7
                 },
-                {key: "scale", label: "Scale", type: "modSlider", min: 250, max: 5000, steps: 300, scale: "log"},
+                {key: "scale", label: "Scale", type: "modSlider", min: 100, max: 2250, steps: 300, scale: "log"},
                 {key: "levels", label: "Levels", type: "modSlider", min: 2, max: 16, step: 1},
                 {
                     key: "edgeStrength",

@@ -29,7 +29,7 @@ export default {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
-        blendAmount: 0.5,
+        blendAmount: 1,
         invert: true,
         noiseScale: 0.01,
         noiseAmount: 0,
@@ -42,7 +42,9 @@ export default {
         channelPhase2: 0,
         color: [1, 1, 1],
         chromaBoost: 1,
-        lumaAngle: 0
+        lumaAngle: 0,
+        backgroundOpacity: 0,
+        backgroundColor: [0, 0, 0]
     },
     uiLayout: [
         {
@@ -145,7 +147,14 @@ export default {
             label: "Invert",
             type: "checkbox"
         },
-        blendControls(),
+        {
+            key: "backgroundOpacity",
+            label: "Background Opacity",
+            type: "modSlider",
+            min: 0,
+            max: 1,
+            steps: 100
+        },
         {
             key: "color",
             label: "Color",
@@ -155,6 +164,16 @@ export default {
             min: 0,
             max: 1,
             step: 0.01,
+        },
+        {
+            key: "backgroundColor",
+            label: "Background Color",
+            type: "vector",
+            length: 3,
+            subLabels: ["R", "G", "B"],
+            min: 0,
+            max: 1,
+            step: 0.01
         },
         {
             key: "channelPhase0",
@@ -180,6 +199,7 @@ export default {
             max: 1,
             steps: 200
         },
+        blendControls(),
     ],
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
@@ -187,7 +207,7 @@ export default {
             lineWidth, phaseX, phaseY, noiseScale, noiseAmount, direction, mode, BLENDMODE, blendAmount,
             COLORSPACE, invert, spacingFactor, skew, BLEND_CHANNEL_MODE, lumaMod, color,
             lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2,
-            chromaBoost
+            chromaBoost, backgroundColor, backgroundOpacity
         } = resolveAnimAll(instance.config, t);
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -205,6 +225,8 @@ export default {
             u_lumathreshold: {value: lumaThreshold, type: "float"},
             u_phase: {value: [phaseX * width, phaseY * height], type: "vec2"},
             u_color: {value: color, type: "vec3"},
+            u_backgroundColor: {value: backgroundColor, type: "vec3"},
+            u_backgroundOpacity: {value: backgroundOpacity, type: "float"},
             u_channelphase: {
                 value: [
                     channelPhase0 * lineWidth * spacingFactor,

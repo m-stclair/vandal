@@ -15,16 +15,16 @@ out vec4 outColor;
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec4 pix = texture(u_image, uv);
-    vec3 rgb = pix.rgb;
+    vec3 srgb = pix.rgb;
 
     float mask = smoothstep(
         u_threshold - u_softness,
         u_threshold + u_softness,
-        luminance(rgb)
+        luminance(srgb2linear(srgb))
     );
-    vec3 inverted = 1.0 - rgb;
-    vec3 solarized = mix(rgb, inverted, mask);
+    vec3 inverted = 1.0 - srgb;
+    vec3 solarized = mix(srgb, inverted, mask);
 
-    vec3 result = mix(rgb, solarized, u_strength);
+    vec3 result = mix(srgb, solarized, u_strength);
     outColor = vec4(clamp(result, 0.0, 1.0), pix.a);
 }

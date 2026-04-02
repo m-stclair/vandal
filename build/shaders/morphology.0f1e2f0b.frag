@@ -25,13 +25,15 @@ void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     // this should always be grayscale atm
     vec3 morph = texture(u_morphology, uv).rgb;
-    vec3 pix = texture(u_image, uv).rgb;
+    vec3 srgb = texture(u_image, uv).rgb;
 #if SUBTRACT_MODE == SUBTRACT_MODE_NONE
     vec3 result = morph;
 #elif SUBTRACT_MODE == SUBTRACT_MODE_MORPH
-    vec3 result = luminance(pix) - morph;
+    vec3 lin = srgb2linear(srgb);
+    vec3 result = luminance(lin) - morph;
 #elif SUBTRACT_MODE == SUBTRACT_MODE_IMAGE
-    vec3 result = morph - luminance(pix);
+    vec3 lin = srgb2linear(srgb);
+    vec3 result = morph - luminance(lin);
 #elif SUBTRACT_MODE == SUBTRACT_MODE_TEX
     vec3 morph2 = texture(u_morphology_2, uv).rgb;
     vec3 result = morph - morph2;
@@ -39,6 +41,6 @@ void main() {
     // error
     vec3 result = vec3(1.0, 0.0, 1.0);
 #endif
-    outColor = vec4(blendWithColorSpace(pix, result, u_blendAmount), 1.0);
+    outColor = vec4(blendWithColorSpace(srgb, result, u_blendAmount), 1.0);
 }
 

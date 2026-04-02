@@ -84,7 +84,7 @@ float scribblePattern(vec2 pixel, float shade) {
         float threshold = float(layer) * u_falloff;
         if (shade < threshold + 0.05) continue;
 
-        float layerOpacity = smoothstep(threshold, threshold + 0.2, sqrt(shade));
+        float layerOpacity = smoothstep(threshold, threshold + 0.2, sqrt(shade)) * (float(layer) + 3.0) / 6.0;
 
         vec2 layerOffset = vec2(float(layer) * 0.37,
                                 float(layer) * 0.71);
@@ -149,7 +149,7 @@ void main() {
 
     float scribble = scribblePattern(gl_FragCoord.xy, shade);
     // Normalize / compress accumulated scribble a bit
-    scribble = 1.0 - exp(-scribble * shade * 2.0);
+    scribble = 1.0 - exp(-scribble * shade * 2.25);
     scribble *= u_scribbleOpacity;
 
     // "Paper" can either be the original image, a flat paper tone,

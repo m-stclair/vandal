@@ -7,7 +7,6 @@ out vec4 outColor;
 uniform sampler2D u_image;
 uniform vec2 u_resolution;
 
-// Artistic controls
 uniform float u_brightness;
 uniform float u_contrast;
 uniform float u_scale;

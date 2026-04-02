@@ -25,7 +25,7 @@ void main() {
 #else
     vec3 lin = srgb2linear(pix.rgb);
     #if CLIPMODE == CLIPMODE_LUMA
-        float luma = dot(lin, vec3(0.2126, 0.7152, 0.0722));
+        float luma = luminance(lin);
         vec3 chroma = lin - vec3(luma);
         float lumaClipped = clamp(luma * u_scales[3] + u_offsets[3], 0.0, 1.0);
         lin = chroma + vec3(lumaClipped);

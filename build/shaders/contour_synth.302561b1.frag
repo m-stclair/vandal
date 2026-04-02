@@ -68,7 +68,7 @@ void main() {
     vec4 pix = texture(u_image, uv);
     vec3 color = pix.rgb;
 
-    float luma = luminance(color);
+    float luma = luminance(srgb2linear(color));
     float phase = luma * 6.28318; // 2π
 
     float spatial = spatialPattern(uv, u_freq); // just uv.x + uv.y

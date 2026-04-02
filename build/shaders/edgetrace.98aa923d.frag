@@ -41,7 +41,7 @@ void main() {
     float edgeStrength = sobelEdge(uv);
     float edgeMask = step(u_threshold, edgeStrength);
     vec3 original = texture(u_image, uv).rgb;
-    vec3 bleed = mix(vec3(0, 0, 0), original, u_baseOpacity);
+    vec3 bleed = original * u_baseOpacity;
     vec3 result = mix(bleed, u_tint, edgeMask);
 
     vec3 blended = blendWithColorSpace(original, result, u_blendamount);

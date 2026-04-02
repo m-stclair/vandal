@@ -18,6 +18,8 @@ uniform float u_lumathreshold;
 uniform float u_luma_angle;
 uniform vec3 u_channelphase;
 uniform vec3 u_color;
+uniform vec3 u_backgroundColor;
+uniform float u_backgroundOpacity;
 
 out vec4 outColor;
 
@@ -97,20 +99,26 @@ void main() {
         gridPattern(grid_uv, u_channelphase.y),
         gridPattern(grid_uv, u_channelphase.z)
     );
+
+
 #if INVERT == 1
     pattern = 1.0 - pattern;
 #endif
 #if MOD_LUMA == 1
-    float lum = luminance(srgb);
+    float lum = luminance(srgb2linear(srgb));
     float flip = clamp(-u_lumamod, 0.0, 1.0);
     vec3 modulated = mix(pattern, 1.0 - pattern, flip);
     float amp = mix(1.0, lum, abs(u_lumamod));
     float mask = 1.0 - smoothstep(u_lumathreshold, u_lumathreshold + u_luma_angle, lum);
     pattern = modulated * amp * mask;
 #endif
+    vec3 coverage = clamp(pattern, 0.0, 1.0);
+    vec3 background = mix(srgb, u_backgroundColor, u_backgroundOpacity);
+    vec3 result = mix(background, u_color, coverage);
+
     vec3 blended = blendWithColorSpace(
         srgb,
-        pattern * u_color,
+        result,
         u_blendamount
     );
     outColor = vec4(blended, pix.a);

@@ -52,7 +52,6 @@ export default {
             u_sharpness: {value: sharpness, type: "float"},
             u_eccentricity: {value: eccentricity, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"}
         }
 
         const defines = {

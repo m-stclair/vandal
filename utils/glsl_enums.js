@@ -43,7 +43,8 @@ export const {
     'DIFFERENTIAL',
     'ISOPHOTE',
     'STRUCTURE_TENSOR',
-    'FLOWLINE'
+    'FLOWLINE',
+    'SOBEL'
 ])
 
 

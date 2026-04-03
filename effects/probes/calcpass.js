@@ -2,13 +2,21 @@ import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
 import {kernelPass} from "../layers/kernel_pass.js";
 import {CalcModeEnum} from "../../utils/glsl_enums.js";
+import {morphPass} from "../layers/morph_pass.js";
 
-const structureTensorFragSources = loadFragSrcInit("calc_pass.frag", {});
+const includeMap = {
+    "colorconvert.glsl": "includes/colorconvert.glsl",
+    "differences.glsl": "includes/differences.glsl"
+}
+
+const structureTensorFragSources = loadFragSrcInit("calc_pass.frag", includeMap);
 
 export const calcPass = {
     calculate(pass, inputTex, width, height, texelSizeX,
               texelSizeY, useKernel, kernelRadius = 3,
-              CALCULATE_MODE = CalcModeEnum.STRUCTURE_TENSOR) {
+              CALCULATE_MODE = CalcModeEnum.STRUCTURE_TENSOR,
+              morphologicalKernel=false, morphologicalOperator=0,
+              kernelSoftness=10) {
         initGLEffect(pass, structureTensorFragSources);
         pass.setupFBO(pass, width, height);
 
@@ -19,11 +27,17 @@ export const calcPass = {
         const defines = { CALCULATE_MODE: CALCULATE_MODE }
         pass.glState.renderGL(inputTex, pass.outputFBO, uniformSpec, defines);
         let outputFBO;
-        if (useKernel) {
+        if (useKernel && !morphologicalKernel) {
             outputFBO = pass.kernelPass.calculate(
                 pass.kernelPass, pass.outputFBO.texture, width, height, "gaussian",
-                kernelRadius, kernelRadius, 10
+                kernelRadius, kernelRadius, kernelSoftness
             );
+        } else if (useKernel) {
+            outputFBO = pass.morphPass.calculate(
+                pass.morphPass, pass.outputFBO.texture, width,
+                height, kernelRadius, morphologicalOperator,
+                2
+            )
         } else {
             outputFBO = pass.outputFBO;
         }
@@ -42,7 +56,18 @@ export const calcPass = {
             height: null,
             id: `${pass.id}-kernel-pass`
         };
+        pass.morphPass = {
+            initHook: morphPass.initHook,
+            cleanupHook: morphPass.cleanupHook,
+            setupFBO: morphPass.setupFBO,
+            calculate: morphPass.calculate,
+            outputFBO: null,
+            width: null,
+            height: null,
+            id: `${pass.id}-morph-pass`
+        };
         await pass.kernelPass.initHook(pass.kernelPass, renderer);
+        await pass.morphPass.initHook(pass.morphPass, renderer);
     },
     cleanupHook: (pass) => {
         if (pass.outputFBO?.fbo) {
@@ -51,6 +76,9 @@ export const calcPass = {
         }
         if (pass.kernelPass) {
             pass.kernelPass.cleanupHook(pass.kernelPass);
+        }
+        if (pass.morphPass) {
+            pass.morphPass.cleanupHook(pass.morphPass);
         }
     },
     setupFBO: (pass, width, height) => {
@@ -61,5 +89,7 @@ export const calcPass = {
             }
             pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "calcpass", pass.id);
         }
+        pass.width = width;
+        pass.height = height;
     }
 }

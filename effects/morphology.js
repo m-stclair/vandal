@@ -2,7 +2,7 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {morphPass} from "./layers/morph_pass.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation, MorphEnum, MorphOpts} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, MorphEnum, MorphOpts} from "../utils/glsl_enums.js";
 
 const shaderPath = "morphology.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl", "blend.glsl": "includes/blend.glsl"};
@@ -21,9 +21,9 @@ function makeMorphPass(id) {
     }
 }
 
-function dilate(pass, input, width, height, seRadius, REDUCE_TO_GRAYSCALE) {
+function dilate(pass, input, width, height, seRadius, CHANNEL_MODE) {
     return pass.calculate(
-        pass, input, width, height, seRadius, MorphEnum.DILATION, REDUCE_TO_GRAYSCALE
+        pass, input, width, height, seRadius, MorphEnum.DILATION, CHANNEL_MODE
     ).texture;
 }
 

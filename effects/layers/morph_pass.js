@@ -1,10 +1,12 @@
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
 
-const fragSources = loadFragSrcInit("morph_pass.frag", {});
+const includeMap = {'colorconvert.glsl': 'includes/colorconvert.glsl'};
+
+const fragSources = loadFragSrcInit("morph_pass.frag", includeMap);
 
 export const morphPass = {
-    calculate(pass, inputTex, width, height, seRadius, operator, REDUCE_TO_GRAYSCALE) {
+    calculate(pass, inputTex, width, height, seRadius, operator, CHANNEL_MODE) {
         initGLEffect(pass, fragSources);
         pass.setupFBO(pass, width, height);
 
@@ -15,7 +17,7 @@ export const morphPass = {
         const defines = {
             // 0: erosion; 1: dilation
             OPERATOR: operator,
-            REDUCE_TO_GRAYSCALE: REDUCE_TO_GRAYSCALE
+            CHANNEL_MODE: Number(CHANNEL_MODE)
         }
         pass.glState.renderGL(inputTex, pass.outputFBO, uniformSpec, defines);
         return pass.outputFBO;
@@ -36,7 +38,9 @@ export const morphPass = {
                 pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
                 pass.outputFBO = null;
             }
-            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "kernelpass", "kernelpass");
+            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "morphpass", "morphpass");
         }
+        pass.width = width;
+        pass.height = height;
     }
 }

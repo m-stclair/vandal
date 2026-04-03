@@ -64,7 +64,9 @@ const effectFiles = [
     "polar_transform.js",
     "exposure.js",
     "huerotate.js",
-    "scribble.js"
+    "scribble.js",
+    "gamma.js",
+    "noop.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

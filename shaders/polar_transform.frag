@@ -51,5 +51,5 @@ void main() {
     vec3 original = texture(u_image, uv).rgb;
     vec3 warped   = texture(u_image, sampleUV).rgb;
 
-    outColor = vec4(mix(original, warped, u_blendAmount), 1.0);
+    outColor = vec4(blendWithColorSpace(original, warped, u_blendAmount), 1.0);
 }

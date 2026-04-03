@@ -53,5 +53,7 @@ export const kernelPass = {
             }
             pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "kernelpass", "kernelpass");
         }
+        pass.width = width;
+        pass.height = height;
     }
 }

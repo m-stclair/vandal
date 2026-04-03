@@ -13,30 +13,19 @@ out vec4 outColor;
 #define CALCULATE_MODE_ISOPHOTE 1
 #define CALCULATE_MODE_STRUCTURE_TENSOR 2
 #define CALCULATE_MODE_FLOWLINE 3
+#define CALCULATE_MODE_SOBEL 4
 
 #ifndef CALCULATE_MODE
 #define CALCULATE_MODE 2
 #endif
 
-const vec3 luma = vec3(0.299, 0.587, 0.114);
+#include "colorconvert.glsl"
+#include "differences.glsl"
 
 vec4 structureTensor(sampler2D tex, vec2 uv, vec2 texel) {
-// Sobel 3x3
-    vec3 tl = texture(u_image, uv + vec2(-1,-1) * texel).rgb;
-    vec3 tc = texture(u_image, uv + vec2( 0,-1) * texel).rgb;
-    vec3 tr = texture(u_image, uv + vec2( 1,-1) * texel).rgb;
-    vec3 ml = texture(u_image, uv + vec2(-1, 0) * texel).rgb;
-    vec3 mr = texture(u_image, uv + vec2( 1, 0) * texel).rgb;
-    vec3 bl = texture(u_image, uv + vec2(-1, 1) * texel).rgb;
-    vec3 bc = texture(u_image, uv + vec2( 0, 1) * texel).rgb;
-    vec3 br = texture(u_image, uv + vec2( 1, 1) * texel).rgb;
-
-    vec3 gx = -tl - 2.0*ml - bl + tr + 2.0*mr + br;
-    vec3 gy = -tl - 2.0*tc - tr + bl + 2.0*bc + br;
-
-    // Collapse to luminance gradient
-    float lx = dot(gx, luma);
-    float ly = dot(gy, luma);
+    vec3 mag_lx_ly = sobel3x3(tex, uv, texel);
+    float lx = mag_lx_ly.y;
+    float ly = mag_lx_ly.z;
 
     // Structure tensor components
     float Jxx = lx * lx;
@@ -128,7 +117,6 @@ vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     return vec4(fCurvature, Ix, Iy, atan(Ix, Iy));
 }
 
-
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec2 texel = u_texelSize / u_resolution;
@@ -138,6 +126,9 @@ void main() {
     outColor = isophoteCurvature(u_image, uv, texel);
 #elif CALCULATE_MODE == CALCULATE_MODE_FLOWLINE
     outColor = flowlineCurvature(u_image, uv, texel);
+#elif CALCULATE_MODE == CALCULATE_MODE_SOBEL
+    // sobel magnitude, x component, y component, 0.0
+    outColor = vec4(sobel3x3(u_image, uv, texel), 0.0);
 #else
     // error
     outColor = vec4(1.0, 0.0, 1.0, 1.0);

@@ -4,9 +4,7 @@ import {
     BlendModeEnum,
     BlendTargetEnum,
     ColorspaceEnum,
-    hasChromaBoostImplementation,
 } from "../utils/glsl_enums.js";
-import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "scribble.frag";

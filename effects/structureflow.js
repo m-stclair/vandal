@@ -18,6 +18,7 @@ export default {
         const {
             BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, CALCULATE_MODE,
             chromaBoost, magnitude, anisoDrag, angle, kernelRadius, useKernel,
+            texelSizeX, texelSizeY
         } = resolveAnimAll(instance.config, t);
 
         const calcPassFBO = instance.calcPass.calculate(
@@ -25,11 +26,11 @@ export default {
             inputTex,
             width,
             height,
-            1,
-            1,
+            texelSizeX,
+            texelSizeY,
+            CALCULATE_MODE,
             useKernel,
             kernelRadius,
-            CALCULATE_MODE
         )
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -87,6 +88,8 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
         chromaBoost: 1,
+        texelSizeX: 1,
+        texelSizeY: 1
     },
     uiLayout: [
         {
@@ -137,6 +140,22 @@ export default {
             max: 10,
             step: 1,
             showIf: {"key": "useKernel", "equals": true}
+        },
+        {
+            key: "texelSizeX",
+            label: "Texel Size X",
+            type: "range",
+            min: 1,
+            max: 10,
+            step: 1
+        },
+        {
+            key: "texelSizeY",
+            label: "Texel Size Y",
+            type: "range",
+            min: 1,
+            max: 10,
+            step: 1
         },
         blendControls()
     ]

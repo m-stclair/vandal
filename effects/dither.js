@@ -142,9 +142,9 @@ export default {
                 height,
                 1,
                 1,
+                CalcModeEnum.STRUCTURE_TENSOR,
                 true,
                 3,
-                CalcModeEnum.STRUCTURE_TENSOR
             ).texture
             // this uniform is #defined out if !USE_STRUCTURE
             uniformSpec.u_calcPass = {value: calcPassTexture, type: "texture2D"};

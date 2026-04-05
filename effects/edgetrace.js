@@ -24,11 +24,15 @@ export default {
         threshold: 0.35,
         tint: [1, 1, 1],
         baseOpacity: 0,
-        dilation: 0
+        dilation: 0,
+        smoothing: 0,
+        softness: 0
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
+        {type: "modSlider", key: "softness", label: "Softness", min: 0, max: 1, step: 0.01},
         {type: "modSlider", key: "dilation", label: "Dilation", min: 0, max: 6, step: 1},
+        {type: "modSlider", key: "smoothing", label: "Smoothing", min: 0, max: 6, step: 1},
         {type: "modSlider", key: "baseOpacity", label: "Base Opacity", min: 0, max: 1, step: 0.01},
         {
             key: "tint",
@@ -47,7 +51,7 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE, threshold, tint,
-            baseOpacity, dilation
+            baseOpacity, dilation, smoothing, softness
         } = resolveAnimAll(config, t);
 
         const sobelFBO = instance.calcPass.calculate(
@@ -57,10 +61,11 @@ export default {
             height,
             1,
             1,
+            CalcModeEnum.SOBEL,
+            Boolean(smoothing > 0),
+            smoothing,
             Boolean(dilation > 0),
             dilation,
-            CalcModeEnum.SOBEL,
-            true,
             MorphEnum.DILATION
         );
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -68,6 +73,7 @@ export default {
             u_blendamount: {type: "float", value: blendAmount},
             u_resolution: {type: "vec2", value: [width, height]},
             u_threshold: {type: "float", value: threshold},
+            u_softness: {type: "float", value: softness},
             u_tint: {type: "vec3", value: tint},
             u_baseOpacity: {type: "float", value: baseOpacity},
             u_sobel: {type: "texture2D", value: sobelFBO.texture}
@@ -104,9 +110,14 @@ export default {
 export const effectMeta = {
     group: "Edge",
     tags: ["edges", "masking", "outline", "threshold"],
-    description: "Simple edge tracing via Sobel operator. Offers blend, dilation, " +
-        "and threshold control.",
+    description: "Simple edge tracing via Sobel operator. Offers various smoothing, threshold, " +
+        "and blending controls.",
     backend: "gpu",
+    parameterHints:{
+        "dilation": {min: 0, max: 2},
+        "smoothing": {min: 0, max: 3},
+        "threshold": {min: 0.08, max: 0.5}
+    },
     canAnimate: true,
     realtimeSafe: true,
 }

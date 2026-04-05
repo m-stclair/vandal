@@ -47,11 +47,11 @@ vec4 structureTensor(sampler2D tex, vec2 uv, vec2 texel) {
 
 vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     // First-order partials
-    float l = texture(tex, uv - vec2(texel.x, 0.0)).r;
-    float r = texture(tex, uv + vec2(texel.x, 0.0)).r;
-    float b = texture(tex, uv - vec2(0.0, texel.y)).r;
-    float t = texture(tex, uv + vec2(0.0, texel.y)).r;
-    float c = texture(tex, uv).r;
+    float l = luminance(texture(tex, uv - vec2(texel.x, 0.0)).rgb);
+    float r = luminance(texture(tex, uv + vec2(texel.x, 0.0)).rgb);
+    float b = luminance(texture(tex, uv - vec2(0.0, texel.y)).rgb);
+    float t = luminance(texture(tex, uv + vec2(0.0, texel.y)).rgb);
+    float c = luminance(texture(tex, uv).rgb);
 
     float Ix = (r - l) / 2.0;
     float Iy = (t - b) / 2.0;
@@ -61,10 +61,10 @@ vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     float Iyy = t - 2.0 * c + b;
 
     // Mixed partial: sample the four diagonal neighbors
-    float tl = texture(tex, uv + vec2(-texel.x,  texel.y)).r;
-    float tr = texture(tex, uv + vec2( texel.x,  texel.y)).r;
-    float bl = texture(tex, uv + vec2(-texel.x, -texel.y)).r;
-    float br = texture(tex, uv + vec2( texel.x, -texel.y)).r;
+    float tl = luminance(texture(tex, uv + vec2(-texel.x,  texel.y)).rgb);
+    float tr = luminance(texture(tex, uv + vec2( texel.x,  texel.y)).rgb);
+    float bl = luminance(texture(tex, uv + vec2(-texel.x, -texel.y)).rgb);
+    float br = luminance(texture(tex, uv + vec2( texel.x, -texel.y)).rgb);
     float Ixy = (tr - tl - br + bl) / 4.0;
 
     // Assemble the curvature formula
@@ -79,17 +79,17 @@ vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     else {
         iCurvature = (Ixx * Iy * Iy - 2.0 * Ixy * Ix * Iy + Iyy * Ix * Ix) / denom;
     }
-    return vec4(iCurvature, Ix, Iy, atan(Ix, Iy));
+    return vec4(iCurvature, Ix, Iy, atan(Iy, Ix));
 }
 
 
 vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     // First-order partials (identical setup to isophote version)
-    float l = texture(tex, uv - vec2(texel.x, 0.0)).r;
-    float r = texture(tex, uv + vec2(texel.x, 0.0)).r;
-    float b = texture(tex, uv - vec2(0.0, texel.y)).r;
-    float t = texture(tex, uv + vec2(0.0, texel.y)).r;
-    float c = texture(tex, uv).r;
+    float l = luminance(texture(tex, uv - vec2(texel.x, 0.0)).rgb);
+    float r = luminance(texture(tex, uv + vec2(texel.x, 0.0)).rgb);
+    float b = luminance(texture(tex, uv - vec2(0.0, texel.y)).rgb);
+    float t = luminance(texture(tex, uv + vec2(0.0, texel.y)).rgb);
+    float c = luminance(texture(tex, uv).rgb);
 
     float Ix = (r - l) / 2.0;
     float Iy = (t - b) / 2.0;
@@ -98,11 +98,11 @@ vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     float Ixx = r - 2.0 * c + l;
     float Iyy = t - 2.0 * c + b;
 
-    // Mixed partial
-    float tl = texture(tex, uv + vec2(-texel.x,  texel.y)).r;
-    float tr = texture(tex, uv + vec2( texel.x,  texel.y)).r;
-    float bl = texture(tex, uv + vec2(-texel.x, -texel.y)).r;
-    float br = texture(tex, uv + vec2( texel.x, -texel.y)).r;
+    // Mixed partial: sample the four diagonal neighbors
+    float tl = luminance(texture(tex, uv + vec2(-texel.x,  texel.y)).rgb);
+    float tr = luminance(texture(tex, uv + vec2( texel.x,  texel.y)).rgb);
+    float bl = luminance(texture(tex, uv + vec2(-texel.x, -texel.y)).rgb);
+    float br = luminance(texture(tex, uv + vec2( texel.x, -texel.y)).rgb);
     float Ixy = (tr - tl - br + bl) / 4.0;
 
     float gradSq = Ix * Ix + Iy * Iy;
@@ -114,7 +114,7 @@ vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     } else {
         fCurvature = (Ixy * (Ix*Ix - Iy*Iy) + Ix * Iy * (Iyy - Ixx)) / denom;
     }
-    return vec4(fCurvature, Ix, Iy, atan(Ix, Iy));
+    return vec4(fCurvature, Ix, Iy, atan(Iy, Ix));
 }
 
 void main() {
@@ -130,8 +130,7 @@ void main() {
     // sobel magnitude, x component, y component, 0.0
     outColor = vec4(sobel3x3(u_image, uv, texel), 0.0);
 #else
-    // error
-    outColor = vec4(1.0, 0.0, 1.0, 1.0);
+    #error
 #endif
 }
 

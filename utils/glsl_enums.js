@@ -36,6 +36,16 @@ export const {
 ]);
 
 export const {
+    enum: MorphChannelEnum,
+    names: MorphChannelNames,
+    options: MorphChannelOpts
+} = makeEnum([
+    'LUMA',
+    'RED',
+    'TENSOR4'
+])
+
+export const {
     enum: CalcModeEnum,
     names: CalculateModeNames,
     options: CalculateModeOpts

@@ -85,7 +85,7 @@ export default {
             const MAX_KERNEL_SIZE = 255;
             kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
             if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
-                kernelInfo = subsampleKernel2D(kernelInfo.kernel, kernelInfo.width, kernelInfo.height, MAX_KERNEL_SIZE);
+                kernelInfo = subsampleKernel2D(kernelInfo, MAX_KERNEL_SIZE);
             }
             instance.auxiliaryCache.lastKernelSettings = kernelSettings;
             instance.auxiliaryCache.kernelInfo = kernelInfo;

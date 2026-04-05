@@ -1,7 +1,7 @@
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
 import {kernelPass} from "../layers/kernel_pass.js";
-import {CalcModeEnum} from "../../utils/glsl_enums.js";
+import {CalcModeEnum, MorphChannelEnum, MorphEnum} from "../../utils/glsl_enums.js";
 import {morphPass} from "../layers/morph_pass.js";
 
 const includeMap = {
@@ -9,15 +9,25 @@ const includeMap = {
     "differences.glsl": "includes/differences.glsl"
 }
 
-const structureTensorFragSources = loadFragSrcInit("calc_pass.frag", includeMap);
+const calcPassFragSources = loadFragSrcInit("calc_pass.frag", includeMap);
 
 export const calcPass = {
-    calculate(pass, inputTex, width, height, texelSizeX,
-              texelSizeY, useKernel, kernelRadius = 3,
-              CALCULATE_MODE = CalcModeEnum.STRUCTURE_TENSOR,
-              morphologicalKernel=false, morphologicalOperator=0,
-              kernelSoftness=10) {
-        initGLEffect(pass, structureTensorFragSources);
+    calculate(
+        pass,
+        inputTex,
+        width,
+        height,
+        texelSizeX,
+        texelSizeY,
+        CALCULATE_MODE = CalcModeEnum.STRUCTURE_TENSOR,
+        useConvolutionKernel = false,
+        convolutionKernelRadius = 3,
+        useMorphologicalKernel = false,
+        morphologicalKernelRadius = 3,
+        morphologicalOperator = MorphEnum.EROSION,
+        kernelSoftness = 10
+  ) {
+        initGLEffect(pass, calcPassFragSources);
         pass.setupFBO(pass, width, height);
 
         const uniformSpec = {
@@ -26,26 +36,25 @@ export const calcPass = {
         };
         const defines = { CALCULATE_MODE: CALCULATE_MODE }
         pass.glState.renderGL(inputTex, pass.outputFBO, uniformSpec, defines);
-        let outputFBO;
-        if (useKernel && !morphologicalKernel) {
-            outputFBO = pass.kernelPass.calculate(
-                pass.kernelPass, pass.outputFBO.texture, width, height, "gaussian",
-                kernelRadius, kernelRadius, kernelSoftness
-            );
-        } else if (useKernel) {
+        let outputFBO = pass.outputFBO;
+        if (useMorphologicalKernel) {
             outputFBO = pass.morphPass.calculate(
-                pass.morphPass, pass.outputFBO.texture, width,
-                height, kernelRadius, morphologicalOperator,
-                2
+                pass.morphPass, outputFBO.texture, width,
+                height, morphologicalKernelRadius, morphologicalOperator,
+                MorphChannelEnum.TENSOR4
             )
-        } else {
-            outputFBO = pass.outputFBO;
+        }
+        if (useConvolutionKernel) {
+            outputFBO = pass.kernelPass.calculate(
+                pass.kernelPass, outputFBO.texture, width, height, "gaussian",
+                convolutionKernelRadius, convolutionKernelRadius, kernelSoftness
+            )
         }
         return outputFBO;
     },
     initHook: async (pass, renderer) => {
         pass.glState = new webGLState(renderer, "calc-pass", pass.id)
-        await structureTensorFragSources.load(pass, renderer);
+        await calcPassFragSources.load(pass, renderer);
         pass.kernelPass = {
             initHook: kernelPass.initHook,
             cleanupHook: kernelPass.cleanupHook,

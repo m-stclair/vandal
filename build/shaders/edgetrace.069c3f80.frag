@@ -8,6 +8,7 @@ uniform float u_blendamount;
 uniform vec3 u_tint;
 uniform float u_baseOpacity;
 uniform sampler2D u_sobel;
+uniform float u_softness;
 
 out vec4 outColor;
 
@@ -22,7 +23,7 @@ void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     // sobel magnitude, x component, y component
     float edgeStrength = texture(u_sobel, uv).x;
-    float edgeMask = step(u_threshold, edgeStrength);
+    float edgeMask = smoothstep(u_threshold - u_softness, u_threshold + u_softness, edgeStrength);
     vec3 original = texture(u_image, uv).rgb;
     vec3 bleed = original * u_baseOpacity;
     vec3 result = mix(bleed, u_tint, edgeMask);

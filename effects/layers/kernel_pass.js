@@ -15,7 +15,7 @@ export const kernelPass = {
         if (String(pass.auxiliaryCache.lastKernelSettings) !== String(kernelSettings)) {
             kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
             if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
-                kernelInfo = subsampleKernel2D(kernelInfo.kernel, kernelInfo.width, kernelInfo.height, MAX_KERNEL_SIZE);
+                kernelInfo = subsampleKernel2D(kernelInfo, MAX_KERNEL_SIZE);
             }
             pass.auxiliaryCache.lastKernelSettings = kernelSettings;
             pass.auxiliaryCache.kernelInfo = kernelInfo;

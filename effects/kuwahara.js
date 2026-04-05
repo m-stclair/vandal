@@ -34,9 +34,9 @@ export default {
             height,
             texelSizeX,
             texelSizeY,
+            CalcModeEnum.STRUCTURE_TENSOR,
             useKernel,
-            kernelRadius,
-            CalcModeEnum.STRUCTURE_TENSOR
+            kernelRadius
         )
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */

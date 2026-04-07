@@ -69,7 +69,7 @@ export default {
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
             chromaBoost, deltaL, gammaC,
-            blockSize, seed
+            blockSize, seed, minDistance
         } = resolveAnimAll(instance.config, t)
 
         // TODO, maybe: there are some cases in which we don't need to recompute the
@@ -81,8 +81,7 @@ export default {
         const selectionWeights = {
             midtone: selectWeights[0],
             outlier: selectWeights[1],
-            luma: selectWeights[2],
-            hue: selectWeights[3],
+            chroma: selectWeights[2],
         }
         let palette = probe.analyze(
             probe,
@@ -94,7 +93,8 @@ export default {
             gammaC,
             blockSize,
             seed,
-            selectionWeights
+            selectionWeights,
+            minDistance
         );
         const {paletteBlock, paletteFeatures} = preprocessPalette(palette, paletteSize);
 
@@ -179,7 +179,7 @@ export default {
                     type: "range",
                     key: "seed",
                     label: "Seed",
-                    min: 0,
+                    min: 1,
                     max: 500,
                     step: 1
                 },
@@ -188,10 +188,18 @@ export default {
                     key: "selectWeights",
                     label: "Selection Weights",
                     min: 0,
-                    max: 5,
+                    max: 1.5,
                     step: 0.1,
-                    length: 4,
-                    subLabels: ["midtone", "outlier", "luma", "hue"]
+                    length: 3,
+                    subLabels: ["midtone", "outlier", "chroma"]
+                },
+                {
+                    type: "range",
+                    key: "minDistance",
+                    label: "Min Distance",
+                    min: 1,
+                    max: 30,
+                    step: 1
                 },
                 {
                     type: "select",
@@ -290,7 +298,8 @@ export default {
         lumaWeight: 0.75,
         chromaWeight: 0.75,
         hueWeight: 0.25,
-        selectWeights: [0, 0, 0.1, 0.2],
+        selectWeights: [0.25, 0.5, 0.1],
+        minDistance: 12,
         assignMode: "blend",
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,

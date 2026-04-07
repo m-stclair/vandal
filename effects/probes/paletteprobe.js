@@ -28,28 +28,6 @@ function seededNotVeryRandom(seed) {
     };
 }
 
-function score_outlier([L, a, b], [Lc, ac, bc]) {
-    return Math.sqrt((L - Lc) ** 2 + (a - ac) ** 2 + (b - bc) ** 2);
-}
-
-function score_luma_outlier([L, a, b], [Lc, ac, bc]) {
-    return Math.abs(L - Lc) / 100;
-}
-
-function score_hue_outlier([L, a, b], [Lc, ac, bc]) {
-    const C = Math.hypot(a, b);
-    const h = Math.atan2(b, a);
-    const hc = Math.atan2(bc, ac);
-    if ((L < 20) || (C < 20)) return 0;
-    return Math.abs(h - hc);
-}
-
-function score_midtones([L, a, b]) {
-    const C = Math.sqrt(a * a + b * b);
-    const balance = 100 - Math.abs((L - 50) * 2.0);
-    return balance * C / 100;
-}
-
 function meanLab(samples) {
     const sum = [0, 0, 0];
     for (const [L, a, b] of samples) {
@@ -57,31 +35,92 @@ function meanLab(samples) {
         sum[1] += a;
         sum[2] += b;
     }
-    const n = samples.length;
+    const n = samples.length || 1;
     return [sum[0] / n, sum[1] / n, sum[2] / n];
 }
 
-function scoreLabSwatch(
-    lab,
-    meanLab,
-    weights = {outlier: 1.0, midtone: 1.0, luma: 1.0, hue: 1.0}
-) {
-    return weights.outlier * score_outlier(lab, meanLab)
-        + weights.midtone * score_midtones(lab)
-        + weights.luma * score_luma_outlier(lab, meanLab)
-        + weights.hue * score_hue_outlier(lab, meanLab)
+function labDist([L1, a1, b1], [L2, a2, b2]) {
+    return Math.sqrt(
+        (L1 - L2) ** 2 +
+        (a1 - a2) ** 2 +
+        (b1 - b2) ** 2
+    );
 }
 
-function scoreAndSortPalette(candidates, weights) {
+/**
+ * Simple intrinsic score:
+ * - prefer chromatic colors
+ * - prefer colors somewhat far from the image average
+ * - mildly prefer midtones over extremes
+ *
+ * All terms are normalized enough to be tunable without theater.
+ */
+function baseScore(
+    lab,
+    center,
+    weights = { chroma: 1.0, outlier: 0.7, midtone: 0.25 },
+    chromaCap = 100,
+    outlierCap = 80
+) {
+    const [L, a, b] = lab;
+
+    const C = Math.hypot(a, b);
+    const chroma = clamp(C / chromaCap, 0, 1);
+
+    const outlier = clamp(labDist(lab, center) / outlierCap, 0, 1);
+
+    const midtone = 1 - Math.abs(L - 50) / 50; // 0..1
+
+    return (
+        weights.chroma * chroma +
+        weights.outlier * outlier +
+        weights.midtone * midtone
+    );
+}
+
+function scoreAndSortPalette(
+    candidates,
+    weights = { chroma: 1.0, outlier: 0.7, midtone: 0.25 }
+) {
     const center = meanLab(candidates);
     return candidates
-        .map(lab => ({lab, score: scoreLabSwatch(lab, center, weights)}))
+        .map(lab => ({
+            lab,
+            score: baseScore(lab, center, weights)
+        }))
         .sort((a, b) => b.score - a.score);
 }
 
-function selectTopNScoredSwatches(candidates, weights, N) {
+/**
+ * Greedy selection with a minimum LAB spacing constraint.
+ * This is the part your earlier version was missing.
+ */
+function selectTopNScoredSwatches(
+    candidates,
+    weights,
+    N,
+    minDistance = 14
+) {
     const scored = scoreAndSortPalette(candidates, weights);
-    return scored.slice(0, N).map(entry => entry.lab);
+    const selected = [];
+
+    for (const entry of scored) {
+        const tooClose = selected.some(s => labDist(entry.lab, s) < minDistance);
+        if (!tooClose) {
+            selected.push(entry.lab);
+            if (selected.length >= N) break;
+        }
+    }
+
+    // Fallback: if the candidate pool is too clustered, fill remaining slots by score.
+    for (const entry of scored) {
+        if (selected.length >= N) break;
+        if (!selected.includes(entry.lab)) {
+            selected.push(entry.lab);
+        }
+    }
+
+    return selected;
 }
 
 export const paletteprobe = {
@@ -96,16 +135,17 @@ export const paletteprobe = {
         gammaC,
         blockSize,
         seed,
-        selectionWeights
+        selectionWeights,
+        minDistance
     ) {
         initGLEffect(probe, fragSources);
         const gl = probe.glState.gl;
         probe.config.blockSize = blockSize;
-        // x5 oversampling for scoring
-        probe.config.paletteSize = paletteSize * 5;
+        // x10 oversampling for scoring
+        probe.config.paletteSize = paletteSize * 10;
         probe.config.patchOrigins = []
         const rng = seededNotVeryRandom(seed);
-        for (let p = 1; p < paletteSize; p++) {
+        for (let p = 1; p < paletteSize * 10; p++) {
             const pX = rng() * width;
             const pY = rng() * height
             probe.config.patchOrigins.push([pX, pY])
@@ -121,9 +161,8 @@ export const paletteprobe = {
             const b = outData[idx + 2];
             baseSwatches.push([L, a, b]);
         }
-        const selected = selectTopNScoredSwatches(baseSwatches, selectionWeights, paletteSize);
+        const selected = selectTopNScoredSwatches(baseSwatches, selectionWeights, paletteSize, minDistance);
         const expanded = selected.map(s => expandSwatchVariants(s, deltaL, gammaC)).flat();
-        // const normalized = expanded.map(e => normalizeLab(e));
         return expanded.sort((a, b) => a[0] - b[0]);
     },
     initHook: fragSources.load,

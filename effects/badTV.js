@@ -193,7 +193,7 @@ export default {
 
 export const effectMeta = {
     group: "Stylize",
-    tags: ["tv", "retro", "vhs", "analog", "noise", "gpu"],
+    tags: ["tv", "retro", "vhs", "analog", "noise"],
     description: "Applies shaped noise, flicker, and tear. Can simulate " +
         "VHS dropout, NTSC hash, CRT raster offset, and failing analog broadcasts.",
     backend: "gpu",

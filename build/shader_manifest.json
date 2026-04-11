@@ -8,6 +8,7 @@
   "channelmixer.frag": "channelmixer.437e7aad.frag",
   "scanlines.frag": "scanlines.24cef09b.frag",
   "gen_debug.frag": "gen_debug.b876e8dc.frag",
+  "kaleidoscope.frag": "kaleidoscope.058ae7de.frag",
   "duotone.frag": "duotone.1c3c6ce5.frag",
   "noisemixer.frag": "noisemixer.4d57cc24.frag",
   "palettesquare.frag": "palettesquare.c0bdbffd.frag",

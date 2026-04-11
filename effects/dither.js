@@ -60,7 +60,7 @@ export default {
                     length: 7
                 },
                 {key: "scale", label: "Scale", type: "modSlider", min: 100, max: 2250, steps: 300, scale: "log"},
-                {key: "levels", label: "Levels", type: "modSlider", min: 2, max: 16, step: 1},
+                {key: "levels", label: "Levels", type: "range", min: 2, max: 16, step: 1},
                 {
                     key: "edgeStrength",
                     label: "Edge Strength",
@@ -187,5 +187,5 @@ export const effectMeta = {
     description: "Applies a configurable dithering effect that can approximate a variety of print techniques.",
     canAnimate: true,
     realtimeSafe: true,
-    parameterHints: {}
+    parameterHints: {"levels": {"min": 2, "max": 4}}
 };

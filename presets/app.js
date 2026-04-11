@@ -1,5 +1,7 @@
 // Built-in effect stack presets (not stored in localStorage)
-export const builtInPresets = [{
+export const builtInPresets = [
+    {"name":"AVS Cyanotype","config":[{"name":"Kaleidoscope","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"mirrors":5,"reflections":{"value":1.6345,"mod":{"type":"sine","freq":0.18418041593449627,"phase":0,"scale":2.3952398788000004,"offset":5.05}},"tubeLength":0.5,"magnification":1,"depth":1,"twist":0.3}},{"name":"Duotone","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"darkColor":[0,0,0.2],"lightColor":[0.46,0.78,0.81],"gamma":1,"shadowPoint":0.2,"highlightPoint":0.8}},{"name":"Perlin Distort","config":{"boundMode":"fract","pitchX":0,"pitchY":0,"freqX":30.955365500270926,"freqY":12.44026531707169,"seed":264,"depth":0.02,"rate":4,"rateDrive":0,"fc":[6,15,10],"reps":[5,5],"phase":[0,0],"fuzz":0,"noiseMode":"pseudo","clampScale":1,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"chromaBoost":1,"blendAmount":0.55}}]},
+    {
         "name": "Chalk Pastel",
         "config": [{
                 "name": "2D Kernel",

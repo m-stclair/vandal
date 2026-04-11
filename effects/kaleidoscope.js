@@ -28,6 +28,8 @@ export default {
         reflections: 3,
         tubeLength: 0.5,
         magnification: 1,
+        depth: 1,
+        twist: 0.3
     },
     uiLayout: [
        {
@@ -42,9 +44,9 @@ export default {
             type: "modSlider",
             key: "reflections",
             label: "Reflections",
-            min: 1,
+            min: 0.1,
             max: 10,
-            step: 1
+            steps: 200
         },
         {
             type: "modSlider",
@@ -62,6 +64,22 @@ export default {
             max: 3,
             steps: 100
         },
+        {
+            type: "modSlider",
+            key: "twist",
+            label: "Twist",
+            min: 0.1,
+            max: 1,
+            steps: 100
+        },
+        {
+            type: "modSlider",
+            key: "depth",
+            label: "Depth",
+            min: 0,
+            max: 1,
+            steps: 100
+        },
         blendControls(),
     ],
 
@@ -70,7 +88,7 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE,
-            magnification, mirrors, tubeLength, reflections
+            magnification, mirrors, tubeLength, reflections, depth, twist
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -81,6 +99,8 @@ export default {
             u_tube_length: {type: "float", value: tubeLength},
             u_mirrors: {type: "float", value: mirrors},
             u_magnification: {type: "float", value: magnification},
+            u_depth: {type: "float", value: depth},
+            u_twist: {type: "float", value: twist}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
@@ -104,5 +124,6 @@ export const effectMeta = {
         "VHS dropout, NTSC hash, CRT raster offset, and failing analog broadcasts.",
     backend: "gpu",
     realtimeSafe: true,
-    canAnimate: true
+    canAnimate: true,
+    parameterHints: {"depth": {"always": 1, "aniMin": 1, "aniMax": 1}}
 };

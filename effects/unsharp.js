@@ -133,7 +133,8 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         blendAmount: {min: 0.75, max: 1},
-        kernelHeight: {min: 2, max: 9},
-        kernelWidth: {min: 2, max: 9}
+        kernelRadiusY: {min: 2, max: 9},
+        kernelRadiusX: {min: 2, max: 9},
+
     }
 };

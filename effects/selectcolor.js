@@ -75,6 +75,11 @@ export const effectMeta = {
     description: "Selectively desaturates a specific color, or all but a specific color.",
     backend: "gpu",
     canAnimate: true,
-    parameterHints: {width: {min: 0.25, max: 0.5}, knee: {min: 0, max: 0.2}, blendAmount: {min: 0.75, max: 1}},
+    parameterHints: {
+        width: {min: 0.25, max: 0.5},
+        knee: {min: 0, max: 0.2},
+        blendAmount: {min: 0.75, max: 1},
+        BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL}
+    },
     realtimeSafe: true,
 }

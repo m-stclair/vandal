@@ -119,9 +119,9 @@ export default {
 
 export const effectMeta = {
     group: "Stylize",
-    tags: ["optical"],
-    description: "Applies shaped noise, flicker, and tear. Can simulate " +
-        "VHS dropout, NTSC hash, CRT raster offset, and failing analog broadcasts.",
+    tags: ["optical", "fractal", "mandala"],
+    description: "Iterative mirroring effect producing quasi-physically-motivated " +
+        "kaleidoscope patterns.",
     backend: "gpu",
     realtimeSafe: true,
     canAnimate: true,

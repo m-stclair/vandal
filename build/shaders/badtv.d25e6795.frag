@@ -7,7 +7,6 @@ precision mediump float;
 uniform sampler2D u_image;
 uniform vec2 u_resolution;
 
-// --- Structs for grouped uniforms ---
 struct TearParams {
     float amount;
     float ghostOffset;
@@ -25,7 +24,6 @@ struct ModulationParams {
     float blendAmount;
 };
 
-// --- Uniforms ---
 uniform TearParams u_tear;
 uniform ModulationParams u_mod;
 

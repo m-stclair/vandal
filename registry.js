@@ -67,7 +67,8 @@ const effectFiles = [
     "scribble.js",
     "gamma.js",
     "noop.js",
-    "kaleidoscope.js"
+    "kaleidoscope.js",
+    "sierpinski.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

@@ -17,7 +17,7 @@ export default {
         initGLEffect(instance, fragSources);
         const {
             BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, CALCULATE_MODE,
-            chromaBoost, magnitude, anisoDrag, angle, kernelRadius, useKernel,
+            magnitude, anisoDrag, angle, kernelRadius, useKernel,
             texelSizeX, texelSizeY
         } = resolveAnimAll(instance.config, t);
 
@@ -43,7 +43,6 @@ export default {
             u_anisoDrag: {value: anisoDrag, type: "float"},
             u_angle: {value: angle * Math.PI / 180, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"},
         }
 
         const defines = {
@@ -87,7 +86,6 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
-        chromaBoost: 1,
         texelSizeX: 1,
         texelSizeY: 1
     },
@@ -163,8 +161,8 @@ export default {
 
 export const effectMeta = {
   group: "Stylize",
-  tags: ["edge", "blur", "smooth"],
-  description: "Selective blur along edges, optionally attenuated by local texture.",
+  tags: ["edge", "displacement", "smooth"],
+  description: "Selective displacement along edges, optionally attenuated by local texture.",
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,

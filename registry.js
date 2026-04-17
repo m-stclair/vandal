@@ -69,6 +69,7 @@ const effectFiles = [
     "noop.js",
     "kaleidoscope.js",
     "triangle.js",
+    "structurekernel.js"
 //    "carpet.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";

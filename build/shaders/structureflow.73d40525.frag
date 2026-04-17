@@ -40,9 +40,9 @@ vec4 structureTensorFlow(vec2 uv) {
 
 // these two cases are packed the same way
 vec4 isophoteOrFlowlineFlow(vec2 uv) {
-    // curvature, dx, dy, atan2(dx, dy)
+    // curvature, length(dx, dy), atan(dy, dx), 0
     vec4 isophote = texture(u_calcPass, uv);
-    float angleRot = isophote.w + u_angle;
+    float angleRot = isophote.z + u_angle;
     vec2 flow = vec2(cos(angleRot), sin(angleRot));
     return texture(u_image, uv + flow * tanh(isophote.r) * u_magnitude * u_texelSize);
 }
@@ -57,8 +57,7 @@ void main() {
 #elif CALCULATE_MODE_FLOWLINE == CALCULATE_MODE_FLOWLINE
     vec4 colorShifted = isophoteOrFlowlineFlow(uv);
 #else
-    // error
-    vec4 colorShifted = vec4(1.0, 0.0, 1.0, 1.0);
+    #error
 #endif
     outColor = vec4(blendWithColorSpace(color.rgb, colorShifted.rgb, u_blendAmount), 1.0);
 }

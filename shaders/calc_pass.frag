@@ -79,9 +79,8 @@ vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     else {
         iCurvature = (Ixx * Iy * Iy - 2.0 * Ixy * Ix * Iy + Iyy * Ix * Ix) / denom;
     }
-    return vec4(iCurvature, Ix, Iy, atan(Iy, Ix));
+    return vec4(iCurvature, length(vec2(Ix, Iy)), atan(Iy, Ix), 0.0);
 }
-
 
 vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     // First-order partials (identical setup to isophote version)
@@ -114,7 +113,7 @@ vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
     } else {
         fCurvature = (Ixy * (Ix*Ix - Iy*Iy) + Ix * Iy * (Iyy - Ixx)) / denom;
     }
-    return vec4(fCurvature, Ix, Iy, atan(Iy, Ix));
+    return vec4(fCurvature, length(vec2(Ix, Iy)), atan(Iy, Ix), 0.0);
 }
 
 void main() {
@@ -133,6 +132,3 @@ void main() {
     #error
 #endif
 }
-
-
-

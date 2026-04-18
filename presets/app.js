@@ -6,7 +6,7 @@ export const builtInPresets = [
         "config": [{
                 "name": "2D Kernel",
                 "config": {
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "BLEND_CHANNEL_MODE": "1",
                     "COLORSPACE": "2",
                     "blendAmount": 1,
@@ -47,7 +47,7 @@ export const builtInPresets = [
                     "softness2": 3,
                     "temperature": 10.4,
                     "weight": 0.97,
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "COLORSPACE": "7",
                     "BLEND_CHANNEL_MODE": "1",
                     "blendAmount": 1,
@@ -512,7 +512,7 @@ export const builtInPresets = [
                 "config": [{
                     "name": "Unsharp",
                     "config": {
-                        "BLENDMODE": "9",
+                        "BLENDMODE": "11",
                         "BLEND_CHANNEL_MODE": "1",
                         "COLORSPACE": "1",
                         "blendAmount": 1,
@@ -528,7 +528,7 @@ export const builtInPresets = [
                 }, {
                     "name": "2D Kernel",
                     "config": {
-                        "BLENDMODE": "9",
+                        "BLENDMODE": "11",
                         "BLEND_CHANNEL_MODE": "1",
                         "COLORSPACE": "7",
                         "blendAmount": 1,
@@ -1325,7 +1325,7 @@ export const builtInPresets = [
                         1
                     ],
                     "seed": 374,
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "colorSpace": "0",
                     "fc": [
                         5.75,
@@ -1666,7 +1666,7 @@ export const builtInPresets = [
                         0.42
                     ],
                     "seed": 321,
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "colorSpace": "0",
                     "fc": [
                         6,
@@ -1998,7 +1998,7 @@ export const builtInPresets = [
                     }
                 },
                 "levels": 2,
-                "BLENDMODE": "9",
+                "BLENDMODE": "11",
                 "BLEND_CHANNEL_MODE": "1",
                 "COLORSPACE": "1",
                 "chromaBoost": 1,
@@ -2024,7 +2024,7 @@ export const builtInPresets = [
                 "hueSpread": 0.12737820415783307,
                 "bleed": 0,
                 "COLORSPACE": "0",
-                "BLENDMODE": "9",
+                "BLENDMODE": "11",
                 "BLEND_CHANNEL_MODE": 0,
                 "blendAmount": 1,
                 "chromaBoost": 1,
@@ -2395,7 +2395,7 @@ export const builtInPresets = [
         }, {
             "name": "2D Kernel",
             "config": {
-                "BLENDMODE": "9",
+                "BLENDMODE": "11",
                 "BLEND_CHANNEL_MODE": "0",
                 "COLORSPACE": "0",
                 "blendAmount": 1,
@@ -2571,7 +2571,7 @@ export const builtInPresets = [
         "config": [{
                 "name": "Affine Transform",
                 "config": {
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "COLORSPACE": 0,
                     "BLEND_CHANNEL_MODE": 0,
                     "blendAmount": 1,
@@ -2795,7 +2795,7 @@ export const builtInPresets = [
                     "phaseY": -0.49,
                     "direction": "grid",
                     "mode": "saw",
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "BLEND_CHANNEL_MODE": 0,
                     "COLORSPACE": "3",
                     "blendAmount": 0.42,
@@ -3204,7 +3204,7 @@ export const builtInPresets = [
         "config": [{
                 "name": "Affine Transform",
                 "config": {
-                    "BLENDMODE": "9",
+                    "BLENDMODE": "11",
                     "COLORSPACE": 0,
                     "BLEND_CHANNEL_MODE": 0,
                     "blendAmount": 1,
@@ -4291,7 +4291,7 @@ export const builtInPresets = [
                 "FIELD_DOT_VECTOR": [1, 0, 0],
                 "FIELD_DISPLAY_MODE": "1",
                 "blendAmount": 1,
-                "BLENDMODE": "9",
+                "BLENDMODE": "11",
                 "BLEND_CHANNEL_MODE": "0",
                 "COLORSPACE": 0,
                 "chromaBoost": 1,

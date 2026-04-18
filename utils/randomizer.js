@@ -41,9 +41,10 @@ function generateAnimationMod(base, min, max) {
 
 
 const blendWeights = {
-    [BlendModeEnum.MIX]: 5.0,
-    [BlendModeEnum.SOFT_LIGHT]: 2.0,
+    [BlendModeEnum.MIX]: 6.0,
+    [BlendModeEnum.SOFT_LIGHT]: 2.5,
     [BlendModeEnum.HARD_LIGHT]: 2.0,
+    [BlendModeEnum.SOFT_LIGHT_I]: 4.0,
     [BlendModeEnum.DARKEN]: 0.5,
     [BlendModeEnum.MULTIPLY]: 0.5,
     [BlendModeEnum.REPLACE]: 0.0

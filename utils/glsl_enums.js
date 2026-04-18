@@ -90,7 +90,13 @@ export const {
     'LIGHTEN',
     'DIFFERENCE',
     'SOFT_LIGHT',
-    'HARD_LIGHT'
+    'HARD_LIGHT',
+    'SOFT_LIGHT_I',
+    'HARD_LIGHT_I',
+    'COLOR_DODGE',
+    'COLOR_BURN',
+    'VIVID_LIGHT',
+    'POWER'
 ]);
 
 // Posterize modes

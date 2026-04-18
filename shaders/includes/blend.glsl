@@ -118,17 +118,19 @@ vec3 blendChannelMasked(vec3 base, vec3 fx, float blendAmount) {
 vec3 blendWithColorSpace(vec3 baseRGB, vec3 fxRGB, float blendAmount) {
     vec3 base = extractColor(baseRGB);
     vec3 fx = extractColor(fxRGB);
-    vec3 blended = blendChannelMasked(base, fx, blendAmount);
-    return encodeColor(blended);
+    return clamp(encodeColor(blended), 0.0, 1.0);
 }
 
 vec3 blendWithColorSpace(vec3 baseRGB, float fxGray, float blendAmount) {
     vec3 base = extractColor(baseRGB);
-    vec3 blended = blendChannelMasked(base, vec3(fxGray), blendAmount);
+    vec3 fx = extractColor(vec3(fxGray));
+    vec3 blended = blendChannelMasked(base, fx, blendAmount);
     return clamp(encodeColor(blended), 0.0, 1.0);
 }
 
 vec3 blendWithColorSpace(float baseGray, float fxGray, float blendAmount) {
-    vec3 blended = blendChannelMasked(vec3(baseGray), vec3(fxGray), blendAmount);
+    vec3 base = extractColor(vec3(baseGray));
+    vec3 fx = extractColor(vec3(fxGray));
+    vec3 blended = blendChannelMasked(base, fx, blendAmount);
     return clamp(encodeColor(blended), 0.0, 1.0);
 }

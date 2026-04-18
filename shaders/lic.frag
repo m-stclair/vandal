@@ -12,8 +12,12 @@ uniform float u_angle;
 uniform float u_jitter;
 uniform float u_seed;
 uniform vec2 u_texelSize;
+uniform float u_blendamount;
 
 out vec4 outColor;
+
+#include "colorconvert.glsl"
+#include "blend.glsl"
 
 #ifndef STEPS
     #error
@@ -54,5 +58,6 @@ void main() {
 
     accum /= totalWeight;
 
-    outColor = vec4(accum, 1.0);
+    vec3 base = texture(u_image, uv).rgb;
+    outColor = vec4(blendWithColorSpace(base, accum, u_blendamount), 1.0);
 }

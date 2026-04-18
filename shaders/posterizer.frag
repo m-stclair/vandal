@@ -20,6 +20,6 @@ void main() {
     vec4 pixel = texture(u_image, uv);
     vec3 color = extractColor(pixel.rgb);
     vec3 postColor = posterize(color, uv, u_bayer_resolution, u_bias, u_logbase, u_levels);
-    vec3 srgbOut = encodeColor(postColor);
+    vec3 srgbOut = clamp(encodeColor(postColor), 0.0, 1.0);
     outColor = vec4(applyBlend(pixel.rgb, srgbOut, u_blendamount), pixel.a);
 }

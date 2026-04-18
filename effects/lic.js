@@ -42,7 +42,7 @@ export default {
             u_falloff: {value: falloff, type: "float"},
             u_stepSize: {value: stepSize, type: "float"},
             u_angle: {value: angle * Math.PI / 180, type: "float"},
-            u_blendAmount: {value: blendAmount, type: "float"},
+            u_blendamount: {value: blendAmount, type: "float"},
             u_jitter: {value: jitter * 2 * Math.PI, type: "float"},
             u_seed: {value: seed, type: "float"},
             u_sharpness: {value: sharpness, type: "float"}

@@ -295,31 +295,38 @@ function generateRandomizedConfig(layout, meta) {
     return config;
 }
 
+let randomizingFlag = false;
 
 export async function randomizeEffectStack() {
-    setFreezeAnimationFlag(true);
-    flushEffectStack();
+    if (randomizingFlag) return;
+    randomizingFlag = true;
+    try {
+        setFreezeAnimationFlag(true);
+        flushEffectStack();
 
-    const allEffects = Object.values(effectRegistry)
-        .filter(e => e.meta?.realtimeSafe && e.isGPU && !e.meta?.notInRandom);
-    const numEffects = roll1d4();
+        const allEffects = Object.values(effectRegistry)
+            .filter(e => e.meta?.realtimeSafe && e.isGPU && !e.meta?.notInRandom);
+        const numEffects = roll1d4();
 
-    const selected = pickRandomSubsetWithReplacement(allEffects, numEffects);
-    for (const effect of selected) {
-        const fx = makeEffectInstance(effect)
-        fx.config = generateRandomizedConfig(fx.uiLayout, effect.meta);
-        enforceBlendConstraints(fx.config);
-        const errors = validateConfig(fx.config, fx.uiLayout);
-        if (errors.length > 0) {
-            console.error(`invalid random config for ${fx.name}`);
-            console.error(errors);
+        const selected = pickRandomSubsetWithReplacement(allEffects, numEffects);
+        for (const effect of selected) {
+            const fx = makeEffectInstance(effect)
+            fx.config = generateRandomizedConfig(fx.uiLayout, effect.meta);
+            enforceBlendConstraints(fx.config);
+            const errors = validateConfig(fx.config, fx.uiLayout);
+            if (errors.length > 0) {
+                console.error(`invalid random config for ${fx.name}`);
+                console.error(errors);
+            }
+            console.log(`random config for ${fx.name}`);
+            console.log(fx.config);
+            await fx.ready;
+            addEffectToStack(fx);
         }
-        console.log(`random config for ${fx.name}`);
-        console.log(fx.config);
-        await fx.ready;
-        addEffectToStack(fx);
+        requestUIDraw();
+        requestRender();
+    } finally {
+        setFreezeAnimationFlag(false);
+        randomizingFlag = false;
     }
-    setFreezeAnimationFlag(false);
-    requestUIDraw();
-    requestRender();
 }

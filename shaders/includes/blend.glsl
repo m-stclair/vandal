@@ -2,8 +2,9 @@ vec3 applyBlend(vec3 base, vec3 fx, float blendAmount) {
 vec3 blended;
 const float EPS = 1e-5;
 
-// NOTE: some of these work very oddly with opponent RGB, because it's not
-// normalized internally. This is acceptable.
+// NOTE: some of these work very oddly with opponent RGB, because unlike other colorspaces,
+// including Lab- & Jz-derived spaces, it's not 0-1 normalized internally. This is acceptable.
+
 // NOTE: consumer is responsible for re-transforming or clamping output (this
 // function does not assume the correct output range is 0-1, that it should be in sRGB, etc.)
 
@@ -177,7 +178,7 @@ vec3 blendChannelMasked(vec3 base, vec3 fx, float blendAmount) {
         applyBlend(base.z, fx.z, blendAmount)
     );
 #else
-    return base;
+    #error;
 #endif
 }
 

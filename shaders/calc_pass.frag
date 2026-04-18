@@ -117,6 +117,8 @@ vec4 flowlineCurvature(sampler2D tex, vec2 uv, vec2 texel) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
+    // u_texelSize is in pixel-space size, for intentional
+    // texel stretching
     vec2 texel = u_texelSize / u_resolution;
 #if CALCULATE_MODE == CALCULATE_MODE_STRUCTURE_TENSOR
     outColor = structureTensor(u_image, uv, texel);

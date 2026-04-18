@@ -201,17 +201,45 @@ export function setupPresetUI(
     lockRender, unlockRender
 ) {
 
-    document.getElementById('presetSelect').addEventListener("change", async () => {
-        lockRender();
-        resetStack();
-        const name = document.getElementById('presetSelect').value;
-        if (listAppPresets().includes(name)) {
-            await loadState(getAppPresetView(name), registry, false);
-        }
-        requestUIDraw();
-        requestRender();
-        unlockRender();
+    const presetSelect = document.getElementById('presetSelect');
+
+    let running = false;
+    let pendingName = null;
+
+    presetSelect.addEventListener("change", () => {
+      pendingName = presetSelect.value;
+      void drainPresetLoads();
     });
+
+    async function drainPresetLoads() {
+      if (running) return;
+      running = true;
+
+      try {
+        while (pendingName !== null) {
+          const name = pendingName;
+          pendingName = null;
+
+          lockRender();
+          try {
+            resetStack();
+
+            if (listAppPresets().includes(name)) {
+              await loadState(getAppPresetView(name), registry, false);
+            }
+
+            requestUIDraw();
+            requestRender();
+          } finally {
+            unlockRender();
+          }
+        }
+      } catch (err) {
+        console.error("Preset load failed:", err);
+      } finally {
+        running = false;
+      }
+    }
 
     document.getElementById('presetSave').onclick = () => {
         const name = prompt('Preset name?');

@@ -70,7 +70,7 @@
   "includes/vecfield.glsl": "includes/vecfield.9a4f2176.glsl",
   "includes/colorconvert.glsl": "includes/colorconvert.5cb5c430.glsl",
   "includes/noise.glsl": "includes/noise.9fc274aa.glsl",
-  "includes/blend.glsl": "includes/blend.0cc62ac8.glsl",
+  "includes/blend.glsl": "includes/blend.8dfe57e7.glsl",
   "includes/zones.glsl": "includes/zones.a913ab28.glsl",
   "includes/basis_projection.glsl": "includes/basis_projection.6e1452b1.glsl",
   "includes/blend_old.glsl": "includes/blend_old.31c3e96b.glsl",

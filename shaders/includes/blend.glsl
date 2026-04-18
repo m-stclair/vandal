@@ -118,6 +118,7 @@ vec3 blendChannelMasked(vec3 base, vec3 fx, float blendAmount) {
 vec3 blendWithColorSpace(vec3 baseRGB, vec3 fxRGB, float blendAmount) {
     vec3 base = extractColor(baseRGB);
     vec3 fx = extractColor(fxRGB);
+    vec3 blended = blendChannelMasked(base, fx, blendAmount);
     return clamp(encodeColor(blended), 0.0, 1.0);
 }
 

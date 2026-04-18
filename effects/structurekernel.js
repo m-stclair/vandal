@@ -3,7 +3,14 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {calcPass} from "./probes/calcpass.js";
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, CalcModeEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {
+    BlendModeEnum,
+    BlendTargetEnum,
+    ColorspaceEnum,
+    CalcModeEnum,
+    hasChromaBoostImplementation,
+    CalculateModeOpts
+} from "../utils/glsl_enums.js";
 
 const shaderPath = "structurekernel.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl", "blend.glsl": "includes/blend.glsl"};
@@ -19,7 +26,7 @@ export default {
         const {
             BLENDMODE, COLORSPACE, BLEND_CHANNEL_MODE, CALCULATE_MODE, blendAmount,
             calcKernelRadius, useCalcKernel, kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness,
-            intensity, temperature, STRUCTURE_MODE, stretchAmount
+            intensity, temperature, STRUCTURE_MODE, stretchAmount,
         } = resolveAnimAll(instance.config, t);
 
         const calcPassFBO = instance.calcPass.calculate(
@@ -29,7 +36,7 @@ export default {
             height,
             1,
             1,
-            CalcModeEnum.ISOPHOTE,
+            CALCULATE_MODE,
             useCalcKernel,
             calcKernelRadius,
         )
@@ -55,8 +62,6 @@ export default {
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
             u_calcPass: {value: calcPassFBO.texture, type: "texture2D"},
-            u_kernelWidth: {type: "int", value: kernelInfo.width},
-            u_kernelHeight: {type: "int", value: kernelInfo.height},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             // u_angle: {value: angle * Math.PI / 180, type: "float"},
             u_blendamount: {value: blendAmount, type: "float"},
@@ -71,10 +76,10 @@ export default {
             COLORSPACE: COLORSPACE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             CALCULATE_MODE: CALCULATE_MODE,
-            KERNEL_SIZE: kernelInfo.kernel.length,
+            KERNEL_WIDTH: kernelInfo.width,
+            KERNEL_HEIGHT: kernelInfo.height,
             STRUCTURE_MODE: STRUCTURE_MODE
         }
-
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: async (instance, renderer) => {
@@ -102,8 +107,8 @@ export default {
         // angle: 90,
         intensity: 0.5,
         temperature: 4,
-        CALCULATE_MODE: CalcModeEnum.STRUCTURE_TENSOR,
-        useCalcKernel: false,
+        CALCULATE_MODE: CalcModeEnum.SOBEL,
+        useCalcKernel: true,
         calcKernelRadius: 3,
         BLENDMODE: BlendModeEnum.MIX,
         COLORSPACE: ColorspaceEnum.RGB,
@@ -151,6 +156,15 @@ export default {
                 {"value": 1, label: "Apply"}
             ]
         },
+        {
+            key: "CALCULATE_MODE",
+            label: "Mode",
+            type: "select",
+            options: [
+                {label: "Isophote", value: CalcModeEnum.ISOPHOTE},
+                {label: "Sobel", value: CalcModeEnum.SOBEL},
+            ]
+        },
         {type: "modSlider", key: "stretchAmount", label: "Stretch Amount", min: 0, max: 1000, steps: 200},
         {
             key: "useCalcKernel",
@@ -177,6 +191,6 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
-  parameterHints: {"useKernel": {"always": false}},
-  notInRandom: true
+  parameterHints: {"kernelRadius": {"min": 1, "max": 4}},
+  notInRandom: false
 };

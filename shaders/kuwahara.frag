@@ -27,7 +27,7 @@ void main() {
     vec2 texelSize = u_texelSize / u_resolution;
 
     vec2  td          = texture(u_calcPass, uv).rg;
-    float angle = td.r * PI - PI * 0.5;
+    float angle       = td.r;
     float anisotropy  = td.g;
 
     // Build a rotation + anisotropic scale matrix.

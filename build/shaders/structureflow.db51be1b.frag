@@ -29,8 +29,8 @@ out vec4 outColor;
 vec4 structureTensorFlow(vec2 uv) {
     vec2 structureTensor = texture(u_calcPass, uv).rg;
     // structure tensor angle comes in normed to [0, 1]
-    float angleRadians = structureTensor.r * PI - PI * 0.5;
-    float angleRot = angleRadians + u_angle;
+    float angle = structureTensor.r;
+    float angleRot = angle + u_angle;
     vec2 flow = vec2(cos(angleRot), sin(angleRot));
     float anisotropy = structureTensor.g;
     // by intent, u_anisoDrag can be > 1 for artistic reasons

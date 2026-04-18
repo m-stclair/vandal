@@ -112,6 +112,8 @@ vec3 blendChannelMasked(vec3 base, vec3 fx, float blendAmount) {
 #endif
 }
 
+// NOTE: for some blend modes, these can go out of gamut prior to
+//  the encodeColor() step. this is intentional for artistic reasons.
 
 vec3 blendWithColorSpace(vec3 baseRGB, vec3 fxRGB, float blendAmount) {
     vec3 base = extractColor(baseRGB);
@@ -123,10 +125,10 @@ vec3 blendWithColorSpace(vec3 baseRGB, vec3 fxRGB, float blendAmount) {
 vec3 blendWithColorSpace(vec3 baseRGB, float fxGray, float blendAmount) {
     vec3 base = extractColor(baseRGB);
     vec3 blended = blendChannelMasked(base, vec3(fxGray), blendAmount);
-    return encodeColor(blended);
+    return clamp(encodeColor(blended), 0.0, 1.0);
 }
 
 vec3 blendWithColorSpace(float baseGray, float fxGray, float blendAmount) {
     vec3 blended = blendChannelMasked(vec3(baseGray), vec3(fxGray), blendAmount);
-    return encodeColor(blended);
+    return clamp(encodeColor(blended), 0.0, 1.0);
 }

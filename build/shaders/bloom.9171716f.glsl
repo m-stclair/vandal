@@ -98,7 +98,7 @@ void main() {
     vec3 blurredGlow = 0.5 * (blurH + blurV);
 
     vec3 base = texture(u_image, uv).rgb;
-    vec3 finalColor = base + u_bloomStrength * blurredGlow;
+    vec3 finalColor = clamp(base + u_bloomStrength * blurredGlow, 0.0, 1.0);
     outColor = vec4(blendWithColorSpace(base, finalColor, u_blendamount), 1.0);
 }
 

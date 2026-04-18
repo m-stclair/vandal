@@ -74,8 +74,8 @@ void main() {
     float spatial = spatialPattern(uv, u_freq); // just uv.x + uv.y
     float patternA = waveform(spatial * u_freqScale + phase);
     float patternB = waveform(-phase * (spatial * u_freqScale + phase * u_phaseScale) + u_phaseOff);
-    float patval = abs(patternA - patternB);
+    float patval = clamp(abs(patternA - patternB), 0.0, 1.0);
     // grayscale for now
-    vec3 blended = blendWithColorSpace(vec3(color), patval, u_blend);
+    vec3 blended = blendWithColorSpace(color, patval, u_blend);
     outColor = vec4(blended, 1.0);
 }

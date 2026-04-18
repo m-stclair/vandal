@@ -40,9 +40,8 @@ vec4 structureTensor(sampler2D tex, vec2 uv, vec2 texel) {
     // Orientation of the dominant eigenvector
     // (perpendicular to the edge, i.e. the gradient direction)
     float angle       = 0.5 * atan(2.0 * Jxy, Jxx - Jyy);
-    float angleNorm = (angle + PI * 0.5) / PI;
     float anisotropy  = (lam1 - lam2) / (lam1 + lam2 + 1e-6);
-    return vec4(angleNorm, anisotropy, lx, ly);
+    return vec4(angle, anisotropy, lx, ly);
 }
 
 vec4 isophoteCurvature(sampler2D tex, vec2 uv, vec2 texel) {

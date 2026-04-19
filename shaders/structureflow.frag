@@ -23,12 +23,11 @@ out vec4 outColor;
 #define CALCULATE_MODE_FLOWLINE 3
 
 #ifndef CALCULATE_MODE
-#define CALCULATE MODE 2
+#define CALCULATE_MODE 2
 #endif
 
 vec4 structureTensorFlow(vec2 uv) {
     vec2 structureTensor = texture(u_calcPass, uv).rg;
-    // structure tensor angle comes in normed to [0, 1]
     float angle = structureTensor.r;
     float angleRot = angle + u_angle;
     vec2 flow = vec2(cos(angleRot), sin(angleRot));
@@ -40,9 +39,9 @@ vec4 structureTensorFlow(vec2 uv) {
 
 // these two cases are packed the same way
 vec4 isophoteOrFlowlineFlow(vec2 uv) {
-    // curvature, length(dx, dy), atan(dy, dx), 0
+    // curvature, length(dx, dy), dx, dy
     vec4 isophote = texture(u_calcPass, uv);
-    float angleRot = isophote.z + u_angle;
+    float angleRot = atan(isophote.w, isophote.z) + u_angle;
     vec2 flow = vec2(cos(angleRot), sin(angleRot));
     return texture(u_image, uv + flow * tanh(isophote.r) * u_magnitude * u_texelSize);
 }
@@ -54,7 +53,7 @@ void main() {
     vec4 colorShifted = structureTensorFlow(uv);
 #elif CALCULATE_MODE == CALCULATE_MODE_ISOPHOTE
     vec4 colorShifted = isophoteOrFlowlineFlow(uv);
-#elif CALCULATE_MODE_FLOWLINE == CALCULATE_MODE_FLOWLINE
+#elif CALCULATE_MODE == CALCULATE_MODE_FLOWLINE
     vec4 colorShifted = isophoteOrFlowlineFlow(uv);
 #else
     #error

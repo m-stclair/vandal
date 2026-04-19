@@ -51,7 +51,7 @@ void main() {
         vec2 tangent = vec2(cos(angle), sin(angle)) * u_stepSize;
         pos -= tangent * u_texelSize;
 
-        float w = exp(-float(i*i) * u_falloff);
+        float w = exp(-pow(float(i), u_sharpness) * u_falloff);
         accum += texture(u_image, pos).rgb * w;
         totalWeight += w;
     }

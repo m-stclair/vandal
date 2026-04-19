@@ -49,15 +49,13 @@ out vec4 outColor;
 
 vec2 stretchKernelOffset(
     vec2 local,
-    float angle,
     float gradMag,
+    vec2 axis,
     float stretchAmount
 ) {
-    // angle axis
-    vec2 axis = vec2(-sin(angle), cos(angle));
     vec2 ortho = vec2(-axis.y, axis.x);
 
-    float stretchMask = clamp(tanh(max(gradMag, 0.0)), 0.0, 1.0);
+    float stretchMask = tanh(gradMag);
 
     float stretchScale = max(0.001, 1.0 + stretchAmount * stretchMask);
 
@@ -75,16 +73,17 @@ vec2 stretchKernelOffset(
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 #if CALCULATE_MODE == CALCULATE_MODE_SOBEL
-    vec3 mag_lx_ly = texture(u_calcPass, uv).xyz;
+    vec4 mag_lx_ly = texture(u_calcPass, uv);
     vec2 lxy = mag_lx_ly.yz;
     float mag = mag_lx_ly.x;
     float gradMag = length(lxy);
-    float gradAngle = atan(mag_lx_ly.z, mag_lx_ly.y);
+    vec2 gradAxis = vec2(lxy.x, lxy.y) / (gradMag + 1e-6);
 #elif CALCULATE_MODE == CALCULATE_MODE_ISOPHOTE
     vec4 isophote = texture(u_calcPass, uv);
     float mag = isophote.x;
     float gradMag = isophote.y;
-    float gradAngle = isophote.z;
+    float angle = isophote.z;
+    vec2 gradAxis = vec2(-sin(angle), cos(angle));
 #else
     #error
 #endif
@@ -97,12 +96,12 @@ void main() {
             vec2 local = vec2(float(x - halfWidth), float(y - halfHeight));
             vec2 warpedLocal = stretchKernelOffset(
                 local,
-                gradAngle,
                 gradMag,
+                gradAxis,
                 u_stretchAmount
             );
             vec2 offset = warpedLocal * u_texelSize;
-            vec3 samp = texture(u_image, uv + offset).rgb;            // Do something in kernel space to calculate an offset stretched
+            vec3 samp = texture(u_image, uv + offset).rgb;
             accum += samp * u_kernel[k];
             k++;
         }

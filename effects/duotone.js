@@ -128,5 +128,5 @@ export const effectMeta = {
       highlightPoint: {"min": 0.7, "max": 0.9},
       blendAMount: {"min": 0.75, "max": 1}
   },
-  // notInRandom: true
+  notInRandom: true
 };

@@ -82,4 +82,5 @@ export const effectMeta = {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL}
     },
     realtimeSafe: true,
+    notInRandom: true
 }

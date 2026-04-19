@@ -89,7 +89,7 @@ export default {
         radius: 4,
         sharpness: 2.5,
         eccentricity: 1,
-        useKernel: false,
+        useKernel: true,
         BLENDMODE: BlendModeEnum.MIX,
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,

@@ -8,8 +8,6 @@ import {
     BlendTargetEnum,
     ColorspaceEnum,
     CalcModeEnum,
-    hasChromaBoostImplementation,
-    CalculateModeOpts
 } from "../utils/glsl_enums.js";
 
 const shaderPath = "structurekernel.frag";
@@ -63,7 +61,6 @@ export default {
             u_resolution: {value: [width, height], type: "vec2"},
             u_calcPass: {value: calcPassFBO.texture, type: "texture2D"},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-            // u_angle: {value: angle * Math.PI / 180, type: "float"},
             u_blendamount: {value: blendAmount, type: "float"},
             u_intensity: {value: intensity, type: "float"},
             u_temperature: {value: temperature, type: "float"},
@@ -104,7 +101,6 @@ export default {
     isGPU: true,
     pass: null,
     defaultConfig: {
-        // angle: 90,
         intensity: 0.5,
         temperature: 4,
         CALCULATE_MODE: CalcModeEnum.SOBEL,

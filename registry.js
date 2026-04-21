@@ -70,7 +70,8 @@ const effectFiles = [
     "kaleidoscope.js",
     "triangle.js",
     "structurekernel.js",
-    "lic.js"
+    "lic.js",
+//    "colorblobs.js"
 //    "carpet.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";

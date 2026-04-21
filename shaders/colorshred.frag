@@ -24,9 +24,6 @@ out vec4 outColor;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy) / u_resolution;
-    const float C1 = 7.77;
-    const float C2 = 48.131;
-    const float C3 = 2.13;
     vec3 src = texture(u_image, uv).rgb;
 
 #if SHRED_COLOR_MODE == SHRED_PRESERVE_LUMA

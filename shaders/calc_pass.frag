@@ -23,15 +23,14 @@ out vec4 outColor;
 #include "differences.glsl"
 
 vec4 structureTensor(sampler2D tex, vec2 uv, vec2 texel) {
-    // NOTE: this is a structure tensor first pass.
-    //  eigendecomposition is performed in a second pass.
-
+    // NOTE: this is just the first pass.
+    //  eigendecomposition is performed in a subsequent pass
+    //  (optionally after a blur step). the JS handler orchestrates this.
 
     vec3 mag_lx_ly = sobel3x3(tex, uv, texel);
     float lx = mag_lx_ly.y;
     float ly = mag_lx_ly.z;
 
-    // Structure tensor components
     float Jxx = lx * lx;
     float Jxy = lx * ly;
     float Jyy = ly * ly;
@@ -55,11 +54,11 @@ ImageDerivatives sampleImageDerivatives(sampler2D tex, vec2 uv, vec2 texel) {
     ImageDerivatives d;
 
     // Axis-aligned samples
-    float l = luminance(texture(tex, uv - vec2(texel.x, 0.0)).rgb);
-    float r = luminance(texture(tex, uv + vec2(texel.x, 0.0)).rgb);
-    float b = luminance(texture(tex, uv - vec2(0.0, texel.y)).rgb);
-    float t = luminance(texture(tex, uv + vec2(0.0, texel.y)).rgb);
-    float c = luminance(texture(tex, uv).rgb);
+    float l = luminance(srgb2linear(texture(tex, uv - vec2(texel.x, 0.0)).rgb));
+    float r = luminance(srgb2linear(texture(tex, uv + vec2(texel.x, 0.0)).rgb));
+    float b = luminance(srgb2linear(texture(tex, uv - vec2(0.0, texel.y)).rgb));
+    float t = luminance(srgb2linear(texture(tex, uv + vec2(0.0, texel.y)).rgb));
+    float c = luminance(srgb2linear(texture(tex, uv).rgb));
 
     // First-order partials
     d.Ix = 0.5 * (r - l);
@@ -70,15 +69,15 @@ ImageDerivatives sampleImageDerivatives(sampler2D tex, vec2 uv, vec2 texel) {
     d.Iyy = t - 2.0 * c + b;
 
     // Diagonal samples for mixed partial
-    float tl = luminance(texture(tex, uv + vec2(-texel.x,  texel.y)).rgb);
-    float tr = luminance(texture(tex, uv + vec2( texel.x,  texel.y)).rgb);
-    float bl = luminance(texture(tex, uv + vec2(-texel.x, -texel.y)).rgb);
-    float br = luminance(texture(tex, uv + vec2( texel.x, -texel.y)).rgb);
+    float tl = luminance(srgb2linear(texture(tex, uv + vec2(-texel.x,  texel.y)).rgb));
+    float tr = luminance(srgb2linear(texture(tex, uv + vec2( texel.x,  texel.y)).rgb));
+    float bl = luminance(srgb2linear(texture(tex, uv + vec2(-texel.x, -texel.y)).rgb));
+    float br = luminance(srgb2linear(texture(tex, uv + vec2( texel.x, -texel.y)).rgb));
     d.Ixy = 0.25 * (tr - tl - br + bl);
 
     d.gradSq  = d.Ix * d.Ix + d.Iy * d.Iy;
     d.gradMag = sqrt(d.gradSq);
-    d.denom   = pow(d.gradSq, 1.5);
+    d.denom   = d.gradMag * d.gradSq;  // i.e. d.gradSq ** 1.5
 
     return d;
 }

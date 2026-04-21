@@ -142,7 +142,7 @@ export default {
                 height,
                 1,
                 1,
-                CalcModeEnum.STRUCTURE_TENSOR,
+                CalcModeEnum.SOBEL,
                 true,
                 3,
             ).texture

@@ -66,9 +66,8 @@ void main() {
 float n = u_levels - 1.0;
 #if USE_STRUCTURE == 1
     vec4 geometry = texture(u_calcPass, uv);
-    // geometry.zw are x and y gradient components
-    float gradMag = length(geometry.zw);
-    float dithStrength = 1.0 / (1.0 + gradMag * u_edgeStrength);
+    // geometry.x is sobel magnitude
+    float dithStrength = 1.0 / (1.0 + geometry.x * u_edgeStrength);
     float quantized = floor(luma * n + noiseVal * dithStrength) / n;
 #else
     float quantized = floor(luma * n + noiseVal) / n;

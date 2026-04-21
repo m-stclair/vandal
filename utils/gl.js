@@ -125,7 +125,7 @@ function _preprocessGLSL(source, defines, includeMap) {
             continue;
         }
         if (line.startsWith('#error') && !skipping) {
-            throw new Error(`Hit #error directive at line ${i + 1}`)
+            throw new Error(`Hit #error directive at line ${i + 1}: ${line}`)
         }
         if (line.startsWith('#endif')) {
             if (!stack.length) throw new Error(`#endif without #if at line ${i + 1}`);

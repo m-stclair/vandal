@@ -90,7 +90,7 @@ export default {
 
 export const effectMeta = {
     group: "Glitch",
-    tags: ["noise", "gpu"],
+    tags: ["noise", "color"],
     description: "Applies color-frequency-sensitive noise to the image, " +
         "changing its spatial distribution with little effect on overall channel distribution.",
     backend: "gpu",

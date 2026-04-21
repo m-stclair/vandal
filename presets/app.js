@@ -1594,7 +1594,7 @@ export const builtInPresets = [
                     "noiseMode": "pseudo",
                     "clampScale": 1,
                     "BLENDMODE": "2",
-                    "BLEND_CHANNEL_MODE": "4",
+                    "BLEND_CHANNEL_MODE": "3",
                     "COLORSPACE": "2",
                     "chromaBoost": 4,
                     "blendAmount": 0.88
@@ -2943,7 +2943,7 @@ export const builtInPresets = [
             "name": "flow()",
             "config": {
                 "BLENDMODE": "4",
-                "BLEND_CHANNEL_MODE": "4",
+                "BLEND_CHANNEL_MODE": "3",
                 "COLORSPACE": "2",
                 "blendAmount": 1,
                 "warpStrength": -0.73,

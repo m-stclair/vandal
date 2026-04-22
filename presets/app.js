@@ -1,22 +1,86 @@
 // Built-in effect stack presets (not stored in localStorage)
 export const builtInPresets = [
-    {"name":"AVS Cyanotype","config":[{"name":"Kaleidoscope","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"mirrors":5,"reflections":{"value":1.6345,"mod":{"type":"sine","freq":0.18418041593449627,"phase":0,"scale":2.3952398788000004,"offset":5.05}},"tubeLength":0.5,"magnification":1,"depth":1,"twist":0.3}},{"name":"Duotone","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"darkColor":[0,0,0.2],"lightColor":[0.46,0.78,0.81],"gamma":1,"shadowPoint":0.2,"highlightPoint":0.8}},{"name":"Perlin Distort","config":{"boundMode":"fract","pitchX":0,"pitchY":0,"freqX":30.955365500270926,"freqY":12.44026531707169,"seed":264,"depth":0.02,"rate":4,"rateDrive":0,"fc":[6,15,10],"reps":[5,5],"phase":[0,0],"fuzz":0,"noiseMode":"pseudo","clampScale":1,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"chromaBoost":1,"blendAmount":0.55}}]},
+    {
+        "name": "AVS Cyanotype",
+        "config": [{
+            "name": "Kaleidoscope",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "mirrors": 5,
+                "reflections": {
+                    "value": 1.6345,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.18418041593449627,
+                        "phase": 0,
+                        "scale": 2.3952398788000004,
+                        "offset": 5.05
+                    }
+                },
+                "tubeLength": 0.5,
+                "magnification": 1,
+                "depth": 1,
+                "twist": 0.3
+            }
+        }, {
+            "name": "Duotone",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "darkColor": [0, 0, 0.2],
+                "lightColor": [0.46, 0.78, 0.81],
+                "gamma": 1,
+                "shadowPoint": 0.2,
+                "highlightPoint": 0.8
+            }
+        }, {
+            "name": "Perlin Distort",
+            "config": {
+                "boundMode": "fract",
+                "pitchX": 0,
+                "pitchY": 0,
+                "freqX": 30.955365500270926,
+                "freqY": 12.44026531707169,
+                "seed": 264,
+                "depth": 0.02,
+                "rate": 4,
+                "rateDrive": 0,
+                "fc": [6, 15, 10],
+                "reps": [5, 5],
+                "phase": [0, 0],
+                "fuzz": 0,
+                "noiseMode": "pseudo",
+                "clampScale": 1,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "chromaBoost": 1,
+                "blendAmount": 0.55
+            }
+        }]
+    },
     {
         "name": "Chalk Pastel",
         "config": [{
-                "name": "2D Kernel",
-                "config": {
-                    "BLENDMODE": "11",
-                    "BLEND_CHANNEL_MODE": "1",
-                    "COLORSPACE": "2",
-                    "blendAmount": 1,
-                    "chromaBoost": 1,
-                    "kernelName": "altsign",
-                    "kernelRadiusX": 9,
-                    "kernelRadiusY": 19,
-                    "kernelSoftness": 9.17
-                }
-            },
+            "name": "2D Kernel",
+            "config": {
+                "BLENDMODE": "11",
+                "BLEND_CHANNEL_MODE": "1",
+                "COLORSPACE": "2",
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "kernelName": "altsign",
+                "kernelRadiusX": 9,
+                "kernelRadiusY": 19,
+                "kernelSoftness": 9.17
+            }
+        },
             {
                 "name": "Kuwahara",
                 "config": {
@@ -39,21 +103,21 @@ export const builtInPresets = [
     {
         "name": "Soft Oil",
         "config": [{
-                "name": "DoG",
-                "config": {
-                    "radius1": 3,
-                    "radius2": 9,
-                    "softness1": 1.8,
-                    "softness2": 3,
-                    "temperature": 10.4,
-                    "weight": 0.97,
-                    "BLENDMODE": "11",
-                    "COLORSPACE": "7",
-                    "BLEND_CHANNEL_MODE": "1",
-                    "blendAmount": 1,
-                    "chromaBoost": 1
-                }
-            },
+            "name": "DoG",
+            "config": {
+                "radius1": 3,
+                "radius2": 9,
+                "softness1": 1.8,
+                "softness2": 3,
+                "temperature": 10.4,
+                "weight": 0.97,
+                "BLENDMODE": "11",
+                "COLORSPACE": "7",
+                "BLEND_CHANNEL_MODE": "1",
+                "blendAmount": 1,
+                "chromaBoost": 1
+            }
+        },
             {
                 "name": "Kuwahara",
                 "config": {
@@ -76,42 +140,42 @@ export const builtInPresets = [
     {
         "name": "Dancing Lithograph",
         "config": [{
-                "name": "Dither",
-                "config": {
-                    "scale": 408.17237024620744,
-                    "tint": [
-                        0.36,
-                        1,
-                        0.19
-                    ],
-                    "seed": {
-                        "value": 1,
-                        "mod": {
-                            "type": "hold",
-                            "freq": 3.066312293049551,
-                            "phase": 0,
-                            "scale": 16.968000000000004,
-                            "offset": 250.5
-                        }
-                    },
-                    "levels": 3,
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": 0,
-                    "chromaBoost": 1,
-                    "components": [
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0.43
-                    ],
-                    "blendAmount": 1,
-                    "colormap": "none"
-                }
-            },
+            "name": "Dither",
+            "config": {
+                "scale": 408.17237024620744,
+                "tint": [
+                    0.36,
+                    1,
+                    0.19
+                ],
+                "seed": {
+                    "value": 1,
+                    "mod": {
+                        "type": "hold",
+                        "freq": 3.066312293049551,
+                        "phase": 0,
+                        "scale": 16.968000000000004,
+                        "offset": 250.5
+                    }
+                },
+                "levels": 3,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "chromaBoost": 1,
+                "components": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0.43
+                ],
+                "blendAmount": 1,
+                "colormap": "none"
+            }
+        },
             {
                 "name": "Halftone",
                 "config": {
@@ -144,13 +208,13 @@ export const builtInPresets = [
     {
         name: "Monkey Island",
         config: [{
-                "name": "Pixelate",
-                "config": {
-                    "blockSize": 3,
-                    "sampleStrategy": "corner",
-                    "preserveAlpha": true
-                }
-            },
+            "name": "Pixelate",
+            "config": {
+                "blockSize": 3,
+                "sampleStrategy": "corner",
+                "preserveAlpha": true
+            }
+        },
             {
                 "name": "Pixel Sort",
                 "config": {
@@ -167,14 +231,14 @@ export const builtInPresets = [
     {
         name: "Moody Feedback",
         config: [{
-                "name": "Invert",
-                "config": {
-                    "invert0": false,
-                    "invert1": false,
-                    "invert2": true,
-                    "mode": "2"
-                }
-            },
+            "name": "Invert",
+            "config": {
+                "invert0": false,
+                "invert1": false,
+                "invert2": true,
+                "mode": "2"
+            }
+        },
             {
                 "name": "Posterize",
                 "config": {
@@ -310,18 +374,18 @@ export const builtInPresets = [
     {
         "name": "Pastel Unfold",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.3,
-                    "cycle": true,
-                    "cycleMode": "spatial",
-                    "hueShift": 150,
-                    "saturation": 35,
-                    "lightness": 61,
-                    "hueSpread": 1,
-                    "bleed": 0.17
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.3,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": 150,
+                "saturation": 35,
+                "lightness": 61,
+                "hueSpread": 1,
+                "bleed": 0.17
+            }
+        },
             {
                 "name": "Perlin Distort",
                 "config": {
@@ -399,13 +463,13 @@ export const builtInPresets = [
     {
         "name": "Under the Rift",
         "config": [{
-                "name": "Wave Distortion",
-                "config": {
-                    "amplitude": 0.5,
-                    "frequency": 0.4,
-                    "direction": "horizontal"
-                }
-            },
+            "name": "Wave Distortion",
+            "config": {
+                "amplitude": 0.5,
+                "frequency": 0.4,
+                "direction": "horizontal"
+            }
+        },
             {
                 "name": "Contour Synth",
                 "config": {
@@ -473,12 +537,12 @@ export const builtInPresets = [
     {
         "name": "Gouge Away",
         "config": [{
-                "name": "Colorshred",
-                "config": {
-                    "density": 0.4,
-                    "mode": 1
-                }
-            },
+            "name": "Colorshred",
+            "config": {
+                "density": 0.4,
+                "mode": 1
+            }
+        },
             {
                 "name": "Pixel Sort",
                 "config": {
@@ -495,18 +559,18 @@ export const builtInPresets = [
     {
         "name": "Detached Pastel",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.48,
-                    "cycle": true,
-                    "cycleMode": "brightness",
-                    "hueShift": 208,
-                    "saturation": 20,
-                    "lightness": 57,
-                    "hueSpread": 1.15,
-                    "bleed": 0
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.48,
+                "cycle": true,
+                "cycleMode": "brightness",
+                "hueShift": 208,
+                "saturation": 20,
+                "lightness": 57,
+                "hueSpread": 1.15,
+                "bleed": 0
+            }
+        },
             {
                 "name": "Clarity",
                 "config": [{
@@ -570,31 +634,31 @@ export const builtInPresets = [
     {
         "name": "Not Raining",
         "config": [{
-                "name": "Perlin Distort",
-                "config": {
-                    "boundMode": "clamp",
-                    "pitchX": -0.91,
-                    "pitchY": 0,
-                    "freqX": 9.069993561306088,
-                    "freqY": 9.82365286443436,
-                    "seed": 128,
-                    "depth": 0.39,
-                    "rate": 4,
-                    "rateDrive": 0,
-                    "fc": [
-                        6,
-                        15,
-                        10
-                    ],
-                    "phase": [
-                        0,
-                        0
-                    ],
-                    "fuzz": 0,
-                    "noiseMode": "classic",
-                    "clampScale": 0.5
-                }
-            },
+            "name": "Perlin Distort",
+            "config": {
+                "boundMode": "clamp",
+                "pitchX": -0.91,
+                "pitchY": 0,
+                "freqX": 9.069993561306088,
+                "freqY": 9.82365286443436,
+                "seed": 128,
+                "depth": 0.39,
+                "rate": 4,
+                "rateDrive": 0,
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "phase": [
+                    0,
+                    0
+                ],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "clampScale": 0.5
+            }
+        },
             {
                 "name": "Delay Line",
                 "config": {
@@ -707,13 +771,13 @@ export const builtInPresets = [
     {
         "name": "Failing Monitor",
         "config": [{
-                "name": "Wave Distortion",
-                "config": {
-                    "amplitude": 0.05,
-                    "frequency": 0.2,
-                    "direction": "vertical"
-                }
-            },
+            "name": "Wave Distortion",
+            "config": {
+                "amplitude": 0.05,
+                "frequency": 0.2,
+                "direction": "vertical"
+            }
+        },
             {
                 "name": "Scanlines",
                 "config": {
@@ -784,23 +848,23 @@ export const builtInPresets = [
     {
         "name": "Nagel",
         "config": [{
-                "name": "Affine Transform",
-                "config": {
-                    "angle": {
-                        "value": 23.13,
-                        "mod": {
-                            "type": "none"
-                        }
-                    },
-                    "shearX": 0,
-                    "shearY": 0,
-                    "scaleX": 1.0742140565555607,
-                    "scaleY": 1,
-                    "translateX": 0,
-                    "translateY": 0,
-                    "wrap": false
-                }
-            },
+            "name": "Affine Transform",
+            "config": {
+                "angle": {
+                    "value": 23.13,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "shearX": 0,
+                "shearY": 0,
+                "scaleX": 1.0742140565555607,
+                "scaleY": 1,
+                "translateX": 0,
+                "translateY": 0,
+                "wrap": false
+            }
+        },
             {
                 "name": "Pixel Sort",
                 "config": {
@@ -835,16 +899,16 @@ export const builtInPresets = [
     {
         "name": "Venetian Morning",
         "config": [{
-                "name": "Invert",
-                "config": {
-                    "invert0": false,
-                    "invert1": true,
-                    "invert2": true,
-                    "COLORSPACE": 1,
-                    "mode": "lab",
-                    "colorSpace": "1"
-                }
-            },
+            "name": "Invert",
+            "config": {
+                "invert0": false,
+                "invert1": true,
+                "invert2": true,
+                "COLORSPACE": 1,
+                "mode": "lab",
+                "colorSpace": "1"
+            }
+        },
             {
                 "name": "Mirrorband",
                 "config": {
@@ -894,16 +958,16 @@ export const builtInPresets = [
     {
         "name": "Blood Dragon",
         "config": [{
-                "name": "Chromatic Aberration",
-                "config": {
-                    "rdx": 2,
-                    "rdy": 0,
-                    "gdx": -2,
-                    "gdy": 1,
-                    "bdx": 3,
-                    "bdy": -1
-                }
-            },
+            "name": "Chromatic Aberration",
+            "config": {
+                "rdx": 2,
+                "rdy": 0,
+                "gdx": -2,
+                "gdy": 1,
+                "bdx": 3,
+                "bdy": -1
+            }
+        },
             {
                 "name": "Posterize",
                 "config": {
@@ -929,29 +993,29 @@ export const builtInPresets = [
     }, {
         "name": "Saudade",
         "config": [{
-                "name": "Noise Mixer",
-                "config": {
-                    "frequency": 115.95100609902991,
-                    "freqShift": 0.05,
-                    "seed": 161,
-                    "BLENDMODE": "10",
-                    "fc": [
-                        6,
-                        15,
-                        10
-                    ],
-                    "components": [
-                        0.17,
-                        0.03,
-                        0.34,
-                        0,
-                        0.05,
-                        0,
-                        0
-                    ],
-                    "blur": 2
-                }
-            },
+            "name": "Noise Mixer",
+            "config": {
+                "frequency": 115.95100609902991,
+                "freqShift": 0.05,
+                "seed": 161,
+                "BLENDMODE": "10",
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "components": [
+                    0.17,
+                    0.03,
+                    0.34,
+                    0,
+                    0.05,
+                    0,
+                    0
+                ],
+                "blur": 2
+            }
+        },
             {
                 "name": "Auto Levels",
                 "config": {
@@ -1033,22 +1097,22 @@ export const builtInPresets = [
     {
         "name": "Untimely Met",
         "config": [{
-                "name": "Perlin Distort",
-                "config": {
-                    "pitchX": -1.01,
-                    "pitchY": 0.25,
-                    "seed": 35,
-                    "depth": 0.77,
-                    "rate": 5.947282785909293,
-                    "rateDrive": 0,
-                    "fc": [
-                        7.5,
-                        17.25,
-                        8.25
-                    ],
-                    "boundMode": "clamp"
-                }
-            },
+            "name": "Perlin Distort",
+            "config": {
+                "pitchX": -1.01,
+                "pitchY": 0.25,
+                "seed": 35,
+                "depth": 0.77,
+                "rate": 5.947282785909293,
+                "rateDrive": 0,
+                "fc": [
+                    7.5,
+                    17.25,
+                    8.25
+                ],
+                "boundMode": "clamp"
+            }
+        },
             {
                 "name": "Delay Line",
                 "config": {
@@ -1068,12 +1132,12 @@ export const builtInPresets = [
     {
         "name": "Craquelure",
         "config": [{
-                "name": "Colormap",
-                "config": {
-                    "colormap": "vaportrail",
-                    "reverse": true
-                }
-            },
+            "name": "Colormap",
+            "config": {
+                "colormap": "vaportrail",
+                "reverse": true
+            }
+        },
             {
                 "name": "Contour Synth",
                 "config": {
@@ -1093,29 +1157,29 @@ export const builtInPresets = [
     {
         "name": "Ardor",
         "config": [{
-                "name": "Noise Mixer",
-                "config": {
-                    "frequency": 30.744329067236027,
-                    "freqShift": -0.07,
-                    "seed": 280,
-                    "BLENDMODE": 9,
-                    "fc": [
-                        5,
-                        13.75,
-                        8.25
-                    ],
-                    "components": [
-                        0,
-                        0.44,
-                        0,
-                        0,
-                        0.39,
-                        0,
-                        0
-                    ],
-                    "blur": 0
-                }
-            },
+            "name": "Noise Mixer",
+            "config": {
+                "frequency": 30.744329067236027,
+                "freqShift": -0.07,
+                "seed": 280,
+                "BLENDMODE": 9,
+                "fc": [
+                    5,
+                    13.75,
+                    8.25
+                ],
+                "components": [
+                    0,
+                    0.44,
+                    0,
+                    0,
+                    0.39,
+                    0,
+                    0
+                ],
+                "blur": 0
+            }
+        },
             {
                 "name": "Chromawave",
                 "config": {
@@ -1198,18 +1262,18 @@ export const builtInPresets = [
     {
         "name": "Thrifted Lava",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.2,
-                    "cycle": false,
-                    "cycleMode": "spatial",
-                    "hueShift": 188,
-                    "saturation": 100,
-                    "lightness": 50,
-                    "hueSpread": 0.55,
-                    "bleed": 0.88
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.2,
+                "cycle": false,
+                "cycleMode": "spatial",
+                "hueShift": 188,
+                "saturation": 100,
+                "lightness": 50,
+                "hueSpread": 0.55,
+                "bleed": 0.88
+            }
+        },
             {
                 "name": "Perlin Distort",
                 "config": {
@@ -1250,18 +1314,18 @@ export const builtInPresets = [
     {
         "name": "Vintage Lava",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.2,
-                    "cycle": false,
-                    "cycleMode": "spatial",
-                    "hueShift": 188,
-                    "saturation": 100,
-                    "lightness": 50,
-                    "hueSpread": 0.55,
-                    "bleed": 0.88
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.2,
+                "cycle": false,
+                "cycleMode": "spatial",
+                "hueShift": 188,
+                "saturation": 100,
+                "lightness": 50,
+                "hueSpread": 0.55,
+                "bleed": 0.88
+            }
+        },
             {
                 "name": "Perlin Distort",
                 "config": {
@@ -1302,18 +1366,18 @@ export const builtInPresets = [
     {
         "name": "When Crayon",
         "config": [{
-                "name": "Contour Synth",
-                "config": {
-                    "freq": 1,
-                    "freqScale": 0.7780101850886281,
-                    "phaseScale": 1.3454242035217665,
-                    "blend": 0.36,
-                    "phaseOff": -94.5,
-                    "spatialMode": "none",
-                    "colorMode": "pass",
-                    "hueModStrength": 0.5
-                }
-            },
+            "name": "Contour Synth",
+            "config": {
+                "freq": 1,
+                "freqScale": 0.7780101850886281,
+                "phaseScale": 1.3454242035217665,
+                "blend": 0.36,
+                "phaseOff": -94.5,
+                "spatialMode": "none",
+                "colorMode": "pass",
+                "hueModStrength": 0.5
+            }
+        },
             {
                 "name": "Noise Mixer",
                 "config": {
@@ -1361,22 +1425,22 @@ export const builtInPresets = [
     {
         "name": "Sheen",
         "config": [{
-                "name": "Look",
-                "config": {
-                    "exposure": 1.05,
-                    "toneShoulder": -1.25,
-                    "toneCenter": 0.7,
-                    "chromaWeight": 1.01,
-                    "chromaFadeLow": -1.7,
-                    "chromaFadeHigh": 4.1,
-                    "tintAxis": [
-                        0.55,
-                        0.14,
-                        0.18
-                    ],
-                    "tintStrength": 0.47
-                }
-            },
+            "name": "Look",
+            "config": {
+                "exposure": 1.05,
+                "toneShoulder": -1.25,
+                "toneCenter": 0.7,
+                "chromaWeight": 1.01,
+                "chromaFadeLow": -1.7,
+                "chromaFadeHigh": 4.1,
+                "tintAxis": [
+                    0.55,
+                    0.14,
+                    0.18
+                ],
+                "tintStrength": 0.47
+            }
+        },
             {
                 "name": "Noise Mixer",
                 "config": {
@@ -1511,13 +1575,13 @@ export const builtInPresets = [
     {
         "name": "Puzzling",
         "config": [{
-                "name": "Auto Levels",
-                "config": {
-                    "paramA": 25,
-                    "paramB": 90,
-                    "mode": "channelwise"
-                }
-            },
+            "name": "Auto Levels",
+            "config": {
+                "paramA": 25,
+                "paramB": 90,
+                "mode": "channelwise"
+            }
+        },
             {
                 "name": "Pixelate",
                 "config": {
@@ -1557,49 +1621,49 @@ export const builtInPresets = [
     {
         "name": "Surface Tension",
         "config": [{
-                "name": "Perlin Distort",
-                "config": {
-                    "boundMode": "fract",
-                    "pitchX": {
-                        "value": 0.91,
-                        "mod": {
-                            "type": "saw",
-                            "freq": 0.05433084042407615,
-                            "phase": 0,
-                            "scale": -1.8719999999999999,
-                            "offset": 0
-                        }
-                    },
-                    "pitchY": 0,
-                    "freqX": 4,
-                    "freqY": 4,
-                    "seed": 231,
-                    "depth": 0.66,
-                    "rate": 4,
-                    "rateDrive": 0,
-                    "fc": [
-                        6,
-                        15,
-                        10
-                    ],
-                    "reps": [
-                        5,
-                        5
-                    ],
-                    "phase": [
-                        0.595,
-                        0
-                    ],
-                    "fuzz": 0,
-                    "noiseMode": "pseudo",
-                    "clampScale": 1,
-                    "BLENDMODE": "2",
-                    "BLEND_CHANNEL_MODE": "3",
-                    "COLORSPACE": "2",
-                    "chromaBoost": 4,
-                    "blendAmount": 0.88
-                }
-            },
+            "name": "Perlin Distort",
+            "config": {
+                "boundMode": "fract",
+                "pitchX": {
+                    "value": 0.91,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.05433084042407615,
+                        "phase": 0,
+                        "scale": -1.8719999999999999,
+                        "offset": 0
+                    }
+                },
+                "pitchY": 0,
+                "freqX": 4,
+                "freqY": 4,
+                "seed": 231,
+                "depth": 0.66,
+                "rate": 4,
+                "rateDrive": 0,
+                "fc": [
+                    6,
+                    15,
+                    10
+                ],
+                "reps": [
+                    5,
+                    5
+                ],
+                "phase": [
+                    0.595,
+                    0
+                ],
+                "fuzz": 0,
+                "noiseMode": "pseudo",
+                "clampScale": 1,
+                "BLENDMODE": "2",
+                "BLEND_CHANNEL_MODE": "3",
+                "COLORSPACE": "2",
+                "chromaBoost": 4,
+                "blendAmount": 0.88
+            }
+        },
             {
                 "name": "flow()",
                 "config": {
@@ -1643,18 +1707,18 @@ export const builtInPresets = [
     {
         "name": "Night City Waterfall",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0.28,
-                    "cycle": true,
-                    "cycleMode": "spatial",
-                    "hueShift": 143,
-                    "saturation": 65,
-                    "lightness": 42,
-                    "hueSpread": 1.85,
-                    "bleed": 0
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.28,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": 143,
+                "saturation": 65,
+                "lightness": 42,
+                "hueSpread": 1.85,
+                "bleed": 0
+            }
+        },
             {
                 "name": "Noise Mixer",
                 "config": {
@@ -1712,21 +1776,21 @@ export const builtInPresets = [
     {
         "name": "Something Unpleasant",
         "config": [{
-                "name": "Chromatic Aberration",
-                "config": {
-                    "BLENDMODE": 1,
-                    "COLORSPACE": "5",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 0.56,
-                    "chromaBoost": 1,
-                    "rdx": 3,
-                    "rdy": -2,
-                    "gdx": 5,
-                    "gdy": 0,
-                    "bdx": 0,
-                    "bdy": 4
-                }
-            },
+            "name": "Chromatic Aberration",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": "5",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.56,
+                "chromaBoost": 1,
+                "rdx": 3,
+                "rdy": -2,
+                "gdx": 5,
+                "gdy": 0,
+                "bdx": 0,
+                "bdy": 4
+            }
+        },
             {
                 "name": "Bad TV",
                 "config": {
@@ -1759,6 +1823,66 @@ export const builtInPresets = [
             }
         ]
     },
+    {
+        "name": "Bit Players",
+        "config": [{
+            "name": "Pixelate",
+            "config": {
+                "blockSize": {
+                    "value": 52,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.45471224459926857,
+                        "phase": 0,
+                        "scale": 1.033412316,
+                        "offset": 36.5
+                    }
+                }, "BLENDMODE": "12", "BLEND_CHANNEL_MODE": 0, "COLORSPACE": 0, "blendAmount": 1, "chromaBoost": 1
+            }
+        }, {
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "warpStrength": -0.4,
+                "directionStrength": 0.8384162872525447,
+                "directionChannel": "1",
+                "magChannel": "0",
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0,
+                "threshHigh": 0.89,
+                "magGamma": 2.835069745434528,
+                "kernelName": "box",
+                "kernelRadiusX": 9,
+                "kernelRadiusY": 9,
+                "kernelSoftness": 7.08,
+                "chromaBoost": 1
+            }
+        }, {
+            "name": "Structure Kernel",
+            "config": {
+                "intensity": 2,
+                "temperature": 6,
+                "CALCULATE_MODE": "4",
+                "useCalcKernel": true,
+                "calcKernelRadius": 3,
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 5.18,
+                "STRUCTURE_MODE": 0,
+                "stretchAmount": 0
+            }
+        }]
+    },
+
     {
         "name": "Not Raining 2",
         "config": [{
@@ -1976,7 +2100,78 @@ export const builtInPresets = [
             }
         }]
     },
-{"name":"Powder","config":[{"name":"Posterize","config":{"levels":8,"mode":"2","COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"mod":0.25,"c1":true,"c2":false,"c3":false,"colorSpace":"1"}},{"name":"Colormap","config":{"colormap":"blush","chromaBoost":1,"reverse":true,"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Delay Line","config":{"delay":{"value":172.44,"mod":{"type":"sine","freq":0.09,"phase":0,"scale":16.88,"offset":47.62}},"window":"ring","falloff":"uniform","density":{"value":2.3,"mod":{"type":"none"}},"angle":{"value":-37.27,"mod":{"type":"sine","freq":0.01,"phase":0,"scale":142.73,"offset":-37.27}},"shearX":-4,"shearY":-1.2,"scaleX":1.5,"scaleY":0.3,"COLORSPACE":0,"BLENDMODE":"1","blendAmount":1,"blendTarget":"0","jitter":0.13,"chromaBoost":1,"BLEND_CHANNEL_MODE":0}},{"name":"Look","config":{"exposure":-0.5,"toneShoulder":2.2,"toneCenter":-0.75,"curveStrength":1,"chromaWeight":1,"chromaFadeLow":-3,"chromaFadeHigh":2,"tintHue":68,"tintStrength":0,"lift":0,"gamma":0,"gain":0}}]},
+    {
+        "name": "Powder",
+        "config": [{
+            "name": "Posterize",
+            "config": {
+                "levels": 8,
+                "mode": "2",
+                "COLORSPACE": 0,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "mod": 0.25,
+                "c1": true,
+                "c2": false,
+                "c3": false,
+                "colorSpace": "1"
+            }
+        }, {
+            "name": "Colormap",
+            "config": {
+                "colormap": "blush",
+                "chromaBoost": 1,
+                "reverse": true,
+                "blendAmount": 1,
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0
+            }
+        }, {
+            "name": "Delay Line",
+            "config": {
+                "delay": {
+                    "value": 172.44,
+                    "mod": {"type": "sine", "freq": 0.09, "phase": 0, "scale": 16.88, "offset": 47.62}
+                },
+                "window": "ring",
+                "falloff": "uniform",
+                "density": {"value": 2.3, "mod": {"type": "none"}},
+                "angle": {
+                    "value": -37.27,
+                    "mod": {"type": "sine", "freq": 0.01, "phase": 0, "scale": 142.73, "offset": -37.27}
+                },
+                "shearX": -4,
+                "shearY": -1.2,
+                "scaleX": 1.5,
+                "scaleY": 0.3,
+                "COLORSPACE": 0,
+                "BLENDMODE": "1",
+                "blendAmount": 1,
+                "blendTarget": "0",
+                "jitter": 0.13,
+                "chromaBoost": 1,
+                "BLEND_CHANNEL_MODE": 0
+            }
+        }, {
+            "name": "Look",
+            "config": {
+                "exposure": -0.5,
+                "toneShoulder": 2.2,
+                "toneCenter": -0.75,
+                "curveStrength": 1,
+                "chromaWeight": 1,
+                "chromaFadeLow": -3,
+                "chromaFadeHigh": 2,
+                "tintHue": 68,
+                "tintStrength": 0,
+                "lift": 0,
+                "gamma": 0,
+                "gain": 0
+            }
+        }]
+    },
     {
         "name": "Push 35",
         "config": [{
@@ -2076,34 +2271,34 @@ export const builtInPresets = [
     {
         "name": "NTSC Glass",
         "config": [{
-                "name": "Bad TV",
-                "config": {
-                    "BLENDMODE": "1",
-                    "COLORSPACE": "5",
-                    "BLEND_CHANNEL_MODE": "2",
-                    "blendAmount": 1,
-                    "tearAmount": 0.25,
-                    "flickerAmount": 0.19,
-                    "jitter": 0.39,
-                    "t_": {
-                        "value": 3.11645991236107,
-                        "mod": {
-                            "type": "saw",
-                            "freq": 0.03,
-                            "phase": 0,
-                            "scale": 0.2,
-                            "offset": 1.62
-                        }
-                    },
-                    "bias": 0.065,
-                    "scale": 943.375,
-                    "seed": 102,
-                    "chunks": 2,
-                    "tearMode": "chunk",
-                    "ghostOffset": 0.3,
-                    "noiseAmount": 0.22
-                }
-            },
+            "name": "Bad TV",
+            "config": {
+                "BLENDMODE": "1",
+                "COLORSPACE": "5",
+                "BLEND_CHANNEL_MODE": "2",
+                "blendAmount": 1,
+                "tearAmount": 0.25,
+                "flickerAmount": 0.19,
+                "jitter": 0.39,
+                "t_": {
+                    "value": 3.11645991236107,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.03,
+                        "phase": 0,
+                        "scale": 0.2,
+                        "offset": 1.62
+                    }
+                },
+                "bias": 0.065,
+                "scale": 943.375,
+                "seed": 102,
+                "chunks": 2,
+                "tearMode": "chunk",
+                "ghostOffset": 0.3,
+                "noiseAmount": 0.22
+            }
+        },
             {
                 "name": "Posterize",
                 "config": {
@@ -2292,13 +2487,13 @@ export const builtInPresets = [
     {
         "name": "Crew Mosaic",
         "config": [{
-                "name": "Pixelate",
-                "config": {
-                    "blockSize": 44,
-                    "sampleStrategy": "center",
-                    "preserveAlpha": true
-                }
-            },
+            "name": "Pixelate",
+            "config": {
+                "blockSize": 44,
+                "sampleStrategy": "center",
+                "preserveAlpha": true
+            }
+        },
             {
                 "name": "Contour Synth",
                 "config": {
@@ -2569,41 +2764,41 @@ export const builtInPresets = [
     {
         "name": "Jumpscare",
         "config": [{
-                "name": "Affine Transform",
-                "config": {
-                    "BLENDMODE": "11",
-                    "COLORSPACE": 0,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 1,
-                    "chromaBoost": 1,
-                    "angle": 0,
-                    "shearX": {
-                        "value": 0,
-                        "mod": {
-                            "type": "impulse",
-                            "freq": 1.41024838985062,
-                            "phase": 0,
-                            "scale": -1.0244910000000003,
-                            "offset": 0
-                        }
-                    },
-                    "shearY": 0,
-                    "scaleX": 1,
-                    "scaleY": {
-                        "value": 0.9754419586243441,
-                        "mod": {
-                            "type": "impulse",
-                            "freq": 1.6749813774604023,
-                            "phase": 0,
-                            "scale": 4.6457337376,
-                            "offset": 5.05
-                        }
-                    },
-                    "translateX": 0,
-                    "translateY": 0,
-                    "wrap": false
-                }
-            },
+            "name": "Affine Transform",
+            "config": {
+                "BLENDMODE": "11",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "angle": 0,
+                "shearX": {
+                    "value": 0,
+                    "mod": {
+                        "type": "impulse",
+                        "freq": 1.41024838985062,
+                        "phase": 0,
+                        "scale": -1.0244910000000003,
+                        "offset": 0
+                    }
+                },
+                "shearY": 0,
+                "scaleX": 1,
+                "scaleY": {
+                    "value": 0.9754419586243441,
+                    "mod": {
+                        "type": "impulse",
+                        "freq": 1.6749813774604023,
+                        "phase": 0,
+                        "scale": 4.6457337376,
+                        "offset": 5.05
+                    }
+                },
+                "translateX": 0,
+                "translateY": 0,
+                "wrap": false
+            }
+        },
             {
                 "name": "2D Kernel",
                 "config": {
@@ -2703,59 +2898,59 @@ export const builtInPresets = [
     {
         "name": "Site Jitter",
         "config": [{
-                "name": "Noise Mixer",
-                "config": {
-                    "frequency": 35.165954655638664,
-                    "freqShift": 0,
-                    "tint": [
-                        1,
-                        1,
-                        1
-                    ],
-                    "seed": {
-                        "value": 1,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 0.5,
-                            "phase": 0,
-                            "rangeMode": "bipolar",
-                            "scale": 500,
-                            "offset": 249.5
-                        }
-                    },
-                    "BLENDMODE": "10",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": "6",
-                    "components": [
-                        0.64,
-                        0,
-                        0,
-                        0.29,
-                        0,
-                        0,
-                        0
-                    ],
-                    "blendAmount": 0.5,
-                    "colormap": "none",
-                    "threshold": 0,
-                    "cutoff": 1,
-                    "gate": 0,
-                    "burstThreshold": 0.1,
-                    "burstFreq": 100,
-                    "burstTheta": 0.52,
-                    "burstDTheta": 0,
-                    "ZONESHAPE": 2,
-                    "zoneCX": 0.235,
-                    "zoneSX": 0.2,
-                    "zoneCY": 0.445,
-                    "zoneSY": 0.21,
-                    "zoneEllipseN": 2,
-                    "zoneSoftness": 0.1,
-                    "zoneAngle": 0,
-                    "APPLY_MASK": true,
-                    "burstModType": "simplex"
-                }
-            },
+            "name": "Noise Mixer",
+            "config": {
+                "frequency": 35.165954655638664,
+                "freqShift": 0,
+                "tint": [
+                    1,
+                    1,
+                    1
+                ],
+                "seed": {
+                    "value": 1,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.5,
+                        "phase": 0,
+                        "rangeMode": "bipolar",
+                        "scale": 500,
+                        "offset": 249.5
+                    }
+                },
+                "BLENDMODE": "10",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": "6",
+                "components": [
+                    0.64,
+                    0,
+                    0,
+                    0.29,
+                    0,
+                    0,
+                    0
+                ],
+                "blendAmount": 0.5,
+                "colormap": "none",
+                "threshold": 0,
+                "cutoff": 1,
+                "gate": 0,
+                "burstThreshold": 0.1,
+                "burstFreq": 100,
+                "burstTheta": 0.52,
+                "burstDTheta": 0,
+                "ZONESHAPE": 2,
+                "zoneCX": 0.235,
+                "zoneSX": 0.2,
+                "zoneCY": 0.445,
+                "zoneSY": 0.21,
+                "zoneEllipseN": 2,
+                "zoneSoftness": 0.1,
+                "zoneAngle": 0,
+                "APPLY_MASK": true,
+                "burstModType": "simplex"
+            }
+        },
             {
                 "name": "Warp Zone",
                 "config": {
@@ -2787,47 +2982,47 @@ export const builtInPresets = [
     {
         "name": "Someday",
         "config": [{
-                "name": "Grid Pattern",
-                "config": {
-                    "lineWidth": 13.826194041024442,
-                    "spacingFactor": 2.7589005745667357,
-                    "phaseX": -0.04,
-                    "phaseY": -0.49,
-                    "direction": "grid",
-                    "mode": "saw",
-                    "BLENDMODE": "11",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": "3",
-                    "blendAmount": 0.42,
-                    "invert": true,
-                    "noiseScale": 0.1,
-                    "noiseAmount": 0.3,
-                    "skew": {
-                        "value": -0.33,
-                        "mod": {
-                            "type": "saw",
-                            "freq": 0.17,
-                            "phase": 0,
-                            "rangeMode": "bipolar",
-                            "scale": 0.17,
-                            "offset": -0.52
-                        }
-                    },
-                    "lumaMod": 0,
-                    "lumaThreshold": 0.225,
-                    "lumaSoftness": 0,
-                    "channelPhase0": 0.45,
-                    "channelPhase1": -1,
-                    "channelPhase2": -1,
-                    "color": [
-                        1,
-                        1,
-                        1
-                    ],
-                    "blendTarget": "0",
-                    "colorSpace": "0"
-                }
-            },
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": 13.826194041024442,
+                "spacingFactor": 2.7589005745667357,
+                "phaseX": -0.04,
+                "phaseY": -0.49,
+                "direction": "grid",
+                "mode": "saw",
+                "BLENDMODE": "11",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": "3",
+                "blendAmount": 0.42,
+                "invert": true,
+                "noiseScale": 0.1,
+                "noiseAmount": 0.3,
+                "skew": {
+                    "value": -0.33,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.17,
+                        "phase": 0,
+                        "rangeMode": "bipolar",
+                        "scale": 0.17,
+                        "offset": -0.52
+                    }
+                },
+                "lumaMod": 0,
+                "lumaThreshold": 0.225,
+                "lumaSoftness": 0,
+                "channelPhase0": 0.45,
+                "channelPhase1": -1,
+                "channelPhase2": -1,
+                "color": [
+                    1,
+                    1,
+                    1
+                ],
+                "blendTarget": "0",
+                "colorSpace": "0"
+            }
+        },
             {
                 "name": "Warp Zone",
                 "config": {
@@ -2869,16 +3064,16 @@ export const builtInPresets = [
     {
         "name": "Undo (Moonlight)",
         "config": [{
-                "name": "Invert",
-                "config": {
-                    "invert0": true,
-                    "invert1": false,
-                    "invert2": false,
-                    "COLORSPACE": 0,
-                    "mode": "2",
-                    "colorSpace": "1"
-                }
-            },
+            "name": "Invert",
+            "config": {
+                "invert0": true,
+                "invert1": false,
+                "invert2": false,
+                "COLORSPACE": 0,
+                "mode": "2",
+                "colorSpace": "1"
+            }
+        },
             {
                 "name": "Posterize",
                 "config": {
@@ -2900,20 +3095,20 @@ export const builtInPresets = [
     {
         "name": "Mr. Johnson",
         "config": [{
-                "name": "Edge Trace",
-                "config": {
-                    "BLENDMODE": "5",
-                    "COLORSPACE": "5",
-                    "BLEND_CHANNEL_MODE": "0",
-                    "blendAmount": 0.85,
-                    "threshold": 0.13,
-                    "tint": [
-                        0.38,
-                        0.05,
-                        0.63
-                    ]
-                }
-            },
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": "5",
+                "COLORSPACE": "5",
+                "BLEND_CHANNEL_MODE": "0",
+                "blendAmount": 0.85,
+                "threshold": 0.13,
+                "tint": [
+                    0.38,
+                    0.05,
+                    0.63
+                ]
+            }
+        },
             {
                 "name": "B/C/S",
                 "config": {
@@ -2963,25 +3158,25 @@ export const builtInPresets = [
     {
         "name": "Gameboy",
         "config": [{
-                "name": "Palette Synth",
-                "config": {
-                    "paletteSize": 16,
-                    "weightL": 0.35,
-                    "cycleOffset": 0,
-                    "softness": 1,
-                    "blendK": 3,
-                    "useFurthest": true,
-                    "lumaWeight": 0.88,
-                    "chromaWeight": 1.4,
-                    "hueWeight": 0.62,
-                    "doMerge": true,
-                    "assignMode": "blend",
-                    "blendAmount": 1,
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": 0
-                }
-            },
+            "name": "Palette Synth",
+            "config": {
+                "paletteSize": 16,
+                "weightL": 0.35,
+                "cycleOffset": 0,
+                "softness": 1,
+                "blendK": 3,
+                "useFurthest": true,
+                "lumaWeight": 0.88,
+                "chromaWeight": 1.4,
+                "hueWeight": 0.62,
+                "doMerge": true,
+                "assignMode": "blend",
+                "blendAmount": 1,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0
+            }
+        },
             {
                 "name": "Channel Mixer",
                 "config": {
@@ -3073,32 +3268,32 @@ export const builtInPresets = [
     {
         "name": "Dropped Textures",
         "config": [{
-                "name": "Affine Transform",
-                "config": {
-                    "BLENDMODE": "2",
-                    "COLORSPACE": "3",
-                    "BLEND_CHANNEL_MODE": "2",
-                    "blendAmount": {
-                        "value": 0.7,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 0.22481875237483465,
-                            "phase": 0,
-                            "scale": 0.11017443199999999,
-                            "offset": 0.204
-                        }
-                    },
-                    "chromaBoost": 1.4125,
-                    "angle": "0",
-                    "shearX": "0.1",
-                    "shearY": "-0.1",
-                    "scaleX": "1.1082016542681",
-                    "scaleY": "1.1082016542681",
-                    "translateX": 0,
-                    "translateY": "0",
-                    "wrap": false
-                }
-            },
+            "name": "Affine Transform",
+            "config": {
+                "BLENDMODE": "2",
+                "COLORSPACE": "3",
+                "BLEND_CHANNEL_MODE": "2",
+                "blendAmount": {
+                    "value": 0.7,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.22481875237483465,
+                        "phase": 0,
+                        "scale": 0.11017443199999999,
+                        "offset": 0.204
+                    }
+                },
+                "chromaBoost": 1.4125,
+                "angle": "0",
+                "shearX": "0.1",
+                "shearY": "-0.1",
+                "scaleX": "1.1082016542681",
+                "scaleY": "1.1082016542681",
+                "translateX": 0,
+                "translateY": "0",
+                "wrap": false
+            }
+        },
             {
                 "name": "2D Kernel",
                 "config": {
@@ -3162,20 +3357,20 @@ export const builtInPresets = [
     {
         "name": "Rain like Sand",
         "config": [{
-                "name": "Posterize",
-                "config": {
-                    "levels": 8,
-                    "mode": "2",
-                    "COLORSPACE": 0,
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 0.51,
-                    "mod": 0.5,
-                    "c1": true,
-                    "c2": true,
-                    "c3": true
-                }
-            },
+            "name": "Posterize",
+            "config": {
+                "levels": 8,
+                "mode": "2",
+                "COLORSPACE": 0,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.51,
+                "mod": 0.5,
+                "c1": true,
+                "c2": true,
+                "c3": true
+            }
+        },
             {
                 "name": "flow()",
                 "config": {
@@ -3202,41 +3397,41 @@ export const builtInPresets = [
     {
         "name": "Affix",
         "config": [{
-                "name": "Affine Transform",
-                "config": {
-                    "BLENDMODE": "11",
-                    "COLORSPACE": 0,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 1,
-                    "chromaBoost": 1,
-                    "angle": 0,
-                    "shearX": {
-                        "value": 0,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 4.5009999999999994,
-                            "phase": 0,
-                            "scale": -2.808,
-                            "offset": 0
-                        }
-                    },
-                    "shearY": 0,
-                    "scaleX": 1,
-                    "scaleY": {
-                        "value": 0.9754419586243441,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 4.5009999999999994,
-                            "phase": 0,
-                            "scale": 0.41680000000000006,
-                            "offset": 5.05
-                        }
-                    },
-                    "translateX": 0,
-                    "translateY": 0,
-                    "wrap": false
-                }
-            },
+            "name": "Affine Transform",
+            "config": {
+                "BLENDMODE": "11",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "angle": 0,
+                "shearX": {
+                    "value": 0,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 4.5009999999999994,
+                        "phase": 0,
+                        "scale": -2.808,
+                        "offset": 0
+                    }
+                },
+                "shearY": 0,
+                "scaleX": 1,
+                "scaleY": {
+                    "value": 0.9754419586243441,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 4.5009999999999994,
+                        "phase": 0,
+                        "scale": 0.41680000000000006,
+                        "offset": 5.05
+                    }
+                },
+                "translateX": 0,
+                "translateY": 0,
+                "wrap": false
+            }
+        },
             {
                 "name": "basis()",
                 "config": {
@@ -3397,42 +3592,42 @@ export const builtInPresets = [
     {
         "name": "Satflow",
         "config": [{
-                "name": "Affine Transform",
-                "config": {
-                    "BLENDMODE": "10",
-                    "COLORSPACE": 0,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 0.39,
-                    "chromaBoost": 1,
-                    "angle": {
-                        "value": 0,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 0.14375353127783347,
-                            "phase": 0,
-                            "scale": 2.1599999999999966,
-                            "offset": 0
-                        }
-                    },
-                    "shearX": 0,
-                    "shearY": 0,
-                    "scaleX": {
-                        "value": 0.9754419586243441,
-                        "mod": {
-                            "type": "none"
-                        }
-                    },
-                    "scaleY": {
-                        "value": 0.9754419586243441,
-                        "mod": {
-                            "type": "none"
-                        }
-                    },
-                    "translateX": 0,
-                    "translateY": 0,
-                    "wrap": true
-                }
-            },
+            "name": "Affine Transform",
+            "config": {
+                "BLENDMODE": "10",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.39,
+                "chromaBoost": 1,
+                "angle": {
+                    "value": 0,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.14375353127783347,
+                        "phase": 0,
+                        "scale": 2.1599999999999966,
+                        "offset": 0
+                    }
+                },
+                "shearX": 0,
+                "shearY": 0,
+                "scaleX": {
+                    "value": 0.9754419586243441,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "scaleY": {
+                    "value": 0.9754419586243441,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "translateX": 0,
+                "translateY": 0,
+                "wrap": true
+            }
+        },
             {
                 "name": "flow()",
                 "config": {
@@ -3486,85 +3681,85 @@ export const builtInPresets = [
     {
         "name": "Trapped in Ink",
         "config": [{
-                "name": "basis()",
-                "config": {
-                    "mix1": [
-                        0.68,
-                        0.55,
-                        0
+            "name": "basis()",
+            "config": {
+                "mix1": [
+                    0.68,
+                    0.55,
+                    0
+                ],
+                "mix2": [
+                    0.31,
+                    -0.35,
+                    -0.18
+                ],
+                "mix3": [
+                    -0.07,
+                    0,
+                    1
+                ],
+                "offset": [
+                    -0.13,
+                    0.12,
+                    0.07
+                ],
+                "base1": [
+                    0.42,
+                    0.71,
+                    0.08
+                ],
+                "base2": [
+                    0,
+                    1,
+                    0.33
+                ],
+                "base3": [
+                    0,
+                    0,
+                    1
+                ],
+                "base1Space": "1",
+                "base2Space": 0,
+                "base3Space": 0,
+                "CC_DEBUG_MODE": 0,
+                "CC_DEBUG_CHANNEL": 0,
+                "workSpace": 1,
+                "lastValidBasis": [
+                    [
+                        0.5067602388992434,
+                        0.8566661181391971,
+                        0.09652575979033208
                     ],
-                    "mix2": [
-                        0.31,
-                        -0.35,
-                        -0.18
+                    [
+                        0.5601234448666801,
+                        -0.41230055034520147,
+                        0.7185192987635943
                     ],
-                    "mix3": [
-                        -0.07,
-                        0,
-                        1
-                    ],
-                    "offset": [
-                        -0.13,
-                        0.12,
-                        0.07
-                    ],
-                    "base1": [
-                        0.42,
-                        0.71,
-                        0.08
-                    ],
-                    "base2": [
-                        0,
-                        1,
-                        0.33
-                    ],
-                    "base3": [
-                        0,
-                        0,
-                        1
-                    ],
-                    "base1Space": "1",
-                    "base2Space": 0,
-                    "base3Space": 0,
-                    "CC_DEBUG_MODE": 0,
-                    "CC_DEBUG_CHANNEL": 0,
-                    "workSpace": 1,
-                    "lastValidBasis": [
-                        [
-                            0.5067602388992434,
-                            0.8566661181391971,
-                            0.09652575979033208
-                        ],
-                        [
-                            0.5601234448666801,
-                            -0.41230055034520147,
-                            0.7185192987635943
-                        ],
-                        [
-                            -0.655328762363949,
-                            0.3100506704030211,
-                            0.6887763025839173
-                        ]
-                    ],
-                    "lastValidInverse": [
-                        [
-                            0.5067602388992432,
-                            0.5601234448666801,
-                            -0.655328762363949
-                        ],
-                        [
-                            0.8566661181391972,
-                            -0.41230055034520163,
-                            0.3100506704030214
-                        ],
-                        [
-                            0.09652575979033212,
-                            0.7185192987635941,
-                            0.6887763025839172
-                        ]
+                    [
+                        -0.655328762363949,
+                        0.3100506704030211,
+                        0.6887763025839173
                     ]
-                }
-            },
+                ],
+                "lastValidInverse": [
+                    [
+                        0.5067602388992432,
+                        0.5601234448666801,
+                        -0.655328762363949
+                    ],
+                    [
+                        0.8566661181391972,
+                        -0.41230055034520163,
+                        0.3100506704030214
+                    ],
+                    [
+                        0.09652575979033212,
+                        0.7185192987635941,
+                        0.6887763025839172
+                    ]
+                ]
+            }
+        },
             {
                 "name": "flow()",
                 "config": {
@@ -3603,64 +3798,64 @@ export const builtInPresets = [
     {
         "name": "Take Me On",
         "config": [{
-                "name": "field()",
-                "config": {
-                    "weights": [
-                        2,
-                        0,
-                        0.75,
-                        0,
-                        0,
-                        -0.09
-                    ],
-                    "FIELD_SIGNAL_COMPRESSION_KNEE": 0.75,
-                    "FIELD_SIGNAL_NORMALIZE": false,
-                    "FIELD_HUE_H": 0,
-                    "FIELD_HUE_WIDTH": 0.3,
-                    "FIELD_HUE_CHROMA_BOOST": 1,
-                    "FIELD_CHROMA_EXP": 1,
-                    "FIELD_LIGHT_CENTER": {
-                        "value": 0.48,
-                        "mod": {
-                            "type": "none"
-                        }
-                    },
-                    "FIELD_LIGHT_WIDTH": 0.6238,
-                    "FIELD_DOT_VECTOR": [
-                        1,
-                        0,
-                        0
-                    ],
-                    "FIELD_DISPLAY_MODE": "5",
-                    "blendAmount": 1,
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": 0,
-                    "FIELD_TINT_COLOR": [
-                        0.6,
-                        0.3,
-                        0.2
-                    ],
-                    "FIELD_EDGE_CENTER": 0.5,
-                    "FIELD_EDGE_WIDTH": 0.1,
-                    "FIELD_CHROMA_BOOST_MULT": 2.225,
-                    "FIELD_LIGHT_DIR": [
-                        0.25,
-                        0.75
-                    ],
-                    "FIELD_LIGHT_Z": 1.5,
-                    "FIELD_HUE1_CENTER": {
-                        "value": 0.195,
-                        "mod": {
-                            "type": "none"
-                        }
-                    },
-                    "FIELD_HUE1_WIDTH": 0.1,
-                    "FIELD_HUE2_CENTER": 0.8,
-                    "FIELD_HUE2_WIDTH": 0.1,
-                    "FIELD_HUE_GRAD_CHROMA_GAMMA": 1
-                }
-            },
+            "name": "field()",
+            "config": {
+                "weights": [
+                    2,
+                    0,
+                    0.75,
+                    0,
+                    0,
+                    -0.09
+                ],
+                "FIELD_SIGNAL_COMPRESSION_KNEE": 0.75,
+                "FIELD_SIGNAL_NORMALIZE": false,
+                "FIELD_HUE_H": 0,
+                "FIELD_HUE_WIDTH": 0.3,
+                "FIELD_HUE_CHROMA_BOOST": 1,
+                "FIELD_CHROMA_EXP": 1,
+                "FIELD_LIGHT_CENTER": {
+                    "value": 0.48,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "FIELD_LIGHT_WIDTH": 0.6238,
+                "FIELD_DOT_VECTOR": [
+                    1,
+                    0,
+                    0
+                ],
+                "FIELD_DISPLAY_MODE": "5",
+                "blendAmount": 1,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "FIELD_TINT_COLOR": [
+                    0.6,
+                    0.3,
+                    0.2
+                ],
+                "FIELD_EDGE_CENTER": 0.5,
+                "FIELD_EDGE_WIDTH": 0.1,
+                "FIELD_CHROMA_BOOST_MULT": 2.225,
+                "FIELD_LIGHT_DIR": [
+                    0.25,
+                    0.75
+                ],
+                "FIELD_LIGHT_Z": 1.5,
+                "FIELD_HUE1_CENTER": {
+                    "value": 0.195,
+                    "mod": {
+                        "type": "none"
+                    }
+                },
+                "FIELD_HUE1_WIDTH": 0.1,
+                "FIELD_HUE2_CENTER": 0.8,
+                "FIELD_HUE2_WIDTH": 0.1,
+                "FIELD_HUE_GRAD_CHROMA_GAMMA": 1
+            }
+        },
             {
                 "name": "flow()",
                 "config": {
@@ -3699,59 +3894,59 @@ export const builtInPresets = [
     {
         "name": "Light and Shadow",
         "config": [{
-                "name": "Noise Mixer",
-                "config": {
-                    "frequency": 9.563907508300666,
-                    "freqShift": 0.09,
-                    "tint": [
-                        1,
-                        1,
-                        1
-                    ],
-                    "seed": {
-                        "value": 1,
-                        "mod": {
-                            "type": "sine",
-                            "freq": 0.3,
-                            "phase": 0,
-                            "scale": 500,
-                            "offset": 249.5
-                        }
-                    },
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": 0,
-                    "components": [
-                        0,
-                        0.07,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0
-                    ],
-                    "blendAmount": 0.02,
-                    "colormap": "none",
-                    "threshold": 0,
-                    "cutoff": 1,
-                    "gate": 0,
-                    "burstThreshold": 0.1,
-                    "burstFreq": 100,
-                    "burstTheta": 0.52,
-                    "burstDTheta": 0,
-                    "ZONESHAPE": 2,
-                    "zoneCX": 0.5,
-                    "zoneSX": 0.6,
-                    "zoneCY": 0.5,
-                    "zoneSY": 0.6,
-                    "zoneEllipseN": 2,
-                    "zoneSoftness": 0.1,
-                    "zoneAngle": 0,
-                    "APPLY_MASK": false,
-                    "burstModType": "simplex"
-                }
+            "name": "Noise Mixer",
+            "config": {
+                "frequency": 9.563907508300666,
+                "freqShift": 0.09,
+                "tint": [
+                    1,
+                    1,
+                    1
+                ],
+                "seed": {
+                    "value": 1,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.3,
+                        "phase": 0,
+                        "scale": 500,
+                        "offset": 249.5
+                    }
+                },
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "components": [
+                    0,
+                    0.07,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                ],
+                "blendAmount": 0.02,
+                "colormap": "none",
+                "threshold": 0,
+                "cutoff": 1,
+                "gate": 0,
+                "burstThreshold": 0.1,
+                "burstFreq": 100,
+                "burstTheta": 0.52,
+                "burstDTheta": 0,
+                "ZONESHAPE": 2,
+                "zoneCX": 0.5,
+                "zoneSX": 0.6,
+                "zoneCY": 0.5,
+                "zoneSY": 0.6,
+                "zoneEllipseN": 2,
+                "zoneSoftness": 0.1,
+                "zoneAngle": 0,
+                "APPLY_MASK": false,
+                "burstModType": "simplex"
+            }
 
-            },
+        },
             {
                 "name": "Palette Synth",
                 "config": {
@@ -3796,46 +3991,46 @@ export const builtInPresets = [
     {
         "name": "Night: a Thousand Eyes",
         "config": [{
-                "name": "flow()",
-                "config": {
-                    "BLENDMODE": "10",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": "2",
-                    "blendAmount": 0.4,
-                    "warpStrength": {
-                        "value": 0.1,
-                        "mod": {
-                            "type": "impulse",
-                            "freq": 4.5009999999999994,
-                            "phase": 0,
-                            "scale": 1.2300000000000004,
-                            "offset": -0.33000000000000007
-                        }
-                    },
-                    "directionStrength": {
-                        "value": 6.550115783062797,
-                        "mod": {
-                            "type": "hold",
-                            "freq": 4.653966,
-                            "phase": 0,
-                            "scale": 0.6400000000000001,
-                            "offset": 10
-                        }
-                    },
-                    "u_directionChannel": 4,
-                    "magChannel": "1",
-                    "directionPolarity": false,
-                    "magPolarity": false,
-                    "threshLow": 0,
-                    "threshHigh": 1,
-                    "magGamma": 6.979888937669975,
-                    "kernelName": "gaussian",
-                    "kernelRadiusX": 1,
-                    "kernelRadiusY": 1,
-                    "kernelSoftness": 10,
-                    "chromaBoost": 1
-                }
-            },
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": "10",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": "2",
+                "blendAmount": 0.4,
+                "warpStrength": {
+                    "value": 0.1,
+                    "mod": {
+                        "type": "impulse",
+                        "freq": 4.5009999999999994,
+                        "phase": 0,
+                        "scale": 1.2300000000000004,
+                        "offset": -0.33000000000000007
+                    }
+                },
+                "directionStrength": {
+                    "value": 6.550115783062797,
+                    "mod": {
+                        "type": "hold",
+                        "freq": 4.653966,
+                        "phase": 0,
+                        "scale": 0.6400000000000001,
+                        "offset": 10
+                    }
+                },
+                "u_directionChannel": 4,
+                "magChannel": "1",
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0,
+                "threshHigh": 1,
+                "magGamma": 6.979888937669975,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 1,
+                "kernelRadiusY": 1,
+                "kernelSoftness": 10,
+                "chromaBoost": 1
+            }
+        },
             {
                 "name": "Delay Line",
                 "config": {
@@ -3876,38 +4071,38 @@ export const builtInPresets = [
     {
         "name": "Chromawoof",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0,
-                    "cycle": true,
-                    "cycleMode": "spatial",
-                    "hueShift": {
-                        "value": 2,
-                        "mod": {
-                            "type": "hold",
-                            "freq": 4.878915999999999,
-                            "phase": 0,
-                            "scale": 0.5158496080000001,
-                            "offset": 1
-                        }
-                    },
-                    "saturation": 100,
-                    "lightness": 48,
-                    "hueSpread": 4.230713735302785,
-                    "bleed": 0,
-                    "COLORSPACE": 0,
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 1,
-                    "bandingSteps": 0,
-                    "waveType": 0,
-                    "dutyCycle": 0.5,
-                    "originX": 0.5,
-                    "originY": 0.5,
-                    "spatialPattern": "radial",
-                    "blendTarget": "0"
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": {
+                    "value": 2,
+                    "mod": {
+                        "type": "hold",
+                        "freq": 4.878915999999999,
+                        "phase": 0,
+                        "scale": 0.5158496080000001,
+                        "offset": 1
+                    }
+                },
+                "saturation": 100,
+                "lightness": 48,
+                "hueSpread": 4.230713735302785,
+                "bleed": 0,
+                "COLORSPACE": 0,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "bandingSteps": 0,
+                "waveType": 0,
+                "dutyCycle": 0.5,
+                "originX": 0.5,
+                "originY": 0.5,
+                "spatialPattern": "radial",
+                "blendTarget": "0"
+            }
+        },
             {
                 "name": "Chromawave",
                 "config": {
@@ -3999,39 +4194,39 @@ export const builtInPresets = [
     {
         "name": "Chromasplash",
         "config": [{
-                "name": "Chromawave",
-                "config": {
-                    "threshold": 0,
-                    "cycle": true,
-                    "cycleMode": "spatial",
-                    "hueShift": {
-                        "value": 2,
-                        "mod": {
-                            "type": "hold",
-                            "freq": 4.878915999999999,
-                            "phase": 0,
-                            "scale": 0.5158496080000001,
-                            "offset": 1
-                        }
-                    },
-                    "saturation": 100,
-                    "lightness": 48,
-                    "hueSpread": 4.230713735302785,
-                    "bleed": 0,
-                    "COLORSPACE": 0,
-                    "BLENDMODE": "10",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "blendAmount": 0.6,
-                    "chromaBoost": 1,
-                    "bandingSteps": 0,
-                    "waveType": 0,
-                    "dutyCycle": 0.5,
-                    "originX": 0.5,
-                    "originY": 0.5,
-                    "spatialPattern": "radial",
-                    "blendTarget": "0"
-                }
-            },
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": {
+                    "value": 2,
+                    "mod": {
+                        "type": "hold",
+                        "freq": 4.878915999999999,
+                        "phase": 0,
+                        "scale": 0.5158496080000001,
+                        "offset": 1
+                    }
+                },
+                "saturation": 100,
+                "lightness": 48,
+                "hueSpread": 4.230713735302785,
+                "bleed": 0,
+                "COLORSPACE": 0,
+                "BLENDMODE": "10",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.6,
+                "chromaBoost": 1,
+                "bandingSteps": 0,
+                "waveType": 0,
+                "dutyCycle": 0.5,
+                "originX": 0.5,
+                "originY": 0.5,
+                "spatialPattern": "radial",
+                "blendTarget": "0"
+            }
+        },
             {
                 "name": "Chromawave",
                 "config": {
@@ -4209,37 +4404,37 @@ export const builtInPresets = [
     {
         "name": "Light-up Floor",
         "config": [{
-                "name": "Mirrorband",
-                "config": {
-                    "bandSize": 0.2,
-                    "orientation": 1,
-                    "mirrorRate": 1,
-                    "offset": 0.35,
-                    "noiseAmount": 0,
-                    "colorNoise": 0,
-                    "blendAmount": 0.57,
-                    "COLORSPACE": 0,
-                    "BLENDMODE": "10",
-                    "BLEND_CHANNEL_MODE": 0,
-                    "chromaBoost": 1,
-                    "seed": {
-                        "value": 258,
-                        "mod": {
-                            "type": "hold",
-                            "freq": 4.5009999999999994,
-                            "phase": 0,
-                            "scale": 16.000000000000004,
-                            "offset": 250
-                        }
-                    },
-                    "levels": 2,
-                    "rotationAmount": 0,
-                    "sBias": 0.5,
-                    "vBias": 0.86,
-                    "hue": 0,
-                    "colorBlend": "1"
-                }
-            },
+            "name": "Mirrorband",
+            "config": {
+                "bandSize": 0.2,
+                "orientation": 1,
+                "mirrorRate": 1,
+                "offset": 0.35,
+                "noiseAmount": 0,
+                "colorNoise": 0,
+                "blendAmount": 0.57,
+                "COLORSPACE": 0,
+                "BLENDMODE": "10",
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 1,
+                "seed": {
+                    "value": 258,
+                    "mod": {
+                        "type": "hold",
+                        "freq": 4.5009999999999994,
+                        "phase": 0,
+                        "scale": 16.000000000000004,
+                        "offset": 250
+                    }
+                },
+                "levels": 2,
+                "rotationAmount": 0,
+                "sBias": 0.5,
+                "vBias": 0.86,
+                "hue": 0,
+                "colorBlend": "1"
+            }
+        },
             {
                 "name": "flow()",
                 "config": {
@@ -4361,7 +4556,55 @@ export const builtInPresets = [
             }
         }]
     },
-{"name":"Phaser Barrage","config":[{"name":"Grid Pattern","config":{"lineWidth":{"value":22.164404157881304,"mod":{"type":"sine","freq":0.072,"phase":0,"scale":46.51,"offset":22.164404157881304}},"spacingFactor":{"value":1.2329961103921538,"mod":{"type":"sine","freq":0.098,"phase":0,"scale":0.36,"offset":1.2329961103921538}},"phaseX":0.3400000000000001,"phaseY":0.3400000000000001,"direction":"grid","mode":"saw","BLENDMODE":"1","BLEND_CHANNEL_MODE":0,"COLORSPACE":"3","blendAmount":0.75,"invert":false,"noiseScale":{"value":0.052000000000000005,"mod":{"type":"sine","freq":0.078,"phase":0,"scale":0,"offset":0.052000000000000005}},"noiseAmount":0.28,"skew":0.96,"lumaMod":-1.68,"lumaThreshold":0.58,"lumaSoftness":0,"channelPhase0":{"value":-0.48,"mod":{"type":"sine","freq":4.5009999999999994,"phase":0,"scale":-0.9359999999999999,"offset":0}},"channelPhase1":-0.29999999999999993,"channelPhase2":-0.38,"color":[0.29,0.43,0.68],"chromaBoost":0.9,"lumaAngle":0.02}}]},
+    {
+        "name": "Phaser Barrage",
+        "config": [{
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": {
+                    "value": 22.164404157881304,
+                    "mod": {"type": "sine", "freq": 0.072, "phase": 0, "scale": 46.51, "offset": 22.164404157881304}
+                },
+                "spacingFactor": {
+                    "value": 1.2329961103921538,
+                    "mod": {"type": "sine", "freq": 0.098, "phase": 0, "scale": 0.36, "offset": 1.2329961103921538}
+                },
+                "phaseX": 0.3400000000000001,
+                "phaseY": 0.3400000000000001,
+                "direction": "grid",
+                "mode": "saw",
+                "BLENDMODE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": "3",
+                "blendAmount": 0.75,
+                "invert": false,
+                "noiseScale": {
+                    "value": 0.052000000000000005,
+                    "mod": {"type": "sine", "freq": 0.078, "phase": 0, "scale": 0, "offset": 0.052000000000000005}
+                },
+                "noiseAmount": 0.28,
+                "skew": 0.96,
+                "lumaMod": -1.68,
+                "lumaThreshold": 0.58,
+                "lumaSoftness": 0,
+                "channelPhase0": {
+                    "value": -0.48,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 4.5009999999999994,
+                        "phase": 0,
+                        "scale": -0.9359999999999999,
+                        "offset": 0
+                    }
+                },
+                "channelPhase1": -0.29999999999999993,
+                "channelPhase2": -0.38,
+                "color": [0.29, 0.43, 0.68],
+                "chromaBoost": 0.9,
+                "lumaAngle": 0.02
+            }
+        }]
+    },
     {
         "name": "Furze",
         "config": [{
@@ -5273,25 +5516,1534 @@ export const builtInPresets = [
             }
         }]
     },
-    {"name":"Cutting In","config":[{"name":"Scribble","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"steps":5,"cellScale":7.2,"strokeWidth":2.5,"arcLength":1,"shadeLow":0,"shadeHigh":0.47,"falloff":0.27,"blendAmount":1,"paperOpacity":1,"scribbleOpacity":1,"paperColor":[0.96,0.95,0.92],"scribbleColor":[0.03,0.03,0.03],"jitter":6}},{"name":"2D Kernel","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"chromaBoost":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10}},{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"threshold":0.08,"tint":[0,0,0],"baseOpacity":1,"dilation":1,"chromaBoost":1}}]},
-    {"name":"First Impressions","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":-0.2,"mod":{"type":"none"}},"directionStrength":0.5,"directionChannel":5,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1,"u_directionChannel":4,"directionAngle":{"value":1.4765485471872,"mod":{"type":"saw","freq":0.1804814460139499,"phase":0,"scale":0.1947787445225675,"offset":1.5330972149518187}},"modAmount":0.42,"driverChannel":0,"modulatorChannel":"4","driverPolarity":false,"modulatorPolarity":false,"driverGamma":0.5650845800732875,"flatThreshold":false}},{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"threshold":0.13,"tint":[0,0,0],"baseOpacity":1,"dilation":1}},{"name":"Kuwahara","config":{"texelSizeX":2,"texelSizeY":4,"radius":7,"sharpness":4.15,"eccentricity":2.88,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":4}}]},
-    {"name":"Glitch Witch","config":[{"name":"Desync Tiles","config":{"seed":{"value":65,"mod":{"type":"saw","freq":0.099,"phase":0,"scale":0.32,"offset":65}},"tileCountX":5,"tileCountY":39,"offsetAmount":{"value":0.5105000000000001,"mod":{"type":"saw","freq":0.079,"phase":0,"scale":0.22,"offset":0.5105000000000001}},"blendAmount":{"value":0.8300000000000001,"mod":{"type":"fm-lfo","freq":0.097,"phase":0,"scale":0.37,"offset":0.8300000000000001}},"BLENDMODE":"7","COLORSPACE":4,"BLEND_CHANNEL_MODE":"2","chromaBoost":0.9}},{"name":"Edge Trace","config":{"threshold":0.3446,"softness":0.03,"dilation":0,"smoothing":0,"baseOpacity":{"value":0.5,"mod":{"type":"none"}},"tint":[0.2,0.87,0.12],"blendAmount":0.9,"BLENDMODE":5,"COLORSPACE":"3","BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}}]},
-{"name":"Not This Again","config":[{"name":"Chromawave","config":{"threshold":0.3,"cycle":true,"cycleMode":"spatial","hueShift":{"value":0.79,"mod":{"type":"none"}},"saturation":100,"lightness":48,"hueSpread":{"value":3.4224554306374966,"mod":{"type":"none"}},"bleed":0,"COLORSPACE":"4","BLENDMODE":"1","BLEND_CHANNEL_MODE":0,"blendAmount":0.7,"chromaBoost":1,"bandingSteps":1,"waveType":"sine","dutyCycle":0.5,"originX":0.26,"originY":0.37,"spatialPattern":"radial","bandHue":0,"blendTarget":"0"}},{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":"1","BLEND_CHANNEL_MODE":"1","blendAmount":0.26,"threshold":0.13,"tint":[0,0,0],"chromaBoost":1,"baseOpacity":1}},{"name":"Morphology","config":{"radius":2,"operation":0,"blendAmount":0.18,"BLENDMODE":1,"COLORSPACE":"1","BLEND_CHANNEL_MODE":"1"}},{"name":"Chromawave","config":{"threshold":0.45,"cycle":true,"cycleMode":"spatial","hueShift":0.54,"saturation":100,"lightness":50,"hueSpread":3.5297829383277772,"bleed":0,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":0.16,"chromaBoost":1,"bandingSteps":0,"waveType":0,"dutyCycle":0.5,"originX":0.5,"originY":0.5,"spatialPattern":"angle","bandHue":0}}]},
-{"name":"Old Linen","config":[{"name":"Unsharp","config":{"strength":2.28,"threshold":0.13,"knee":0.168,"kernelName":"gabor","kernelRadiusX":12,"kernelRadiusY":26,"kernelSoftness":16.39,"blendAmount":0.9775,"BLENDMODE":9,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9775}},{"name":"Scribble","config":{"cellScale":5.1,"strokeWidth":0.8,"arcLength":{"value":1.4,"mod":{"type":"none"}},"shadeLow":0,"shadeHigh":0.44,"falloff":0.16,"jitter":{"value":3.3,"mod":{"type":"none"}},"scribbleOpacity":1,"paperOpacity":0,"scribbleColor":[0,0,0],"paperColor":[1,1,1],"blendAmount":1,"BLENDMODE":"1","COLORSPACE":2,"BLEND_CHANNEL_MODE":"1","chromaBoost":0.9}}]},
-    {"name":"Ordinary Things","config":[{"name":"flow()","config":{"warpStrength":-0.25,"threshLow":0.09,"threshHigh":0.9595,"magGamma":0.897144494663181,"magChannel":0,"magPolarity":true,"directionStrength":0.5314777842077156,"directionChannel":4,"directionPolarity":false,"kernelRadiusX":4,"kernelRadiusY":6,"kernelSoftness":{"value":13.540000000000001,"mod":{"type":"walk","freq":0.30000000000000004,"phase":0,"scale":8.67,"offset":13.540000000000001,"_walkValue":0.39052608321383037,"_lastUpdate":1644.2399999987465}},"kernelName":"saw","blendAmount":0.48,"BLENDMODE":1,"COLORSPACE":"1","BLEND_CHANNEL_MODE":"1","chromaBoost":0.9}},{"name":"Unsharp","config":{"strength":1.25,"threshold":0.06,"knee":0.05,"kernelName":"box","kernelRadiusX":7,"kernelRadiusY":7,"kernelSoftness":6.605,"blendAmount":1,"BLENDMODE":"10","COLORSPACE":0,"BLEND_CHANNEL_MODE":"0","chromaBoost":0.9}}]},
-    {"name":"Painted Over","config":[{"name":"Auto Levels","config":{"mode":"luma","paramA":0,"paramB":70}},{"name":"Chromawave","config":{"threshold":0.2,"cycle":true,"cycleMode":"spatial","hueShift":{"value":0.79,"mod":{"type":"none"}},"saturation":100,"lightness":48,"hueSpread":{"value":3.4224554306374966,"mod":{"type":"none"}},"bleed":0,"COLORSPACE":"4","BLENDMODE":"1","BLEND_CHANNEL_MODE":0,"blendAmount":0.7,"chromaBoost":1,"bandingSteps":1,"waveType":"sine","dutyCycle":0.5,"originX":0.26,"originY":0.37,"spatialPattern":"radial","bandHue":0,"blendTarget":"0"}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":-0.65,"mod":{"type":"none"}},"directionStrength":0.5,"directionChannel":5,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":0.7,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1,"u_directionChannel":4,"directionAngle":{"value":1.4765485471872,"mod":{"type":"saw","freq":0.1804814460139499,"phase":0,"scale":0.1947787445225675,"offset":1.5330972149518187}},"modAmount":0.42,"driverChannel":0,"modulatorChannel":"4","driverPolarity":false,"modulatorPolarity":false,"driverGamma":0.5650845800732875,"flatThreshold":false}},{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"threshold":0.12,"tint":[0,0,0],"baseOpacity":1,"dilation":2,"chromaBoost":1}},{"name":"Chromawave","config":{"threshold":0.5,"cycle":true,"cycleMode":"spatial","hueShift":0.59,"saturation":100,"lightness":50,"hueSpread":3.5297829383277772,"bleed":0.26,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":0.32,"chromaBoost":1,"bandingSteps":0,"waveType":0,"dutyCycle":0.5,"originX":0.5,"originY":0.5,"spatialPattern":"angle","bandHue":0}},{"name":"Kuwahara","config":{"texelSizeX":2,"texelSizeY":4,"radius":11,"sharpness":2.33,"eccentricity":0.18,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":3}},{"name":"Exposure","config":{"exposure":0.3}}]},
-{"name":"Reassembly","config":[{"name":"Grid Pattern","config":{"lineWidth":72.27200991403605,"spacingFactor":1.173186268412274,"phaseX":{"value":-0.14,"mod":{"type":"sine","freq":0.084,"phase":0,"scale":0.12,"offset":-0.14}},"phaseY":-0.6799999999999999,"skew":0.020000000000000018,"noiseScale":{"value":0.054,"mod":{"type":"saw","freq":0.034,"phase":0,"scale":0.02,"offset":0.054}},"noiseAmount":0.89,"direction":"grid","mode":"tri","lumaThreshold":0.125,"lumaAngle":-0.12,"lumaMod":0.04,"invert":false,"backgroundOpacity":0.58,"color":[0.01,0.02,0.74],"backgroundColor":[0.5,0.03,0.87],"channelPhase0":{"value":-0.8,"mod":{"type":"sine","freq":0.056,"phase":0,"scale":0.93,"offset":-0.8}},"channelPhase1":-0.29,"channelPhase2":0.34,"blendAmount":0.56,"BLENDMODE":"9","COLORSPACE":0,"BLEND_CHANNEL_MODE":"0","chromaBoost":0.9}},{"name":"Vignette","config":{"strength":0.806,"radius":{"value":0.8680000000000001,"mod":{"type":"walk","freq":0.249,"phase":0,"scale":0.08,"offset":0.8680000000000001,"_walkValue":0.8563014781915129,"_lastUpdate":1410.2699999989593}},"softness":0.208,"roundness":{"value":0.25,"mod":{"type":"triangle","freq":0.082,"phase":0,"scale":0.44,"offset":0.25}},"blendAmount":0.8525,"BLENDMODE":9,"COLORSPACE":2,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}},{"name":"Mirrorband","config":{"bandSize":0.2942,"orientation":0,"mirrorRate":{"value":0.73,"mod":{"type":"saw","freq":0.116,"phase":0,"scale":0.34,"offset":0.73}},"offset":0.7,"seed":{"value":265,"mod":{"type":"impulse-ease","freq":0.195,"phase":0,"scale":253.065,"offset":265}},"colorMode":2,"colorBlend":0,"hue":0.99,"sBias":{"value":-0.305,"mod":{"type":"triangle","freq":0.102,"phase":0,"scale":0.38,"offset":-0.305}},"vBias":0.72,"levels":2,"rotationAmount":0.12566370614359174,"blendAmount":{"value":0.67,"mod":{"type":"hold","freq":0.07,"phase":0,"scale":0.12,"offset":0.67}},"BLENDMODE":7,"COLORSPACE":8,"BLEND_CHANNEL_MODE":1,"chromaBoost":0.9}},{"name":"Chromatic Aberration","config":{"rdx":-46,"rdy":44,"gdx":{"value":21,"mod":{"type":"sine","freq":0.044,"phase":0,"scale":0.01,"offset":21}},"gdy":23,"bdx":42,"bdy":-34,"blendAmount":{"value":0.47000000000000003,"mod":{"type":"sine","freq":0.03,"phase":0,"scale":0.44,"offset":0.47000000000000003}},"BLENDMODE":2,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}}]},
-{"name":"Riso 1","config":[{"name":"Dither","config":{"scale":1408.239025915631,"tint":[1,1,1],"seed":134,"levels":8,"BLENDMODE":"1","BLEND_CHANNEL_MODE":"0","COLORSPACE":"0","chromaBoost":1,"components":[0,0,0,0.44,0,1,0],"blendAmount":1,"colormap":"none","USE_STRUCTURE":false,"edgeStrength":0}},{"name":"Duotone","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"darkColor":[0,0,0.2],"lightColor":[1,0.4,0.2],"gamma":1,"shadowPoint":0.2,"highlightPoint":0.8}}]},
-    {"name":"Sketchup","config":[{"name":"Threshold","config":{"blendAmount":0.52,"COLORSPACE":"4","BLENDMODE":"9","BLEND_CHANNEL_MODE":0,"thresholdMode":"3","chromaBoost":1,"target":1,"threshWidth":1,"binarize":true,"flip":false}},{"name":"Engrave","config":{"BLENDMODE":4,"COLORSPACE":3,"BLEND_CHANNEL_MODE":0,"blendAmount":{"value":0.85,"mod":{"type":"none"}},"chromaBoost":{"value":0.5750000000000001,"mod":{"type":"sine","freq":0.051,"phase":0,"scale":0.16,"offset":0.9}},"brightness":1.1925,"contrast":1.3,"scale":2.19,"jitter":0.095,"inkColor":[0.2,0.1,0],"paperColor":[0.96,0.95,0.92],"inkOpacity":1,"paperOpacity":{"value":0.688,"mod":{"type":"impulse-ease","freq":0.168,"phase":0,"scale":0.06,"offset":0.688}},"lineWidth":0.0187,"lineWidthSensitivity":1.52,"lineSpacing":20.35,"lineSpacingSensitivity":{"value":0.015,"mod":{"type":"none"}},"angle":35,"USE_STRUCTURE":true,"anisoDrag":-0.84}}]},
-{"name":"Sublimating","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":"1","COLORSPACE":"1","blendAmount":0.48,"warpStrength":-0.05,"directionStrength":0.5129404142770122,"directionChannel":"0","magChannel":"0","directionPolarity":false,"magPolarity":true,"threshLow":0,"threshHigh":0.63,"magGamma":0.897144494663181,"kernelName":"saw","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":{"value":5.655,"mod":{"type":"none"}},"chromaBoost":0.9}},{"name":"Edge Trace","config":{"BLENDMODE":"1","COLORSPACE":"7","BLEND_CHANNEL_MODE":"1","blendAmount":1,"threshold":0.09,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0}},{"name":"Kuwahara","config":{"texelSizeX":2,"texelSizeY":4,"radius":13,"sharpness":2.5,"eccentricity":4.8,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":7}}]},    {"name":"This Again","config":[{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"threshold":0.35,"tint":[0,0,0],"chromaBoost":1,"baseOpacity":1}},{"name":"Engrave","config":{"BLENDMODE":1,"COLORSPACE":"1","BLEND_CHANNEL_MODE":"1","blendAmount":1,"chromaBoost":1,"brightness":1.01,"contrast":2,"scale":2,"jitter":0.25,"inkColor":[0,0,0],"paperColor":[0.96,0.95,0.92],"inkOpacity":1,"paperOpacity":1,"lineWidth":0.13,"lineWidthSensitivity":0,"lineSpacing":18,"lineSpacingSensitivity":0,"angle":25,"USE_STRUCTURE":false,"anisoDrag":0}}]},
-    {"name":"To Pieces","config":[{"name":"Structure Flow","config":{"magnitude":39.75,"anisoDrag":12.5,"angle":62,"CALCULATE_MODE":"1","useKernel":true,"kernelRadius":4,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"texelSizeX":1,"texelSizeY":3}},{"name":"Unsharp","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"chromaBoost":1,"kernelName":"sobel1d","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"strength":0.5,"threshold":0.05,"knee":0.01}},{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"threshold":0.21,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0}}]},
-    {"name":"Underlying It","config":[{"name":"Delay Line","config":{"delay":{"value":50,"mod":{"type":"sine","freq":0.114,"phase":0,"scale":33.41,"offset":50}},"density":{"value":4.15,"mod":{"type":"triangle","freq":0.051,"phase":0,"scale":2.11,"offset":4.15}},"window":"ring","falloff":"verticalBias","jitter":0.44,"angle":39.599999999999994,"shearX":{"value":3.9000000000000004,"mod":{"type":"sine","freq":0.106,"phase":0,"scale":1.27,"offset":3.9000000000000004}},"shearY":0.20000000000000018,"scaleX":2.594,"scaleY":1.608,"blendAmount":0.75,"BLENDMODE":1,"COLORSPACE":8,"BLEND_CHANNEL_MODE":0,"chromaBoost":{"value":0.925,"mod":{"type":"triangle","freq":0.047,"phase":0,"scale":0.82,"offset":0.9500000000000001}}}},{"name":"Solarize","config":{"threshold":0.6560000000000001,"strength":0.806,"softness":{"value":0.046,"mod":{"type":"saw","freq":0.048,"phase":0,"scale":0.04,"offset":0.046}}}},{"name":"Colorshred","config":{"mode":0,"density":0.29500000000000004,"chromaThreshold":{"value":0.295,"mod":{"type":"fm-lfo","freq":0.086,"phase":0,"scale":0.1,"offset":0.295}},"INVERT_CHROMA_THRESHOLD":true}},{"name":"Bloom","config":{"bloomThreshold":0.12,"bloomSoftness":{"value":0.68,"mod":{"type":"sine","freq":0.106,"phase":0,"scale":0.08,"offset":0.68}},"bloomStrength":2.4899999999999998,"kernelName":"exponential","kernelRadius":24,"kernelSoftness":6.51,"BLOOM_MODE":1,"chromaOffset":[-0.5999999999999996,1.8000000000000007,-0.5999999999999996],"BLOOM_CHROMA_TAIL":false,"blendAmount":0.73,"BLENDMODE":1,"COLORSPACE":3,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}}]},
-    {"name":"Vaporware","config":[{"name":"Grid Pattern","config":{"lineWidth":8.336013078992796,"spacingFactor":1.1244303968880187,"phaseX":0,"phaseY":0,"direction":"grid","mode":"binary","BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"invert":false,"noiseScale":0.01,"noiseAmount":0,"skew":0,"lumaMod":-0.84,"lumaThreshold":0.315,"lumaSoftness":0,"channelPhase0":0,"channelPhase1":0,"channelPhase2":0,"color":[0.91,0.52,1],"chromaBoost":1,"lumaAngle":-0.26,"backgroundOpacity":1,"backgroundColor":[0,0,0]}},{"name":"Exposure","config":{"exposure":0.35}}]},
-    {"name":"Velantia","config":[{"name":"Colorshred","config":{"mode":1,"density":{"value":0.10750000000000001,"mod":{"type":"triangle","freq":0.097,"phase":0,"scale":0.23,"offset":0.10750000000000001}},"chromaThreshold":{"value":0.47,"mod":{"type":"triangle","freq":0.048,"phase":0,"scale":0.07,"offset":0.47}},"INVERT_CHROMA_THRESHOLD":true}},{"name":"Polar Transform","config":{"POLAR_MODE":1,"centerX":0.58,"centerY":0.75,"angleOffset":{"value":0,"mod":{"type":"hold","freq":0.107,"phase":0,"scale":13.43,"offset":0}},"radialScale":{"value":0.308,"mod":{"type":"walk","freq":0.20700000000000002,"phase":0,"scale":0.14,"offset":0.308,"_walkValue":0.01574520116459288,"_lastUpdate":108.42000000000334}},"angularScale":1.3599999999999999,"blendAmount":0.75,"BLENDMODE":1,"BLEND_CHANNEL_MODE":1,"COLORSPACE":8,"chromaBoost":{"value":1.5,"mod":{"type":"sine","freq":0.037,"phase":0,"scale":0.68,"offset":0.901}}}},{"name":"Colormap","config":{"colormap":"glacier","chromaBoost":{"value":0.6000000000000001,"mod":{"type":"walk","freq":0.20700000000000002,"phase":0,"scale":0.51,"offset":0.9085,"_walkValue":0.9915819229937587,"_lastUpdate":108.42000000000334}},"reverse":true,"blendAmount":{"value":0.9085,"mod":{"type":"impulse-ease","freq":0.354,"phase":0,"scale":0.045,"offset":0.9085}},"BLENDMODE":4,"COLORSPACE":5,"BLEND_CHANNEL_MODE":0}}]},
-    {"name":"Voidstorm","config":[{"name":"Perlin Distort","config":{"seed":315,"depth":{"value":0.47200000000000003,"mod":{"type":"hold","freq":0.033,"phase":0,"scale":0.2,"offset":0.47200000000000003}},"freqX":{"value":34.61890151356037,"mod":{"type":"triangle","freq":0.036,"phase":0,"scale":1.39,"offset":34.61890151356037}},"freqY":36.81197441014003,"pitchX":-0.6799999999999999,"pitchY":1.52,"rate":1.9444826721501687,"rateDrive":{"value":0.29,"mod":{"type":"impulse-ease","freq":0.14100000000000001,"phase":0,"scale":0.615,"offset":0.29}},"phase":[0.28,0.06],"fuzz":0,"noiseMode":"classic","boundMode":"clamp","clampScale":0.75,"fc":[19.240000000000002,2.52,16.77],"reps":[4.42,5.18],"blendAmount":0.35,"BLENDMODE":9,"COLORSPACE":3,"BLEND_CHANNEL_MODE":3,"chromaBoost":0.9}},{"name":"Vignette","config":{"strength":0.8200000000000001,"radius":{"value":0.43600000000000005,"mod":{"type":"triangle","freq":0.119,"phase":0,"scale":0.27,"offset":0.43600000000000005}},"softness":0.1387,"roundness":0.5,"blendAmount":0.94,"BLENDMODE":10,"COLORSPACE":8,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.94}},{"name":"Palette Synth","config":{"paletteSize":{"value":35.370000000000005,"mod":{"type":"sine","freq":0.095,"phase":0,"scale":8.34,"offset":35.370000000000005}},"deltaL":28.729999999999997,"gammaC":1.104,"blockSize":4,"seed":380,"selectWeights":[0.2,4.55,1.9500000000000002,1.55],"showPalette":"none","assignMode":"blend","lumaWeight":2.6479999999999997,"chromaWeight":-0.2,"hueWeight":0.696,"blendK":4,"softness":0.78,"blendAmount":0.35,"BLENDMODE":3,"COLORSPACE":7,"BLEND_CHANNEL_MODE":0,"chromaBoost":{"value":2,"mod":{"type":"walk","freq":0.30000000000000004,"phase":0,"scale":0.47,"offset":0.9,"_walkValue":0.756858572126094,"_lastUpdate":1816.4699999985899}},"cycleOffset":0,"exportPalette":[[0,1.110836971404579,12.03334680307528],[0,-2.3551356172856033,1.161524650486906],[0,-1.4611181137067957,0.7193118215484466],[0,-0.7531642134510833,0.3040427689392486],[0,-1.6770308794716455,1.0588210490577188],[0,-15.00722322272418,13.132614938864222],[0,-0.3674032092473155,0.16174702260765964],[0,-3.358444386680822,2.1733074510230757],[0.353271484375,-0.3674032092473155,0.16174702260765964],[0.634765625,-0.7531642134510833,0.3040427689392486],[1.390625,-1.4611181137067957,0.7193118215484466],[1.775390625,-1.6770308794716455,1.0588210490577188],[1.9443359375,-2.3551356172856033,1.161524650486906],[3.619140625,-3.358444386680822,2.1733074510230757],[12.332500000000003,-26.54418049598024,10.428070909135089],[20.4375,1.110836971404579,12.03334680307528],[26.176250000000003,-27.483586973794157,17.93162941576143],[28.46875,-15.00722322272418,13.132614938864222],[29.083271484374997,-0.3674032092473155,0.16174702260765964],[29.364765624999997,-0.7531642134510833,0.3040427689392486],[30.120624999999997,-1.4611181137067957,0.7193118215484466],[30.505390624999997,-1.6770308794716455,1.0588210490577188],[30.674335937499997,-2.3551356172856033,1.161524650486906],[32.349140625,-3.358444386680822,2.1733074510230757],[41.0625,-26.54418049598024,10.428070909135089],[49.1675,1.110836971404579,12.03334680307528],[54.90625,-27.483586973794157,17.93162941576143],[57.19875,-15.00722322272418,13.132614938864222],[69.79249999999999,-26.54418049598024,10.428070909135089],[83.63624999999999,-27.483586973794157,17.93162941576143]]}}]},
-    {"name":"Wire Print","config":[{"name":"Engrave","config":{"BLENDMODE":"5","COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"brightness":0.86,"contrast":3.02,"scale":2.97,"jitter":0.5,"inkColor":[0.2,0.1,0],"paperColor":[0.96,0.95,0.92],"inkOpacity":1,"paperOpacity":1,"lineWidth":0.07,"lineWidthSensitivity":1.48,"lineSpacing":18,"lineSpacingSensitivity":0.03,"angle":25,"USE_STRUCTURE":false,"anisoDrag":0}},{"name":"Morphology","config":{"radius":3,"operation":"2","blendAmount":1,"BLENDMODE":"9","COLORSPACE":0,"BLEND_CHANNEL_MODE":0}}]},
-    {"name":"Scruff","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":0.4,"directionStrength":1.2612822356657163,"directionChannel":"1","magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":0.71,"magGamma":4.152436164530098,"kernelName":"box","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1}},{"name":"Scribble","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"steps":5,"cellScale":5.8,"strokeWidth":1.1,"arcLength":1.4,"shadeLow":0,"shadeHigh":0.39,"falloff":0.33,"blendAmount":1,"paperOpacity":0,"scribbleOpacity":1,"paperColor":[0.96,0.95,0.92],"scribbleColor":[0.03,0.03,0.03],"jitter":1.5}}]},
-    {"name":"Coming Down","config":[{"name":"Contour Synth","config":{"freq":2.1,"freqScale":8,"phaseScale":6.317385385715138,"phaseOff":{"value":-5,"mod":{"type":"sine","freq":0.037409936295517,"phase":0,"scale":-168.48,"offset":0}},"blendAmount":0.32,"BLENDMODE":"9","BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"chromaBoost":1,"waveform":"Sine","spatialWaveform":"None"}},{"name":"Triangle","config":{"BLENDMODE":"9","COLORSPACE":"1","BLEND_CHANNEL_MODE":0,"blendAmount":0.84,"scale":0.5,"ITERATIONS":5,"COLORING_MODE":"0","depth":1,"zoom":{"value":0.20710835297884267,"mod":{"type":"none"}},"spin":{"value":141,"mod":{"type":"walk","freq":0.10399662158277319,"phase":0,"scale":23.87718,"offset":0,"_walkValue":0.9434729831680929,"_lastUpdate":2077.349999998575}},"chromaGamma":1,"startHue":0.5,"hueSpacing":3.08,"hueBleed":0,"curveStrength":{"value":0,"mod":{"type":"none"}},"curveDirection":73}}]},
-    {"name":"We're Looking","config":[{"name":"Triangle", "config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"scale":0.51,"ITERATIONS":3,"COLORING_MODE":0,"depth":1,"zoom":0.492,"spin":161,"chromaGamma":1,"startHue":0.5,"hueSpacing":0.5,"hueBleed":0}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":0.9,"mod":{"type":"sine","freq":0.031242767683277023,"phase":0,"scale":-0.37994787999999957,"offset":0}},"directionStrength":0.5,"directionChannel":5,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1.982169580783527,"kernelName":"gaussian","kernelRadiusX":4,"kernelRadiusY":4,"kernelSoftness":10,"chromaBoost":1,"u_directionChannel":4,"directionAngle":{"value":1.4765485471872,"mod":{"type":"saw","freq":0.1804814460139499,"phase":0,"scale":0.1947787445225675,"offset":1.5330972149518187}},"modAmount":0.42,"driverChannel":0,"modulatorChannel":"4","driverPolarity":false,"modulatorPolarity":false,"driverGamma":0.5650845800732875,"flatThreshold":false}}]},
-    {"name":"Vaporware 2","config":[{"name":"Grid Pattern","config":{"lineWidth":8.336013078992796,"spacingFactor":1.1244303968880187,"phaseX":0,"phaseY":0,"direction":"grid","mode":"binary","BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"invert":false,"noiseScale":0.01,"noiseAmount":0,"skew":0,"lumaMod":-0.84,"lumaThreshold":0.27,"lumaSoftness":0,"channelPhase0":0,"channelPhase1":0,"channelPhase2":0,"color":[0.91,0.52,1],"chromaBoost":1,"lumaAngle":-0.155,"backgroundOpacity":0.78,"backgroundColor":[0,0,0]}},{"name":"Exposure","config":{"exposure":0.45}}]}
+    {
+        "name": "Cutting In",
+        "config": [{
+            "name": "Scribble",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "steps": 5,
+                "cellScale": 7.2,
+                "strokeWidth": 2.5,
+                "arcLength": 1,
+                "shadeLow": 0,
+                "shadeHigh": 0.47,
+                "falloff": 0.27,
+                "blendAmount": 1,
+                "paperOpacity": 1,
+                "scribbleOpacity": 1,
+                "paperColor": [0.96, 0.95, 0.92],
+                "scribbleColor": [0.03, 0.03, 0.03],
+                "jitter": 6
+            }
+        }, {
+            "name": "2D Kernel",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "threshold": 0.08,
+                "tint": [0, 0, 0],
+                "baseOpacity": 1,
+                "dilation": 1,
+                "chromaBoost": 1
+            }
+        }]
+    },
+    {
+        "name": "First Impressions",
+        "config": [{
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "warpStrength": {"value": -0.2, "mod": {"type": "none"}},
+                "directionStrength": 0.5,
+                "directionChannel": 5,
+                "magChannel": 0,
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0,
+                "threshHigh": 1,
+                "magGamma": 1,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10,
+                "chromaBoost": 1,
+                "u_directionChannel": 4,
+                "directionAngle": {
+                    "value": 1.4765485471872,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.1804814460139499,
+                        "phase": 0,
+                        "scale": 0.1947787445225675,
+                        "offset": 1.5330972149518187
+                    }
+                },
+                "modAmount": 0.42,
+                "driverChannel": 0,
+                "modulatorChannel": "4",
+                "driverPolarity": false,
+                "modulatorPolarity": false,
+                "driverGamma": 0.5650845800732875,
+                "flatThreshold": false
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "threshold": 0.13,
+                "tint": [0, 0, 0],
+                "baseOpacity": 1,
+                "dilation": 1
+            }
+        }, {
+            "name": "Kuwahara",
+            "config": {
+                "texelSizeX": 2,
+                "texelSizeY": 4,
+                "radius": 7,
+                "sharpness": 4.15,
+                "eccentricity": 2.88,
+                "useKernel": true,
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "kernelRadius": 4
+            }
+        }]
+    },
+    {
+        "name": "Glitch Witch",
+        "config": [{
+            "name": "Desync Tiles",
+            "config": {
+                "seed": {
+                    "value": 65,
+                    "mod": {"type": "saw", "freq": 0.099, "phase": 0, "scale": 0.32, "offset": 65}
+                },
+                "tileCountX": 5,
+                "tileCountY": 39,
+                "offsetAmount": {
+                    "value": 0.5105000000000001,
+                    "mod": {"type": "saw", "freq": 0.079, "phase": 0, "scale": 0.22, "offset": 0.5105000000000001}
+                },
+                "blendAmount": {
+                    "value": 0.8300000000000001,
+                    "mod": {"type": "fm-lfo", "freq": 0.097, "phase": 0, "scale": 0.37, "offset": 0.8300000000000001}
+                },
+                "BLENDMODE": "7",
+                "COLORSPACE": 4,
+                "BLEND_CHANNEL_MODE": "2",
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "threshold": 0.3446,
+                "softness": 0.03,
+                "dilation": 0,
+                "smoothing": 0,
+                "baseOpacity": {"value": 0.5, "mod": {"type": "none"}},
+                "tint": [0.2, 0.87, 0.12],
+                "blendAmount": 0.9,
+                "BLENDMODE": 5,
+                "COLORSPACE": "3",
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }]
+    },
+    {
+        "name": "Not This Again",
+        "config": [{
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.3,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": {"value": 0.79, "mod": {"type": "none"}},
+                "saturation": 100,
+                "lightness": 48,
+                "hueSpread": {"value": 3.4224554306374966, "mod": {"type": "none"}},
+                "bleed": 0,
+                "COLORSPACE": "4",
+                "BLENDMODE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.7,
+                "chromaBoost": 1,
+                "bandingSteps": 1,
+                "waveType": "sine",
+                "dutyCycle": 0.5,
+                "originX": 0.26,
+                "originY": 0.37,
+                "spatialPattern": "radial",
+                "bandHue": 0,
+                "blendTarget": "0"
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": "1",
+                "BLEND_CHANNEL_MODE": "1",
+                "blendAmount": 0.26,
+                "threshold": 0.13,
+                "tint": [0, 0, 0],
+                "chromaBoost": 1,
+                "baseOpacity": 1
+            }
+        }, {
+            "name": "Morphology",
+            "config": {
+                "radius": 2,
+                "operation": 0,
+                "blendAmount": 0.18,
+                "BLENDMODE": 1,
+                "COLORSPACE": "1",
+                "BLEND_CHANNEL_MODE": "1"
+            }
+        }, {
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.45,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": 0.54,
+                "saturation": 100,
+                "lightness": 50,
+                "hueSpread": 3.5297829383277772,
+                "bleed": 0,
+                "COLORSPACE": 0,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.16,
+                "chromaBoost": 1,
+                "bandingSteps": 0,
+                "waveType": 0,
+                "dutyCycle": 0.5,
+                "originX": 0.5,
+                "originY": 0.5,
+                "spatialPattern": "angle",
+                "bandHue": 0
+            }
+        }]
+    },
+    {
+        "name": "Old Linen",
+        "config": [{
+            "name": "Unsharp",
+            "config": {
+                "strength": 2.28,
+                "threshold": 0.13,
+                "knee": 0.168,
+                "kernelName": "gabor",
+                "kernelRadiusX": 12,
+                "kernelRadiusY": 26,
+                "kernelSoftness": 16.39,
+                "blendAmount": 0.9775,
+                "BLENDMODE": 9,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9775
+            }
+        }, {
+            "name": "Scribble",
+            "config": {
+                "cellScale": 5.1,
+                "strokeWidth": 0.8,
+                "arcLength": {"value": 1.4, "mod": {"type": "none"}},
+                "shadeLow": 0,
+                "shadeHigh": 0.44,
+                "falloff": 0.16,
+                "jitter": {"value": 3.3, "mod": {"type": "none"}},
+                "scribbleOpacity": 1,
+                "paperOpacity": 0,
+                "scribbleColor": [0, 0, 0],
+                "paperColor": [1, 1, 1],
+                "blendAmount": 1,
+                "BLENDMODE": "1",
+                "COLORSPACE": 2,
+                "BLEND_CHANNEL_MODE": "1",
+                "chromaBoost": 0.9
+            }
+        }]
+    },
+    {
+        "name": "Ordinary Things",
+        "config": [{
+            "name": "flow()",
+            "config": {
+                "warpStrength": -0.25,
+                "threshLow": 0.09,
+                "threshHigh": 0.9595,
+                "magGamma": 0.897144494663181,
+                "magChannel": 0,
+                "magPolarity": true,
+                "directionStrength": 0.5314777842077156,
+                "directionChannel": 4,
+                "directionPolarity": false,
+                "kernelRadiusX": 4,
+                "kernelRadiusY": 6,
+                "kernelSoftness": {
+                    "value": 13.540000000000001,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.30000000000000004,
+                        "phase": 0,
+                        "scale": 8.67,
+                        "offset": 13.540000000000001,
+                        "_walkValue": 0.39052608321383037,
+                        "_lastUpdate": 1644.2399999987465
+                    }
+                },
+                "kernelName": "saw",
+                "blendAmount": 0.48,
+                "BLENDMODE": 1,
+                "COLORSPACE": "1",
+                "BLEND_CHANNEL_MODE": "1",
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Unsharp",
+            "config": {
+                "strength": 1.25,
+                "threshold": 0.06,
+                "knee": 0.05,
+                "kernelName": "box",
+                "kernelRadiusX": 7,
+                "kernelRadiusY": 7,
+                "kernelSoftness": 6.605,
+                "blendAmount": 1,
+                "BLENDMODE": "10",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": "0",
+                "chromaBoost": 0.9
+            }
+        }]
+    },
+    {
+        "name": "Painted Over",
+        "config": [{
+            "name": "Auto Levels",
+            "config": {"mode": "luma", "paramA": 0, "paramB": 70}
+        }, {
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.2,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": {"value": 0.79, "mod": {"type": "none"}},
+                "saturation": 100,
+                "lightness": 48,
+                "hueSpread": {"value": 3.4224554306374966, "mod": {"type": "none"}},
+                "bleed": 0,
+                "COLORSPACE": "4",
+                "BLENDMODE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.7,
+                "chromaBoost": 1,
+                "bandingSteps": 1,
+                "waveType": "sine",
+                "dutyCycle": 0.5,
+                "originX": 0.26,
+                "originY": 0.37,
+                "spatialPattern": "radial",
+                "bandHue": 0,
+                "blendTarget": "0"
+            }
+        }, {
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "warpStrength": {"value": -0.65, "mod": {"type": "none"}},
+                "directionStrength": 0.5,
+                "directionChannel": 5,
+                "magChannel": 0,
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0,
+                "threshHigh": 0.7,
+                "magGamma": 1,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10,
+                "chromaBoost": 1,
+                "u_directionChannel": 4,
+                "directionAngle": {
+                    "value": 1.4765485471872,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.1804814460139499,
+                        "phase": 0,
+                        "scale": 0.1947787445225675,
+                        "offset": 1.5330972149518187
+                    }
+                },
+                "modAmount": 0.42,
+                "driverChannel": 0,
+                "modulatorChannel": "4",
+                "driverPolarity": false,
+                "modulatorPolarity": false,
+                "driverGamma": 0.5650845800732875,
+                "flatThreshold": false
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "threshold": 0.12,
+                "tint": [0, 0, 0],
+                "baseOpacity": 1,
+                "dilation": 2,
+                "chromaBoost": 1
+            }
+        }, {
+            "name": "Chromawave",
+            "config": {
+                "threshold": 0.5,
+                "cycle": true,
+                "cycleMode": "spatial",
+                "hueShift": 0.59,
+                "saturation": 100,
+                "lightness": 50,
+                "hueSpread": 3.5297829383277772,
+                "bleed": 0.26,
+                "COLORSPACE": 0,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.32,
+                "chromaBoost": 1,
+                "bandingSteps": 0,
+                "waveType": 0,
+                "dutyCycle": 0.5,
+                "originX": 0.5,
+                "originY": 0.5,
+                "spatialPattern": "angle",
+                "bandHue": 0
+            }
+        }, {
+            "name": "Kuwahara",
+            "config": {
+                "texelSizeX": 2,
+                "texelSizeY": 4,
+                "radius": 11,
+                "sharpness": 2.33,
+                "eccentricity": 0.18,
+                "useKernel": true,
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "kernelRadius": 3
+            }
+        }, {"name": "Exposure", "config": {"exposure": 0.3}}]
+    },
+    {
+        "name": "Reassembly",
+        "config": [{
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": 72.27200991403605,
+                "spacingFactor": 1.173186268412274,
+                "phaseX": {
+                    "value": -0.14,
+                    "mod": {"type": "sine", "freq": 0.084, "phase": 0, "scale": 0.12, "offset": -0.14}
+                },
+                "phaseY": -0.6799999999999999,
+                "skew": 0.020000000000000018,
+                "noiseScale": {
+                    "value": 0.054,
+                    "mod": {"type": "saw", "freq": 0.034, "phase": 0, "scale": 0.02, "offset": 0.054}
+                },
+                "noiseAmount": 0.89,
+                "direction": "grid",
+                "mode": "tri",
+                "lumaThreshold": 0.125,
+                "lumaAngle": -0.12,
+                "lumaMod": 0.04,
+                "invert": false,
+                "backgroundOpacity": 0.58,
+                "color": [0.01, 0.02, 0.74],
+                "backgroundColor": [0.5, 0.03, 0.87],
+                "channelPhase0": {
+                    "value": -0.8,
+                    "mod": {"type": "sine", "freq": 0.056, "phase": 0, "scale": 0.93, "offset": -0.8}
+                },
+                "channelPhase1": -0.29,
+                "channelPhase2": 0.34,
+                "blendAmount": 0.56,
+                "BLENDMODE": "9",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": "0",
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Vignette",
+            "config": {
+                "strength": 0.806,
+                "radius": {
+                    "value": 0.8680000000000001,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.249,
+                        "phase": 0,
+                        "scale": 0.08,
+                        "offset": 0.8680000000000001,
+                        "_walkValue": 0.8563014781915129,
+                        "_lastUpdate": 1410.2699999989593
+                    }
+                },
+                "softness": 0.208,
+                "roundness": {
+                    "value": 0.25,
+                    "mod": {"type": "triangle", "freq": 0.082, "phase": 0, "scale": 0.44, "offset": 0.25}
+                },
+                "blendAmount": 0.8525,
+                "BLENDMODE": 9,
+                "COLORSPACE": 2,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Mirrorband",
+            "config": {
+                "bandSize": 0.2942,
+                "orientation": 0,
+                "mirrorRate": {
+                    "value": 0.73,
+                    "mod": {"type": "saw", "freq": 0.116, "phase": 0, "scale": 0.34, "offset": 0.73}
+                },
+                "offset": 0.7,
+                "seed": {
+                    "value": 265,
+                    "mod": {"type": "impulse-ease", "freq": 0.195, "phase": 0, "scale": 253.065, "offset": 265}
+                },
+                "colorMode": 2,
+                "colorBlend": 0,
+                "hue": 0.99,
+                "sBias": {
+                    "value": -0.305,
+                    "mod": {"type": "triangle", "freq": 0.102, "phase": 0, "scale": 0.38, "offset": -0.305}
+                },
+                "vBias": 0.72,
+                "levels": 2,
+                "rotationAmount": 0.12566370614359174,
+                "blendAmount": {
+                    "value": 0.67,
+                    "mod": {"type": "hold", "freq": 0.07, "phase": 0, "scale": 0.12, "offset": 0.67}
+                },
+                "BLENDMODE": 7,
+                "COLORSPACE": 8,
+                "BLEND_CHANNEL_MODE": 1,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Chromatic Aberration",
+            "config": {
+                "rdx": -46,
+                "rdy": 44,
+                "gdx": {"value": 21, "mod": {"type": "sine", "freq": 0.044, "phase": 0, "scale": 0.01, "offset": 21}},
+                "gdy": 23,
+                "bdx": 42,
+                "bdy": -34,
+                "blendAmount": {
+                    "value": 0.47000000000000003,
+                    "mod": {"type": "sine", "freq": 0.03, "phase": 0, "scale": 0.44, "offset": 0.47000000000000003}
+                },
+                "BLENDMODE": 2,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }]
+    },
+    {
+        "name": "Riso 1",
+        "config": [{
+            "name": "Dither",
+            "config": {
+                "scale": 1408.239025915631,
+                "tint": [1, 1, 1],
+                "seed": 134,
+                "levels": 8,
+                "BLENDMODE": "1",
+                "BLEND_CHANNEL_MODE": "0",
+                "COLORSPACE": "0",
+                "chromaBoost": 1,
+                "components": [0, 0, 0, 0.44, 0, 1, 0],
+                "blendAmount": 1,
+                "colormap": "none",
+                "USE_STRUCTURE": false,
+                "edgeStrength": 0
+            }
+        }, {
+            "name": "Duotone",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "darkColor": [0, 0, 0.2],
+                "lightColor": [1, 0.4, 0.2],
+                "gamma": 1,
+                "shadowPoint": 0.2,
+                "highlightPoint": 0.8
+            }
+        }]
+    },
+    {
+        "name": "Sketchup",
+        "config": [{
+            "name": "Threshold",
+            "config": {
+                "blendAmount": 0.52,
+                "COLORSPACE": "4",
+                "BLENDMODE": "9",
+                "BLEND_CHANNEL_MODE": 0,
+                "thresholdMode": "3",
+                "chromaBoost": 1,
+                "target": 1,
+                "threshWidth": 1,
+                "binarize": true,
+                "flip": false
+            }
+        }, {
+            "name": "Engrave",
+            "config": {
+                "BLENDMODE": 4,
+                "COLORSPACE": 3,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": {"value": 0.85, "mod": {"type": "none"}},
+                "chromaBoost": {
+                    "value": 0.5750000000000001,
+                    "mod": {"type": "sine", "freq": 0.051, "phase": 0, "scale": 0.16, "offset": 0.9}
+                },
+                "brightness": 1.1925,
+                "contrast": 1.3,
+                "scale": 2.19,
+                "jitter": 0.095,
+                "inkColor": [0.2, 0.1, 0],
+                "paperColor": [0.96, 0.95, 0.92],
+                "inkOpacity": 1,
+                "paperOpacity": {
+                    "value": 0.688,
+                    "mod": {"type": "impulse-ease", "freq": 0.168, "phase": 0, "scale": 0.06, "offset": 0.688}
+                },
+                "lineWidth": 0.0187,
+                "lineWidthSensitivity": 1.52,
+                "lineSpacing": 20.35,
+                "lineSpacingSensitivity": {"value": 0.015, "mod": {"type": "none"}},
+                "angle": 35,
+                "USE_STRUCTURE": true,
+                "anisoDrag": -0.84
+            }
+        }]
+    },
+    {
+        "name": "Sublimating",
+        "config": [{
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": "1",
+                "COLORSPACE": "1",
+                "blendAmount": 0.48,
+                "warpStrength": -0.05,
+                "directionStrength": 0.5129404142770122,
+                "directionChannel": "0",
+                "magChannel": "0",
+                "directionPolarity": false,
+                "magPolarity": true,
+                "threshLow": 0,
+                "threshHigh": 0.63,
+                "magGamma": 0.897144494663181,
+                "kernelName": "saw",
+                "kernelRadiusX": 5,
+                "kernelRadiusY": 5,
+                "kernelSoftness": {"value": 5.655, "mod": {"type": "none"}},
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": "1",
+                "COLORSPACE": "7",
+                "BLEND_CHANNEL_MODE": "1",
+                "blendAmount": 1,
+                "threshold": 0.09,
+                "tint": [0, 0, 0],
+                "baseOpacity": 1,
+                "dilation": 0,
+                "smoothing": 0,
+                "softness": 0
+            }
+        }, {
+            "name": "Kuwahara",
+            "config": {
+                "texelSizeX": 2,
+                "texelSizeY": 4,
+                "radius": 13,
+                "sharpness": 2.5,
+                "eccentricity": 4.8,
+                "useKernel": true,
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "kernelRadius": 7
+            }
+        }]
+    }, {
+        "name": "This Again",
+        "config": [{
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "threshold": 0.35,
+                "tint": [0, 0, 0],
+                "chromaBoost": 1,
+                "baseOpacity": 1
+            }
+        }, {
+            "name": "Engrave",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": "1",
+                "BLEND_CHANNEL_MODE": "1",
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "brightness": 1.01,
+                "contrast": 2,
+                "scale": 2,
+                "jitter": 0.25,
+                "inkColor": [0, 0, 0],
+                "paperColor": [0.96, 0.95, 0.92],
+                "inkOpacity": 1,
+                "paperOpacity": 1,
+                "lineWidth": 0.13,
+                "lineWidthSensitivity": 0,
+                "lineSpacing": 18,
+                "lineSpacingSensitivity": 0,
+                "angle": 25,
+                "USE_STRUCTURE": false,
+                "anisoDrag": 0
+            }
+        }]
+    },
+    {
+        "name": "To Pieces",
+        "config": [{
+            "name": "Structure Flow",
+            "config": {
+                "magnitude": 39.75,
+                "anisoDrag": 12.5,
+                "angle": 62,
+                "CALCULATE_MODE": "1",
+                "useKernel": true,
+                "kernelRadius": 4,
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "texelSizeX": 1,
+                "texelSizeY": 3
+            }
+        }, {
+            "name": "Unsharp",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "kernelName": "sobel1d",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10,
+                "strength": 0.5,
+                "threshold": 0.05,
+                "knee": 0.01
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "threshold": 0.21,
+                "tint": [0, 0, 0],
+                "baseOpacity": 1,
+                "dilation": 0,
+                "smoothing": 0,
+                "softness": 0
+            }
+        }]
+    },
+    {
+        "name": "Underlying It",
+        "config": [{
+            "name": "Delay Line",
+            "config": {
+                "delay": {
+                    "value": 50,
+                    "mod": {"type": "sine", "freq": 0.114, "phase": 0, "scale": 33.41, "offset": 50}
+                },
+                "density": {
+                    "value": 4.15,
+                    "mod": {"type": "triangle", "freq": 0.051, "phase": 0, "scale": 2.11, "offset": 4.15}
+                },
+                "window": "ring",
+                "falloff": "verticalBias",
+                "jitter": 0.44,
+                "angle": 39.599999999999994,
+                "shearX": {
+                    "value": 3.9000000000000004,
+                    "mod": {"type": "sine", "freq": 0.106, "phase": 0, "scale": 1.27, "offset": 3.9000000000000004}
+                },
+                "shearY": 0.20000000000000018,
+                "scaleX": 2.594,
+                "scaleY": 1.608,
+                "blendAmount": 0.75,
+                "BLENDMODE": 1,
+                "COLORSPACE": 8,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": {
+                    "value": 0.925,
+                    "mod": {"type": "triangle", "freq": 0.047, "phase": 0, "scale": 0.82, "offset": 0.9500000000000001}
+                }
+            }
+        }, {
+            "name": "Solarize",
+            "config": {
+                "threshold": 0.6560000000000001,
+                "strength": 0.806,
+                "softness": {
+                    "value": 0.046,
+                    "mod": {"type": "saw", "freq": 0.048, "phase": 0, "scale": 0.04, "offset": 0.046}
+                }
+            }
+        }, {
+            "name": "Colorshred",
+            "config": {
+                "mode": 0,
+                "density": 0.29500000000000004,
+                "chromaThreshold": {
+                    "value": 0.295,
+                    "mod": {"type": "fm-lfo", "freq": 0.086, "phase": 0, "scale": 0.1, "offset": 0.295}
+                },
+                "INVERT_CHROMA_THRESHOLD": true
+            }
+        }, {
+            "name": "Bloom",
+            "config": {
+                "bloomThreshold": 0.12,
+                "bloomSoftness": {
+                    "value": 0.68,
+                    "mod": {"type": "sine", "freq": 0.106, "phase": 0, "scale": 0.08, "offset": 0.68}
+                },
+                "bloomStrength": 2.4899999999999998,
+                "kernelName": "exponential",
+                "kernelRadius": 24,
+                "kernelSoftness": 6.51,
+                "BLOOM_MODE": 1,
+                "chromaOffset": [-0.5999999999999996, 1.8000000000000007, -0.5999999999999996],
+                "BLOOM_CHROMA_TAIL": false,
+                "blendAmount": 0.73,
+                "BLENDMODE": 1,
+                "COLORSPACE": 3,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }]
+    },
+    {
+        "name": "Vaporware",
+        "config": [{
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": 8.336013078992796,
+                "spacingFactor": 1.1244303968880187,
+                "phaseX": 0,
+                "phaseY": 0,
+                "direction": "grid",
+                "mode": "binary",
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "invert": false,
+                "noiseScale": 0.01,
+                "noiseAmount": 0,
+                "skew": 0,
+                "lumaMod": -0.84,
+                "lumaThreshold": 0.315,
+                "lumaSoftness": 0,
+                "channelPhase0": 0,
+                "channelPhase1": 0,
+                "channelPhase2": 0,
+                "color": [0.91, 0.52, 1],
+                "chromaBoost": 1,
+                "lumaAngle": -0.26,
+                "backgroundOpacity": 1,
+                "backgroundColor": [0, 0, 0]
+            }
+        }, {"name": "Exposure", "config": {"exposure": 0.35}}]
+    },
+    {
+        "name": "Velantia",
+        "config": [{
+            "name": "Colorshred",
+            "config": {
+                "mode": 1,
+                "density": {
+                    "value": 0.10750000000000001,
+                    "mod": {"type": "triangle", "freq": 0.097, "phase": 0, "scale": 0.23, "offset": 0.10750000000000001}
+                },
+                "chromaThreshold": {
+                    "value": 0.47,
+                    "mod": {"type": "triangle", "freq": 0.048, "phase": 0, "scale": 0.07, "offset": 0.47}
+                },
+                "INVERT_CHROMA_THRESHOLD": true
+            }
+        }, {
+            "name": "Polar Transform",
+            "config": {
+                "POLAR_MODE": 1,
+                "centerX": 0.58,
+                "centerY": 0.75,
+                "angleOffset": {
+                    "value": 0,
+                    "mod": {"type": "hold", "freq": 0.107, "phase": 0, "scale": 13.43, "offset": 0}
+                },
+                "radialScale": {
+                    "value": 0.308,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.20700000000000002,
+                        "phase": 0,
+                        "scale": 0.14,
+                        "offset": 0.308,
+                        "_walkValue": 0.01574520116459288,
+                        "_lastUpdate": 108.42000000000334
+                    }
+                },
+                "angularScale": 1.3599999999999999,
+                "blendAmount": 0.75,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 1,
+                "COLORSPACE": 8,
+                "chromaBoost": {
+                    "value": 1.5,
+                    "mod": {"type": "sine", "freq": 0.037, "phase": 0, "scale": 0.68, "offset": 0.901}
+                }
+            }
+        }, {
+            "name": "Colormap",
+            "config": {
+                "colormap": "glacier",
+                "chromaBoost": {
+                    "value": 0.6000000000000001,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.20700000000000002,
+                        "phase": 0,
+                        "scale": 0.51,
+                        "offset": 0.9085,
+                        "_walkValue": 0.9915819229937587,
+                        "_lastUpdate": 108.42000000000334
+                    }
+                },
+                "reverse": true,
+                "blendAmount": {
+                    "value": 0.9085,
+                    "mod": {"type": "impulse-ease", "freq": 0.354, "phase": 0, "scale": 0.045, "offset": 0.9085}
+                },
+                "BLENDMODE": 4,
+                "COLORSPACE": 5,
+                "BLEND_CHANNEL_MODE": 0
+            }
+        }]
+    },
+    {
+        "name": "Voidstorm",
+        "config": [{
+            "name": "Perlin Distort",
+            "config": {
+                "seed": 315,
+                "depth": {
+                    "value": 0.47200000000000003,
+                    "mod": {"type": "hold", "freq": 0.033, "phase": 0, "scale": 0.2, "offset": 0.47200000000000003}
+                },
+                "freqX": {
+                    "value": 34.61890151356037,
+                    "mod": {"type": "triangle", "freq": 0.036, "phase": 0, "scale": 1.39, "offset": 34.61890151356037}
+                },
+                "freqY": 36.81197441014003,
+                "pitchX": -0.6799999999999999,
+                "pitchY": 1.52,
+                "rate": 1.9444826721501687,
+                "rateDrive": {
+                    "value": 0.29,
+                    "mod": {
+                        "type": "impulse-ease",
+                        "freq": 0.14100000000000001,
+                        "phase": 0,
+                        "scale": 0.615,
+                        "offset": 0.29
+                    }
+                },
+                "phase": [0.28, 0.06],
+                "fuzz": 0,
+                "noiseMode": "classic",
+                "boundMode": "clamp",
+                "clampScale": 0.75,
+                "fc": [19.240000000000002, 2.52, 16.77],
+                "reps": [4.42, 5.18],
+                "blendAmount": 0.35,
+                "BLENDMODE": 9,
+                "COLORSPACE": 3,
+                "BLEND_CHANNEL_MODE": 3,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Vignette",
+            "config": {
+                "strength": 0.8200000000000001,
+                "radius": {
+                    "value": 0.43600000000000005,
+                    "mod": {"type": "triangle", "freq": 0.119, "phase": 0, "scale": 0.27, "offset": 0.43600000000000005}
+                },
+                "softness": 0.1387,
+                "roundness": 0.5,
+                "blendAmount": 0.94,
+                "BLENDMODE": 10,
+                "COLORSPACE": 8,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.94
+            }
+        }, {
+            "name": "Palette Synth", "config": {
+                "paletteSize": {
+                    "value": 35.370000000000005,
+                    "mod": {"type": "sine", "freq": 0.095, "phase": 0, "scale": 8.34, "offset": 35.370000000000005}
+                },
+                "deltaL": 28.729999999999997,
+                "gammaC": 1.104,
+                "blockSize": 4,
+                "seed": 380,
+                "selectWeights": [0.2, 4.55, 1.9500000000000002, 1.55],
+                "showPalette": "none",
+                "assignMode": "blend",
+                "lumaWeight": 2.6479999999999997,
+                "chromaWeight": -0.2,
+                "hueWeight": 0.696,
+                "blendK": 4,
+                "softness": 0.78,
+                "blendAmount": 0.35,
+                "BLENDMODE": 3,
+                "COLORSPACE": 7,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": {
+                    "value": 2,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.30000000000000004,
+                        "phase": 0,
+                        "scale": 0.47,
+                        "offset": 0.9,
+                        "_walkValue": 0.756858572126094,
+                        "_lastUpdate": 1816.4699999985899
+                    }
+                },
+                "cycleOffset": 0,
+                "exportPalette": [[0, 1.110836971404579, 12.03334680307528], [0, -2.3551356172856033, 1.161524650486906], [0, -1.4611181137067957, 0.7193118215484466], [0, -0.7531642134510833, 0.3040427689392486], [0, -1.6770308794716455, 1.0588210490577188], [0, -15.00722322272418, 13.132614938864222], [0, -0.3674032092473155, 0.16174702260765964], [0, -3.358444386680822, 2.1733074510230757], [0.353271484375, -0.3674032092473155, 0.16174702260765964], [0.634765625, -0.7531642134510833, 0.3040427689392486], [1.390625, -1.4611181137067957, 0.7193118215484466], [1.775390625, -1.6770308794716455, 1.0588210490577188], [1.9443359375, -2.3551356172856033, 1.161524650486906], [3.619140625, -3.358444386680822, 2.1733074510230757], [12.332500000000003, -26.54418049598024, 10.428070909135089], [20.4375, 1.110836971404579, 12.03334680307528], [26.176250000000003, -27.483586973794157, 17.93162941576143], [28.46875, -15.00722322272418, 13.132614938864222], [29.083271484374997, -0.3674032092473155, 0.16174702260765964], [29.364765624999997, -0.7531642134510833, 0.3040427689392486], [30.120624999999997, -1.4611181137067957, 0.7193118215484466], [30.505390624999997, -1.6770308794716455, 1.0588210490577188], [30.674335937499997, -2.3551356172856033, 1.161524650486906], [32.349140625, -3.358444386680822, 2.1733074510230757], [41.0625, -26.54418049598024, 10.428070909135089], [49.1675, 1.110836971404579, 12.03334680307528], [54.90625, -27.483586973794157, 17.93162941576143], [57.19875, -15.00722322272418, 13.132614938864222], [69.79249999999999, -26.54418049598024, 10.428070909135089], [83.63624999999999, -27.483586973794157, 17.93162941576143]]
+            }
+        }]
+    },
+    {
+        "name": "Trilineated",
+        "config": [{
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": 4.878861423906103,
+                "spacingFactor": 1.494258222511382,
+                "phaseX": 0,
+                "phaseY": -0.36,
+                "direction": "horizontal",
+                "mode": "sine",
+                "BLENDMODE": "9",
+                "BLEND_CHANNEL_MODE": "0",
+                "COLORSPACE": "8",
+                "blendAmount": 1,
+                "invert": false,
+                "noiseScale": 0.01,
+                "noiseAmount": 0,
+                "skew": -0.29,
+                "lumaMod": 0.8,
+                "lumaThreshold": 0.42,
+                "lumaSoftness": 0,
+                "channelPhase0": -0.01,
+                "channelPhase1": 0,
+                "channelPhase2": 0,
+                "color": [0.39, 0.42, 1],
+                "chromaBoost": 1,
+                "lumaAngle": -0.25
+            }
+        }, {
+            "name": "Look",
+            "config": {
+                "exposure": 1.5,
+                "toneShoulder": 1,
+                "toneCenter": -3,
+                "curveStrength": 1,
+                "chromaWeight": 3.18,
+                "chromaFadeLow": -3.9,
+                "chromaFadeHigh": 4.8,
+                "tintHue": 68,
+                "tintStrength": 0,
+                "lift": 0,
+                "gamma": 0,
+                "gain": 0
+            }
+        }]
+    },
+    {
+        "name": "Wire Print",
+        "config": [{
+            "name": "Engrave",
+            "config": {
+                "BLENDMODE": "5",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1,
+                "brightness": 0.86,
+                "contrast": 3.02,
+                "scale": 2.97,
+                "jitter": 0.5,
+                "inkColor": [0.2, 0.1, 0],
+                "paperColor": [0.96, 0.95, 0.92],
+                "inkOpacity": 1,
+                "paperOpacity": 1,
+                "lineWidth": 0.07,
+                "lineWidthSensitivity": 1.48,
+                "lineSpacing": 18,
+                "lineSpacingSensitivity": 0.03,
+                "angle": 25,
+                "USE_STRUCTURE": false,
+                "anisoDrag": 0
+            }
+        }, {
+            "name": "Morphology",
+            "config": {
+                "radius": 3,
+                "operation": "2",
+                "blendAmount": 1,
+                "BLENDMODE": "9",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0
+            }
+        }]
+    },
+    {
+        "name": "Scruff",
+        "config": [{
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "warpStrength": 0.4,
+                "directionStrength": 1.2612822356657163,
+                "directionChannel": "1",
+                "magChannel": 0,
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0,
+                "threshHigh": 0.71,
+                "magGamma": 4.152436164530098,
+                "kernelName": "box",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 3,
+                "kernelSoftness": 10,
+                "chromaBoost": 1
+            }
+        }, {
+            "name": "Scribble",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "steps": 5,
+                "cellScale": 5.8,
+                "strokeWidth": 1.1,
+                "arcLength": 1.4,
+                "shadeLow": 0,
+                "shadeHigh": 0.39,
+                "falloff": 0.33,
+                "blendAmount": 1,
+                "paperOpacity": 0,
+                "scribbleOpacity": 1,
+                "paperColor": [0.96, 0.95, 0.92],
+                "scribbleColor": [0.03, 0.03, 0.03],
+                "jitter": 1.5
+            }
+        }]
+    },
+    {
+        "name": "Coming Down",
+        "config": [{
+            "name": "Contour Synth",
+            "config": {
+                "freq": 2.1,
+                "freqScale": 8,
+                "phaseScale": 6.317385385715138,
+                "phaseOff": {
+                    "value": -5,
+                    "mod": {"type": "sine", "freq": 0.037409936295517, "phase": 0, "scale": -168.48, "offset": 0}
+                },
+                "blendAmount": 0.32,
+                "BLENDMODE": "9",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "chromaBoost": 1,
+                "waveform": "Sine",
+                "spatialWaveform": "None"
+            }
+        }, {
+            "name": "Triangle",
+            "config": {
+                "BLENDMODE": "9",
+                "COLORSPACE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.84,
+                "scale": 0.5,
+                "ITERATIONS": 5,
+                "COLORING_MODE": "0",
+                "depth": 1,
+                "zoom": {"value": 0.20710835297884267, "mod": {"type": "none"}},
+                "spin": {
+                    "value": 141,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.10399662158277319,
+                        "phase": 0,
+                        "scale": 23.87718,
+                        "offset": 0,
+                        "_walkValue": 0.9434729831680929,
+                        "_lastUpdate": 2077.349999998575
+                    }
+                },
+                "chromaGamma": 1,
+                "startHue": 0.5,
+                "hueSpacing": 3.08,
+                "hueBleed": 0,
+                "curveStrength": {"value": 0, "mod": {"type": "none"}},
+                "curveDirection": 73
+            }
+        }]
+    },
+    {
+        "name": "We're Looking",
+        "config": [{
+            "name": "Triangle",
+            "config": {
+                "BLENDMODE": 1,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "scale": 0.51,
+                "ITERATIONS": 3,
+                "COLORING_MODE": 0,
+                "depth": 1,
+                "zoom": 0.492,
+                "spin": 161,
+                "chromaGamma": 1,
+                "startHue": 0.5,
+                "hueSpacing": 0.5,
+                "hueBleed": 0
+            }
+        }, {
+            "name": "flow()",
+            "config": {
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "warpStrength": {
+                    "value": 0.9,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.031242767683277023,
+                        "phase": 0,
+                        "scale": -0.37994787999999957,
+                        "offset": 0
+                    }
+                },
+                "directionStrength": 0.5,
+                "directionChannel": 5,
+                "magChannel": 0,
+                "directionPolarity": false,
+                "magPolarity": false,
+                "threshLow": 0,
+                "threshHigh": 1,
+                "magGamma": 1.982169580783527,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 4,
+                "kernelRadiusY": 4,
+                "kernelSoftness": 10,
+                "chromaBoost": 1,
+                "u_directionChannel": 4,
+                "directionAngle": {
+                    "value": 1.4765485471872,
+                    "mod": {
+                        "type": "saw",
+                        "freq": 0.1804814460139499,
+                        "phase": 0,
+                        "scale": 0.1947787445225675,
+                        "offset": 1.5330972149518187
+                    }
+                },
+                "modAmount": 0.42,
+                "driverChannel": 0,
+                "modulatorChannel": "4",
+                "driverPolarity": false,
+                "modulatorPolarity": false,
+                "driverGamma": 0.5650845800732875,
+                "flatThreshold": false
+            }
+        }]
+    },
+    {
+        "name": "Vaporware 2",
+        "config": [{
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": 8.336013078992796,
+                "spacingFactor": 1.1244303968880187,
+                "phaseX": 0,
+                "phaseY": 0,
+                "direction": "grid",
+                "mode": "binary",
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "invert": false,
+                "noiseScale": 0.01,
+                "noiseAmount": 0,
+                "skew": 0,
+                "lumaMod": -0.84,
+                "lumaThreshold": 0.27,
+                "lumaSoftness": 0,
+                "channelPhase0": 0,
+                "channelPhase1": 0,
+                "channelPhase2": 0,
+                "color": [0.91, 0.52, 1],
+                "chromaBoost": 1,
+                "lumaAngle": -0.155,
+                "backgroundOpacity": 0.78,
+                "backgroundColor": [0, 0, 0]
+            }
+        }, {"name": "Exposure", "config": {"exposure": 0.45}}]
+    },
+    {
+        "name": "Paint by Numbers",
+        "config": [{
+            "name": "Pixelate",
+            "config": {
+                "blockSize": 13,
+                "BLENDMODE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 1,
+                "chromaBoost": 1
+            }
+        }, {
+            "name": "Line Integral Convolution",
+            "config": {
+                "angle": 19,
+                "useKernel": true,
+                "kernelRadius": 2,
+                "BLENDMODE": "1",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "texelSizeX": 1,
+                "texelSizeY": 2,
+                "stepSize": 4.1,
+                "falloff": 0.031,
+                "STEPS": 8,
+                "jitter": 0.0775,
+                "seed": 20,
+                "sharpness": 1.46
+            }
+        }]
+    },
+    {
+        "name": "Painting Over It",
+        "config": [{
+            "name": "Posterize",
+            "config": {
+                "levels": {"value": 20, "mod": {"type": "none"}},
+                "mode": 1,
+                "mod": 0.48,
+                "COLORSPACE": 4,
+                "c1": true,
+                "c2": true,
+                "c3": true,
+                "blendAmount": 1,
+                "BLENDMODE": 1
+            }
+        }, {
+            "name": "Halftone",
+            "config": {
+                "HALFTONE_MODE": "0",
+                "cellSize": 17,
+                "blackAngle": 132,
+                "cAngle": 197,
+                "mAngle": 161,
+                "yAngle": {"value": 28, "mod": {"type": "none"}},
+                "kAngle": 348,
+                "cOffset": 5,
+                "mOffset": 3,
+                "yOffset": {"value": 14, "mod": {"type": "none"}},
+                "kOffset": 0,
+                "blendAmount": 0.35,
+                "BLENDMODE": 1,
+                "COLORSPACE": 3,
+                "BLEND_CHANNEL_MODE": 3,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "flow()",
+            "config": {
+                "warpStrength": 0.3,
+                "threshLow": 0,
+                "threshHigh": 0.55,
+                "magGamma": {"value": 0.863370826529088, "mod": {"type": "none"}},
+                "magChannel": "0",
+                "magPolarity": false,
+                "directionStrength": 6.368445189435228,
+                "directionChannel": "0",
+                "directionPolarity": false,
+                "kernelRadiusX": 5,
+                "kernelRadiusY": 5,
+                "kernelSoftness": 4.42,
+                "kernelName": "flattop",
+                "blendAmount": {"value": 0.91, "mod": {"type": "none"}},
+                "BLENDMODE": 9,
+                "COLORSPACE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": {
+                    "value": 0.42500000000000004,
+                    "mod": {"type": "triangle", "freq": 0.053, "phase": 0, "scale": 1.05, "offset": 0.91}
+                }
+            }
+        }, {
+            "name": "Kuwahara",
+            "config": {
+                "texelSizeX": 2,
+                "texelSizeY": 2,
+                "radius": 8,
+                "sharpness": 2.5,
+                "eccentricity": 1.92,
+                "useKernel": true,
+                "BLENDMODE": "1",
+                "COLORSPACE": "7",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.6,
+                "chromaBoost": 1,
+                "kernelRadius": 3
+            }
+        }]
+    },
+    {
+        "name": "Delineated",
+        "config": [{
+            "name": "Grid Pattern",
+            "config": {
+                "lineWidth": 25.710385257923527,
+                "spacingFactor": 1.1370955881102445,
+                "phaseX": 0,
+                "phaseY": -0.36,
+                "direction": "horizontal",
+                "mode": "binary",
+                "BLENDMODE": "10",
+                "BLEND_CHANNEL_MODE": "0",
+                "COLORSPACE": "7",
+                "blendAmount": 0.83,
+                "invert": true,
+                "noiseScale": 0.01,
+                "noiseAmount": 0,
+                "skew": -0.7,
+                "lumaMod": -0.18,
+                "lumaThreshold": 0.04,
+                "lumaSoftness": 0,
+                "channelPhase0": -0.01,
+                "channelPhase1": 0,
+                "channelPhase2": 0,
+                "color": [0, 1, 0],
+                "chromaBoost": 1,
+                "lumaAngle": 0.01
+            }
+        }, {
+            "name": "Look",
+            "config": {
+                "exposure": 1.55,
+                "toneShoulder": 1,
+                "toneCenter": -3,
+                "curveStrength": 1,
+                "chromaWeight": 2.42,
+                "chromaFadeLow": -3,
+                "chromaFadeHigh": 2,
+                "tintHue": 68,
+                "tintStrength": 0,
+                "lift": 0,
+                "gamma": 0,
+                "gain": 0
+            }
+        }]
+    },
+
+
 ]

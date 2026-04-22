@@ -197,6 +197,7 @@ export default {
     },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
+        instance.flowOffsetPass.cleanupHook(instance.flowOffsetPass);
     },
     glState: null,
     isGPU: true

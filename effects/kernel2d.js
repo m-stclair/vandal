@@ -68,14 +68,13 @@ export default {
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-            u_kernelWidth: {type: "int", value: kernelInfo.width},
-            u_kernelHeight: {type: "int", value: kernelInfo.height},
             u_blendamount: {type: "float", value: blendAmount},
             u_chromaBoost: {type: "float", value: chromaBoost}
         };
 
         const defines = {
-            KERNEL_SIZE: kernelInfo.kernel.length,
+            KERNEL_WIDTH: kernelInfo.width,
+            KERNEL_HEIGHT: kernelInfo.height,
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
             APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),

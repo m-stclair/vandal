@@ -1,27 +1,27 @@
-// special-purpose pass: performs eigendecomposition on first pass of
-// (possibly blurred) structure tensor
+// special-purpose pass: precomputes offset field for flow()
 
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
 
-const includeMap = {};
+const includeMap = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 
-const fragSources = loadFragSrcInit("eigen_decomp.frag", includeMap);
+const fragSources = loadFragSrcInit("flow_offset_pass.frag", includeMap);
 
-export const eigenPass = {
-    calculate(pass, inputTex, width, height) {
+export const flowOffsetPass = {
+    calculate(pass, inputTex, width, height, uniforms) {
         initGLEffect(pass, fragSources);
         pass.setupFBO(pass, width, height);
 
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
+            ...uniforms
         };
         const defines = {}
         pass.glState.renderGL(inputTex, pass.outputFBO, uniformSpec, defines);
         return pass.outputFBO;
     },
     initHook: async (pass, renderer) => {
-        pass.glState = new webGLState(renderer, "eigen-pass", pass.id)
+        pass.glState = new webGLState(renderer, "offset-pass", pass.id)
         await fragSources.load(pass, renderer);
     },
     cleanupHook: (pass) => {
@@ -36,7 +36,7 @@ export const eigenPass = {
                 pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
                 pass.outputFBO = null;
             }
-            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "eigen-pass", "eigen-pass");
+            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "offset-pass", "offset-pass");
         }
         pass.width = width;
         pass.height = height;

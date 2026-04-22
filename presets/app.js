@@ -2157,7 +2157,7 @@ export const builtInPresets = [
         }, {
             "name": "Look",
             "config": {
-                "exposure": -0.5,
+                "exposure": 0.5,
                 "toneShoulder": 2.2,
                 "toneCenter": -0.75,
                 "curveStrength": 1,
@@ -2711,53 +2711,34 @@ export const builtInPresets = [
     },
     {
         "name": "Neon Grille",
-        "config": [{
+        "config": [{"name": "Exposure", "config": {"exposure": 0.4}}, {
             "name": "Grid Pattern",
             "config": {
-                "lineWidth": 4.404701675429672,
-                "spacingFactor": 1.2278914891318364,
-                "phaseX": {
-                    "value": 0.67,
-                    "mod": {
-                        "type": "none"
-                    }
-                },
-                "phaseY": {
-                    "value": 0,
-                    "mod": {
-                        "type": "none"
-                    }
-                },
+                "lineWidth": 3.568027765546347,
+                "spacingFactor": 2.182588518906962,
+                "phaseX": {"value": 0.67, "mod": {"type": "none"}},
+                "phaseY": {"value": 0, "mod": {"type": "none"}},
                 "direction": "horizontal",
-                "mode": "binary",
-                "BLENDMODE": "1",
+                "mode": "sine",
+                "BLENDMODE": "15",
                 "BLEND_CHANNEL_MODE": "0",
                 "COLORSPACE": 0,
-                "blendAmount": 0.51,
+                "blendAmount": 1,
                 "invert": true,
                 "noiseScale": 0.01,
                 "noiseAmount": 0,
                 "skew": 0,
-                "lumaMod": -0.26,
-                "lumaThreshold": 0.255,
+                "lumaMod": -0.96,
+                "lumaThreshold": 0.2,
                 "lumaSoftness": 0,
                 "channelPhase0": 0,
                 "channelPhase1": 0,
                 "channelPhase2": 0,
                 "color": [1, 0, 1],
-                "lumaAngle": 0.15
-            }
-        }, {
-            "name": "Look",
-            "config": {
-                "exposure": 1.65,
-                "toneShoulder": -2.8,
-                "toneCenter": 1.26,
-                "chromaWeight": 1,
-                "chromaFadeLow": -6,
-                "chromaFadeHigh": 2.4,
-                "tintAxis": [1.27, 0.57, 0],
-                "tintStrength": 0
+                "chromaBoost": 1,
+                "lumaAngle": -0.175,
+                "backgroundOpacity": 0,
+                "backgroundColor": [0, 0, 0]
             }
         }]
     },
@@ -5798,7 +5779,7 @@ export const builtInPresets = [
         "config": [{
             "name": "flow()",
             "config": {
-                "warpStrength": -0.25,
+                "warpStrength": 0.05,
                 "threshLow": 0.09,
                 "threshHigh": 0.9595,
                 "magGamma": 0.897144494663181,
@@ -5809,18 +5790,7 @@ export const builtInPresets = [
                 "directionPolarity": false,
                 "kernelRadiusX": 4,
                 "kernelRadiusY": 6,
-                "kernelSoftness": {
-                    "value": 13.540000000000001,
-                    "mod": {
-                        "type": "walk",
-                        "freq": 0.30000000000000004,
-                        "phase": 0,
-                        "scale": 8.67,
-                        "offset": 13.540000000000001,
-                        "_walkValue": 0.39052608321383037,
-                        "_lastUpdate": 1644.2399999987465
-                    }
-                },
+                "kernelSoftness": 13,
                 "kernelName": "saw",
                 "blendAmount": 0.48,
                 "BLENDMODE": 1,

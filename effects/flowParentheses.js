@@ -3,13 +3,14 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum, hasChromaBoostImplementation,
+    ColorspaceEnum,
     makeEnum,
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
+import {flowOffsetPass} from "./layers/flow_offset_pass.js";
 
-const shaderPath = "flow_parentheses.glsl"
+const shaderPath = "flow_parentheses.frag"
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
@@ -133,7 +134,7 @@ export default {
             magPolarity, threshLow, threshHigh, magGamma,
             directionStrength,
             kernelName, kernelRadiusX, kernelRadiusY,
-            kernelSoftness, chromaBoost
+            kernelSoftness
         } = resolveAnimAll(instance.config, t);
         let kernelInfo;
         const kernelSettings = [kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness];
@@ -149,8 +150,7 @@ export default {
             kernelInfo = instance.auxiliaryCache.kernelInfo;
         }
         instance.auxiliaryCache.lastKernelSettings = kernelSettings;
-        const uniformSpec = {
-            u_resolution: {type: "vec2", value: [width, height]},
+        const offsetUniformSpec = {
             u_warpStrength: {type: "float", value: warpStrength},
             u_threshLow: {type: "float", value: threshLow},
             u_threshHigh: {type: "float", value: threshHigh},
@@ -160,23 +160,39 @@ export default {
             u_magnitudeChannel: {type: "int", value: magChannel},
             u_magnitudePolarity: {type: "float", value: Number(magPolarity)},
             u_magnitudeGamma: {type: "float", value: magGamma},
+        }
+        const offsetFBO = instance.flowOffsetPass.calculate(
+            instance.flowOffsetPass, inputTex, width, height, offsetUniformSpec
+        )
+        const uniformSpec = {
+            u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-            u_kernelWidth: {type: "int", value: kernelInfo.width},
-            u_kernelHeight: {type: "int", value: kernelInfo.height},
-            u_chromaBoost: {type: "float", value: chromaBoost},
+            u_texelSize: {type: "vec2", value: [1 / width, 1 / height]},
+            u_offsets: {type: "texture2D", value: offsetFBO.texture}
         };
         const defines = {
+            KERNEL_WIDTH: kernelInfo.width,
+            KERNEL_HEIGHT: kernelInfo.height,
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            KERNEL_SIZE: kernelInfo.kernel.length,
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: async (instance, renderer) => {
         instance.auxiliaryCache = {};
+        instance.flowOffsetPass = {
+            initHook: flowOffsetPass.initHook,
+            cleanupHook: flowOffsetPass.cleanupHook,
+            setupFBO: flowOffsetPass.setupFBO,
+            calculate: flowOffsetPass.calculate,
+            outputFBO: null,
+            width: null,
+            height: null
+        }
+        await instance.flowOffsetPass.initHook(instance.flowOffsetPass, renderer);
+
         await fragSources.load(instance, renderer);
     },
     cleanupHook(instance) {

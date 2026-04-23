@@ -2742,7 +2742,74 @@ export const builtInPresets = [
             }
         }]
     },
-    {"name":"Our Glass","config":[{"name":"Mirrorband","config":{"bandSize":0.255,"orientation":0,"mirrorRate":0.36,"offset":0.8,"seed":80,"colorMode":1,"colorBlend":1,"hue":0.15,"sBias":0.49,"vBias":{"value":0.56,"mod":{"type":"walk","freq":0.17400000000000002,"phase":0,"scale":0.35,"offset":0.56,"_walkValue":0.5685494204210199,"_lastUpdate":1034.579999999301}},"levels":3,"rotationAmount":2.261946710584651,"blendAmount":0.59,"BLENDMODE":2,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}},{"name":"Voronoi","config":{"cellCount":{"value":32,"mod":{"type":"none"}},"jitter":0.712,"edgeWidth":{"value":0.45999999999999996,"mod":{"type":"triangle","freq":0.116,"phase":0,"scale":0.21,"offset":0.45999999999999996}},"edgeOpacity":0.972,"edgeColor":[0,0,0],"seed":{"value":82,"mod":{"type":"fm-lfo","freq":0.113,"phase":0,"scale":31.7,"offset":82}},"blendAmount":0.41,"BLENDMODE":10,"COLORSPACE":7,"BLEND_CHANNEL_MODE":0,"chromaBoost":{"value":0.9500000000000001,"mod":{"type":"sine","freq":0.117,"phase":0,"scale":0.51,"offset":0.9}}}},{"name":"Solarize","config":{"threshold":{"value":0.6500000000000001,"mod":{"type":"triangle","freq":0.031,"phase":0,"scale":0.03,"offset":0.6500000000000001}},"strength":0.9380000000000001,"softness":0.037}}]},
+    {
+        "name": "Our Glass",
+        "config": [{
+            "name": "Mirrorband",
+            "config": {
+                "bandSize": 0.255,
+                "orientation": 0,
+                "mirrorRate": 0.36,
+                "offset": 0.8,
+                "seed": 80,
+                "colorMode": 1,
+                "colorBlend": 1,
+                "hue": 0.15,
+                "sBias": 0.49,
+                "vBias": {
+                    "value": 0.56,
+                    "mod": {
+                        "type": "walk",
+                        "freq": 0.17400000000000002,
+                        "phase": 0,
+                        "scale": 0.35,
+                        "offset": 0.56,
+                        "_walkValue": 0.5685494204210199,
+                        "_lastUpdate": 1034.579999999301
+                    }
+                },
+                "levels": 3,
+                "rotationAmount": 2.261946710584651,
+                "blendAmount": 0.59,
+                "BLENDMODE": 2,
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Voronoi",
+            "config": {
+                "cellCount": {"value": 32, "mod": {"type": "none"}},
+                "jitter": 0.712,
+                "edgeWidth": {
+                    "value": 0.45999999999999996,
+                    "mod": {"type": "triangle", "freq": 0.116, "phase": 0, "scale": 0.21, "offset": 0.45999999999999996}
+                },
+                "edgeOpacity": 0.972,
+                "edgeColor": [0, 0, 0],
+                "seed": {
+                    "value": 82,
+                    "mod": {"type": "fm-lfo", "freq": 0.113, "phase": 0, "scale": 31.7, "offset": 82}
+                },
+                "blendAmount": 0.41,
+                "BLENDMODE": 10,
+                "COLORSPACE": 7,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": {
+                    "value": 0.9500000000000001,
+                    "mod": {"type": "sine", "freq": 0.117, "phase": 0, "scale": 0.51, "offset": 0.9}
+                }
+            }
+        }, {
+            "name": "Solarize",
+            "config": {
+                "threshold": {
+                    "value": 0.6500000000000001,
+                    "mod": {"type": "triangle", "freq": 0.031, "phase": 0, "scale": 0.03, "offset": 0.6500000000000001}
+                }, "strength": 0.9380000000000001, "softness": 0.037
+            }
+        }]
+    },
     {
         "name": "Jumpscare",
         "config": [{
@@ -7015,6 +7082,156 @@ export const builtInPresets = [
             }
         }]
     },
+    {
+        "name": "Coming Up",
+        "config": [{
+            "name": "Structure Flow",
+            "config": {
+                "magnitude": 25,
+                "anisoDrag": 0,
+                "angle": {
+                    "value": 360,
+                    "mod": {"type": "saw", "freq": 0.0994808995914014, "phase": 0, "scale": 360, "offset": 0}
+                },
+                "CALCULATE_MODE": "3",
+                "useKernel": true,
+                "kernelRadius": 5,
+                "BLENDMODE": "10",
+                "COLORSPACE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 1,
+                "texelSizeX": 1,
+                "texelSizeY": 1
+            }
+        }, {
+            "name": "Edge Trace",
+            "config": {
+                "BLENDMODE": "10",
+                "COLORSPACE": 0,
+                "BLEND_CHANNEL_MODE": 0,
+                "blendAmount": 0.55,
+                "threshold": 0.25,
+                "tint": [0, 0, 0],
+                "baseOpacity": 1,
+                "dilation": 0,
+                "smoothing": 0,
+                "softness": 0.25
+            }
+        }, {
+            "name": "2D Kernel",
+            "config": {
+                "BLENDMODE": "1",
+                "BLEND_CHANNEL_MODE": 0,
+                "COLORSPACE": 0,
+                "blendAmount": 0.5,
+                "chromaBoost": 1,
+                "kernelName": "gaussian",
+                "kernelRadiusX": 1,
+                "kernelRadiusY": 1,
+                "kernelSoftness": 10
+            }
+        }]
+    },
+    {
+        "name": "Complications",
+        "config": [{
+            "name": "Triangle",
+            "config": {
+                "scale": 0.547,
+                "ITERATIONS": 8,
+                "spin": {
+                    "value": 18,
+                    "mod": {"type": "sine", "freq": 0.38067264205768575, "phase": 0, "scale": 0.68335488, "offset": 180}
+                },
+                "zoom": 0.4641813086638207,
+                "curveStrength": 0.05,
+                "curveDirection": 176,
+                "depth": 1,
+                "COLORING_MODE": 3,
+                "chromaGamma": 1.1920000000000002,
+                "hueSpacing": 4.9,
+                "startHue": 0.33,
+                "hueBleed": 0.6900000000000001,
+                "blendAmount": 0.35,
+                "BLENDMODE": 9,
+                "COLORSPACE": 2,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Engrave",
+            "config": {
+                "lineWidth": 0.0274,
+                "lineWidthSensitivity": 1.26,
+                "lineSpacing": {
+                    "value": 13.15,
+                    "mod": {
+                        "type": "sine",
+                        "freq": 0.5497116114216459,
+                        "phase": 0,
+                        "scale": 9.587520000000001,
+                        "offset": 22.5
+                    }
+                },
+                "lineSpacingSensitivity": 0.0009,
+                "angle": 1,
+                "anisoDrag": 0.06000000000000005,
+                "scale": 2.928,
+                "jitter": 0.075,
+                "USE_STRUCTURE": false,
+                "brightness": 0.84,
+                "contrast": 1.04,
+                "inkColor": [0.2, 0.1, 0],
+                "inkOpacity": 1,
+                "paperColor": [0.96, 0.95, 0.92],
+                "paperOpacity": {
+                    "value": 0.6799999999999999,
+                    "mod": {"type": "hold", "freq": 0.083, "phase": 0, "scale": 0.17, "offset": 0.6799999999999999}
+                },
+                "blendAmount": 0.5,
+                "BLENDMODE": 11,
+                "COLORSPACE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "2D Kernel",
+            "config": {
+                "kernelName": "box",
+                "kernelRadiusX": 3,
+                "kernelRadiusY": 7,
+                "kernelSoftness": {
+                    "value": 12.97,
+                    "mod": {"type": "sine", "freq": 0.056, "phase": 0, "scale": 0.65, "offset": 12.97}
+                },
+                "blendAmount": 0.7675,
+                "BLENDMODE": 11,
+                "COLORSPACE": 3,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }, {
+            "name": "Dither",
+            "config": {
+                "seed": 360,
+                "components": [0.79, 0.16, 0.42, 0.74, 0.87, 0.01, 0.87],
+                "scale": {
+                    "value": 103.08098704691089,
+                    "mod": {"type": "hold", "freq": 0.039, "phase": 0, "scale": 66.29, "offset": 103.08098704691089}
+                },
+                "levels": 2,
+                "edgeStrength": 9.8,
+                "USE_STRUCTURE": false,
+                "colormap": "viridis",
+                "tint": [0.27, 0.45, 0.01],
+                "blendAmount": 0.73,
+                "BLENDMODE": 9,
+                "COLORSPACE": 1,
+                "BLEND_CHANNEL_MODE": 0,
+                "chromaBoost": 0.9
+            }
+        }]
+    }
 
 
 ]

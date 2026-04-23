@@ -2742,6 +2742,7 @@ export const builtInPresets = [
             }
         }]
     },
+    {"name":"Our Glass","config":[{"name":"Mirrorband","config":{"bandSize":0.255,"orientation":0,"mirrorRate":0.36,"offset":0.8,"seed":80,"colorMode":1,"colorBlend":1,"hue":0.15,"sBias":0.49,"vBias":{"value":0.56,"mod":{"type":"walk","freq":0.17400000000000002,"phase":0,"scale":0.35,"offset":0.56,"_walkValue":0.5685494204210199,"_lastUpdate":1034.579999999301}},"levels":3,"rotationAmount":2.261946710584651,"blendAmount":0.59,"BLENDMODE":2,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}},{"name":"Voronoi","config":{"cellCount":{"value":32,"mod":{"type":"none"}},"jitter":0.712,"edgeWidth":{"value":0.45999999999999996,"mod":{"type":"triangle","freq":0.116,"phase":0,"scale":0.21,"offset":0.45999999999999996}},"edgeOpacity":0.972,"edgeColor":[0,0,0],"seed":{"value":82,"mod":{"type":"fm-lfo","freq":0.113,"phase":0,"scale":31.7,"offset":82}},"blendAmount":0.41,"BLENDMODE":10,"COLORSPACE":7,"BLEND_CHANNEL_MODE":0,"chromaBoost":{"value":0.9500000000000001,"mod":{"type":"sine","freq":0.117,"phase":0,"scale":0.51,"offset":0.9}}}},{"name":"Solarize","config":{"threshold":{"value":0.6500000000000001,"mod":{"type":"triangle","freq":0.031,"phase":0,"scale":0.03,"offset":0.6500000000000001}},"strength":0.9380000000000001,"softness":0.037}}]},
     {
         "name": "Jumpscare",
         "config": [{

@@ -30,6 +30,7 @@ float hash(vec2 p) {
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec3 accum = texture(u_image, uv).rgb;
+    vec3 base = accum;
     float totalWeight = 1.0;
 
     // forward walk
@@ -58,6 +59,5 @@ void main() {
 
     accum /= totalWeight;
 
-    vec3 base = texture(u_image, uv).rgb;
     outColor = vec4(blendWithColorSpace(base, accum, u_blendamount), 1.0);
 }

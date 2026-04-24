@@ -15,9 +15,6 @@ out vec4 outColor;
 #include "colorconvert.glsl"
 #include "blend.glsl"
 
-float luminanceAt(vec2 offset) {
-    return luminance(srgb2linear(texture(u_image, offset).rgb));
-}
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;

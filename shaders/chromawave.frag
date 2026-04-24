@@ -25,31 +25,26 @@ out vec4 outColor;
 
 float modulateHueWave(float signal, float spread, float shift) {
     float t = fract(signal * spread + shift);
-    float p = fract(t);  // base phase
-    float duty = clamp(u_duty, 0.01, 0.99);  // safe clamp
+    float p = fract(t);
+    float duty = clamp(u_duty, 0.01, 0.99);
 
 #if WAVETYPE == 0
     // Sawtooth (asymmetric ramp)
     return (p < duty)
         ? p / duty
         : 0.0;
-
 #elif WAVETYPE == 1
     // Triangle (skewed)
     return (p < duty)
         ? p / duty
         : (1.0 - p) / (1.0 - duty);
-
 #elif WAVETYPE == 2
     // Sine (not duty-sensitive for now)
     return 0.5 + 0.5 * sin(6.2831853 * p);
-
 #elif WAVETYPE == 3
-    // Hard square wave with precise phase duty
     return step(duty, p);
-
 #else
-    return p;  // fallback: saw
+    #error invalid wave type
 #endif
 }
 
@@ -103,7 +98,7 @@ vec4 chromawave(vec2 uv) {
 #if WAVETYPE == 3
     float selector = modulateHueWave(signal, u_spreadNorm, u_shiftNorm);
     float base = fract(u_shiftNorm);
-    float alt  = fract(base + 0.5);  // 180° complement
+    float alt  = fract(base + 0.5);
     hue = mix(base, alt, selector);
 #else
     hue = clamp(modulateHueWave(signal, u_spreadNorm, u_shiftNorm), 0.0, 0.999);

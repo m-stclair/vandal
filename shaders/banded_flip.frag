@@ -75,9 +75,8 @@ vec2 rotateBack(vec2 pt, float angle, vec2 center) {
 }
 
 void main() {
-    // TODO: this is not uv!!!
-    vec2 uv = gl_FragCoord.xy;
-    vec2 src = uv;
+    vec2 xy = gl_FragCoord.xy;
+    vec2 src = xy;
     vec3 accumulatedColor = vec3(0.0);
 
     vec2 center = vec2(0.5, 0.5) * u_resolution;
@@ -119,7 +118,7 @@ void main() {
     accumulatedColor /= float(u_levels);
 #endif
     src = clamp(src, vec2(0.0), u_resolution - 1.0);
-    vec4 color = texture(u_image, uv / u_resolution);
+    vec4 color = texture(u_image, xy / u_resolution);
     outColor = vec4(
         blendWithColorSpace(color.rgb, accumulatedColor, u_blendamount),
         1.0

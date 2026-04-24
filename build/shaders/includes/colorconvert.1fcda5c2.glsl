@@ -408,18 +408,17 @@ float luminance(vec3 rgb) {
 #endif
 
 // TODO, probably: get rid of all this bs
-// TODO, dissenting: NO! MORE! USE JZAZBZ! FURTHUR!
-#ifndef APPLY_CHROMA_BOOST
-#define APPLY_CHROMA_BOOST 0
-#endif
+//#ifndef APPLY_CHROMA_BOOST
+//#define APPLY_CHROMA_BOOST 0
+//#endif
 
-#if APPLY_CHROMA_BOOST == 1
-uniform float u_chromaBoost;
-//
-vec3 applyChromaBoost(vec3 c) {
-    return c;
-}
-#endif
+//#if APPLY_CHROMA_BOOST == 1
+//uniform float u_chromaBoost;
+////
+//vec3 applyChromaBoost(vec3 c) {
+//    return c;
+//}
+//#endif
 //#if COLORSPACE == COLORSPACE_LCH
 //    c.y *= pow(c.y, 0.2) * u_chromaBoost;
 //    return c;
@@ -457,10 +456,6 @@ vec3 extractColor(vec3 srgb) {
     extracted = srgb2NormJchz(srgb);
 #else
     extracted = srgb;
-#endif
-
-#if APPLY_CHROMA_BOOST == 1
-    extracted = applyChromaBoost(extracted);
 #endif
     return extracted;
 }

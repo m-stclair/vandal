@@ -5,7 +5,6 @@ import {ColorspaceEnum, hasChromaBoostImplementation, ColorspaceOpts} from "../u
 const shaderPath = "channelmixer.frag"
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
-    'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 

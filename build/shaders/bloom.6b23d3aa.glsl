@@ -26,30 +26,25 @@ out vec4 outColor;
 #define BLOOM_CHROMA_TAIL 0
 #endif
 
-// cheap sat approximation
-float saturation(vec3 color) {
-    float maxC = max(max(color.r, color.g), color.b);
-    float minC = min(min(color.r, color.g), color.b);
-    return (maxC - minC) / max(maxC, 1e-5);
-}
+#ifndef KERNEL_SIZE
+    #error kernel size undefined
+#endif
 
-float computeGlowMask(vec3 color) {
+
+float computeGlowMask(vec3 lch) {
     float maskVal;
 #if BLOOM_MODE == BLOOM_LUMA
-    float luma = dot(color, vec3(0.299, 0.587, 0.114));
-        maskVal = luma;
+    maskVal = lch.x;
 #elif BLOOM_MODE == BLOOM_SATURATION
-    maskVal = saturation(color);
+    maskVal = lch.y;
 #endif
     return smoothstep(u_bloomThreshold, u_bloomThreshold + u_bloomSoftness, maskVal);
 }
 
 vec3 glowMaskedColor(vec2 uv) {
-    vec3 color = texture(u_image, uv).rgb;
-    float luma = dot(color, vec3(0.299, 0.587, 0.114));
-    float glowMask = computeGlowMask(color);
-    vec3 hue = color / max(luma, 1e-4);
-    return hue * glowMask * luma;
+    vec3 srgb = texture(u_image, uv).rgb;
+    float glowMask = computeGlowMask(srgb2NormLCH(srgb));
+    return srgb * glowMask;
 }
 
 vec3 applyChromaticGlowBlur(vec2 uv, vec2 direction) {
@@ -59,7 +54,6 @@ vec3 applyChromaticGlowBlur(vec2 uv, vec2 direction) {
 
     for (int i = 0; i < KERNEL_SIZE; ++i) {
         int offset = i - halfSize;
-        // Slightly offset each channel differently
         vec2 sampleR = uv + float(offset) * texelSize * u_chromaOffset.r;
         vec2 sampleG = uv + float(offset) * texelSize * u_chromaOffset.g;
         vec2 sampleB = uv + float(offset) * texelSize * u_chromaOffset.b;
@@ -72,7 +66,6 @@ vec3 applyChromaticGlowBlur(vec2 uv, vec2 direction) {
     return result;
 }
 
-// Overload blur to use glow-masked source
 vec3 applyGlowBlur(vec2 uv, vec2 direction) {
     vec3 result = vec3(0.0);
     vec2 texelSize = direction / u_resolution;

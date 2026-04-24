@@ -101,7 +101,7 @@ vec3 matchNearest(vec3 lab, int cycleOffset) {
     float minDist = 1e6;
     int best_i = 0;
 
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
         if (i >= u_paletteSize) break;
         float d = deltaE_bias_fast(lab, paletteFeatures[i]);
         if (d < minDist) {

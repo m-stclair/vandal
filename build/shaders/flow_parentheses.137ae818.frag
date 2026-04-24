@@ -3,11 +3,11 @@
 precision mediump float;
 
 #ifndef KERNEL_WIDTH
-    #error
+    #error undefined kernel width
 #endif
 
 #ifndef KERNEL_HEIGHT
-    #error
+    #error undefined kernel height
 #endif
 
 const int KERNEL_SIZE = KERNEL_WIDTH * KERNEL_HEIGHT;

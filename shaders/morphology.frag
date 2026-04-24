@@ -23,7 +23,7 @@ uniform sampler2D u_morphology_2; // erode for dilate - erode gradient operation
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    // this should always be grayscale atm
+    // this should always be grayscale
     vec3 morph = texture(u_morphology, uv).rgb;
     vec3 srgb = texture(u_image, uv).rgb;
 #if SUBTRACT_MODE == SUBTRACT_MODE_NONE
@@ -38,8 +38,7 @@ void main() {
     vec3 morph2 = texture(u_morphology_2, uv).rgb;
     vec3 result = morph - morph2;
 #else
-    // error
-    vec3 result = vec3(1.0, 0.0, 1.0);
+    #error invalid subtract mode
 #endif
     outColor = vec4(blendWithColorSpace(srgb, result, u_blendAmount), 1.0);
 }

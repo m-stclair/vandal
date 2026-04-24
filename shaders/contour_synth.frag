@@ -8,8 +8,14 @@ uniform vec2 u_resolution;
 uniform float u_freq;
 uniform float u_freqScale;
 uniform float u_phaseScale;
-uniform float u_phaseOff; // radians
+uniform float u_phaseOff;
 uniform float u_blend;
+uniform float u_phaseGamma;
+
+uniform float u_hueOff;
+uniform float u_hueScale;
+uniform float u_chromaGamma;
+
 
 out vec4 outColor;
 
@@ -31,35 +37,38 @@ float waveform(float x) {
 #elif WAVEFORM_MODE == WAVEFORM_TRI
     return abs(fract(x / 6.28318) * 2.0 - 1.0); // triangle wave
 #else
-    return sin(x); // default fallback
+    #error invalid waveform mode
 #endif
 }
 
 #define SPATIAL_XY 0
 #define SPATIAL_CHECKER 1
 #define SPATIAL_RADIAL 2
-#define SPATIAL_RINGS 3
+#define SPATIAL_ARC 3
 #define SPATIAL_NONE 4
+
+#define MODE_GRAYSCALE 0
+#define MODE_LUMA 1
+#define MODE_COLOR 2
 
 
 float spatialPattern(vec2 uv, float freq) {
 #if SPATIAL_MODE == SPATIAL_NONE
     return 0.0;
 #elif SPATIAL_MODE == SPATIAL_XY
-    return uv.x + uv.y;
+    return mod((uv.x + uv.y) * freq, 2.0) - 1.0;
 #elif SPATIAL_MODE == SPATIAL_CHECKER
-    float s = sin(uv.x * freq * 3.14159) * sin(uv.y * freq * 3.14159);
-    return s; // pattern in [-1, 1]
+    return sin(uv.x * freq * 3.14159) * sin(uv.y * freq * 3.14159);
 #elif SPATIAL_MODE == SPATIAL_RADIAL
     vec2 center = vec2(0.5);
     float dist = length(uv - center);
     return dist * freq;
-#elif SPATIAL_MODE == SPATIAL_RINGS
+#elif SPATIAL_MODE == SPATIAL_ARC
     vec2 center = vec2(0.5);
     float angle = atan(uv.y - center.y, uv.x - center.x);
     return angle * freq;
 #else
-    return uv.x + uv.y;
+    #error invalid spatial mode
 #endif
 }
 
@@ -69,13 +78,26 @@ void main() {
     vec3 color = pix.rgb;
 
     float luma = luminance(srgb2linear(color));
-    float phase = luma * 6.28318; // 2π
+    float phase = pow((luma * 6.28318), u_phaseGamma);
 
-    float spatial = spatialPattern(uv, u_freq); // just uv.x + uv.y
+    float spatial = spatialPattern(uv, u_freq);
     float patternA = waveform(spatial * u_freqScale + phase);
     float patternB = waveform(-phase * (spatial * u_freqScale + phase * u_phaseScale) + u_phaseOff);
     float patval = clamp(abs(patternA - patternB), 0.0, 1.0);
-    // grayscale for now
+#if COLOR_MODE == MODE_GRAYSCALE
     vec3 blended = blendWithColorSpace(color, patval, u_blend);
+#elif COLOR_MODE == MODE_LUMA
+    vec3 lch = srgb2NormLCH(color);
+    vec3 pattern = normLCH2SRGB(vec3(patval, lch.y, lch.z));
+    vec3 blended = blendWithColorSpace(color, pattern, u_blend);
+#elif COLOR_MODE == MODE_COLOR
+    vec3 lch = srgb2NormLCH(color);
+    float sat = pow(lch.y, u_chromaGamma);
+    float hue = patval * u_hueScale + u_hueOff;
+    vec3 pattern = normLCH2SRGB(vec3(patval, sat, hue));
+    vec3 blended = blendWithColorSpace(color, pattern, u_blend);
+#else
+    #error invalid color mode
+#endif
     outColor = vec4(blended, 1.0);
 }

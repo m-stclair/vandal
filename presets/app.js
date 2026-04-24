@@ -380,7 +380,7 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 150,
-                "saturation": 35,
+                "saturation": 16,
                 "lightness": 61,
                 "hueSpread": 1,
                 "bleed": 0.17
@@ -481,7 +481,7 @@ export const builtInPresets = [
                     "spatialMode": "radial",
                     "colorMode": "none",
                     "hueModStrength": 0.63,
-                    "waveform": "tri"
+                    "waveform": "Tri"
                 }
             }
         ]
@@ -509,10 +509,10 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 1.26,
-                "saturation": 34,
-                "lightness": 48,
+                "saturation": 10,
+                "lightness": 70,
                 "hueSpread": 0.6,
-                "bleed": 0.77,
+                "bleed": 0.45,
                 "COLORSPACE": 0,
                 "BLENDMODE": "1",
                 "blendAmount": 1,
@@ -1187,8 +1187,8 @@ export const builtInPresets = [
                     "cycle": true,
                     "cycleMode": "brightness",
                     "hueShift": 70,
-                    "saturation": 91,
-                    "lightness": 49,
+                    "saturation": 75,
+                    "lightness": 75,
                     "hueSpread": 0.85,
                     "bleed": 0.31
                 }
@@ -1268,8 +1268,8 @@ export const builtInPresets = [
                 "cycle": false,
                 "cycleMode": "spatial",
                 "hueShift": 188,
-                "saturation": 100,
-                "lightness": 50,
+                "saturation": 90,
+                "lightness": 75,
                 "hueSpread": 0.55,
                 "bleed": 0.88
             }
@@ -2214,7 +2214,7 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 0.71,
-                "saturation": 100,
+                "saturation": 51,
                 "lightness": 56,
                 "hueSpread": 0.12737820415783307,
                 "bleed": 0,
@@ -4135,8 +4135,8 @@ export const builtInPresets = [
                         "offset": 1
                     }
                 },
-                "saturation": 100,
-                "lightness": 48,
+                "saturation": 80,
+                "lightness": 35,
                 "hueSpread": 4.230713735302785,
                 "bleed": 0,
                 "COLORSPACE": 0,
@@ -4170,8 +4170,8 @@ export const builtInPresets = [
                             "_lastUpdate": 360.922
                         }
                     },
-                    "saturation": 100,
-                    "lightness": 48,
+                    "saturation": 70,
+                    "lightness": 60,
                     "hueSpread": {
                         "value": 1.7707152252711142,
                         "mod": {
@@ -4258,8 +4258,8 @@ export const builtInPresets = [
                         "offset": 1
                     }
                 },
-                "saturation": 100,
-                "lightness": 48,
+                "saturation": 90,
+                "lightness": 60,
                 "hueSpread": 4.230713735302785,
                 "bleed": 0,
                 "COLORSPACE": 0,
@@ -4294,8 +4294,8 @@ export const builtInPresets = [
                             "_lastUpdate": 98.04309999998212
                         }
                     },
-                    "saturation": 100,
-                    "lightness": 48,
+                    "saturation": 90,
+                    "lightness": 60,
                     "hueSpread": {
                         "value": 1.7707152252711142,
                         "mod": {
@@ -4390,8 +4390,8 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 180,
-                "saturation": 82,
-                "lightness": 63,
+                "saturation": 25,
+                "lightness": 75,
                 "hueSpread": 1,
                 "bleed": 0.39,
                 "COLORSPACE": 0,
@@ -4633,8 +4633,8 @@ export const builtInPresets = [
                 },
                 "noiseAmount": 0.28,
                 "skew": 0.96,
-                "lumaMod": -1.68,
-                "lumaThreshold": 0.58,
+                "lumaMod": -1.5,
+                "lumaThreshold": 0.79,
                 "lumaSoftness": 0,
                 "channelPhase0": {
                     "value": -0.48,
@@ -5934,24 +5934,8 @@ export const builtInPresets = [
                 "kernelRadiusX": 3,
                 "kernelRadiusY": 3,
                 "kernelSoftness": 10,
-                "chromaBoost": 1,
                 "u_directionChannel": 4,
-                "directionAngle": {
-                    "value": 1.4765485471872,
-                    "mod": {
-                        "type": "saw",
-                        "freq": 0.1804814460139499,
-                        "phase": 0,
-                        "scale": 0.1947787445225675,
-                        "offset": 1.5330972149518187
-                    }
-                },
                 "modAmount": 0.42,
-                "driverChannel": 0,
-                "modulatorChannel": "4",
-                "driverPolarity": false,
-                "modulatorPolarity": false,
-                "driverGamma": 0.5650845800732875,
                 "flatThreshold": false
             }
         }, {

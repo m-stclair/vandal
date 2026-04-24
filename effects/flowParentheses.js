@@ -52,8 +52,6 @@ export default {
         kernelRadiusX: 3,
         kernelRadiusY: 3,
         kernelSoftness: 10,
-        chromaBoost: 1
-
     },
     uiLayout: [
         {

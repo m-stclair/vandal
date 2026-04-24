@@ -20,7 +20,7 @@ export default {
         cycleMode: "spatial",
         hueShift: 180,
         saturation: 100,
-        lightness: 50,
+        lightness: 75,
         hueSpread: 1,
         bleed: 0,
         COLORSPACE: 0,

@@ -67,12 +67,16 @@ vec4 chromawave(vec2 uv) {
         );
     }
 
-    vec3 inHSL = srgb2HSL(srgb);
+#if CHROMAWAVE_CYCLE == 0
+    vec3 inLCH = srgb2NormLCH(srgb);
+#elif CHROMAWAVE_BLEED == 1
+    vec3 inLCH = srgb2NormLCH(srgb);
+#endif
     float hue;
     float u_spreadNorm = max(u_spreadNorm, 1e-5);
 
 #if CHROMAWAVE_CYCLE == 0
-    float signal = inHSL.x;
+    float signal = inLCH.z;
 #elif CHROMAWAVE_CYCLE == 1
     float signal = clamp((luma - u_threshold) / (1.0 - u_threshold), 0.0, 1.0);
 #else
@@ -92,9 +96,8 @@ vec4 chromawave(vec2 uv) {
     float scale = 100.;
     spatialSignal = (sin(delta.x / 20. / u_spreadNorm) + sin(delta.y / 20. / u_spreadNorm)) * (delta.x + delta.y);
 #else
-    spatialSignal = length(delta);  // fallback
+    #error invalid spatial pattern
 #endif
-    // Normalize to [0,1]
     float signal = spatialSignal / length(u_resolution);
 #endif
 #if WAVETYPE == 3
@@ -110,9 +113,9 @@ vec4 chromawave(vec2 uv) {
     hue = quantize(hue, u_bandingSteps + 1.) + u_bandHue;
 #endif
 #if CHROMAWAVE_BLEED == 1
-    hue = mix(hue, inHSL.x, u_bleed);
+    hue = mix(hue, inLCH.z, u_bleed);
 #endif
-    vec3 fx = hsl2SRGB(vec3(hue, u_satNorm, u_lightNorm));
+    vec3 fx = normLCH2SRGB(vec3(u_lightNorm, u_satNorm, hue));
     vec3 outRGB = blendWithColorSpace(srgb, fx, u_blendamount);
     return vec4(outRGB, 1.0);
 }

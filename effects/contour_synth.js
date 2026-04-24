@@ -30,7 +30,12 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         chromaBoost: 1,
         waveform: "Sine",
-        spatialWaveform: "Radial"
+        spatialWaveform: "Radial",
+        COLOR_MODE: 0,
+        hueOff: 0,
+        hueScale: 1,
+        chromaGamma: 1,
+        phaseGamma: 1
     },
     uiLayout: [
         group("Waveform Modulation", [
@@ -53,6 +58,14 @@ export default {
                 scaleFactor: 2
             },
             {
+                type: "modSlider",
+                key: "phaseGamma",
+                label: "Phase Gamma",
+                min: 0,
+                max: 3,
+                steps: 100,
+            },
+            {
                 type: "Select",
                 key: "waveform",
                 label: "Waveform",
@@ -66,7 +79,7 @@ export default {
                 type: "Select",
                 key: "spatialWaveform",
                 label: "Spatial Mode",
-                options: ["None", "Bands", "Checkerboard", "Radial", "Rings"]
+                options: ["None", "Bands", "Checkerboard", "Radial", "Arc"]
             },
             {
                 type: "modSlider",
@@ -89,7 +102,45 @@ export default {
         ],
             {color: "#002011"}
         ),
-
+        group("Color", [
+            {
+                type: "Select",
+                key: "COLOR_MODE",
+                label: "Color Mode",
+                options: [
+                    {'label': 'Grayscale', 'value': 0},
+                    {'label': 'Luma', value: 1},
+                    {'label': 'Color', value: 2}
+                ]
+            },
+            {
+                type: "modSlider",
+                key: "hueOff",
+                label: "Hue Offset",
+                min: 0,
+                max: 1,
+                steps: 100,
+                showIf: {key: "COLOR_MODE", equals: 2}
+            },
+            {
+                type: "modSlider",
+                key: "hueScale",
+                label: "Hue Scale",
+                min: 0,
+                max: 3,
+                steps: 100,
+                showIf: {key: "COLOR_MODE", equals: 2}
+            },
+            {
+                type: "modSlider",
+                key: "chromaGamma",
+                label: "Chroma Gamma",
+                min: 0,
+                max: 3,
+                steps: 100,
+                showIf: {key: "COLOR_MODE", equals: 2}
+            }
+        ]),
         blendControls()
     ],
 
@@ -100,7 +151,7 @@ export default {
         const {
             freq, freqScale, phaseOff, phaseScale, blendAmount, BLENDMODE,
             waveform, spatialWaveform, BLEND_CHANNEL_MODE, COLORSPACE,
-            chromaBoost
+            hueOff, hueScale, chromaGamma, phaseGamma, COLOR_MODE
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -111,7 +162,10 @@ export default {
             u_freqScale: {type: "float", value: freqScale},
             u_phaseOff: {type: "float", value: phaseOff * Math.PI / 180},
             u_phaseScale: {type: "float", value: phaseScale},
-            u_chromaBoost: {type: "float", value: chromaBoost},
+            u_phaseGamma: {type: "float", value: phaseGamma},
+            u_hueScale: {type: "float", value: hueScale},
+            u_hueOff: {type: "float", value: hueOff},
+            u_chromaGamma: {type: "float", value: chromaGamma}
         };
         const wavecode = {
             "Sine": 0, "Saw": 1, "Square": 2, "Tri": 3
@@ -122,10 +176,10 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             WAVEFORM_MODE: wavecode,
             SPATIAL_MODE: spacecode,
+            COLOR_MODE: COLOR_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

@@ -55,7 +55,7 @@ float quantize(float v, float steps) {
 
 vec4 chromawave(vec2 uv) {
     vec3 srgb = texture(u_image, uv).rgb;
-    float luma = dot(srgb, vec3(0.299, 0.587, 0.114));
+    float luma = luminance(srgb2linear(srgb));
     if (luma < u_threshold) {
         return vec4(
            blendWithColorSpace(srgb, vec3(0.0, 0.0, 0.0), u_blendamount), 1.

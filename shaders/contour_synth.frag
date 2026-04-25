@@ -78,7 +78,7 @@ void main() {
     vec3 color = pix.rgb;
 
     float luma = luminance(srgb2linear(color));
-    float phase = pow((luma * 6.28318), u_phaseGamma);
+    float phase = pow(luma, u_phaseGamma) * 6.28318;
 
     float spatial = spatialPattern(uv, u_freq);
     float patternA = waveform(spatial * u_freqScale + phase);

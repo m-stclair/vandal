@@ -24,8 +24,7 @@ out vec4 outColor;
 
 
 float modulateHueWave(float signal, float spread, float shift) {
-    float t = fract(signal * spread + shift);
-    float p = fract(t);
+    float p = fract(signal * spread + shift);
     float duty = clamp(u_duty, 0.01, 0.99);
 
 #if WAVETYPE == 0
@@ -63,54 +62,61 @@ vec4 chromawave(vec2 uv) {
     }
 
 #if CHROMAWAVE_CYCLE == 0
-    vec3 inLCH = srgb2NormLCH(srgb);
+    vec3 inLCH = rgb2hsv(srgb);
 #elif CHROMAWAVE_BLEED == 1
-    vec3 inLCH = srgb2NormLCH(srgb);
+    vec3 inLCH = rgb2hsv(srgb);
 #endif
     float hue;
-    float u_spreadNorm = max(u_spreadNorm, 1e-5);
+    float spreadNorm = max(u_spreadNorm, 1e-5);
 
 #if CHROMAWAVE_CYCLE == 0
-    float signal = inLCH.z;
+    float signal = inLCH.x;
 #elif CHROMAWAVE_CYCLE == 1
-    float signal = clamp((luma - u_threshold) / (1.0 - u_threshold), 0.0, 1.0);
+    float threshold = clamp(u_threshold, 0.0, 0.99);
+    float signal = clamp((luma - threshold) / (1.0 - threshold), 0.0, 1.0);
 #else
     vec2 delta = gl_FragCoord.xy - u_origin;
     float spatialSignal;
 #if SPATIAL_PATTERN == 0
+    // radial
     spatialSignal = length(delta);
 #elif SPATIAL_PATTERN == 1
+    // horizontal
     spatialSignal = delta.x;
 #elif SPATIAL_PATTERN == 2
+    // vertical
     spatialSignal = delta.y;
 #elif SPATIAL_PATTERN == 3
+    // diagonal
     spatialSignal = dot(delta, normalize(vec2(1.0, 1.0)));
 #elif SPATIAL_PATTERN == 4
-    spatialSignal = fract(atan(delta.y / u_spreadNorm, delta.x / u_spreadNorm)) * (delta.x + delta.y);
+    // tear-y angular pattern
+    spatialSignal = fract(atan(delta.y, delta.x)) * (delta.x + delta.y);
 #elif SPATIAL_PATTERN == 5
-    float scale = 100.;
-    spatialSignal = (sin(delta.x / 20. / u_spreadNorm) + sin(delta.y / 20. / u_spreadNorm)) * (delta.x + delta.y);
+    // checkerboard-ish
+    spatialSignal = (sin(delta.x / 20. / spreadNorm) + sin(delta.y / 20. / spreadNorm)) * (delta.x + delta.y);
 #else
     #error invalid spatial pattern
 #endif
     float signal = spatialSignal / length(u_resolution);
 #endif
 #if WAVETYPE == 3
-    float selector = modulateHueWave(signal, u_spreadNorm, u_shiftNorm);
+    float selector = modulateHueWave(signal, spreadNorm, u_shiftNorm);
     float base = fract(u_shiftNorm);
     float alt  = fract(base + 0.5);
     hue = mix(base, alt, selector);
 #else
-    hue = clamp(modulateHueWave(signal, u_spreadNorm, u_shiftNorm), 0.0, 0.999);
+    hue = clamp(modulateHueWave(signal, spreadNorm, u_shiftNorm), 0.0, 0.999);
 #endif
 
 #if USE_BANDING == 1
     hue = quantize(hue, u_bandingSteps + 1.) + u_bandHue;
 #endif
 #if CHROMAWAVE_BLEED == 1
-    hue = mix(hue, inLCH.z, u_bleed);
+    hue = mix(hue, inLCH.x, u_bleed);
 #endif
-    vec3 fx = normLCH2SRGB(vec3(u_lightNorm, u_satNorm, hue));
+//    vec3 fx = hsv2rgb(vec3(u_lightNorm, u_satNorm, hue));
+    vec3 fx = hsv2rgb(vec3(hue, u_satNorm, u_lightNorm));
     vec3 outRGB = blendWithColorSpace(srgb, fx, u_blendamount);
     return vec4(outRGB, 1.0);
 }

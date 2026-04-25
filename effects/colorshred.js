@@ -1,11 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {makeEnum} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, makeEnum} from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "colorshred.frag";
 const includePaths = {
     "colorconvert.glsl": "includes/colorconvert.glsl",
-    "noise.glsl": "includes/noise.glsl"
+    "noise.glsl": "includes/noise.glsl",
+    "blend.glsl": "includes/blend.glsl"
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
@@ -21,6 +23,10 @@ export default {
     name: "Colorshred",
 
     defaultConfig: {
+        BLENDMODE: BlendModeEnum.MIX,
+        BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
+        COLORSPACE: ColorspaceEnum.RGB,
+        blendAmount: 1,
         mode: SModeEnum.DISJOINT,
         density: 0.1,
         chromaThreshold: 0,
@@ -30,7 +36,9 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            mode, density, chromaThreshold, INVERT_CHROMA_THRESHOLD
+            mode, density, chromaThreshold, INVERT_CHROMA_THRESHOLD,
+            blendAmount, COLORSPACE, BLEND_CHANNEL_MODE,
+            BLENDMODE
         } = resolveAnimAll(instance.config, t);
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
@@ -38,12 +46,16 @@ export default {
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
             u_density: {value: density, type: "float"},
-            u_chromaThreshold: {value: chromaThreshold, type: "float"}
+            u_chromaThreshold: {value: chromaThreshold, type: "float"},
+            u_blendamount: {value: blendAmount, type: "float"}
         };
         const defines = {
             SHRED_COLOR_MODE: mode,
             CHROMA_THRESHOLDING: Number(INVERT_CHROMA_THRESHOLD ? chromaThreshold < 1 : chromaThreshold > 0),
-            INVERT_CHROMA_THRESHOLD: Number(INVERT_CHROMA_THRESHOLD)
+            INVERT_CHROMA_THRESHOLD: Number(INVERT_CHROMA_THRESHOLD),
+            BLENDMODE: BLENDMODE,
+            COLORSPACE: COLORSPACE,
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
         };
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
@@ -57,7 +69,6 @@ export default {
     glState: null,
     isGPU: true,
     uiLayout: [
-        // only have percentile, might not even want others, they suck here
         {
             key: "mode",
             label: "Mode ",
@@ -85,6 +96,7 @@ export default {
             key: "INVERT_CHROMA_THRESHOLD",
             label: "Invert Chroma Threshold",
         },
+        blendControls()
     ]
 }
 

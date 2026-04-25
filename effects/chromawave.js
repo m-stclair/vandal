@@ -1,7 +1,6 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
-import {hasChromaBoostImplementation} from "../utils/glsl_enums.js";
 
 const shaderPath = "chromawave.frag"
 const includePaths = {
@@ -18,7 +17,7 @@ export default {
         threshold: 0.45,
         cycle: true,
         cycleMode: "spatial",
-        hueShift: 180,
+        hueShift: 0,
         saturation: 100,
         lightness: 75,
         hueSpread: 1,
@@ -27,7 +26,6 @@ export default {
         BLENDMODE: 1,
         BLEND_CHANNEL_MODE: 0,
         blendAmount: 1,
-        chromaBoost: 1,
         bandingSteps: 0,
         waveType: "tri",
         dutyCycle: 0.75,
@@ -112,12 +110,11 @@ export default {
             originY,
             spatialPattern,
             BLEND_CHANNEL_MODE,
-            chromaBoost,
             bandHue
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm;
-        const CHROMAWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode];
+        const CHROMAWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode] ?? 2;
         if (CHROMAWAVE_CYCLE === 0) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
@@ -134,7 +131,7 @@ export default {
             shiftNorm = hueShift / 2;
             spreadNorm = (hueSpread * 2) ** 0.8;
         }
-        const waveCode = {"saw": 0, "tri": 1, "sine": 2, "square": 3}[waveType]
+        const waveCode = {"saw": 0, "tri": 1, "sine": 2, "square": 3}[waveType] ?? 1;
         const patternCode = {
             "radial": 0, "horizontal": 1, "vertical": 2,
             "diagonal": 3, "angle": 4, "checker": 5
@@ -152,12 +149,10 @@ export default {
             u_duty: {type: "float", value: dutyCycle},
             u_bandingSteps: {type: "float", value: bandingSteps},
             u_origin: {type: "vec2", value: [originX * width, originY * height]},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             u_bandHue: {type: "float", value: bandHue}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
@@ -190,7 +185,7 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         threshold: {min: 0, max: 0.6},
-        saturation: {min: 40, max: 100},
-        lightness: {min: 40, max: 60}
+        saturation: {min: 25, max: 100},
+        lightness: {min: 25, max: 60}
     }
 }

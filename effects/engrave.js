@@ -1,8 +1,7 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {BlendModeEnum, BlendTargetEnum, CalcModeEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, CalcModeEnum, ColorspaceEnum} from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {rgb2Lab} from "../utils/colorutils.js";
 import {calcPass} from "./probes/calcpass.js";
 
 const shaderPath = "engrave.frag";
@@ -24,7 +23,6 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
-        chromaBoost: 1,
         brightness: 1,
         contrast: 2,
         scale: 2,
@@ -245,7 +243,6 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             USE_STRUCTURE: USE_STRUCTURE ? 1 : 0
         };
@@ -280,7 +277,7 @@ export const effectMeta = {
   canAnimate: true,
   realtimeSafe: true,
   parameterHints: {
-      hatchAngle: {"min": 15, "max": 45},
+      angle: {"min": 15, "max": 45},
       lineSpacing: {"min": 10, "max": 25},
       lineSpacingSensitivity: {"min": 0, "max": 0.03},
       inkColor: {"always": [0.2, 0.1, 0]},
@@ -288,7 +285,7 @@ export const effectMeta = {
       inkOpacity: {"always": 1.0},
       paperOpacity: {"min": 0.6, "max": 1},
       scale: {"min": 1.2, "max": 3},
-      width: {"min": 0.05, "max": 0.2},
+      lineWidth: {"min": 0.05, "max": 0.2},
       contrast: {"min": 1, "max": 3},
       brightness: {"min": 0.75, "max": 1.5},
       jitter: {"min": 0, "max": 0.5}

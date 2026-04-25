@@ -26,7 +26,7 @@ uniform float u_edgeStrength;
 #endif
 
 #if USE_STRUCTURE == 1
-// Optional structure tensor driver. we leave the irrelevant float
+// for optional edge behavior. we leave the irrelevant float
 // uniforms in for both cases, but there's no sense uploading a
 // dummy texture if we don't need it
 uniform sampler2D u_calcPass;
@@ -44,14 +44,14 @@ uniform sampler2D u_calcPass;
 #include "noise2D.glsl"
 
 void main() {
-    vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
+    vec2 uv = gl_FragCoord.xy / u_resolution;
     vec2 uvjit = uv + uniformNoise(u_seed + 1.0);
     vec2 uvs = uvjit * u_scale;
 
     // math from noise mixer
     float noiseVal = 0.0;
     noiseVal += uniformNoise(uvjit.x * uvjit.y) * u_uniform;
-    noiseVal += cnoise(uvs) * u_perlin * 1.4;
+    noiseVal += cnoise(uvs) * u_perlin * 1.5;
     vec2 gradientOut = vec2(0.0, 0.0);  // scratch space for periodic simplex noise algo
     noiseVal += psrdnoise(uvs, vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
     noiseVal += gaussianNoise(uvjit) * u_gauss;

@@ -22,7 +22,6 @@ out vec4 outColor;
 
 #define PREBLEND_WARP_CHANNEL 1
 
-// ---- UNIFORMS ----
 uniform vec2 u_resolution;
 uniform vec2 u_zoneMin;// normalized [0,1]
 uniform vec2 u_zoneMax;// normalized [0,1]
@@ -35,8 +34,6 @@ uniform float u_blendamount;
 uniform float u_warpAngle;// in radians
 uniform float u_zoneAngle;// radians
 uniform float u_zoneEllipseN;
-
-// ---- UTILS ----
 
 float channelDrive(vec3 color) {
     #if WARPDRIVE_COLORSPACE == COLORSPACE_RGB
@@ -51,7 +48,6 @@ float channelDrive(vec3 color) {
     return 0.0;
     #endif
 }
-
 
 vec2 rotate(vec2 v, float theta) {
     float c = cos(theta);
@@ -96,7 +92,7 @@ vec2 warpFunction(vec2 uv) {
 }
 
 vec2 maskedWarp(vec2 uv, float mask) {
-    vec2 delta = warpFunction(uv);// To be defined below
+    vec2 delta = warpFunction(uv);
     return uv + delta * mask * u_warpStrength;
 }
 

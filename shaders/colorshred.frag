@@ -12,6 +12,7 @@ uniform float u_chromaThreshold;
 out vec4 outColor;
 
 #include "colorconvert.glsl"
+#include "blend.glsl"
 #include "noise.glsl"
 
 #define SHRED_COLOR_DISJOINT 0
@@ -67,9 +68,9 @@ float chroma = 0.0;
         step(hash(uv), u_density)
     );
 #else
-    shredded = vec3(1., 0., 1.);  // error fallback
+    #error invalid shred color mode
 #endif
-    outColor = vec4(shredded, 1.0);
+    outColor = vec4(blendWithColorSpace(src, shredded, u_blendamount), 1.0);
 }
 
 

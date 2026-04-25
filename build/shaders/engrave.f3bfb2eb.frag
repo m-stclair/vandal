@@ -22,7 +22,6 @@ uniform float u_angle;
 uniform float u_lineSpacing;
 uniform float u_lineSpacingSensitivity;
 uniform float u_anisoDrag;
-uniform float u_originX;
 
 #ifndef USE_STRUCTURE
 #define USE_STRUCTURE 0
@@ -111,8 +110,8 @@ void main()
     #if USE_STRUCTURE == 1
         // normalized angle, anisotropy
         vec2 structureTensor = texture(u_calcPass, uv).rg;
-        float angle = structureTensor.r * PI - PI * 0.5;
-        angle = floor(angle * 4.0) / 4.0;
+        float bins = 4.0;
+        float angle = (floor(structureTensor.r * bins) + 0.5) * (PI / bins) - PI * 0.5;
         // there is no justification for using the cube, just looks better on most images
         tone = tone / (1.0 + structureTensor.g * structureTensor.g * structureTensor.g * u_anisoDrag);
     #else
@@ -136,6 +135,8 @@ void main()
     float baseWidth = mix(u_lineWidth - widthRange, u_lineWidth + widthRange, tone);
     float spacingRange = u_lineSpacing * u_lineSpacingSensitivity;
     float baseSpacing = mix(u_lineSpacing - spacingRange, u_lineSpacing + spacingRange, smoothstep(0.1, 0.95, tone));
+    baseWidth = clamp(baseWidth, 0.001, 0.49);
+    baseSpacing = max(baseSpacing, 1.0);
 
     // Layer 1: sparse
     ink += hatchLayer(

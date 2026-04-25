@@ -509,8 +509,8 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 1.26,
-                "saturation": 10,
-                "lightness": 70,
+                "saturation": 25,
+                "lightness": 66,
                 "hueSpread": 0.6,
                 "bleed": 0.45,
                 "COLORSPACE": 0,
@@ -565,8 +565,8 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "brightness",
                 "hueShift": 208,
-                "saturation": 20,
-                "lightness": 57,
+                "saturation": 22,
+                "lightness": 75,
                 "hueSpread": 1.15,
                 "bleed": 0
             }
@@ -1149,7 +1149,7 @@ export const builtInPresets = [
                     "spatialMode": "xy",
                     "colorMode": "preserve",
                     "hueModStrength": 0.23,
-                    "waveform": "sawtooth"
+                    "waveform": "Saw"
                 }
             }
         ]
@@ -1321,7 +1321,7 @@ export const builtInPresets = [
                 "cycleMode": "spatial",
                 "hueShift": 188,
                 "saturation": 100,
-                "lightness": 50,
+                "lightness": 75,
                 "hueSpread": 0.55,
                 "bleed": 0.88
             }
@@ -2505,7 +2505,7 @@ export const builtInPresets = [
                     "spatialMode": "xy",
                     "colorMode": "pass",
                     "hueModStrength": 0.5,
-                    "waveform": "sawtooth"
+                    "waveform": "Saw"
                 }
             },
             {
@@ -4136,7 +4136,7 @@ export const builtInPresets = [
                     }
                 },
                 "saturation": 80,
-                "lightness": 35,
+                "lightness": 75,
                 "hueSpread": 4.230713735302785,
                 "bleed": 0,
                 "COLORSPACE": 0,
@@ -4155,7 +4155,7 @@ export const builtInPresets = [
             {
                 "name": "Chromawave",
                 "config": {
-                    "threshold": 0.3,
+                    "threshold": 0.13,
                     "cycle": true,
                     "cycleMode": "spatial",
                     "hueShift": {
@@ -4258,7 +4258,7 @@ export const builtInPresets = [
                         "offset": 1
                     }
                 },
-                "saturation": 90,
+                "saturation": 65,
                 "lightness": 60,
                 "hueSpread": 4.230713735302785,
                 "bleed": 0,
@@ -4390,7 +4390,7 @@ export const builtInPresets = [
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 180,
-                "saturation": 25,
+                "saturation": 40,
                 "lightness": 75,
                 "hueSpread": 1,
                 "bleed": 0.39,

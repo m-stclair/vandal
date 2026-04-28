@@ -102,6 +102,9 @@ export default {
                     type: "range",
                     key: "chromaGateAmount",
                     label: "Gate Amount",
+                    min: 0,
+                    max: 1,
+                    steps: 100,
                     showIf: {key: "useChromaGate", "notEquals": false}
                 }
             ]
@@ -118,11 +121,6 @@ export default {
                     options: FlowModeOpts
                 },
                 {key: "twistAmount", label: "Local Twist", type: "modSlider", min: -12.566, max: 12.566, steps: 240},
-                {
-                    type: "checkbox",
-                    key: "directionPolarity",
-                    label: "Reverse Direction",
-                },
             ]
         },
         {
@@ -159,7 +157,7 @@ export default {
         const {
             BLENDMODE, COLORSPACE, blendAmount,
             BLEND_CHANNEL_MODE, scalarChannel,
-            flowMode, warpStrength, directionPolarity,
+            flowMode, warpStrength,
             edgeGain, edgeLow, edgeHigh, flowGamma, twistAmount,
             streamSteps, stepLength, decay, centerWeight,
             kernelName, kernelRadiusX, kernelRadiusY,
@@ -174,7 +172,6 @@ export default {
             u_edgeHigh: {type: "float", value: edgeHigh},
             u_flowGamma: {type: "float", value: flowGamma},
             u_twistAmount: {type: "float", value: twistAmount},
-            u_directionPolarity: {type: "float", value: Number(directionPolarity)},
             u_chromaGateAmount: {type: "float", value: chromaGateAmount},
         }
         const offsetDefineSpec = {

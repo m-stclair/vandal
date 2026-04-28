@@ -331,9 +331,8 @@ vec3 applyDCTTexture(vec2 uv, vec3 c) {
     float fly = edge * smoothstep(0.18, 0.90, fbm(vec2(gl_FragCoord.xy * 0.33 + heldFrameNumber())));
     c += mosquito * fly * (0.018 + 0.120 * u_dvd.mosquitoNoise);
 
-    float boundary = blockBoundary(uv, px);
-    c *= 1.0 - boundary * u_dvd.macroblockAmount * (0.018 + 0.080 * u_dvd.quantization);
-    c += boundary * (hash(blockCoord(uv, px) + heldFrameNumber()) - 0.5) * 0.035 * u_dvd.packetLoss;
+
+    c += (hash(blockCoord(uv, px) + heldFrameNumber()) - 0.5) * 0.035 * u_dvd.packetLoss;
 
     return c;
 }
@@ -360,7 +359,7 @@ vec3 applyBitFailures(vec2 uv, vec3 c) {
     vec2 macro = blockCoord(uv, px);
 
     float rot = step(
-        1.0 - (0.0015 + 0.045 * u_dvd.bitRot),
+        1.0 - (0.045 * u_dvd.bitRot),
         hash(cell + vec2(frame * 1.7, u_dvd.seed))
     );
 

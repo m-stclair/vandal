@@ -91,6 +91,9 @@ export default {
                     type: "range",
                     key: "chromaDragAmount",
                     label: "Drag Amount",
+                    min: 0,
+                    max: 1,
+                    steps: 100,
                     showIf: {key: "useChromaDrag", "notEquals": false}
                 },
                 {

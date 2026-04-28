@@ -47,6 +47,7 @@ const blendWeights = {
     [BlendModeEnum.SOFT_LIGHT_I]: 4.0,
     [BlendModeEnum.DARKEN]: 0.5,
     [BlendModeEnum.MULTIPLY]: 0.5,
+    [BlendModeEnum.POWER]: 0.5,
     [BlendModeEnum.REPLACE]: 0.0
 }
 
@@ -107,6 +108,38 @@ function setBaseValue(param, newVal) {
     }
 }
 
+const PERMISSIBLE_NON_MIX_BLENDS = new Map([
+    [ColorspaceEnum.Lab, [
+        BlendModeEnum.OVERLAY, BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN,
+        BlendModeEnum.SOFT_LIGHT, BlendModeEnum.HARD_LIGHT,
+        BlendModeEnum.SOFT_LIGHT_I, BlendModeEnum.HARD_LIGHT_I,
+        BlendModeEnum.VIVID_LIGHT, BlendModeEnum.POWER
+    ]],
+    [ColorspaceEnum.YCbCr, [
+        BlendModeEnum.OVERLAY, BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN,
+        BlendModeEnum.SOFT_LIGHT, BlendModeEnum.HARD_LIGHT,
+        BlendModeEnum.SOFT_LIGHT_I, BlendModeEnum.HARD_LIGHT_I,
+        BlendModeEnum.VIVID_LIGHT, BlendModeEnum.POWER
+    ]],
+    [ColorspaceEnum.JCHz, [
+        BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN, BlendModeEnum.DIFFERENCE,
+        BlendModeEnum.COLOR_DODGE
+    ]],
+    [ColorspaceEnum.JzAzBz, [
+        BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN
+    ]],
+    [ColorspaceEnum.Opponent, [
+        BlendModeEnum.ADD, BlendModeEnum.MULTIPLY, BlendModeEnum.SCREEN,
+        BlendModeEnum.OVERLAY, BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN,
+        BlendModeEnum.DIFFERENCE,  BlendModeEnum.SOFT_LIGHT, BlendModeEnum.HARD_LIGHT,
+        BlendModeEnum.COLOR_DODGE
+    ]]
+])
+
+const CHROMA_SECOND_CHANNEL_SPACES = [
+    ColorspaceEnum.HSV, ColorspaceEnum.HSL, ColorspaceEnum.JCHz, ColorspaceEnum.LCH
+]
+
 function enforceBlendConstraints(config) {
     if (config.BLENDMODE === BlendModeEnum.REPLACE) {
         config.BLENDMODE = BlendModeEnum.MIX;
@@ -115,29 +148,28 @@ function enforceBlendConstraints(config) {
     if (blendAmount !== undefined) {
         if (blendAmount < 0.35) {
             config.blendAmount = setBaseValue(config.blendAmount, 0.35);
-        } else if (config.BLENDMODE === BlendModeEnum.MIX && blendAmount > 0.75) {
-            config.blendAmount = setBaseValue(config.blendAmount, 0.75);
+        } else if (config.BLENDMODE === BlendModeEnum.MIX && blendAmount > 0.8) {
+            config.blendAmount = setBaseValue(config.blendAmount, 0.8);
         }
     } else {
         // harmless to set it on things that don't need it
-        blendAmount = 1;
+        config.blendAmount = 1;
     }
     if (
-        [BlendModeEnum.DIFFERENCE, BlendModeEnum.ADD].includes(config.BLENDMODE)
-        && [ColorspaceEnum.Lab, ColorspaceEnum.LCH, ColorspaceEnum.YCbCr].includes(config.COLORSPACE)
+        CHROMA_SECOND_CHANNEL_SPACES.includes(config.COLORSPACE)
+        && config.BLEND_CHANNEL_MODE === 2
     ) {
-        config.BLENDMODE = BlendModeEnum.SOFT_LIGHT
+        config.BLEND_CHANNEL_MODE = 0;
     }
     if (
-        (config.BLEND_CHANNEL_MODE === BlendTargetEnum.CHANNEL_2)
-        && [ColorspaceEnum.HSV, ColorspaceEnum.LCH, ColorspaceEnum.HSL].includes(config.COLORSPACE)
+        PERMISSIBLE_NON_MIX_BLENDS.has(config.COLORSPACE)
+        && !PERMISSIBLE_NON_MIX_BLENDS.get(config.COLORSPACE).includes(config.BLENDMODE)
+        // this last one works because in practice everything in PERMISSIBLE_NON_MIX_BLENDS
+        // has lightness on channel 1. if that stops being true, this heuristic needs to get
+        // more complicated.
+        && config.BLEND_CHANNEL_MODE !== 1
     ) {
-        config.BLEND_CHANNEL_MODE = BlendTargetEnum.ALL
-    }
-   let chromaBoost = getBaseValue(config.chromaBoost);
-    if (chromaBoost !== undefined) {
-        const clamped = Math.min(Math.max(0.9, blendAmount), 1.1);
-        config.chromaBoost = setBaseValue(config.chromaBoost, clamped);
+        config.BLENDMODE = BlendModeEnum.MIX;
     }
 }
 

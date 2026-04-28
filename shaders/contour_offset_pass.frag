@@ -12,7 +12,6 @@ uniform float u_edgeLow;
 uniform float u_edgeHigh;
 uniform float u_flowGamma;
 uniform float u_twistAmount;
-uniform float u_directionPolarity;
 uniform float u_chromaGateAmount;
 
 out vec4 outColor;
@@ -111,7 +110,6 @@ vec2 computeOffset(vec2 uv) {
 #endif
 
     direction = rotate2d((center - 0.5) * u_twistAmount) * direction;
-    direction *= 1.0 - 2.0 * u_directionPolarity;
 
     return direction * magnitude;
 }

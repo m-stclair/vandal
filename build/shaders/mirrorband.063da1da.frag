@@ -94,10 +94,13 @@ void main() {
         src = applyMirror(rotated, thisBand, thisMirrorRate,
         thisOffset, currentOrientation, u_seed * f);
 
-        vec2 rotatedBack = rotateBack(src, -angle * radialWeight, center);
+        // intentionally not a true reverse. creates phase separation between
+        // geometry and banding during rotation
+        vec2 slabRotated = rotateBack(src, -angle * radialWeight, center);
 
-        float slab = ((u_orientation == 0 ? rotatedBack.y : rotatedBack.x) + thisOffset) / thisBand;
+        float slab = ((u_orientation == 0 ? slabRotated.y : slabRotated.x) + thisOffset) / thisBand;
         float slabVal = floor(slab);
+
 #if FLIP_COLOR_MODE == FLIP_COLOR_RANDOM
         float hue = random(vec2(slabVal, u_seed));
 #elif FLIP_COLOR_MODE == FLIP_COLOR_SWEEP
@@ -117,6 +120,7 @@ void main() {
 #if FLIP_COLOR_BLEND == 0
     accumulatedColor /= float(u_levels);
 #endif
+
     src = clamp(src, vec2(0.0), u_resolution - 1.0);
     vec4 color = texture(u_image, xy / u_resolution);
     outColor = vec4(

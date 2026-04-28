@@ -48,6 +48,7 @@ void main() {
     // backward walk
     pos = uv;
     for (int i = 1; i <= STEPS; i++) {
+        // u_calcPass first channel is structure tensor dominant eigenvector orientation
         float angle = texture(u_calcPass, pos).x + u_angle + hash(pos + u_seed) * u_jitter;
         vec2 tangent = vec2(cos(angle), sin(angle)) * u_stepSize;
         pos -= tangent * u_texelSize;

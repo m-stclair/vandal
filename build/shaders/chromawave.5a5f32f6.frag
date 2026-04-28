@@ -15,7 +15,7 @@ uniform float u_blendamount;
 uniform float u_bandingSteps;
 uniform float u_duty;
 uniform vec2 u_origin;
-uniform float u_bandHue;
+uniform float u_baseHue;
 
 out vec4 outColor;
 
@@ -44,6 +44,61 @@ float modulateHueWave(float signal, float spread, float shift) {
     return step(duty, p);
 #else
     #error invalid wave type
+#endif
+}
+
+float bandCount() {
+    return max(floor(u_bandingSteps + 1.0), 1.0);
+}
+
+float bandIndexFromPhase(float phase) {
+    float count = bandCount();
+    return floor(clamp(phase, 0.0, 0.999999) * count);
+}
+
+float paletteHue(float bandIndex, float count, float baseHue) {
+    float base = fract(baseHue);
+    float denom = max(count - 1.0, 1.0);
+    float t = bandIndex / denom;
+
+#if PALETTE_MODE == 0
+    // full hue-wheel walk.
+    return fract(base + bandIndex / count);
+
+#elif PALETTE_MODE == 1
+    // Analogous ribbon.
+    float arc = 0.22;
+    return fract(base + (t - 0.5) * arc);
+
+#elif PALETTE_MODE == 2
+    // Analogous with cool/warm accent.
+    float k = mod(bandIndex, 6.0);
+
+    if (k < 0.5) return fract(base);
+    if (k < 1.5) return fract(base + 0.035);
+    if (k < 2.5) return fract(base - 0.045);
+    if (k < 3.5) return fract(base + 0.085);
+    if (k < 4.5) return fract(base - 0.075);
+
+    return fract(base + 0.54);
+
+#elif PALETTE_MODE == 3
+    // Dusty split-accent loop.
+    float k = mod(bandIndex, 7.0);
+
+    if (k < 0.5) return fract(base);
+    if (k < 1.5) return fract(base + 0.025);
+    if (k < 2.5) return fract(base - 0.035);
+    if (k < 3.5) return fract(base + 0.070);
+
+    // Split accents, softened by being less frequent.
+    if (k < 4.5) return fract(base + 0.44);
+    if (k < 5.5) return fract(base + 0.58);
+
+    return fract(base - 0.085);
+
+#else
+    #error invalid palette mode
 #endif
 }
 
@@ -95,6 +150,9 @@ vec4 chromawave(vec2 uv) {
 #elif SPATIAL_PATTERN == 5
     // checkerboard-ish
     spatialSignal = (sin(delta.x / 20. / spreadNorm) + sin(delta.y / 20. / spreadNorm)) * (delta.x + delta.y);
+#elif SPATIAL_PATTERN == 6
+    // smooth angular sweep
+    spatialSignal = atan(delta.y, delta.x) * 6.28 * spreadNorm;
 #else
     #error invalid spatial pattern
 #endif
@@ -102,20 +160,31 @@ vec4 chromawave(vec2 uv) {
 #endif
 #if WAVETYPE == 3
     float selector = modulateHueWave(signal, spreadNorm, u_shiftNorm);
-    float base = fract(u_shiftNorm);
+    float base = fract(u_baseHue);
     float alt  = fract(base + 0.5);
     hue = mix(base, alt, selector);
 #else
-    hue = clamp(modulateHueWave(signal, spreadNorm, u_shiftNorm), 0.0, 0.999);
+    float phase = clamp(modulateHueWave(signal, spreadNorm, u_shiftNorm), 0.0, 0.999);
+    #if USE_BANDING == 1
+        float count = bandCount();
+        float idx = bandIndexFromPhase(phase);
+        hue = paletteHue(idx, count, u_baseHue);
+    #else
+        #if PALETTE_MODE == 0
+            hue = fract(phase + u_baseHue);
+        #else
+            // Smooth palette modes are inherently ambiguous.
+            // So either disable them without banding, or intentionally hard-select.
+            float count = 8.0;
+            float idx = floor(phase * count);
+            hue = paletteHue(idx, count, u_baseHue);
+        #endif
+    #endif
 #endif
 
-#if USE_BANDING == 1
-    hue = quantize(hue, u_bandingSteps + 1.) + u_bandHue;
-#endif
 #if CHROMAWAVE_BLEED == 1
     hue = mix(hue, inLCH.x, u_bleed);
 #endif
-//    vec3 fx = hsv2rgb(vec3(u_lightNorm, u_satNorm, hue));
     vec3 fx = hsv2rgb(vec3(hue, u_satNorm, u_lightNorm));
     vec3 outRGB = blendWithColorSpace(srgb, fx, u_blendamount);
     return vec4(outRGB, 1.0);

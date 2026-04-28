@@ -126,10 +126,6 @@ void main()
     // - Midtones: add second direction
     // - Darker regions: add denser hatches
     // - Near-black: add a fine pass
-    //
-    // Using distinct thresholds is much more persuasive than trying to
-    // continuously vary one lonely stripe field forever.
-
     float ink = 0.0;
     float widthRange = u_lineWidth * u_lineWidthSensitivity;
     float baseWidth = mix(u_lineWidth - widthRange, u_lineWidth + widthRange, tone);

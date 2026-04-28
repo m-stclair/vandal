@@ -42,11 +42,11 @@ export default {
         blendTarget: '0',
         jitter: 0,
         chromaBoost: 1,
-        BLEND_CHANNEL_MODE: 0
+        BLEND_CHANNEL_MODE: 0,
+        BOUNDMODE: 1
     },
 
     uiLayout: [
-        // Core Controls
         {
             key: "delay",
             label: "Delay (px)",
@@ -62,8 +62,12 @@ export default {
             max: 8,
             step: 0.1
         },
-
-        // Kernel Shape Group
+        {
+            key: "BOUNDMODE",
+            label: "Bound Mode",
+            type: "select",
+            options: [{"label": "Clamp", "value": 0}, {"label": "Wrap", value: 1}],
+        },
         group("Kernel Shape", [
             {
                 type: "select",
@@ -90,8 +94,6 @@ export default {
                 step: 0.01
             }
         ], {color: "#1a0000"}),
-
-        // Spatial Transform Group
         group("Spatial Transform", [
             {key: "angle", label: "Angle", type: "modSlider", min: -180, max: 180},
             {key: "shearX", label: "Shear (x)", type: "modSlider", min: -5, max: 5, step: 0.1},
@@ -109,7 +111,7 @@ export default {
         const {
             delay, window, density, angle, falloff, shearX, shearY,
             scaleX, scaleY, blendAmount, BLENDMODE, BLEND_CHANNEL_MODE, COLORSPACE,
-            jitter, chromaBoost
+            jitter, BOUNDMODE
         } = resolveAnimAll(instance.config, t);
         // TODO: write equivalent quit-fast option for GL
         // if (delay <= 0) return data;
@@ -164,13 +166,12 @@ export default {
             u_weights: {value: new Float32Array(weights), type: "floatArray"},
             u_transformMatrix: {value: affine, type: "mat2"},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
-            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            BOUNDMODE: BOUNDMODE
         }
 
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);

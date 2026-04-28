@@ -9,7 +9,7 @@ import {
 import {blendControls, group} from "../utils/ui_configs.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 
-const shaderPath = "banded_flip.frag"
+const shaderPath = "mirrorband.frag"
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',

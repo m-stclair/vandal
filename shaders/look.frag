@@ -14,7 +14,7 @@ uniform float u_curve_strength;
 uniform vec3 u_tint;
 uniform float u_tint_strength;
 uniform float u_lift;
-uniform float u_gamma;
+uniform float u_midtone;
 uniform float u_gain;
 
 const float sLow = 0.18;
@@ -31,14 +31,14 @@ float safeLog2(float x) {
     return log2(max(x, 1e-6));
 }
 
-float applyLiftGammaGain(float L, float lift, float gamma, float gain) {
+float applyLiftMidtoneGain(float L, float lift, float midtone, float gain) {
 
     // Weight zones with smooth masks
     float shadow = 1.0 - smoothstep(sLow, sHigh, L);
     float mid = smoothstep(sLow, sHigh, L) * (1.0 - smoothstep(hLow, hHigh, L));
     float highlight = smoothstep(hLow, hHigh, L);
     // Add weighted per-zone biases
-    float delta = lift * shadow + gamma * mid + gain * highlight;
+    float delta = lift * shadow + midtone * mid + gain * highlight;
     return clamp(L + delta, 0.0, 1.0);  // Clamp to stay sane
 }
 
@@ -54,7 +54,7 @@ vec3 applyLook(vec3 srgb) {
 
     vec2 ab = chroma * vec2(cos(hue), sin(hue));
 
-    float tone_base = applyLiftGammaGain(luma, u_lift, u_gamma, u_gain);
+    float tone_base = applyLiftMidtoneGain(luma, u_lift, u_midtone, u_gain);
 
     float logL = log2(max(tone_base, 1e-6));
     float curve = 1.0 / (1.0 + exp(-u_shoulder * (logL - u_center)));

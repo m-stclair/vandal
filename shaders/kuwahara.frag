@@ -8,7 +8,8 @@ precision mediump float;
 #define N_SECTORS 8
 
 uniform sampler2D u_image;
-uniform sampler2D u_calcPass;  // pass 1 output
+// channel 1 is dominant eigenvec orientation, channel 2 is anisotropy
+uniform sampler2D u_calcPass;
 uniform vec2 u_resolution;
 uniform vec2  u_texelSize;
 uniform float u_radius;

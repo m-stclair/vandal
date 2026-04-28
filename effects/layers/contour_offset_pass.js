@@ -1,13 +1,13 @@
-// special-purpose pass: precomputes offset field for flow()
+// special-purpose pass: precomputes gradient/contour offset field for contourFlow()
 
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
 
 const includeMap = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 
-const fragSources = loadFragSrcInit("flow_offset_pass.frag", includeMap);
+const fragSources = loadFragSrcInit("contour_offset_pass.frag", includeMap);
 
-export const flowOffsetPass = {
+export const contourOffsetPass = {
     calculate(pass, inputTex, width, height, uniforms, defines) {
         initGLEffect(pass, fragSources);
         pass.setupFBO(pass, width, height);
@@ -20,7 +20,7 @@ export const flowOffsetPass = {
         return pass.outputFBO;
     },
     initHook: async (pass, renderer) => {
-        pass.glState = new webGLState(renderer, "offset-pass", pass.id)
+        pass.glState = new webGLState(renderer, "contour-offset-pass", pass.id)
         await fragSources.load(pass, renderer);
     },
     cleanupHook: (pass) => {
@@ -35,7 +35,7 @@ export const flowOffsetPass = {
                 pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
                 pass.outputFBO = null;
             }
-            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "offset-pass", "offset-pass");
+            pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "contour-offset-pass", "contour-offset-pass");
         }
         pass.width = width;
         pass.height = height;

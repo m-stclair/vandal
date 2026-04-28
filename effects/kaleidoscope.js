@@ -61,7 +61,7 @@ export default {
             key: "magnification",
             label: "Magnification",
             min: 0.1,
-            max: 3,
+            max: 5,
             steps: 100
         },
         {

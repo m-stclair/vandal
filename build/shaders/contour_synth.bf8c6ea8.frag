@@ -44,7 +44,7 @@ float waveform(float x) {
 #define SPATIAL_XY 0
 #define SPATIAL_CHECKER 1
 #define SPATIAL_RADIAL 2
-#define SPATIAL_ARC 3
+#define SPATIAL_ANGLE 3
 #define SPATIAL_NONE 4
 
 #define MODE_GRAYSCALE 0
@@ -63,7 +63,7 @@ float spatialPattern(vec2 uv, float freq) {
     vec2 center = vec2(0.5);
     float dist = length(uv - center);
     return dist * freq;
-#elif SPATIAL_MODE == SPATIAL_ARC
+#elif SPATIAL_MODE == SPATIAL_ANGLE
     vec2 center = vec2(0.5);
     float angle = atan(uv.y - center.y, uv.x - center.x);
     return angle * freq;
@@ -82,7 +82,9 @@ void main() {
 
     float spatial = spatialPattern(uv, u_freq);
     float patternA = waveform(spatial * u_freqScale + phase);
-    float patternB = waveform(-phase * (spatial * u_freqScale + phase * u_phaseScale) + u_phaseOff);
+    float patternB = waveform(
+        -phase * (spatial * u_freqScale + phase * u_phaseScale) + u_phaseOff
+    );
     float patval = clamp(abs(patternA - patternB), 0.0, 1.0);
 #if COLOR_MODE == MODE_GRAYSCALE
     vec3 blended = blendWithColorSpace(color, patval, u_blend);

@@ -25,11 +25,10 @@ export const kernelPass = {
         const uniformSpec = {
             u_resolution: {value: [width, height], type: "vec2"},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-            u_kernelWidth: {type: "int", value: kernelInfo.width},
-            u_kernelHeight: {type: "int", value: kernelInfo.height},
         };
         const defines = {
-            KERNEL_SIZE: kernelInfo.kernel.length
+            KERNEL_WIDTH: kernelInfo.width,
+            KERNEL_HEIGHT: kernelInfo.height
         }
         pass.glState.renderGL(inputTex, pass.outputFBO, uniformSpec, defines);
         return pass.outputFBO;

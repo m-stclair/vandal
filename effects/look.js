@@ -23,7 +23,7 @@ export default {
         tintHue: 68,
         tintStrength: 0,
         lift: 0,
-        gamma: 0,
+        midtone: 0,
         gain: 0
     },
     apply(instance, inputTex, width, height, t, outputFBO) {
@@ -38,7 +38,7 @@ export default {
             toneShoulder,
             toneCenter,
             lift,
-            gamma,
+            midtone,
             gain,
             curveStrength
         } = resolveAnimAll(instance.config, t);
@@ -54,7 +54,7 @@ export default {
             u_center: {value: toneCenter, type: "float"},
             u_shoulder: {value: toneShoulder, type: "float"},
             u_lift: {value: lift, type: "float"},
-            u_gamma: {value: gamma, type: "float"},
+            u_midtone: {value: midtone, type: "float"},
             u_gain: {value: gain, type: "float"},
             u_chroma_fade_low: {value: chromaFadeLow, type: "float"},
             u_chroma_fade_high: {value: chromaFadeHigh, type: "float"},
@@ -125,8 +125,8 @@ export default {
                         step: 0.01
                     },
                     {
-                        key: "gamma",
-                        label: "Gamma",
+                        key: "midtone",
+                        label: "Midtone",
                         type: "modSlider",
                         min: -0.2,
                         max: 0.2,

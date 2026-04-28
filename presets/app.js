@@ -4351,8 +4351,8 @@ export const builtInPresets = [
                     "threshHigh": 1,
                     "magGamma": 1,
                     "kernelName": "gaussian",
-                    "kernelRadiusX": 3,
-                    "kernelRadiusY": 3,
+                    "kernelRadiusX": 5,
+                    "kernelRadiusY": 5,
                     "kernelSoftness": 10,
                     "chromaBoost": 1,
                     "directionAngle": {
@@ -6996,10 +6996,6 @@ export const builtInPresets = [
                 "BLENDMODE": 9,
                 "COLORSPACE": 1,
                 "BLEND_CHANNEL_MODE": 0,
-                "chromaBoost": {
-                    "value": 0.42500000000000004,
-                    "mod": {"type": "triangle", "freq": 0.053, "phase": 0, "scale": 1.05, "offset": 0.91}
-                }
             }
         }, {
             "name": "Kuwahara",

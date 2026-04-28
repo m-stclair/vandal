@@ -2,7 +2,7 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
 
-const shaderPath = "chromawave.frag"
+const shaderPath = "moonwave.frag"
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
@@ -12,32 +12,33 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Chromawave",
+    name: "Moonwave",
     defaultConfig: {
-        threshold: 0.35,
+        threshold: 0.28,
         cycle: true,
         cycleMode: "spatial",
         hueShift: 0,
-        saturation: 75,
-        lightness: 75,
+        saturation: 48,
+        lightness: 68,
         hueSpread: 1,
-        bleed: 0,
+        bleed: 0.16,
         COLORSPACE: 0,
         BLENDMODE: 1,
         BLEND_CHANNEL_MODE: 0,
         blendAmount: 1,
-        bandingSteps: 0,
-        waveType: "tri",
-        dutyCycle: 0.75,
+        facetSteps: 0,
+        facetType: "fold",
+        softness: 0.38,
+        refraction: 0.24,
         originX: 0.5,
         originY: 0.5,
-        spatialPattern: "radial",
-        bandHue: 0,
-        paletteMode: "continuous"
+        spatialPattern: "fold",
+        baseHue: 0.58,
+        paletteMode: "opal",
     },
     uiLayout: [
         {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
-
+        {type: "range", key: "softness", label: "Softness", min: 0.01, max: 1, step: 0.01},
         {
             type: "select",
             key: "cycleMode",
@@ -45,12 +46,12 @@ export default {
             options: ["hue", "luma", "spatial"]
         },
 
-        group("Hue Mapping", [
-            {type: "modSlider", key: "hueShift", label: "Shift", min: 0, max: 2, step: 0.01},
+        group("Veil Mapping", [
+            {type: "modSlider", key: "hueShift", label: "Drift", min: 0, max: 2, step: 0.01},
             {
                 type: "modSlider",
                 key: "hueSpread",
-                label: "Spread",
+                label: "Density",
                 min: 0,
                 max: 10,
                 steps: 200,
@@ -58,38 +59,36 @@ export default {
                 scaleFactor: 3
             },
         ], {
-            color: "#20001a"
+            color: "#140020"
         }),
 
-        group("Spatial Pattern", [
+        group("Spatial Field", [
             {
-                type: "Select",
+                type: "select",
                 key: "spatialPattern",
                 label: "Pattern",
-                options: ["radial", "horizontal", "vertical", "diagonal", "angle", "checker", "sweep"]
+                options: ["radial", "horizontal", "vertical", "diagonal", "fold", "vortex", "lattice"]
             },
             {type: "modSlider", key: "originX", label: "X Origin", min: 0, max: 1, step: 0.01},
             {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
-            color: "#001a20"
+            color: "#001820"
         }),
 
-        group("Color Adjustments", [
+        group("Glass Color", [
             {type: "range", key: "saturation", label: "Saturation", min: 0, max: 100, step: 1},
             {type: "range", key: "lightness", label: "Lightness", min: 0, max: 100, step: 1},
-            {type: "range", key: "bleed", label: "Bleed", min: 0, max: 1, step: 0.01},
-            {type: "modSlider", key: "bandHue", label: "Base Hue", min: 0, max: 1, steps: 100},
-            {type: "select", key: "paletteMode", options: ["continuous", "analogous", "accent", "split"],
-             showIf: {"key": "waveType", "notEquals": "square"}}
+            {type: "range", key: "bleed", label: "Source Bleed", min: 0, max: 1, step: 0.01},
+            {type: "range", key: "refraction", label: "Refraction", min: 0, max: 1, step: 0.01},
+            {type: "modSlider", key: "baseHue", label: "Base Hue", min: 0, max: 1, steps: 100},
+            {type: "select", key: "paletteMode", label: "Palette", options: ["opal", "mineral", "bruise", "ember"]}
+        ], {color: "#151800"}),
 
-        ], {color: "#1a1a00"}),
-
-        group("Waveform Controls", [
-            {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
-            {type: "range", key: "bandingSteps", label: "Cuts", min: 0, max: 5, step: 1, showIf: {key: "waveType", notEquals: "square"}},
-            {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01, showIf: {key: "waveType", notEquals: "sine"}},
-        ], {color: "#1a0000"}),
+        group("Facet Controls", [
+            {type: "select", key: "facetType", label: "Facet", options: ["glass", "fold", "ripple", "cell"]},
+            {type: "range", key: "facetSteps", label: "Cuts", min: 0, max: 7, step: 1},
+        ], {color: "#1a0900"}),
 
         blendControls(),
     ],
@@ -107,43 +106,46 @@ export default {
             COLORSPACE,
             BLENDMODE,
             blendAmount,
-            bandingSteps,
-            waveType,
-            dutyCycle,
+            facetSteps,
+            facetType,
+            softness,
+            refraction,
             originX,
             originY,
             spatialPattern,
             BLEND_CHANNEL_MODE,
-            bandHue,
-            paletteMode
+            baseHue,
+            paletteMode,
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm;
-        const CHROMAWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode] ?? 2;
-        if (CHROMAWAVE_CYCLE === 0) {
+        const PRISMVEIL_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode] ?? 2;
+        if (PRISMVEIL_CYCLE === 0) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = hueShift;
-            spreadNorm = ((hueSpread * 3) ** 0.4);
-        } else if (CHROMAWAVE_CYCLE === 1) {
+            spreadNorm = ((hueSpread * 2.5) ** 0.45);
+        } else if (PRISMVEIL_CYCLE === 1) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = (hueShift / 4) ** 0.7;
-            spreadNorm = (hueSpread / 2) ** 0.5;
+            spreadNorm = (hueSpread / 1.8) ** 0.55;
         } else {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = hueShift / 2;
-            spreadNorm = (hueSpread * 2) ** 0.8;
+            spreadNorm = (hueSpread * 2.35) ** 0.78;
         }
-        const waveCode = {"saw": 0, "tri": 1, "sine": 2, "square": 3}[waveType] ?? 1;
+
+        const facetCode = {"glass": 0, "fold": 1, "ripple": 2, "cell": 3}[facetType] ?? 1;
         const patternCode = {
             "radial": 0, "horizontal": 1, "vertical": 2,
-            "diagonal": 3, "angle": 4, "checker": 5, "sweep": 6
-        }[spatialPattern];
+            "diagonal": 3, "fold": 4, "vortex": 5, "lattice": 6
+        }[spatialPattern] ?? 4;
         const paletteCode = {
-            "continuous": 0, "analogous": 1, "accent": 2, "split": 3
-        }[paletteMode]
+            "opal": 0, "mineral": 1, "bruise": 2, "ember": 3
+        }[paletteMode] ?? 0;
+
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
             u_blendamount: {type: "float", value: blendAmount},
@@ -154,19 +156,21 @@ export default {
             u_bleed: {type: "float", value: bleed},
             u_satNorm: {type: "float", value: satNorm},
             u_lightNorm: {type: "float", value: lightNorm},
-            u_duty: {type: "float", value: dutyCycle},
-            u_bandingSteps: {type: "float", value: bandingSteps},
+            u_facetSteps: {type: "float", value: facetSteps},
+            u_softness: {type: "float", value: softness},
+            u_refraction: {type: "float", value: refraction},
             u_origin: {type: "vec2", value: [originX * width, originY * height]},
-            u_baseHue: {type: "float", value: bandHue}
+            u_baseHue: {type: "float", value: baseHue},
         };
         const defines = {
             COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
-            CHROMAWAVE_BLEED: Number(bleed > 0),
-            USE_BANDING: Number(bandingSteps > 0),
-            WAVETYPE: waveCode,
+            PRISMVEIL_CYCLE: PRISMVEIL_CYCLE,
+            PRISMVEIL_BLEED: Number(bleed > 0),
+            PRISMVEIL_REFRACT: Number(refraction > 0),
+            USE_FACET_STEPS: Number(facetSteps > 0),
+            FACETTYPE: facetCode,
             SPATIAL_PATTERN: patternCode,
             PALETTE_MODE: paletteCode
         }
@@ -182,19 +186,17 @@ export default {
 
 export const effectMeta = {
     group: "Synthesis",
-    tags: ["color", "synth", "AM/FM", "threshold", "rainbow"],
-    description: "Modulates color image using a synthetic hue gradient " +
-        "based on image-space coordinates, relative brightness, or hue self-modulation. " +
-        "Dark areas can be masked out. The hue field can radiate in various patterns, with " +
-        "optional interpolation toward the original hue. " +
-        "Useful for creating radiant overlays, ink-on-pastel, false-color maps, or psychedelic " +
-        "sunburst effects.",
+    tags: ["color", "synth", "glass", "threshold", "interference", "facet"],
+    description: "Builds a translucent prism field from hue, brightness, or image-space coordinates. " +
+        "Soft contour veils, mineral palettes, optional facet cuts, and subtle RGB refraction. ",
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        threshold: {min: 0.05, max: 0.3},
-        saturation: {min: 25, max: 100},
-        lightness: {min: 25, max: 60}
+        threshold: {min: 0.02, max: 0.3},
+        saturation: {min: 20, max: 75},
+        lightness: {min: 45, max: 85},
+        refraction: {min: 0, max: 0.45},
+        softness: {min: 0, max: 0.2}
     }
 }

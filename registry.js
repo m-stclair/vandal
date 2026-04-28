@@ -69,10 +69,16 @@ const effectFiles = [
     "noop.js",
     "kaleidoscope.js",
     "triangle.js",
-    "structurekernel.js",
     "lic.js",
-//    "colorblobs.js"
-//    "carpet.js"
+    "structurekernel.js",
+    "moonwave.js",
+    "darkwave.js",
+    "risograph.js",
+    "contourFlow.js",
+    "bustedVHS.js",
+    "badSignalChain.js",
+    "bustedDVD.js"
+    // "coupled_lens_physical.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

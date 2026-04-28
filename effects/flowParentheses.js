@@ -7,8 +7,9 @@ import {
     makeEnum,
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {generate2DKernel, KernelTypeEnum, subsampleKernel2D} from "../utils/kernels.js";
+import {KernelTypeEnum} from "../utils/kernels.js";
 import {flowOffsetPass} from "./layers/flow_offset_pass.js";
+import {kernelPass} from "./layers/kernel_pass.js";
 
 const shaderPath = "flow_parentheses.frag"
 const includePaths = {
@@ -27,7 +28,8 @@ const {
     'G',
     'B',
     "H",
-    "S"
+    "S",
+    "CONSTANT"
 ]);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
@@ -41,7 +43,7 @@ export default {
         blendAmount: 1,
         warpStrength: 0.2,
         directionStrength: 0.5,
-        directionChannel: PChannelEnum.S,
+        directionChannel: PChannelEnum.LUMA,
         magChannel: PChannelEnum.LUMA,
         directionPolarity: false,
         magPolarity: false,
@@ -52,6 +54,11 @@ export default {
         kernelRadiusX: 3,
         kernelRadiusY: 3,
         kernelSoftness: 10,
+        useChromaDrag: false,
+        chromaDragAmount: 1,
+        APPROX_INVERSE: false,
+        INVERSE_APPROX_ITERS: 5,
+        relaxation: 0.33
     },
     uiLayout: [
         {
@@ -61,8 +68,8 @@ export default {
             label: "Base Warp Parameters",
             children: [
                 {key: "warpStrength", label: "Warp Strength", type: "modSlider", min: -5, max: 5, steps: 200},
-                {key: "threshLow", label: "Threshold Low", type: "modSlider", min: 0, max: 1, steps: 200},
-                {key: "threshHigh", label: "Threshold High", type: "modSlider", min: 0, max: 1, steps: 200},
+                {key: "threshLow", label: "Threshold Low", type: "modSlider", min: 0, max: 1, steps: 200, showIf: {"key": "magChannel", "notEquals": PChannelEnum.CONSTANT}},
+                {key: "threshHigh", label: "Threshold High", type: "modSlider", min: 0, max: 1, steps: 200, showIf: {"key": "magChannel", "notEquals": PChannelEnum.CONSTANT}},
                 {key: "magGamma", label: "Warp Gamma", type: "modSlider", min: 0.01, max: 8, scale: "log", steps: 200},
                 {
                     type: "select",
@@ -75,6 +82,40 @@ export default {
                     key: "magPolarity",
                     label: "Flip Warp Polarity"
                 },
+                {
+                    type: "checkbox",
+                    key: "useChromaDrag",
+                    label: "Chroma Drag"
+                },
+                {
+                    type: "range",
+                    key: "chromaDragAmount",
+                    label: "Drag Amount",
+                    showIf: {key: "useChromaDrag", "notEquals": false}
+                },
+                {
+                   type: "checkbox",
+                   key: "APPROX_INVERSE",
+                   label: "Inverse Warp"
+                },
+                {
+                    type: "range",
+                    key: "INVERSE_APPROX_ITERS",
+                    label: "Inverse Approx. Iter.",
+                    min: 1,
+                    max: 10,
+                    step: 1,
+                    showIf: {key: "APPROX_INVERSE", equals: true}
+                },
+                {
+                    type: "range",
+                    key: "relaxation",
+                    label: "Approx. Relaxation",
+                    min: 0.01,
+                    max: 0.99,
+                    steps: 100,
+                    showIf: {key: "APPROX_INVERSE", equals: true}
+                }
             ]
         },
         {
@@ -130,56 +171,60 @@ export default {
             BLEND_CHANNEL_MODE, magChannel,
             directionChannel, warpStrength,
             magPolarity, threshLow, threshHigh, magGamma,
-            directionStrength,
+            directionStrength, directionPolarity,
             kernelName, kernelRadiusX, kernelRadiusY,
-            kernelSoftness
+            kernelSoftness, useChromaDrag, chromaDragAmount,
+            APPROX_INVERSE, INVERSE_APPROX_ITERS, relaxation
         } = resolveAnimAll(instance.config, t);
-        let kernelInfo;
-        const kernelSettings = [kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness];
-        if (String(instance.auxiliaryCache.lastKernelSettings) !== String(kernelSettings)) {
-            const MAX_KERNEL_SIZE = 255;
-            kernelInfo = generate2DKernel(kernelName, kernelRadiusX, kernelRadiusY, kernelSoftness);
-            if (kernelInfo.kernel.length > MAX_KERNEL_SIZE) {
-                kernelInfo = subsampleKernel2D(kernelInfo, MAX_KERNEL_SIZE);
-            }
-            instance.auxiliaryCache.lastKernelSettings = kernelSettings;
-            instance.auxiliaryCache.kernelInfo = kernelInfo;
-        } else {
-            kernelInfo = instance.auxiliaryCache.kernelInfo;
-        }
-        instance.auxiliaryCache.lastKernelSettings = kernelSettings;
         const offsetUniformSpec = {
             u_warpStrength: {type: "float", value: warpStrength},
             u_threshLow: {type: "float", value: threshLow},
             u_threshHigh: {type: "float", value: threshHigh},
             u_directionStrength: {type: "float", value: directionStrength},
-            u_directionChannel: {type: "int", value: directionChannel},
-            u_directionPolarity: {type: "float", value: Number(magPolarity)},
-            u_magnitudeChannel: {type: "int", value: magChannel},
+            u_directionPolarity: {type: "float", value: Number(directionPolarity)},
             u_magnitudePolarity: {type: "float", value: Number(magPolarity)},
             u_magnitudeGamma: {type: "float", value: magGamma},
+            u_chromaDragAmount: {type: "float", value: chromaDragAmount},
+        }
+        const offsetDefineSpec = {
+            MAGNITUDE_CHANNEL: magChannel,
+            DIRECTION_CHANNEL: directionChannel,
+            USE_CHROMA_DRAG: Number(useChromaDrag),
         }
         const offsetFBO = instance.flowOffsetPass.calculate(
-            instance.flowOffsetPass, inputTex, width, height, offsetUniformSpec
+            instance.flowOffsetPass,
+            inputTex,
+            width,
+            height,
+            offsetUniformSpec,
+            offsetDefineSpec
+        )
+        const blurFBO = instance.kernelPass.calculate(
+            instance.kernelPass,
+            offsetFBO.texture,
+            width,
+            height,
+            kernelName,
+            kernelRadiusX,
+            kernelRadiusY,
+            kernelSoftness
         )
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_kernel: {type: "floatArray", value: kernelInfo.kernel},
-            u_texelSize: {type: "vec2", value: [1 / width, 1 / height]},
-            u_offsets: {type: "texture2D", value: offsetFBO.texture}
+            u_offsets: {type: "texture2D", value: blurFBO.texture},
+            u_relaxation: {type: "float", value: relaxation}
         };
         const defines = {
-            KERNEL_WIDTH: kernelInfo.width,
-            KERNEL_HEIGHT: kernelInfo.height,
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            APPROX_INVERSE: APPROX_INVERSE,
+            INVERSE_APPROX_ITERS: INVERSE_APPROX_ITERS
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
     initHook: async (instance, renderer) => {
-        instance.auxiliaryCache = {};
         instance.flowOffsetPass = {
             initHook: flowOffsetPass.initHook,
             cleanupHook: flowOffsetPass.cleanupHook,
@@ -189,8 +234,17 @@ export default {
             width: null,
             height: null
         }
+        instance.kernelPass = {
+            initHook: kernelPass.initHook,
+            cleanupHook: kernelPass.cleanupHook,
+            setupFBO: kernelPass.setupFBO,
+            calculate: kernelPass.calculate,
+            outputFBO: null,
+            width: null,
+            height: null
+        }
         await instance.flowOffsetPass.initHook(instance.flowOffsetPass, renderer);
-
+        await instance.kernelPass.initHook(instance.kernelPass, renderer);
         await fragSources.load(instance, renderer);
     },
     cleanupHook(instance) {
@@ -213,6 +267,7 @@ export const effectMeta = {
         threshLow: {min: 0, max: 0.5},
         warpStrength: {min: 0.2, max: 1},
         kernelRadiusX: {min: 2, max: 9},
-        kernelRadiusY: {min: 2, max: 9}
+        kernelRadiusY: {min: 2, max: 9},
+        APPROX_INVERSE: {always: false}
     }
 };

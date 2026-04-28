@@ -2,7 +2,7 @@ import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {blendControls, group} from "../utils/ui_configs.js";
 
-const shaderPath = "chromawave.frag"
+const shaderPath = "darkwave.frag"
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
@@ -12,37 +12,39 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Chromawave",
+    name: "Darkwave",
     defaultConfig: {
-        threshold: 0.35,
-        cycle: true,
-        cycleMode: "spatial",
+        threshold: 0.45,
+        cycleMode: "shadow",
         hueShift: 0,
-        saturation: 75,
-        lightness: 75,
-        hueSpread: 1,
-        bleed: 0,
+        saturation: 80,
+        lightness: 20,
+        hueSpread: 1.25,
+        bleed: 0.15,
+        shadowPower: 1.4,
+        voidAmount: 0.35,
+        falloff: 0.18,
         COLORSPACE: 0,
         BLENDMODE: 1,
         BLEND_CHANNEL_MODE: 0,
         blendAmount: 1,
-        bandingSteps: 0,
+        bandingSteps: 2,
         waveType: "tri",
-        dutyCycle: 0.75,
+        dutyCycle: 0.68,
         originX: 0.5,
         originY: 0.5,
         spatialPattern: "radial",
-        bandHue: 0,
-        paletteMode: "continuous"
+        bandHue: 0.72,
+        paletteMode: "nocturne"
     },
     uiLayout: [
-        {type: "modSlider", key: "threshold", label: "Thresh", min: 0, max: 1, step: 0.01},
+        {type: "modSlider", key: "threshold", label: "Shadow Gate", min: 0, max: 1, step: 0.01},
 
         {
             type: "select",
             key: "cycleMode",
             label: "Cycle Mode",
-            options: ["hue", "luma", "spatial"]
+            options: ["hue", "shadow", "spatial"]
         },
 
         group("Hue Mapping", [
@@ -58,7 +60,7 @@ export default {
                 scaleFactor: 3
             },
         ], {
-            color: "#20001a"
+            color: "#120018"
         }),
 
         group("Spatial Pattern", [
@@ -72,24 +74,26 @@ export default {
             {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
-            color: "#001a20"
+            color: "#001018"
         }),
 
-        group("Color Adjustments", [
+        group("Darkwave Controls", [
             {type: "range", key: "saturation", label: "Saturation", min: 0, max: 100, step: 1},
-            {type: "range", key: "lightness", label: "Lightness", min: 0, max: 100, step: 1},
+            {type: "range", key: "lightness", label: "Glow", min: 0, max: 100, step: 1},
+            {type: "range", key: "falloff", label: "Falloff", min: 0.01, max: 0.75, step: 0.01},
+            {type: "range", key: "shadowPower", label: "Depth", min: 0.25, max: 4, step: 0.01},
+            {type: "range", key: "voidAmount", label: "Void", min: 0, max: 1, step: 0.01},
             {type: "range", key: "bleed", label: "Bleed", min: 0, max: 1, step: 0.01},
             {type: "modSlider", key: "bandHue", label: "Base Hue", min: 0, max: 1, steps: 100},
-            {type: "select", key: "paletteMode", options: ["continuous", "analogous", "accent", "split"],
+            {type: "select", key: "paletteMode", options: ["continuous", "nocturne", "ember", "spectral"],
              showIf: {"key": "waveType", "notEquals": "square"}}
-
-        ], {color: "#1a1a00"}),
+        ], {color: "#08080f"}),
 
         group("Waveform Controls", [
             {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
             {type: "range", key: "bandingSteps", label: "Cuts", min: 0, max: 5, step: 1, showIf: {key: "waveType", notEquals: "square"}},
             {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01, showIf: {key: "waveType", notEquals: "sine"}},
-        ], {color: "#1a0000"}),
+        ], {color: "#180006"}),
 
         blendControls(),
     ],
@@ -104,6 +108,9 @@ export default {
             hueSpread,
             threshold,
             bleed,
+            shadowPower,
+            voidAmount,
+            falloff,
             COLORSPACE,
             BLENDMODE,
             blendAmount,
@@ -119,13 +126,13 @@ export default {
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm;
-        const CHROMAWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode] ?? 2;
-        if (CHROMAWAVE_CYCLE === 0) {
+        const DARKWORLD_CYCLE = {"hue": 0, "shadow": 1, "spatial": 2}[cycleMode] ?? 1;
+        if (DARKWORLD_CYCLE === 0) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = hueShift;
             spreadNorm = ((hueSpread * 3) ** 0.4);
-        } else if (CHROMAWAVE_CYCLE === 1) {
+        } else if (DARKWORLD_CYCLE === 1) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = (hueShift / 4) ** 0.7;
@@ -142,7 +149,7 @@ export default {
             "diagonal": 3, "angle": 4, "checker": 5, "sweep": 6
         }[spatialPattern];
         const paletteCode = {
-            "continuous": 0, "analogous": 1, "accent": 2, "split": 3
+            "continuous": 0, "nocturne": 1, "ember": 2, "spectral": 3
         }[paletteMode]
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
@@ -157,14 +164,17 @@ export default {
             u_duty: {type: "float", value: dutyCycle},
             u_bandingSteps: {type: "float", value: bandingSteps},
             u_origin: {type: "vec2", value: [originX * width, originY * height]},
-            u_baseHue: {type: "float", value: bandHue}
+            u_baseHue: {type: "float", value: bandHue},
+            u_shadowPower: {type: "float", value: shadowPower},
+            u_voidAmount: {type: "float", value: voidAmount},
+            u_falloff: {type: "float", value: falloff}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            CHROMAWAVE_CYCLE: CHROMAWAVE_CYCLE,
-            CHROMAWAVE_BLEED: Number(bleed > 0),
+            DARKWORLD_CYCLE: DARKWORLD_CYCLE,
+            DARKWORLD_BLEED: Number(bleed > 0),
             USE_BANDING: Number(bandingSteps > 0),
             WAVETYPE: waveCode,
             SPATIAL_PATTERN: patternCode,
@@ -182,19 +192,16 @@ export default {
 
 export const effectMeta = {
     group: "Synthesis",
-    tags: ["color", "synth", "AM/FM", "threshold", "rainbow"],
-    description: "Modulates color image using a synthetic hue gradient " +
-        "based on image-space coordinates, relative brightness, or hue self-modulation. " +
-        "Dark areas can be masked out. The hue field can radiate in various patterns, with " +
-        "optional interpolation toward the original hue. " +
-        "Useful for creating radiant overlays, ink-on-pastel, false-color maps, or psychedelic " +
-        "sunburst effects.",
+    tags: ["color", "synth", "shadow", "threshold", "nocturne"],
+    description: "Modulates the dark parts of an image using a synthetic nocturne hue field. " +
+        "Useful for cursed palettes, night-vision color maps, underpainted shadows, and negative-space glow.",
     backend: "gpu",
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        threshold: {min: 0.05, max: 0.3},
-        saturation: {min: 25, max: 100},
-        lightness: {min: 25, max: 60}
+        threshold: {min: 0.2, max: 0.75},
+        saturation: {min: 45, max: 100},
+        lightness: {min: 5, max: 35},
+        voidAmount: {min: 0.1, max: 0.65}
     }
 }

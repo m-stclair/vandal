@@ -23,7 +23,14 @@ void main() {
     for (int i = 0; i < MAX_TAPS; i++) {
         if (i >= u_numTaps) break;
         vec2 offset = floor(u_transformMatrix * u_offsets[i]) / u_resolution;
-        vec4 samp = texture(u_image, uv + offset);
+    #if BOUNDMODE == 0
+        vec2 samplePos = uv + offset;
+    #elif BOUNDMODE == 1
+        vec2 samplePos = fract(uv + offset);
+    #else
+        #error invalid bound mode
+    #endif
+        vec4 samp = texture(u_image, samplePos);
         float w = u_weights[i];
         acc += samp * w;
         totalWeight += w;

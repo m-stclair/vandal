@@ -3,7 +3,6 @@ import {
     BlendModeEnum,
     BlendTargetEnum,
     ColorspaceEnum,
-    hasChromaBoostImplementation,
     makeEnum
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
@@ -34,7 +33,6 @@ export default {
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         HALFTONE_MODE: HalftoneEnum.HALFTONE_BLACK,
-        chromaBoost: 1,
         cellSize: 5,
         blackAngle: 0,
         cAngle: 15,
@@ -78,7 +76,7 @@ export default {
         const {
             cellSize, blackAngle, cAngle, mAngle, yAngle, kAngle,
             cOffset, mOffset, yOffset, kOffset, HALFTONE_MODE,
-            blendAmount, COLORSPACE, BLEND_CHANNEL_MODE, BLENDMODE, chromaBoost,
+            blendAmount, COLORSPACE, BLEND_CHANNEL_MODE, BLENDMODE,
         } = resolveAnimAll(instance.config, t);
         const uniformSpec = {
             u_cellsize: {type: "float", value: cellSize},
@@ -93,12 +91,10 @@ export default {
             u_kOffset: {type: "float", value: kOffset},
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             HALFTONE_MODE: HALFTONE_MODE
         }

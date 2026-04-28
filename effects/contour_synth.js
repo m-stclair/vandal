@@ -24,14 +24,14 @@ export default {
         freqScale: 1,
         phaseScale: 1,
         phaseOff: 0,
-        blendAmount: 0.6,
+        blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         chromaBoost: 1,
         waveform: "Sine",
         spatialWaveform: "Radial",
-        COLOR_MODE: 0,
+        COLOR_MODE: 1,
         hueOff: 0,
         hueScale: 1,
         chromaGamma: 1,
@@ -79,7 +79,7 @@ export default {
                 type: "Select",
                 key: "spatialWaveform",
                 label: "Spatial Mode",
-                options: ["None", "Bands", "Checkerboard", "Radial", "Arc"]
+                options: ["None", "Bands", "Checkerboard", "Radial", "Angle"]
             },
             {
                 type: "modSlider",
@@ -171,7 +171,7 @@ export default {
             "Sine": 0, "Saw": 1, "Square": 2, "Tri": 3
         }[waveform]
         const spacecode = {
-            "Bands": 0, "Checkerboard": 1, "Radial": 2, "Rings": 3, "None": 4
+            "Bands": 0, "Checkerboard": 1, "Radial": 2, "Angle": 3, "None": 4
         }[spatialWaveform]
         const defines = {
             BLENDMODE: BLENDMODE,

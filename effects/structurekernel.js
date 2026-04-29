@@ -187,6 +187,10 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: true,
   realtimeSafe: true,
-  parameterHints: {"kernelRadius": {"min": 1, "max": 4}},
+  parameterHints: {
+      "kernelRadiusX": {"min": 2, "max": 7},
+      "kernelRadiusY": {"min": 2, "max": 7},
+      "calcKernelRadius": {"min": 2, "max": 6}
+  },
   notInRandom: false
 };

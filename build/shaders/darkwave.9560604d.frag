@@ -124,8 +124,6 @@ vec4 darkworld(vec2 uv) {
     float threshold = clamp(u_threshold, 0.0, 0.99);
     float falloff = max(u_falloff, 1e-5);
 
-    // The gate is inverted from Chromawave: bright pixels stay above ground.
-    // Dark pixels fall through.
     float mask = 1.0 - smoothstep(threshold, min(threshold + falloff, 1.0), luma);
     if (mask <= 0.0001) {
         return vec4(srgb, 1.0);

@@ -67,6 +67,7 @@ export class webGLState {
 
     buildProgram(defines) {
         const gl = this.gl;
+        const start = performance.now();
         const fs = this.renderer.compile(
             gl.FRAGMENT_SHADER,
             this.fragSrc,
@@ -81,6 +82,7 @@ export class webGLState {
             throw new Error(`Could not compile WebGL program. \n\n${info}`);
         }
         this.last_defines = defines;
+        console.log(`compilation time ${performance.now() - start} for ${this.name}-${this.id}`)
         return prog;
     }
 

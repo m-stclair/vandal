@@ -1,9 +1,14 @@
+#ifndef BLENDMODE
+    #error BLENDMODE must be defined
+#endif
+
 vec3 applyBlend(vec3 base, vec3 fx, float blendAmount) {
 vec3 blended;
 const float EPS = 1e-5;
 
 // NOTE: some of these work very oddly with opponent RGB, because unlike other colorspaces,
 // including Lab- & Jz-derived spaces, it's not 0-1 normalized internally. This is acceptable.
+// Some are also _generally inappropriate_ with various colorspaces, but that is also acceptable.
 
 // NOTE: consumer is responsible for re-transforming or clamping output (this
 // function does not assume the correct output range is 0-1, that it should be in sRGB, etc.)

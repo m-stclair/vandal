@@ -199,7 +199,7 @@ export const effectMeta = {
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        threshold: {min: 0.2, max: 0.75},
+        threshold: {min: 0.1, max: 0.75},
         saturation: {min: 45, max: 100},
         lightness: {min: 5, max: 35},
         voidAmount: {min: 0.1, max: 0.65}

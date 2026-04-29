@@ -57,9 +57,7 @@ export default {
                 scale: "log",
                 scaleFactor: 3
             },
-        ], {
-            color: "#20001a"
-        }),
+        ]),
 
         group("Spatial Pattern", [
             {
@@ -72,7 +70,6 @@ export default {
             {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
-            color: "#001a20"
         }),
 
         group("Color Adjustments", [
@@ -83,13 +80,13 @@ export default {
             {type: "select", key: "paletteMode", options: ["continuous", "analogous", "accent", "split"],
              showIf: {"key": "waveType", "notEquals": "square"}}
 
-        ], {color: "#1a1a00"}),
+        ]),
 
         group("Waveform Controls", [
             {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
             {type: "range", key: "bandingSteps", label: "Cuts", min: 0, max: 5, step: 1, showIf: {key: "waveType", notEquals: "square"}},
             {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01, showIf: {key: "waveType", notEquals: "sine"}},
-        ], {color: "#1a0000"}),
+        ]),
 
         blendControls(),
     ],

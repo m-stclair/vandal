@@ -100,7 +100,6 @@ export default {
                 showIf: {key: "spatialWaveform", notEquals: "None"},
             }
         ],
-            {color: "#002011"}
         ),
         group("Color", [
             {

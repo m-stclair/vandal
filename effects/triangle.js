@@ -16,7 +16,6 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 const {
     enum: ColoringModeEnum,
-    names: ColoringModeNames,
     options: ColoringModeOpts
 } = makeEnum([
     'NONE',
@@ -82,7 +81,7 @@ export default {
             steps: 100,
             scale: "log"
         },
-                {
+        {
             type: "modSlider",
             key: "curveStrength",
             label: "Curve Strength",
@@ -201,9 +200,9 @@ export default {
 }
 
 export const effectMeta = {
-    group: "Stylize",
-    tags: ["fractal"],
-    description: "Warps image based on generalized Sierpinski triangle.",
+    group: "Fractal",
+    tags: ["fractal", "sierpinski", "triangle"],
+    description: "Folds image into the plane of a generalized Sierpinski triangle.",
     backend: "gpu",
     realtimeSafe: true,
     canAnimate: true,

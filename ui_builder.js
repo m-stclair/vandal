@@ -1,7 +1,7 @@
 import widgets, {renderFoldoutToggle} from "./widgets.js"
 import {moveEffectInStack, placeholderOption} from "./ui.js";
 import {
-    clearRenderCache, flushEffectStack,
+    clearRenderCache,
     getSelectedEffectId,
     isSelectedEffect,
     makeEffectInstance, requestRender, requestUIDraw,
@@ -9,6 +9,7 @@ import {
 } from "./state.js";
 import {effectRegistry} from "./registry.js";
 import {getEffectPresetView, listEffectPresets, saveEffectPreset} from "./utils/presets.js";
+import {randomizeConfig} from "./utils/randomizer.js";
 
 
 // TODO, maybe: these don't handle cases in which a config entry is of the form {value: x, mod: {...}}.
@@ -357,9 +358,20 @@ function createControlGroup(fx, effectStack, uiState, i) {
         requestRender();
     });
 
+    const randomBtn = document.createElement('button');
+    randomBtn.textContent = '✳';
+    randomBtn.className = 'effectButton';
+    randomBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        randomizeConfig(fx, effectRegistry[fx.name]);
+        clearRenderCache();
+        requestUIDraw();
+        requestRender();
+    })
+
     const controlGroup = document.createElement("div");
     controlGroup.className = "controlGroup";
-    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, resetBtn, delBtn);
+    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, resetBtn, randomBtn, delBtn);
     return controlGroup;
 }
 

@@ -60,7 +60,6 @@ export default {
                 scaleFactor: 3
             },
         ], {
-            color: "#120018"
         }),
 
         group("Spatial Pattern", [
@@ -74,7 +73,6 @@ export default {
             {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
-            color: "#001018"
         }),
 
         group("Darkwave Controls", [
@@ -87,13 +85,13 @@ export default {
             {type: "modSlider", key: "bandHue", label: "Base Hue", min: 0, max: 1, steps: 100},
             {type: "select", key: "paletteMode", options: ["continuous", "nocturne", "ember", "spectral"],
              showIf: {"key": "waveType", "notEquals": "square"}}
-        ], {color: "#08080f"}),
+        ], ),
 
         group("Waveform Controls", [
             {type: "Select", key: "waveType", label: "Waveform", options: ["saw", "tri", "sine", "square"]},
             {type: "range", key: "bandingSteps", label: "Cuts", min: 0, max: 5, step: 1, showIf: {key: "waveType", notEquals: "square"}},
             {type: "range", key: "dutyCycle", label: "Duty Cycle", min: 0.01, max: 0.99, step: 0.01, showIf: {key: "waveType", notEquals: "sine"}},
-        ], {color: "#180006"}),
+        ]),
 
         blendControls(),
     ],

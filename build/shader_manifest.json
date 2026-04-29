@@ -37,6 +37,7 @@
   "morph_pass.frag": "morph_pass.b549f23c.frag",
   "darkwave.frag": "darkwave.9560604d.frag",
   "eigen_decomp.frag": "eigen_decomp.513b2be8.frag",
+  "fractal_orbit.frag": "fractal_orbit.7b475cd5.frag",
   "morphology.frag": "morphology.f539bb1b.frag",
   "bloom.glsl": "bloom.6b23d3aa.glsl",
   "colormap.frag": "colormap.f97d535d.frag",

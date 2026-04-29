@@ -251,7 +251,7 @@ export const effectMeta = {
     tags: ["contour", "flow", "paint", "warp"],
     description: "Topo-map ink, river seams, oily contour currents. " +
         "Builds a displacement field from local image gradients, then integrates color " +
-        "forward and backward along the resulting contour stream",
+        "forward and backward along the resulting contour stream.",
     canAnimate: true,
     realtimeSafe: true,
     notInRandom: false,

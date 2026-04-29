@@ -308,7 +308,7 @@ function filterKeys(obj, arr) {
     );
 }
 
-function generateRandomizedConfig(layout, meta) {
+export function generateRandomizedConfig(layout, meta) {
     const config = {};
     const flatParams = flattenUiLayout(layout);
     const hints = meta.parameterHints ?? {};
@@ -329,6 +329,20 @@ function generateRandomizedConfig(layout, meta) {
 
 let randomizingFlag = false;
 
+export function randomizeConfig(fx, effect) {
+    const config = generateRandomizedConfig(fx.uiLayout, effect.meta);
+    enforceBlendConstraints(config);
+    const errors = validateConfig(config, fx.uiLayout);
+    if (errors.length > 0) {
+        console.error(`invalid random config for ${fx.name}`);
+        console.error(errors);
+        return;
+    }
+    console.log(`random config for ${fx.name}`);
+    console.log(config);
+    fx.config = config;
+}
+
 export async function randomizeEffectStack() {
     if (randomizingFlag) return;
     randomizingFlag = true;
@@ -343,15 +357,7 @@ export async function randomizeEffectStack() {
         const selected = pickRandomSubsetWithReplacement(allEffects, numEffects);
         for (const effect of selected) {
             const fx = makeEffectInstance(effect)
-            fx.config = generateRandomizedConfig(fx.uiLayout, effect.meta);
-            enforceBlendConstraints(fx.config);
-            const errors = validateConfig(fx.config, fx.uiLayout);
-            if (errors.length > 0) {
-                console.error(`invalid random config for ${fx.name}`);
-                console.error(errors);
-            }
-            console.log(`random config for ${fx.name}`);
-            console.log(fx.config);
+            randomizeConfig(fx, effect);
             await fx.ready;
             addEffectToStack(fx);
         }

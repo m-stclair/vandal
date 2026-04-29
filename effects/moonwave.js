@@ -58,9 +58,7 @@ export default {
                 scale: "log",
                 scaleFactor: 3
             },
-        ], {
-            color: "#140020"
-        }),
+        ]),
 
         group("Spatial Field", [
             {
@@ -73,7 +71,6 @@ export default {
             {type: "modSlider", key: "originY", label: "Y Origin", min: 0, max: 1, step: 0.01}
         ], {
             showIf: {key: "cycleMode", equals: "spatial"},
-            color: "#001820"
         }),
 
         group("Glass Color", [
@@ -83,12 +80,12 @@ export default {
             {type: "range", key: "refraction", label: "Refraction", min: 0, max: 1, step: 0.01},
             {type: "modSlider", key: "baseHue", label: "Base Hue", min: 0, max: 1, steps: 100},
             {type: "select", key: "paletteMode", label: "Palette", options: ["opal", "mineral", "bruise", "ember"]}
-        ], {color: "#151800"}),
+        ]),
 
         group("Facet Controls", [
             {type: "select", key: "facetType", label: "Facet", options: ["glass", "fold", "ripple", "cell"]},
             {type: "range", key: "facetSteps", label: "Cuts", min: 0, max: 7, step: 1},
-        ], {color: "#1a0900"}),
+        ]),
 
         blendControls(),
     ],

@@ -73,7 +73,6 @@ export default {
             u_warpStrength: {value: warpStrength, type: "float"},
             u_warpAngle: {value: warpAngle, type: "float"},
             u_zoneAngle: {value: zoneAngle, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const warpCode = {
             "shift": 0, "sine": 1, "noise": 2, "lens": 3
@@ -81,7 +80,6 @@ export default {
 
         const defines = {
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ZONESHAPE: ZONESHAPE,

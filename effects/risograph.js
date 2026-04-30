@@ -7,7 +7,7 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {risoNoisePass} from "./layers/riso_noise_pass.js";
+import {noisePass} from "./layers/noise_pass.js";
 import {risoPlatePass} from "./layers/riso_plate_pass.js";
 
 const shaderPath = "risograph.frag";
@@ -270,7 +270,7 @@ export default {
     },
 
     initHook: async (instance, renderer) => {
-        instance.risoNoisePass = makePassState(risoNoisePass);
+        instance.risoNoisePass = makePassState(noisePass);
         instance.risoPlatePass = makePassState(risoPlatePass);
 
         await instance.risoNoisePass.initHook(instance.risoNoisePass, renderer);

@@ -88,7 +88,6 @@ export default {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},
             u_reverse: {value: reverse, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         if (colormap !== instance.auxiliaryCache.lastCmapName) {
             let lutArr = cmapLuts[colormap];

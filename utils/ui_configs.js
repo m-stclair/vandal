@@ -10,7 +10,6 @@ import {
 export function blendControls() {
     return {
             type: 'group',
-            color: "#1a0011",
             collapsed: true,
             label: 'Blend Options',
             kind: 'collapse',
@@ -19,23 +18,6 @@ export function blendControls() {
                 {key: 'BLENDMODE', label: 'Blend Mode', type: 'Select', options: BlendModeOpts},
                 {key: 'COLORSPACE', label: 'Blend Colorspace', type: 'Select', options: ColorspaceOpts},
                 {key: 'BLEND_CHANNEL_MODE', label: 'Blend Target', type: 'Select', options: BlendTargetOpts},
-                {
-                    key: "chromaBoost",
-                    label: 'Chroma Boost',
-                    type: 'modSlider',
-                    min: 0,
-                    max: 2.5,
-                    steps: 200,
-                    // ugh
-                    showIf: [
-                        {key: "NEVER", equals: 'NEVER'},
-                        {key: "COLORSPACE", notEquals: ColorspaceEnum.RGB},
-                        {key: "COLORSPACE", notEquals: ColorspaceEnum.HSV},
-                        {key: "COLORSPACE", notEquals: ColorspaceEnum.HSL},
-                        {key: "COLORSPACE", notEquals: ColorspaceEnum.Opponent},
-                        {key: "COLORSPACE", notEquals: ColorspaceEnum.YCbCr},
-                    ]
-                }
             ]
         }
 }

@@ -41,7 +41,6 @@ export default {
         channelPhase1: 0,
         channelPhase2: 0,
         color: [1, 1, 1],
-        chromaBoost: 1,
         lumaAngle: 0,
         backgroundOpacity: 0,
         backgroundColor: [0, 0, 0]
@@ -235,7 +234,6 @@ export default {
                 ],
                 type: "vec3"
             },
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         // console.log(uniformSpec);
         const defines = {

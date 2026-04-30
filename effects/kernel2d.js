@@ -25,7 +25,6 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         blendAmount: 1,
-        chromaBoost: 1,
         kernelName: "gaussian",
         kernelRadiusX: 3,
         kernelRadiusY: 3,
@@ -69,7 +68,6 @@ export default {
             u_resolution: {type: "vec2", value: [width, height]},
             u_kernel: {type: "floatArray", value: kernelInfo.kernel},
             u_blendamount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost}
         };
 
         const defines = {

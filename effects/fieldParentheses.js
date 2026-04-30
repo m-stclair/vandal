@@ -115,7 +115,6 @@ export default {
         const uniforms = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             u_FIELD_HUE_WEIGHT: {type: "float", value: hw},
             u_FIELD_HUE_H: {type: "float", value: FIELD_HUE_H / (2 * Math.PI)},
             u_FIELD_HUE_WIDTH: {type: "float", value: FIELD_HUE_WIDTH},

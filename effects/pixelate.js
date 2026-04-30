@@ -36,7 +36,6 @@ export default {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blocksize: {value: blockSize, type: "float"},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
         const defines = {
             BLENDMODE: BLENDMODE,

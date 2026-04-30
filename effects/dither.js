@@ -123,7 +123,6 @@ export default {
             u_simplex: {type: "float", value: simplex},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             u_edgeStrength: {type: "float", value: edgeStrength}
         };
         const defines = {

@@ -10,22 +10,11 @@ import {
 import {effectRegistry} from "./registry.js";
 import {getEffectPresetView, listEffectPresets, saveEffectPreset} from "./utils/presets.js";
 import {randomizeConfig} from "./utils/randomizer.js";
+import {isModulating} from "./glitch.js";
 
 
-// TODO, maybe: these don't handle cases in which a config entry is of the form {value: x, mod: {...}}.
+// TODO, maybe: this doesn't handle cases in which a config entry is of the form {value: x, mod: {...}}.
 //  however, I don't think we ever want to make UI visibility contingent on an animated value!
-function isVisibilityDriver(key, configArray) {
-    return configArray.some(item => {
-        // Look at this item’s showIf
-        const clauses = Array.isArray(item.showIf) ? item.showIf : [item.showIf];
-        if (clauses.some(clause => clause?.key === key)) return true;
-
-        // Recurse into children, if present
-        if (item.children) return isVisibilityDriver(key, item.children);
-
-        return false;
-    });
-}
 
 function collectVisibilityDrivers(configArray, keyTriggersUIDraw) {
     for (const item of configArray) {
@@ -292,6 +281,7 @@ function createControlGroup(fx, effectStack, uiState, i) {
         } else {
             fx.solo = false;
         }
+        requestUIDraw();
         requestRender();
     });
 
@@ -346,7 +336,37 @@ function createControlGroup(fx, effectStack, uiState, i) {
 
     const delBtn = document.createElement('button');
     delBtn.textContent = '×';
+    delBtn.title = "Delete effect"
     delBtn.className = "effectButton";
+
+    const randomBtn = document.createElement('button');
+    randomBtn.textContent = '⚄';
+    randomBtn.title = "Randomize effect"
+    randomBtn.className = 'effectButton';
+    randomBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        randomizeConfig(fx, effectRegistry[fx.name]);
+        clearRenderCache();
+        requestUIDraw();
+        requestRender();
+    })
+
+    const clearAnimBtn = document.createElement('button');
+    clearAnimBtn.textContent = '☐';
+    clearAnimBtn.title = "Clear animation"
+    clearAnimBtn.className = "effectButton"
+    clearAnimBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        Object.values(fx.config).forEach((p) => {
+            if (typeof p !== "object") return;
+            if (!p.mod) return;
+            p.mod.type = "none";
+        })
+        clearRenderCache();
+        requestUIDraw();
+        requestRender();
+    })
+
     delBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         if (fx.cleanupHook) {
@@ -358,20 +378,9 @@ function createControlGroup(fx, effectStack, uiState, i) {
         requestRender();
     });
 
-    const randomBtn = document.createElement('button');
-    randomBtn.textContent = '✳';
-    randomBtn.className = 'effectButton';
-    randomBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        randomizeConfig(fx, effectRegistry[fx.name]);
-        clearRenderCache();
-        requestUIDraw();
-        requestRender();
-    })
-
     const controlGroup = document.createElement("div");
     controlGroup.className = "controlGroup";
-    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, resetBtn, randomBtn, delBtn);
+    controlGroup.append(enableToggle, soloToggle, upBtn, downBtn, dupBtn, resetBtn, randomBtn, clearAnimBtn, delBtn);
     return controlGroup;
 }
 
@@ -382,6 +391,14 @@ function decorateForSolo(card, fx, effectStack) {
         card.classList.toggle("unsoloed", !fx.solo);
     } else {
         card.classList.remove("soloed", "unsoloed");
+    }
+}
+
+function decorateForModulation(card, fx) {
+    if (isModulating(fx)) {
+        card.classList.add("modulating")
+    } else {
+        card.classList.remove("modulating")
     }
 }
 
@@ -413,6 +430,7 @@ function renderEffectInStackUI(fx, i, effectStack, fxUIState, stackContainer) {
         card.appendChild(configContainer);
     }
     decorateForSolo(card, fx, effectStack);
+    decorateForModulation(card, fx);
     stackContainer.appendChild(card);
 }
 

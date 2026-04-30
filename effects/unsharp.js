@@ -100,7 +100,6 @@ export default {
             u_kernelWidth: {type: "int", value: kernelInfo.width},
             u_kernelHeight: {type: "int", value: kernelInfo.height},
             u_blendAmount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             u_strength: {type: "float", value: strength},
             u_threshold: {type: "float", value: threshold},
             u_knee: {type: "float", value: knee}

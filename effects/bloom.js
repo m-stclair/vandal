@@ -34,7 +34,6 @@ export default {
         BLOOM_MODE: 0,
         BLOOM_CHROMA_TAIL: false,
         chromaOffset: [1.1, 1.0, 0.9],
-        chromaBoost: 1
     },
     uiLayout: [
         {
@@ -102,7 +101,6 @@ export default {
             BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, bloomStrength,
             bloomThreshold, bloomSoftness, BLOOM_MODE, kernelRadius,
             chromaOffset, BLOOM_CHROMA_TAIL, kernelName, kernelSoftness,
-            chromaBoost
         } = resolveAnimAll(instance.config, t);
         const kernel = normalizeKernel(generateKernel(kernelName, kernelRadius, kernelSoftness));
         // console.log(kernel);
@@ -114,12 +112,10 @@ export default {
             u_bloomThreshold: {value: bloomThreshold, type: "float"},
             u_kernel: {value: kernel, type: "floatArray"},
             u_chromaOffset: {value: chromaOffset, type: "vec3"},
-            u_chromaBoost: {type: "float", value: chromaBoost}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             KERNEL_SIZE: kernel.length,
             BLOOM_MODE: BLOOM_MODE,

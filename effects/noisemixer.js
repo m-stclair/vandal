@@ -217,7 +217,6 @@ export default {
             u_burstThreshold: {type: "float", value: burstThreshold},
             u_tint: {value: new Float32Array(tint), type: "vec3"},
             u_blendamount: {value: blendAmountC, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             u_zoneSoftness: {value: zoneSoftness, type: "float"},
             u_zoneEllipseN: {value: zoneEllipseN, type: "float"},
             u_zoneMin: {value: [xMin, yMin], type: "vec2"},

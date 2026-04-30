@@ -884,12 +884,12 @@ export const builtInPresets = [
             {
                 "name": "Chromawave",
                 "config": {
-                    "threshold": 0.28,
+                    "threshold": 0.08,
                     "cycle": false,
                     "cycleMode": "spatial",
                     "hueShift": 296,
-                    "saturation": 60,
-                    "lightness": 56,
+                    "saturation": 25,
+                    "lightness": 70,
                     "hueSpread": 0.4,
                     "bleed": 0.14
                 }
@@ -1755,7 +1755,7 @@ export const builtInPresets = [
             {
                 "name": "Pixel Sort",
                 "config": {
-                    "threshold": 0.5,
+                    "threshold": 0.35,
                     "direction": "vertical",
                     "useR": false,
                     "useG": false,
@@ -2210,7 +2210,7 @@ export const builtInPresets = [
         "config": [{
             "name": "Chromawave",
             "config": {
-                "threshold": 0.62,
+                "threshold": 0.1,
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 0.71,
@@ -5732,12 +5732,12 @@ export const builtInPresets = [
         "config": [{
             "name": "Chromawave",
             "config": {
-                "threshold": 0.3,
+                "threshold": 0.1,
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": {"value": 0.79, "mod": {"type": "none"}},
                 "saturation": 100,
-                "lightness": 48,
+                "lightness": 75,
                 "hueSpread": {"value": 3.4224554306374966, "mod": {"type": "none"}},
                 "bleed": 0,
                 "COLORSPACE": "4",
@@ -5779,12 +5779,12 @@ export const builtInPresets = [
         }, {
             "name": "Chromawave",
             "config": {
-                "threshold": 0.45,
+                "threshold": 0.35,
                 "cycle": true,
                 "cycleMode": "spatial",
                 "hueShift": 0.54,
                 "saturation": 100,
-                "lightness": 50,
+                "lightness": 100,
                 "hueSpread": 3.5297829383277772,
                 "bleed": 0,
                 "COLORSPACE": 0,

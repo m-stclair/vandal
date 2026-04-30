@@ -193,7 +193,6 @@ export default {
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             PaletteFeatures: {value: paletteFeatures, type: "UBO", binding: 0},
             PaletteBlock: {value: paletteBlock, type: "UBO", binding: 1},
             u_paletteSize: {value: paletteSize, type: "int"},

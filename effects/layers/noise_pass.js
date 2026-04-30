@@ -1,11 +1,11 @@
-// special-purpose pass: shared RGBA material noise for Risograph
+// special-purpose pass: shared RGBA material noise
 
 import {initGLEffect, loadFragSrcInit} from "../../utils/gl.js";
 import {webGLState} from "../../utils/webgl_state.js";
 
-const fragSources = loadFragSrcInit("riso_noise_pass.frag", {});
+const fragSources = loadFragSrcInit("noise_pass.frag", {});
 
-export const risoNoisePass = {
+export const noisePass = {
     calculate(pass, inputTex, width, height, uniforms = {}, defines = {}) {
         initGLEffect(pass, fragSources);
         pass.setupFBO(pass, width, height);

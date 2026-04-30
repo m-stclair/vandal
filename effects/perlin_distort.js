@@ -153,7 +153,6 @@ export default {
             u_reps: {value: reps, type: "vec2"},
             u_fc: {value: fc, type: "floatArray"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"},
         };
         const defines = {
             NOISEMODE: modeCode,

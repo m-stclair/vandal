@@ -1,13 +1,13 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
-    BlendModeEnum, BlendModeOpts,
+    BlendModeEnum,
     BlendTargetEnum,
     ColorspaceEnum, ColorspaceOpts,
-    hasChromaBoostImplementation,
     PosterizeEnum,
     PosterizeModeOpts
 } from "../utils/glsl_enums.js";
+import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "posterizer.frag"
 const includePaths = {
@@ -39,7 +39,7 @@ export default {
         initGLEffect(instance, fragSources);
         const {config} = instance;
         const {
-            blendAmount, mod, COLORSPACE, mode, levels, chromaBoost,
+            blendAmount, mod, COLORSPACE, mode, levels,
             c1, c2, c3, BLENDMODE, BLEND_CHANNEL_MODE} = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -49,12 +49,10 @@ export default {
             u_logbase: {type: "float", value: mod * 4 + 1},
             u_bias: {type: "float", value: mod / 2 + 0.1},
             u_bayer_resolution: {type: "float", value: mod * mod},
-            u_chromaBoost: {type: "float", value: 1},
             u_levels: {type: "int", value: levels}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             POSTERIZE_MODE: Number.parseInt(mode),
@@ -81,8 +79,7 @@ export default {
         {key: "c1", label: "Channel 1", type: "checkbox"},
         {key: "c2", label: "Channel 2", type: "checkbox"},
         {key: "c3", label: "Channel 3", type: "checkbox"},
-        {key: "blendAmount", label: "Blend", type: "modSlider", min: 0, max: 1, step: 0.01},
-        {key: 'BLENDMODE', label: 'Blend Mode', type: 'Select', options: BlendModeOpts},
+        blendControls()
     ],
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
@@ -102,6 +99,7 @@ export const effectMeta = {
   parameterHints: {
       blendAmount: {min: 0.75, max: 1},
       POSTERIZE_MODE: {weights: {[PosterizeEnum.NONE]: 0}},
-      notAll0: ["c1", "c2", "c3"]
+      notAll0: ["c1", "c2", "c3"],
+      BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL}
   }
 };

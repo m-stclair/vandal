@@ -56,7 +56,6 @@ export default {
             u_kernelPass1: {value: kernel1FBO.texture, type: "texture2D"},
             u_kernelPass2: {value: kernel2FBO.texture, type: "texture2D"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"},
             u_weight: {value: weight, type: "float"},
             u_temperature: {value: temperature, type: "float"}
         }

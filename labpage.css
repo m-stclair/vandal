@@ -537,12 +537,17 @@ input, select, textarea, button {
     opacity: 1;
 }
 
-.effectRow.unsoloed {
+.effect-card.unsoloed {
     opacity: 0.4;
 }
-.effectRow.soloed {
+.effect-card.soloed {
     border-color: #4af;
 }
+.effect-card.modulating .effectLabel {
+    color: #bb9900;
+}
+
+
 
 .enableToggle:checked {
     background: #3af;

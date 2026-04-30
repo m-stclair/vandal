@@ -111,7 +111,6 @@ export default {
             u_seed: {value: seed, type: "float"},
             u_offset: {value: offset * (width + height) / 2, type: "float"},
             u_bandSize: {value: bandSize * (width + height) / 2, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
             u_rotationAmount: {type: "float", value: rotationAmount},
             u_orientation: {type: "int", value: orientation},
             u_levels: {type: "int", value: levels},

@@ -114,7 +114,6 @@ export default {
             u_chromaWeight: {value: chromaWeight, type: "float"},
             u_hueWeight: {value: hueWeight, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             BLENDMODE: BLENDMODE,

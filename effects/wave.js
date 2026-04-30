@@ -1,7 +1,7 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum,
-    hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+    } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
 const shaderPath = "wave.frag";
@@ -48,11 +48,9 @@ export default {
             u_freq: {value: frequency * 2 * Math.PI, type: "float"},
             u_vertical: {value: direction === "vertical" ? 1 : 0, type: "float"},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
         };

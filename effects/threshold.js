@@ -66,7 +66,6 @@ export default {
             u_width: {type: "float", value: threshWidth},
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             BLENDMODE: BLENDMODE,

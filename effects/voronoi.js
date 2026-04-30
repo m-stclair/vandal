@@ -64,7 +64,6 @@ export default {
             u_edgeColor: {type: "vec3",  value: edgeColor},
             u_seed: {type: "float", value: seed},
             u_blendamount: {type: "float", value: blendAmount},
-            u_chromaBoost: {type: "float", value: chromaBoost},
         };
         const defines = {
             BLENDMODE: BLENDMODE,

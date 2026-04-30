@@ -48,7 +48,6 @@ export default {
             u_intensity: {value: intensity, type: "float"},
             u_spacing: {value: lineSpacing, type: "float"},
             u_blendamount: {value: blendAmount, type: "float"},
-            u_chromaBoost: {value: chromaBoost, type: "float"}
         };
         const defines = {
             BLENDMODE: BLENDMODE,

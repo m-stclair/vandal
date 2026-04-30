@@ -77,7 +77,6 @@ export default {
             blendAmount,
             COLORSPACE,
             BLENDMODE,
-            chromaBoost,
             BLEND_CHANNEL_MODE
         } = resolveAnimAll(instance.config, t);
 
@@ -93,12 +92,10 @@ export default {
             u_affine: {value: affine, type: "mat2"},
             u_offset: {value: [translateX, translateY], type: "vec2"},
             u_wrap: {value: wrap, type: "bool"},
-            u_chromaBoost: {value: chromaBoost, type: "float"},
             u_blendamount: {type: "float", value: blendAmount},
         }
         const defines = {
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
         }

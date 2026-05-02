@@ -16,20 +16,25 @@ uniform vec2 u_resolution;
 
 uniform float u_kernel[KERNEL_SIZE];
 uniform float u_threshold;
-uniform float u_blendAmount;
 uniform float u_strength;
 uniform float u_knee;
 
 out vec4 outColor;
 
-#include "colorconvert.glsl"
-#include "blend.glsl"
+float softLightBlend(float base, float fx) {
+    float blended = mix(
+        2.0 * base * fx + base * base * (1.0 - 2.0 * fx),
+        sqrt(base) * (2.0 * fx - 1.0) + 2.0 * base * (1.0 - fx),
+        step(0.5, fx)
+    );
+    return clamp(blended, 0., 1.);
+}
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
     vec2 texel = 1.0 / u_resolution;
 
-    vec3 accumLab = vec3(0.0);
+    float accumL = 0.0;
     int k = 0;
 
     int halfWidth = KERNEL_WIDTH / 2;
@@ -38,21 +43,20 @@ void main() {
     for (int y = 0; y < KERNEL_HEIGHT; y++) {
         for (int x = 0; x < KERNEL_WIDTH; x++) {
             vec2 offset = vec2(float(x - halfWidth), float(y - halfHeight)) * texel;
-            vec3 samp = srgb2NormLab(texture(u_image, uv + offset).rgb);
-            accumLab += samp * u_kernel[k];
+            // u_image is always in Lab or JzAzBz. so first channel is luminance
+            float samp = texture(u_image, uv + offset).x;
+            accumL += samp * u_kernel[k];
             k++;
         }
     }
 
-    vec3 baseSRGB = texture(u_image, uv).rgb;
-    vec3 baseLab = srgb2NormLab(baseSRGB);
+    vec4 pix = texture(u_image, uv);
+    vec3 baseColor = pix.rgb;
 
-    float lumaDiff = baseLab.x - accumLab.x;
+    float lumaDiff = baseColor.x - accumL;
     float thresh = smoothstep(u_threshold - u_knee, u_threshold + u_knee, abs(lumaDiff));
     float shaped = sign(lumaDiff) * thresh * tanh(abs(lumaDiff));
-    float lumaSharp = clamp(baseLab.x + u_strength * shaped, 0.0, 1.0);
-    vec3 sharpLab = vec3(lumaSharp, baseLab.y, baseLab.z);
-    vec3 sharpSRGB = normLab2SRGB(sharpLab);
-
-    outColor = vec4(blendWithColorSpace(baseSRGB, sharpSRGB, u_blendAmount), 1.0);
+    float lumaSharp = clamp(baseColor.x + u_strength * shaped, 0.0, 1.0);
+    vec3 sharpColor = vec3(softLightBlend(baseColor.x, lumaSharp), baseColor.y, baseColor.z);
+    outColor = vec4(sharpColor, pix.a);
 }

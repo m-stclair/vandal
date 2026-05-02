@@ -22,7 +22,6 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 export const {
     enum: FieldDisplayModeEnum,
-    names: FieldDisplayModeNames,
     options: FieldDisplayModeOpts
 } = makeEnum([
     'STRENGTH',

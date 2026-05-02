@@ -35,7 +35,7 @@ export default {
         chunks: 20,
         tearMode: "band",
         ghostOffset: 0.05,
-        noiseAmount: 0.5,
+        noiseAmount: 0.22,
     },
     uiLayout: [
         {

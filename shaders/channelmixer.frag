@@ -21,6 +21,11 @@ void main() {
     float c1 = dot(color, u_mix1) + u_offset.x;
     float c2 = dot(color, u_mix2) + u_offset.y;
     float c3 = dot(color, u_mix3) + u_offset.z;
+#if COLORSPACE != COLORSPACE_OPPONENT
+    c1 = clamp(c1, 0.0, 1.0);
+    c2 = clamp(c2, 0.0, 1.0);
+    c3 = clamp(c3, 0.0, 1.0);
+#endif
     vec3 outpix = encodeColor(vec3(c1, c2, c3));
     outColor = vec4(clamp(outpix, 0.0, 1.0), srgb.a);
 }

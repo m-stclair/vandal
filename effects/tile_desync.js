@@ -10,6 +10,7 @@ import {blendControls} from "../utils/ui_configs.js";
 const shaderPath = "tile_desync.frag"
 const includePaths = {
     'noise.glsl': 'includes/noise.glsl',
+    'noise3D.glsl': 'includes/noises/noise3D.glsl',
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
 };
@@ -29,12 +30,18 @@ export default {
         tileCountY: 10,
         offsetAmount: 0.1,
         seed: 0,
+        BOUNDARY_MODE: 0,
+        edgeSoftness: 0.5,
+        tileWarp: 0.1
     },
     uiLayout: [
         {type: "modSlider", key: "seed", label: "Seed", min: 1, max: 500, step: 1},
         {type: "modSlider", key: "tileCountX", label: "Tile Count X", min: 1, max: 100, step: 1},
         {type: "modSlider", key: "tileCountY", label: "Tile Count Y", min: 1, max: 100, step: 1},
         {type: "modSlider", key: "offsetAmount", label: "Offset", min: 0, max: 1, step: 0.005},
+        {type: "modSlider", key: "edgeSoftness", label: "Edge Softness", min: 0, max: 1, steps: 100, showIf: {key: "BOUNDARY_MODE", equals: 1}},
+        {type: "modSlider", key: "tileWarp", label: "Tile Warp", min: 0, max: 1, steps: 100, showIf: {key: "BOUNDARY_MODE", equals: 1}},
+        {type: "select", key: "BOUNDARY_MODE", label: "Boundary Mode", options: [{"label": "Hard", value: 0}, {"label": "Soft", value: 1}]},
         blendControls()
     ],
 
@@ -43,7 +50,8 @@ export default {
         const {config} = instance;
         const {
             blendAmount, BLENDMODE, offsetAmount, tileCountX,
-            tileCountY, seed, COLORSPACE, BLEND_CHANNEL_MODE
+            tileCountY, seed, COLORSPACE, BLEND_CHANNEL_MODE,
+            BOUNDARY_MODE, edgeSoftness, tileWarp
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -53,11 +61,14 @@ export default {
             u_tilecount: {type: "vec2", value: [tileCountX, tileCountY]},
             u_seed: {type: "float", value: seed},
             u_offsetamount: {type: "float", value: offsetAmount},
+            u_edgeSoftness: {type: "float", value: edgeSoftness},
+            u_tileWarp: {type: "float", value: tileWarp}
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE
+            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            BOUNDARY_MODE: BOUNDARY_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

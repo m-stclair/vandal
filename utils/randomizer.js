@@ -140,21 +140,21 @@ const CHROMA_SECOND_CHANNEL_SPACES = [
     ColorspaceEnum.HSV, ColorspaceEnum.HSL, ColorspaceEnum.JCHz, ColorspaceEnum.LCH
 ]
 
-function enforceBlendConstraints(config) {
+const FULL_OPACITY_DEFAULT_CHANCE = 1 / 3;
+
+function enforceBlendConstraints(config, meta) {
+    const fullOpacityChance = meta.fullOpacityChance ?? FULL_OPACITY_DEFAULT_CHANCE;
+    if (Math.random() <= fullOpacityChance) {
+        config.BLENDMODE = BlendModeEnum.MIX;
+        config.blendAmount = 1.0;
+        config.BLEND_CHANNEL_MODE = BlendTargetEnum.ALL;
+        config.COLORSPACE = ColorspaceEnum.RGB;
+        return;
+    }
     if (config.BLENDMODE === BlendModeEnum.REPLACE) {
         config.BLENDMODE = BlendModeEnum.MIX;
     }
     let blendAmount = getBaseValue(config.blendAmount);
-    if (blendAmount !== undefined) {
-        if (blendAmount < 0.35) {
-            config.blendAmount = setBaseValue(config.blendAmount, 0.35);
-        } else if (config.BLENDMODE === BlendModeEnum.MIX && blendAmount > 0.8) {
-            config.blendAmount = setBaseValue(config.blendAmount, 0.8);
-        }
-    } else {
-        // harmless to set it on things that don't need it
-        config.blendAmount = 1;
-    }
     if (
         CHROMA_SECOND_CHANNEL_SPACES.includes(config.COLORSPACE)
         && config.BLEND_CHANNEL_MODE === 2
@@ -171,6 +171,17 @@ function enforceBlendConstraints(config) {
     ) {
         config.BLENDMODE = BlendModeEnum.MIX;
     }
+    if (blendAmount !== undefined) {
+        if (blendAmount < 0.35) {
+            config.blendAmount = setBaseValue(config.blendAmount, 0.35);
+        } else if (config.BLENDMODE === BlendModeEnum.MIX && blendAmount > 0.8) {
+            config.blendAmount = setBaseValue(config.blendAmount, 0.8);
+        }
+    } else {
+        // harmless to set it on things that don't need it
+        config.blendAmount = 1;
+    }
+
 }
 
 function flattenUiLayout(layout) {
@@ -331,7 +342,7 @@ let randomizingFlag = false;
 
 export function randomizeConfig(fx, effect) {
     const config = generateRandomizedConfig(fx.uiLayout, effect.meta);
-    enforceBlendConstraints(config);
+    enforceBlendConstraints(config, effect.meta);
     const errors = validateConfig(config, fx.uiLayout);
     if (errors.length > 0) {
         console.error(`invalid random config for ${fx.name}`);

@@ -14,7 +14,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 export default {
     name: "Chromawave",
     defaultConfig: {
-        threshold: 0.35,
+        threshold: 0.1,
         cycle: true,
         cycleMode: "spatial",
         hueShift: 0,
@@ -180,7 +180,7 @@ export default {
 export const effectMeta = {
     group: "Synthesis",
     tags: ["color", "synth", "AM/FM", "threshold", "rainbow"],
-    description: "Modulates color image using a synthetic hue gradient " +
+    description: "Modulates color using a synthetic hue gradient " +
         "based on image-space coordinates, relative brightness, or hue self-modulation. " +
         "Dark areas can be masked out. The hue field can radiate in various patterns, with " +
         "optional interpolation toward the original hue. " +
@@ -190,7 +190,7 @@ export const effectMeta = {
     canAnimate: true,
     realtimeSafe: true,
     parameterHints: {
-        threshold: {min: 0.05, max: 0.3},
+        threshold: {min: 0.02, max: 0.15},
         saturation: {min: 25, max: 100},
         lightness: {min: 25, max: 60}
     }

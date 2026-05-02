@@ -16,6 +16,8 @@ uniform float u_chromaGamma;
 uniform float u_hueSpacing;
 uniform float u_startHue;
 uniform float u_hueBleed;
+uniform vec2 u_pan;
+uniform vec2 u_origin;
 
 uniform float u_blendamount;
 
@@ -119,7 +121,7 @@ vec2 applyStructureTransform(vec2 p) {
     vec2 center = vec2(0.5, H / 3.0);
     float z = max(u_zoom, 1e-4);
 
-    vec2 d = p - center;
+    vec2 d = p - u_pan - center;
 
     // Preserve local behavior at center.
     vec2 a = cExpI(u_spin) / z;
@@ -255,7 +257,7 @@ void main() {
     p = applyStructureTransform(p);
 
     fractalResult result = fractalUV(p, s);
-    vec2 uv = mix(st, result.uv, u_depth);
+    vec2 uv = mix(st, result.uv + u_origin, u_depth);
     uv = fract(uv);
 
     vec3 pix = texture(u_image, uv).rgb;

@@ -235,7 +235,8 @@ export default {
             calculate: flowOffsetPass.calculate,
             outputFBO: null,
             width: null,
-            height: null
+            height: null,
+            id: `${instance.id}-offset-pass`
         }
         instance.kernelPass = {
             initHook: kernelPass.initHook,
@@ -244,7 +245,8 @@ export default {
             calculate: kernelPass.calculate,
             outputFBO: null,
             width: null,
-            height: null
+            height: null,
+            id: `${instance.id}-kernel-pass`
         }
         await instance.flowOffsetPass.initHook(instance.flowOffsetPass, renderer);
         await instance.kernelPass.initHook(instance.kernelPass, renderer);

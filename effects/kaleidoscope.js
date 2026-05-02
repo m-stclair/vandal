@@ -3,7 +3,7 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum, hasChromaBoostImplementation
+    ColorspaceEnum, hasChromaBoostImplementation, makeEnum
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
@@ -13,6 +13,13 @@ const includePaths = {
     'blend.glsl': 'includes/blend.glsl',
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
+
+const {
+    enum: KaleidoModeEnum,
+    options: KaleidoModeOpts
+} = makeEnum([
+    'CLASSIC', 'PRISM', 'CELLULAR'
+]);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
@@ -29,7 +36,12 @@ export default {
         tubeLength: 0.5,
         magnification: 1,
         depth: 1,
-        twist: 0.3
+        twist: 0.3,
+        prism: 0.3,
+        warp: 0.2,
+        phase: 0,
+        MODE: KaleidoModeEnum.CLASSIC
+
     },
     uiLayout: [
        {
@@ -80,6 +92,39 @@ export default {
             max: 1,
             steps: 100
         },
+        {
+            type: "modSlider",
+            key: "prism",
+            label: "Prism Amount",
+            min: 0,
+            max: 1,
+            steps: 100,
+            showIf: {key: "MODE", equals: KaleidoModeEnum.PRISM}
+        },
+        {
+            type: "modSlider",
+            key: "warp",
+            label: "Warp",
+            min: 0,
+            max: 1,
+            steps: 100,
+            showIf: {key: "MODE", notEquals: KaleidoModeEnum.CLASSIC}
+        },
+        {
+            type: "modSlider",
+            key: "phase",
+            label: "Phase",
+            min: 0,
+            max: 6.28,
+            steps: 100,
+            showIf: {key: "MODE", notEquals: KaleidoModeEnum.CLASSIC}
+        },
+        {
+            type: "select",
+            key: "MODE",
+            label: "Mode",
+            options: KaleidoModeOpts
+        },
         blendControls(),
     ],
 
@@ -88,7 +133,8 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE,
-            magnification, mirrors, tubeLength, reflections, depth, twist
+            magnification, mirrors, tubeLength, reflections, depth, twist,
+            MODE, prism, phase, warp
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -100,12 +146,16 @@ export default {
             u_mirrors: {type: "float", value: mirrors},
             u_magnification: {type: "float", value: magnification},
             u_depth: {type: "float", value: depth},
-            u_twist: {type: "float", value: twist}
+            u_twist: {type: "float", value: twist},
+            u_warp: {type: "float", value: warp},
+            u_prism: {type: "float", value: prism},
+            u_phase: {type: "float", value: phase}
         };
         const defines = {
             COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
+            MODE: MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },

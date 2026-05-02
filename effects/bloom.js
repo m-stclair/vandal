@@ -103,7 +103,6 @@ export default {
             chromaOffset, BLOOM_CHROMA_TAIL, kernelName, kernelSoftness,
         } = resolveAnimAll(instance.config, t);
         const kernel = normalizeKernel(generateKernel(kernelName, kernelRadius, kernelSoftness));
-        // console.log(kernel);
         const uniformSpec = {
             u_resolution: {type: "vec2", value: [width, height]},
             u_blendamount: {value: blendAmount, type: "float"},

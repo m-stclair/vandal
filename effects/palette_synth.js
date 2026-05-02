@@ -325,5 +325,6 @@ export const effectMeta = {
         showPalette: {"always": "none"},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
         gammaC: {"min": 0.8, "max": 1.2}
-    }
+    },
+    fullOpacityChance: 0.75
 };

@@ -29,7 +29,7 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE, chromaBoost,
+            BLENDMODE, COLORSPACE, blendAmount, BLEND_CHANNEL_MODE,
             radius1, radius2, softness1, softness2, temperature, weight
         } = resolveAnimAll(instance.config, t);
 

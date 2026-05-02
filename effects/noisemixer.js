@@ -271,5 +271,6 @@ export const effectMeta = {
         zoneSX: {min: 0.4, max: 1},
         zoneSY: {min: 0.4, max: 1},
         zoneSoftness: {min: 0, max: 0.5}
-    }
+    },
+    fullOpacityChance: 0
 };

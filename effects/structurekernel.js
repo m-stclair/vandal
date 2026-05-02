@@ -87,6 +87,7 @@ export default {
             cleanupHook: calcPass.cleanupHook,
             setupFBO: calcPass.setupFBO,
             calculate: calcPass.calculate,
+            id: `${instance.id}-calc-pass`,
             outputFBO: null,
             width: null,
             height: null

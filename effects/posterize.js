@@ -98,7 +98,7 @@ export const effectMeta = {
   realtimeSafe: true,
   parameterHints: {
       blendAmount: {min: 0.75, max: 1},
-      POSTERIZE_MODE: {weights: {[PosterizeEnum.NONE]: 0}},
+      mode: {weights: {[PosterizeEnum.NONE]: 0}},
       notAll0: ["c1", "c2", "c3"],
       BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL}
   }

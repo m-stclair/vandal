@@ -1,5 +1,5 @@
 #version 300 es
-precision mediump float;
+precision highp float;
 
 #ifndef POLAR_MODE
 #define POLAR_MODE 0

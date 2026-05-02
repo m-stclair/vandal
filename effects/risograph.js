@@ -120,8 +120,6 @@ export default {
         inkCoverage: 0.92,
         edgeBleed: 0.55,
         posterizeLevels: 5,
-
-        // Stable by default. Exposed only as config, not UI, so prints do not shimmer.
         noiseSeed: 0,
     },
     uiLayout: [
@@ -172,7 +170,7 @@ export default {
                 {type: "modSlider", key: "edgeBleed", label: "Edge Bleed", min: 0, max: 3, step: 0.01},
             ],
         },
-
+        {type: "range", label: "seed", key: "noiseSeed", min: 0, max: 100, step: 1},
         blendControls(),
     ],
 

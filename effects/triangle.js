@@ -45,7 +45,11 @@ export default {
         hueSpacing: 0.5,
         hueBleed: 0,
         curveStrength: 0,
-        curveDirection: 0
+        curveDirection: 0,
+        panX: 0,
+        panY: 0,
+        originX: 0,
+        originY: 0
     },
     uiLayout: [
         {
@@ -80,6 +84,38 @@ export default {
             max: 5,
             steps: 100,
             scale: "log"
+        },
+        {
+            type: "modSlider",
+            key: "panX",
+            label: "Pan X",
+            min: -1,
+            max: 1,
+            steps: 100
+        },
+        {
+            type: "modSlider",
+            key: "panY",
+            label: "Pan Y",
+            min: -1,
+            max: 1,
+            steps: 100
+        },
+        {
+            type: "modSlider",
+            key: "originX",
+            label: "Origin X",
+            min: -1,
+            max: 1,
+            steps: 100
+        },
+        {
+            type: "modSlider",
+            key: "originY",
+            label: "Origin Y",
+            min: -1,
+            max: 1,
+            steps: 100
         },
         {
             type: "modSlider",
@@ -164,8 +200,10 @@ export default {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE,
             scale, ITERATIONS, depth, spin, zoom, COLORING_MODE,
             chromaGamma, hueSpacing, startHue, hueBleed,
-            curveStrength, curveDirection
+            curveStrength, curveDirection, panX, panY,
+            originX, originY
         } = resolveAnimAll(config, t);
+
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
@@ -180,7 +218,9 @@ export default {
             u_startHue: {type: "float", value: startHue},
             u_hueBleed: {type: "float", value: hueBleed},
             u_curveStrength: {type: "float", value: curveStrength},
-            u_curveDirection: {type: "float", value: curveDirection * Math.PI / 180}
+            u_curveDirection: {type: "float", value: curveDirection * Math.PI / 180},
+            u_pan: {type: "vec2", value: [panX, panY]},
+            u_origin: {type: "vec2", value: [originX, originY]}
         };
         const defines = {
             ITERATIONS: ITERATIONS,

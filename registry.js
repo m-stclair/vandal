@@ -78,7 +78,10 @@ const effectFiles = [
     "bustedVHS.js",
     "badSignalChain.js",
     "bustedDVD.js",
-    "fractal_orbit.js"
+    "fractal_orbit.js",
+    "adjustments.js",
+    "clarity.js"
+    // "carpet.js"
     // "coupled_lens_physical.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";

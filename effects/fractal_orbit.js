@@ -375,7 +375,7 @@ export const effectMeta = {
     canAnimate: true,
     parameterHints: {
         "ITERATIONS": {"min": 12, "max": 96},
-        "depth": {"min": 0.35, "max": 1},
+        "depth": {"min": 0.1, "max": 1},
         "zoom": {"min": 0.25, "max": 3, "aniMin": 0.1},
         "orbitScale": {"min": 0.5, "max": 3},
         "earlyOrbitBias": {"min": 0.05, "max": 0.3},

@@ -3,11 +3,12 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {
     BlendModeEnum,
     BlendTargetEnum,
-    ColorspaceEnum, hasChromaBoostImplementation, makeEnum
+    ColorspaceEnum,
+    makeEnum
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "triangle.frag"
+const shaderPath = "snowflake.frag";
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
@@ -21,13 +22,13 @@ const {
     'NONE',
     'ITERATIONS',
     'BRANCH',
-    'CORNER'
-])
+    'SIDE'
+]);
 
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Triangle",
+    name: "Koch Snowflake",
 
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
@@ -51,12 +52,13 @@ export default {
         originX: 0,
         originY: 0
     },
+
     uiLayout: [
         {
             type: "modSlider",
             key: "scale",
-            label: "Scale",
-            min: 0.1,
+            label: "Generator Scale",
+            min: 0.0,
             max: 0.8,
             step: 0.01
         },
@@ -65,7 +67,7 @@ export default {
             key: "ITERATIONS",
             label: "Iterations",
             min: 1,
-            max: 12,
+            max: 10,
             step: 1
         },
         {
@@ -142,10 +144,10 @@ export default {
             steps: 200
         },
         {
-            "type": "group",
-            "label": "Color",
-            "kind": "collapse",
-            "children": [
+            type: "group",
+            label: "Color",
+            kind: "collapse",
+            children: [
                 {
                     type: "select",
                     key: "COLORING_MODE",
@@ -159,7 +161,7 @@ export default {
                     min: 0,
                     max: 3,
                     step: 0.1,
-                    showIf: {"key": "COLORING_MODE", "notEquals": ColoringModeEnum.NONE}
+                    showIf: {key: "COLORING_MODE", notEquals: ColoringModeEnum.NONE}
                 },
                 {
                     type: "modSlider",
@@ -168,7 +170,7 @@ export default {
                     min: 0,
                     max: 7,
                     step: 0.01,
-                    showIf: {"key": "COLORING_MODE", "notEquals": ColoringModeEnum.NONE}
+                    showIf: {key: "COLORING_MODE", notEquals: ColoringModeEnum.NONE}
                 },
                 {
                     type: "modSlider",
@@ -177,7 +179,7 @@ export default {
                     min: 0,
                     max: 1,
                     step: 0.01,
-                    showIf: {"key": "COLORING_MODE", "notEquals": ColoringModeEnum.NONE}
+                    showIf: {key: "COLORING_MODE", notEquals: ColoringModeEnum.NONE}
                 },
                 {
                     type: "modSlider",
@@ -186,7 +188,7 @@ export default {
                     min: 0,
                     max: 1,
                     step: 0.01,
-                    showIf: {"key": "COLORING_MODE", "notEquals": ColoringModeEnum.NONE}
+                    showIf: {key: "COLORING_MODE", notEquals: ColoringModeEnum.NONE}
                 },
             ]
         },
@@ -203,7 +205,6 @@ export default {
             curveStrength, curveDirection, panX, panY,
             originX, originY
         } = resolveAnimAll(config, t);
-
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
@@ -222,35 +223,39 @@ export default {
             u_pan: {type: "vec2", value: [panX, panY]},
             u_origin: {type: "vec2", value: [originX, originY]}
         };
+
         const defines = {
-            ITERATIONS: ITERATIONS,
-            COLORING_MODE: COLORING_MODE,
-            COLORSPACE: COLORSPACE,
-            BLENDMODE: BLENDMODE,
-            BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-        }
+            ITERATIONS,
+            COLORING_MODE,
+            COLORSPACE,
+            BLENDMODE,
+            BLEND_CHANNEL_MODE,
+        };
+
         instance.glState.renderGL(inputTex, outputFBO, uniforms, defines);
     },
+
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
     },
+
     initHook: fragSources.load,
     glState: null,
     isGPU: true
-}
+};
 
 export const effectMeta = {
     group: "Fractal",
-    tags: ["fractal", "sierpinski", "triangle"],
-    description: "Folds image into the plane of a generalized Sierpinski triangle.",
+    tags: ["fractal", "koch", "snowflake"],
+    description: "Folds image coordinates through a Koch snowflake generator anchored on an equilateral triangle.",
     backend: "gpu",
     realtimeSafe: true,
     canAnimate: true,
     parameterHints: {
-        "ITERATIONS": {"min": 2, "max": 10},
-        "depth": {"min": 0.1, "max": 1},
-        "zoom": {"min": 0.25, "max": 1},
-        "scale": {"min": 0.45, "max": 0.55},
-        "chromaGamma": {"min": 0.7, "max": 1.3}
+        ITERATIONS: {min: 2, max: 8},
+        depth: {always: 1},
+        zoom: {min: 0.25, max: 1.5},
+        scale: {min: 0.45, max: 0.55},
+        chromaGamma: {min: 0.7, max: 1.3}
     }
 };

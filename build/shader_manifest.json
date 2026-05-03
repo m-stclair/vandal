@@ -1,6 +1,7 @@
 {
   "tile_desync.frag": "tile_desync.87525c87.frag",
   "noise_pass.frag": "noise_pass.a898206c.frag",
+  "snowflake.frag": "snowflake.8b361bbe.frag",
   "structureflow.frag": "structureflow.fa2ce512.frag",
   "kernel2d.glsl": "kernel2d.3e955b82.glsl",
   "risograph.frag": "risograph.48e5ec4a.frag",
@@ -61,6 +62,7 @@
   "affine_transform.frag": "affine_transform.e2f5d144.frag",
   "vector_field_stuff.glsl": "vector_field_stuff.3fef904a.glsl",
   "calc_pass.frag": "calc_pass.f2597862.frag",
+  "penrose.frag": "penrose.5a1cd2e7.frag",
   "threshold.frag": "threshold.1e32a891.frag",
   "colorshred.frag": "colorshred.42a635a6.frag",
   "riso_plate_pass.frag": "riso_plate_pass.a48a771f.frag",

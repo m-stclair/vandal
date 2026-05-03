@@ -81,7 +81,9 @@ const effectFiles = [
     "fractal_orbit.js",
     "adjustments.js",
     "clarity.js",
-    "temporal_delay.js"
+    "temporal_delay.js",
+    "penrose.js"
+    // "snowflake.js"
     // "carpet.js"
     // "coupled_lens_physical.js"
 ]

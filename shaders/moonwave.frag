@@ -21,7 +21,7 @@ uniform float u_baseHue;
 out vec4 outColor;
 
 #include "colorconvert.glsl"
-#include "blend.glsl"\
+#include "blend.glsl"
 
 const float TAU = 6.28318530718;
 
@@ -146,22 +146,22 @@ vec3 refractSource(vec2 uv, float tone) {
     );
 }
 
-vec4 prismveil(vec2 uv) {
+vec4 moonwave(vec2 uv) {
     vec3 srgb = texture(u_image, uv).rgb;
     float luma = luminance(srgb2linear(srgb));
 
-#if PRISMVEIL_CYCLE == 0
+#if MOONWAVE_CYCLE == 0
     vec3 inHSV = rgb2hsv(srgb);
-#elif PRISMVEIL_BLEED == 1
+#elif MOONWAVE_BLEED == 1
     vec3 inHSV = rgb2hsv(srgb);
 #endif
 
     vec2 frag = gl_FragCoord.xy;
     vec2 p = (frag - 0.5 * u_resolution) / max(min(u_resolution.x, u_resolution.y), 1.0);
 
-#if PRISMVEIL_CYCLE == 0
+#if MOONWAVE_CYCLE == 0
     float signal = inHSV.x + luma * 0.18;
-#elif PRISMVEIL_CYCLE == 1
+#elif MOONWAVE_CYCLE == 1
     float threshold = clamp(u_threshold, 0.0, 0.99);
     float signal = clamp((luma - threshold) / (1.0 - threshold), 0.0, 1.0);
 #else
@@ -179,13 +179,13 @@ vec4 prismveil(vec2 uv) {
     float val = clamp(u_lightNorm * pal.z + tone * 0.10 - 0.035, 0.0, 1.0);
     float hue = pal.x;
 
-#if PRISMVEIL_BLEED == 1
+#if MOONWAVE_BLEED == 1
     hue = mix(hue, inHSV.x, clamp(u_bleed, 0.0, 1.0));
 #endif
 
     vec3 fx = hsv2rgb(vec3(hue, sat, val));
 
-#if PRISMVEIL_REFRACT == 1
+#if MOONWAVE_REFRACT == 1
     vec3 prismSrc = refractSource(uv, tone);
     fx = mix(fx, prismSrc, clamp(u_refraction * 0.24, 0.0, 0.28));
 #endif
@@ -198,5 +198,5 @@ vec4 prismveil(vec2 uv) {
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    outColor = clamp(prismveil(uv), 0.0, 1.0);
+    outColor = clamp(moonwave(uv), 0.0, 1.0);
 }

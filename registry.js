@@ -80,7 +80,8 @@ const effectFiles = [
     "bustedDVD.js",
     "fractal_orbit.js",
     "adjustments.js",
-    "clarity.js"
+    "clarity.js",
+    "temporal_delay.js"
     // "carpet.js"
     // "coupled_lens_physical.js"
 ]

@@ -487,6 +487,7 @@ export const builtInPresets = [
         ]
     },
 
+{"name":"Transfer Nocturne","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":3.35,"directionStrength":1.1019457740386396,"directionChannel":"1","magChannel":"3","directionPolarity":false,"magPolarity":false,"threshLow":0.665,"threshHigh":0.98,"magGamma":1.854525409474646,"kernelName":"gaussian","kernelRadiusX":9,"kernelRadiusY":9,"kernelSoftness":6.985,"useChromaDrag":true,"chromaDragAmount":0.14}},{"name":"Line Integral Convolution","config":{"angle":256,"useKernel":true,"kernelRadius":5,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":3.45,"falloff":0.01,"STEPS":10,"jitter":0.0425,"seed":0,"sharpness":2}}]},
 
     {
         "name": "Transfer Sunrise",
@@ -1129,6 +1130,8 @@ export const builtInPresets = [
             }
         ]
     },
+    {"name":"Vapor Manual","config":[{"name":"Chromawave","config":{"threshold":0.05,"cycle":true,"cycleMode":"spatial","hueShift":{"value":2,"mod":{"type":"hold","freq":4.878915999999999,"phase":0,"scale":0.5158496080000001,"offset":1}},"saturation":89,"lightness":60,"hueSpread":4.230713735302785,"bleed":0.78,"COLORSPACE":0,"BLENDMODE":"1","BLEND_CHANNEL_MODE":0,"blendAmount":1,"bandingSteps":0,"waveType":"tri","dutyCycle":1,"originX":0.5,"originY":0.5,"spatialPattern":"diagonal","bandHue":0.69,"paletteMode":"split","chromaBoost":1,"blendTarget":"0"}},{"name":"Contour Synth","config":{"freq":2,"freqScale":1,"phaseScale":1.5476698481915507,"phaseOff":2,"blendAmount":1,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"chromaBoost":1,"waveform":"Sine","spatialWaveform":"Checkerboard","COLOR_MODE":"2","hueOff":0.8,"hueScale":1.62,"chromaGamma":0.75,"phaseGamma":0.39}},{"name":"Engrave","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"brightness":1,"contrast":2,"scale":2,"jitter":0.19,"inkColor":[0.2,0.1,0],"paperColor":[0.96,0.95,0.92],"inkOpacity":1,"paperOpacity":0.51,"lineWidth":0.1,"lineWidthSensitivity":0,"lineSpacing":18,"lineSpacingSensitivity":0,"angle":25,"USE_STRUCTURE":false,"anisoDrag":0}}]},
+
     {
         "name": "Craquelure",
         "config": [{
@@ -1422,6 +1425,8 @@ export const builtInPresets = [
             }
         ]
     },
+    {"name":"Wet Sepia","config":[{"name":"Duotone","config":{"BLENDMODE":"1","COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"darkColor":[0.04,0.01,0],"lightColor":[1,0.96,0.91],"gamma":1,"shadowPoint":0.2,"highlightPoint":0.8}},{"name":"Kuwahara","config":{"texelSizeX":1,"texelSizeY":2,"radius":7,"sharpness":1.63,"eccentricity":1.44,"useKernel":true,"BLENDMODE":"1","COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":5}},{"name":"Line Integral Convolution","config":{"angle":68,"useKernel":true,"kernelRadius":4,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":3.95,"falloff":0.057,"STEPS":6,"jitter":0.0825,"seed":46,"sharpness":1.92}}]},
+    {"name":"WTF Frenzy","config":[{"name":"Triangle","config":{"scale":0.531,"ITERATIONS":8,"spin":295,"zoom":0.40457611691788564,"panX":-0.88,"panY":0.74,"originX":-0.78,"originY":{"value":0.1200000000000001,"mod":{"type":"sine","freq":0.063,"phase":0,"scale":0.6,"offset":0.1200000000000001}},"curveStrength":0.67,"curveDirection":223,"depth":1,"COLORING_MODE":3,"chromaGamma":1.198,"hueSpacing":3.2900000000000005,"startHue":0.21,"hueBleed":0.67,"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Perlin Distort","config":{"seed":210,"depth":0.8640000000000001,"freqX":37.62759521282634,"freqY":38.62495270967996,"pitchX":{"value":0,"mod":{"type":"walk","freq":0.24,"phase":0,"scale":0.58,"offset":0,"_walkValue":0.6910325090965548,"_lastUpdate":1777.2599999986255}},"pitchY":0.3999999999999999,"rate":1.6989700043360185,"rateDrive":0.46,"phase":[0.14,0.26],"fuzz":0,"noiseMode":"pseudo","boundMode":"clamp","clampScale":0.63,"fc":[8.6,4.04,7.84],"reps":[1.76,2.71],"blendAmount":{"value":0.9400000000000001,"mod":{"type":"sine","freq":0.073,"phase":0,"scale":0.42,"offset":0.8}},"BLENDMODE":1,"COLORSPACE":7,"BLEND_CHANNEL_MODE":0}},{"name":"Threshold","config":{"thresholdMode":3,"target":0.5525,"threshWidth":0.2,"binarize":true,"flip":true,"blendAmount":{"value":0.44,"mod":{"type":"triangle","freq":0.074,"phase":0,"scale":0.2,"offset":0.44}},"BLENDMODE":1,"COLORSPACE":8,"BLEND_CHANNEL_MODE":0}}]},
     {
         "name": "Sheen",
         "config": [{
@@ -1618,92 +1623,8 @@ export const builtInPresets = [
             },
         ]
     },
-    {
-        "name": "Surface Tension",
-        "config": [{
-            "name": "Perlin Distort",
-            "config": {
-                "boundMode": "fract",
-                "pitchX": {
-                    "value": 0.91,
-                    "mod": {
-                        "type": "saw",
-                        "freq": 0.05433084042407615,
-                        "phase": 0,
-                        "scale": -1.8719999999999999,
-                        "offset": 0
-                    }
-                },
-                "pitchY": 0,
-                "freqX": 4,
-                "freqY": 4,
-                "seed": 231,
-                "depth": 0.66,
-                "rate": 4,
-                "rateDrive": 0,
-                "fc": [
-                    6,
-                    15,
-                    10
-                ],
-                "reps": [
-                    5,
-                    5
-                ],
-                "phase": [
-                    0.595,
-                    0
-                ],
-                "fuzz": 0,
-                "noiseMode": "pseudo",
-                "clampScale": 1,
-                "BLENDMODE": "2",
-                "BLEND_CHANNEL_MODE": "3",
-                "COLORSPACE": "2",
-                "chromaBoost": 4,
-                "blendAmount": 0.88
-            }
-        },
-            {
-                "name": "flow()",
-                "config": {
-                    "BLENDMODE": 1,
-                    "BLEND_CHANNEL_MODE": 0,
-                    "COLORSPACE": 0,
-                    "blendAmount": 1,
-                    "warpStrength": 0.67,
-                    "directionAngle": {
-                        "value": 1.6022122533308,
-                        "mod": {
-                            "type": "none"
-                        }
-                    },
-                    "modAmount": 0.54,
-                    "driverChannel": "4",
-                    "modulatorChannel": "0",
-                    "driverPolarity": false,
-                    "modulatorPolarity": true,
-                    "threshLow": 0,
-                    "threshHigh": 1,
-                    "driverGamma": 0.14382963360314993,
-                    "flatThreshold": false
-                }
-            },
-            {
-                "name": "Affine Transform",
-                "config": {
-                    "angle": 0,
-                    "shearX": 0,
-                    "shearY": 0,
-                    "scaleX": "0.886148047765198",
-                    "scaleY": "0.886148047765198",
-                    "translateX": 0,
-                    "translateY": -0.14,
-                    "wrap": true
-                }
-            }
-        ]
-    },
+    {"name":"Surface Tension","config":[{"name":"Perlin Distort","config":{"boundMode":"fract","pitchX":{"value":0.91,"mod":{"type":"saw","freq":0.05433084042407615,"phase":0,"scale":-1.8719999999999999,"offset":0}},"pitchY":0,"freqX":4,"freqY":4,"seed":231,"depth":0.66,"rate":4,"rateDrive":0,"fc":[6,15,10],"reps":[5,5],"phase":[0.595,0],"fuzz":0,"noiseMode":"pseudo","clampScale":1,"BLENDMODE":"12","BLEND_CHANNEL_MODE":"0","COLORSPACE":"2","chromaBoost":4,"blendAmount":1}},{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":0.67,"directionStrength":0.5,"directionChannel":5,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"chromaBoost":1,"directionAngle":{"value":1.6022122533308,"mod":{"type":"none"}},"modAmount":0.54,"driverChannel":"4","modulatorChannel":"0","driverPolarity":false,"modulatorPolarity":true,"driverGamma":0.14382963360314993,"flatThreshold":false}}]},
+
     {
         "name": "Night City Waterfall",
         "config": [{
@@ -2100,78 +2021,9 @@ export const builtInPresets = [
             }
         }]
     },
-    {
-        "name": "Powder",
-        "config": [{
-            "name": "Posterize",
-            "config": {
-                "levels": 8,
-                "mode": "2",
-                "COLORSPACE": 0,
-                "BLENDMODE": 1,
-                "BLEND_CHANNEL_MODE": 0,
-                "blendAmount": 1,
-                "mod": 0.25,
-                "c1": true,
-                "c2": false,
-                "c3": false,
-                "colorSpace": "1"
-            }
-        }, {
-            "name": "Colormap",
-            "config": {
-                "colormap": "blush",
-                "chromaBoost": 1,
-                "reverse": true,
-                "blendAmount": 1,
-                "BLENDMODE": 1,
-                "COLORSPACE": 0,
-                "BLEND_CHANNEL_MODE": 0
-            }
-        }, {
-            "name": "Delay Line",
-            "config": {
-                "delay": {
-                    "value": 172.44,
-                    "mod": {"type": "sine", "freq": 0.09, "phase": 0, "scale": 16.88, "offset": 47.62}
-                },
-                "window": "ring",
-                "falloff": "uniform",
-                "density": {"value": 2.3, "mod": {"type": "none"}},
-                "angle": {
-                    "value": -37.27,
-                    "mod": {"type": "sine", "freq": 0.01, "phase": 0, "scale": 142.73, "offset": -37.27}
-                },
-                "shearX": -4,
-                "shearY": -1.2,
-                "scaleX": 1.5,
-                "scaleY": 0.3,
-                "COLORSPACE": 0,
-                "BLENDMODE": "1",
-                "blendAmount": 1,
-                "blendTarget": "0",
-                "jitter": 0.13,
-                "chromaBoost": 1,
-                "BLEND_CHANNEL_MODE": 0
-            }
-        }, {
-            "name": "Look",
-            "config": {
-                "exposure": 0.5,
-                "toneShoulder": 2.2,
-                "toneCenter": -0.75,
-                "curveStrength": 1,
-                "chromaWeight": 1,
-                "chromaFadeLow": -3,
-                "chromaFadeHigh": 2,
-                "tintHue": 68,
-                "tintStrength": 0,
-                "lift": 0,
-                "gamma": 0,
-                "gain": 0
-            }
-        }]
-    },
+{"name":"Powder","config":[{"name":"Auto Levels","config":{"mode":"luma","paramA":2,"paramB":98}},{"name":"Colormap","config":{"colormap":"blush","chromaBoost":1,"reverse":true,"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Delay Line","config":{"delay":{"value":172.44,"mod":{"type":"sine","freq":0.09,"phase":0,"scale":16.88,"offset":47.62}},"window":"ring","falloff":"uniform","density":{"value":2.7,"mod":{"type":"none"}},"angle":{"value":-37.27,"mod":{"type":"sine","freq":0.01,"phase":0,"scale":142.73,"offset":-37.27}},"shearX":{"value":-4,"mod":{"type":"sine","freq":0.1499158046176393,"phase":0,"scale":-1.1822402799999998,"offset":0}},"shearY":{"value":-1.2,"mod":{"type":"sine","freq":0.11355230592070403,"phase":0,"scale":-0.7401430400000004,"offset":0}},"scaleX":1.5,"scaleY":0.3,"COLORSPACE":0,"BLENDMODE":"1","blendAmount":1,"blendTarget":"0","jitter":0.13,"BLEND_CHANNEL_MODE":0,"BOUNDMODE":1,"chromaBoost":1}}]},
+    {"name":"Powder 2","config":[{"name":"Pixelate","config":{"blockSize":{"value":42,"mod":{"type":"sine","freq":0.067,"phase":0,"scale":20,"offset":42}},"blendAmount":{"value":0.43,"mod":{"type":"sine","freq":0.2204427447755411,"phase":0,"scale":0.2282665,"offset":0.544}},"BLENDMODE":"5","COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Mirrorband","config":{"bandSize":{"value":0.4951,"mod":{"type":"sine","freq":0.057,"phase":0,"scale":0.06,"offset":0.4951}},"orientation":0,"mirrorRate":{"value":0.85,"mod":{"type":"saw","freq":0.091,"phase":0,"scale":0.21,"offset":0.85}},"offset":-0.6599999999999999,"seed":235,"colorMode":1,"colorBlend":"0","hue":{"value":0.5700000000000001,"mod":{"type":"hold","freq":0.061,"phase":0,"scale":0.37,"offset":0.5700000000000001}},"sBias":0.12,"vBias":0.63,"levels":{"value":4,"mod":{"type":"triangle","freq":0.089,"phase":0,"scale":0.03,"offset":4}},"rotationAmount":{"value":0.5654866776461628,"mod":{"type":"saw","freq":0.09,"phase":0,"scale":0.45,"offset":0.5654866776461628}},"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Temporal Delay Line","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"delayFrames":7,"delayKernelRadius":4,"delayKernelSigma":2.713,"feedback":0.81}}]},
+
     {
         "name": "Push 35",
         "config": [{
@@ -2343,6 +2195,15 @@ export const builtInPresets = [
             }
         ]
     },
+    {"name":"Second Dream","config":[{"name":"Noise Mixer","config":{"frequency":125.46904260337615,"freqShift":0,"tint":[1,1,1],"seed":142,"BLENDMODE":"10","BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"chromaBoost":1,"components":[1,0,0,0,0,0,0],"blendAmount":0.4,"colormap":"none","threshold":0,"cutoff":1,"gate":0,"burstThreshold":0.1,"burstFreq":100,"burstTheta":0.52,"burstDTheta":0,"ZONESHAPE":2,"zoneCX":0.5,"zoneSX":0.6,"zoneCY":0.5,"zoneSY":0.6,"zoneEllipseN":2,"zoneSoftness":0.1,"zoneAngle":0,"APPLY_MASK":false,"burstModType":"simplex","shiftX":0,"shiftY":0}},{"name":"Exposure","config":{"exposure":0.4}},{"name":"Line Integral Convolution","config":{"angle":92,"useKernel":true,"kernelRadius":5,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":1.85,"falloff":0.055,"STEPS":8,"jitter":0,"seed":0,"sharpness":2.52}},{"name":"Line Integral Convolution","config":{"angle":90,"useKernel":true,"kernelRadius":5,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":3.9,"falloff":0.055,"STEPS":8,"jitter":0,"seed":0,"sharpness":2.52}}]},
+    {"name":"Sfumato","config":[{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"threshold":0.04,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":1,"softness":0}},{"name":"Line Integral Convolution","config":{"angle":94,"useKernel":true,"kernelRadius":3,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":2.65,"falloff":0.029,"STEPS":10,"jitter":0.0425,"seed":0,"sharpness":2}}]},
+    {"name":"Soft Goth Aquarium","config":[{"name":"Fractal Orbit","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"FRACTAL_MODE":1,"TRACK_MODE":2,"COLORING_MODE":"3","WRAP_MODE":0,"ITERATIONS":59,"depth":0.51,"zoom":3.042525770209539,"spin":204,"centerX":0,"centerY":0,"juliaReal":-0.8,"juliaImag":0.156,"escapeRadius":8,"orbitScale":1,"orbitSpin":0,"earlyOrbitBias":0.2,"trapX":-0.075,"trapY":0,"trailDecay":0.7,"chromaGamma":1,"startHue":0.58,"hueSpacing":0.65,"hueBleed":0}},{"name":"Line Integral Convolution","config":{"angle":84,"useKernel":true,"kernelRadius":4,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":2.7,"falloff":0.02,"STEPS":10,"jitter":0,"seed":0,"sharpness":2}}]},
+{"name":"Spilled Ink","config":[{"name":"Moonwave","config":{"threshold":0.21,"cycle":true,"cycleMode":"luma","hueShift":1.69,"saturation":69,"lightness":54,"hueSpread":1,"bleed":0.08,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":0.75,"facetSteps":4,"facetType":"ripple","softness":0.07,"refraction":0.65,"originX":0.5,"originY":0.5,"spatialPattern":"fold","baseHue":0.23,"paletteMode":"mineral"}},{"name":"Line Integral Convolution","config":{"angle":111,"useKernel":true,"kernelRadius":5,"BLENDMODE":"1","COLORSPACE":"0","BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":2,"stepSize":3.4,"falloff":0.045,"STEPS":8,"jitter":0.095,"seed":0,"sharpness":1.34}}]},
+
+    {"name":"Bruised Lace","config":[{"name":"Fractal Orbit","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"FRACTAL_MODE":1,"TRACK_MODE":2,"COLORING_MODE":0,"WRAP_MODE":0,"ITERATIONS":80,"depth":1,"zoom":1.3931644776682597,"spin":0,"centerX":-0.612,"centerY":0,"juliaReal":{"value":-0.8,"mod":{"type":"sine","freq":0.037409936295517,"phase":0,"scale":-0.18117313200000007,"offset":-0.615}},"juliaImag":0.156,"escapeRadius":8,"orbitScale":1,"orbitSpin":0,"earlyOrbitBias":0.2,"trapX":0,"trapY":0,"trailDecay":0.7,"chromaGamma":1,"startHue":0.58,"hueSpacing":1,"hueBleed":0}},{"name":"Darkwave","config":{"threshold":0.18,"cycleMode":"shadow","hueShift":0,"saturation":80,"lightness":20,"hueSpread":1.25,"bleed":0.15,"shadowPower":1.4,"voidAmount":0.35,"falloff":0.18,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"bandingSteps":2,"waveType":"tri","dutyCycle":0.68,"originX":0.5,"originY":0.5,"spatialPattern":"radial","bandHue":0.72,"paletteMode":"nocturne"}}]},
+    {"name":"Brushed Metal","config":[{"name":"Mirrorband","config":{"bandSize":0.0345,"orientation":0,"mirrorRate":0.67,"offset":0.5800000000000001,"seed":320,"colorMode":2,"colorBlend":1,"hue":0.1,"sBias":{"value":-0.29,"mod":{"type":"none"}},"vBias":0.45,"levels":3,"rotationAmount":{"value":0.91,"mod":{"type":"sine","freq":0.04807140887689735,"phase":0,"scale":0.2670847990907588,"offset":0.9738937226128359}},"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"contourFlow()","config":{"warpStrength":0.3296,"edgeGain":3.7745169657285493,"edgeLow":0.07440000000000001,"edgeHigh":{"value":0.68,"mod":{"type":"none"}},"flowGamma":0.01,"scalarChannel":3,"useChromaGate":false,"chromaGateAmount":0.5700000000000001,"flowMode":1,"twistAmount":{"value":12.4612833333333,"mod":{"type":"none"}},"streamSteps":2,"stepLength":0.6257649805367194,"decay":0.982865919721629,"centerWeight":0.72,"kernelRadiusX":7,"kernelRadiusY":7,"kernelSoftness":14.775,"kernelName":"gaussian","blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}}]},
+{"name":"Julia Felt","config":[{"name":"Fractal Orbit","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"FRACTAL_MODE":1,"TRACK_MODE":2,"COLORING_MODE":"1","WRAP_MODE":0,"ITERATIONS":76,"depth":1,"zoom":0.7736566367789823,"spin":0,"centerX":0,"centerY":0,"juliaReal":-0.796,"juliaImag":0.156,"escapeRadius":8,"orbitScale":1,"orbitSpin":0,"earlyOrbitBias":0.2,"trapX":0,"trapY":0,"trailDecay":0.7,"chromaGamma":0.5,"startHue":{"value":0.58,"mod":{"type":"sine","freq":0.034646156038144,"phase":0,"scale":0.24839654400000002,"offset":0.5}},"hueSpacing":1,"hueBleed":0.26}},{"name":"Edge Trace","config":{"BLENDMODE":"1","COLORSPACE":"7","BLEND_CHANNEL_MODE":"1","blendAmount":1,"threshold":0.2,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0.1}},{"name":"contourFlow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":-0.04,"scalarChannel":0,"flowMode":0,"directionPolarity":false,"edgeGain":6,"edgeLow":0.335,"edgeHigh":1,"flowGamma":1.2,"twistAmount":0,"streamSteps":5,"stepLength":2.255219739449337,"decay":1.6,"centerWeight":1,"kernelName":"gaussian","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":8,"useChromaGate":false,"chromaGateAmount":1}}]},
+
     {
         "name": "Conte Brush",
         "config": [{
@@ -3940,6 +3801,17 @@ export const builtInPresets = [
             }
         ]
     },
+    {"name":"Lacquer Clouds","config":[{"name":"No-op","config":{"BLENDMODE":"4","COLORSPACE":"4","BLEND_CHANNEL_MODE":"1","blendAmount":1}},{"name":"Fractal Orbit","config":{"FRACTAL_MODE":0,"TRACK_MODE":2,"WRAP_MODE":1,"ITERATIONS":42,"depth":{"value":0.4605,"mod":{"type":"sine","freq":0.079,"phase":0,"scale":0.22,"offset":0.4605}},"zoom":0.7201899062855524,"spin":64,"centerX":-0.43999999999999995,"centerY":{"value":-0.05999999999999994,"mod":{"type":"triangle","freq":0.033,"phase":0,"scale":0.6,"offset":-0.05999999999999994}},"juliaReal":-0.11199999999999999,"juliaImag":-0.49600000000000005,"orbitScale":0.8756636139608853,"orbitSpin":277,"earlyOrbitBias":0.185,"trapX":1.2800000000000002,"trapY":-0.3999999999999999,"trailDecay":0.657,"escapeRadius":2.9263424466256547,"COLORING_MODE":2,"chromaGamma":0.856,"hueSpacing":6.300000000000001,"startHue":0.08,"hueBleed":0.16,"blendAmount":0.38,"BLENDMODE":1,"COLORSPACE":"0","BLEND_CHANNEL_MODE":0}},{"name":"Posterize","config":{"levels":8,"mode":2,"mod":{"value":0.33,"mod":{"type":"none"}},"COLORSPACE":0,"c1":true,"c2":true,"c3":true,"blendAmount":1,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0}},{"name":"flow()","config":{"warpStrength":-0.25,"threshLow":{"value":0.46,"mod":{"type":"none"}},"threshHigh":0.6805,"magGamma":0.9147804412240963,"magChannel":"0","magPolarity":true,"useChromaDrag":false,"chromaDragAmount":0.36,"APPROX_INVERSE":true,"INVERSE_APPROX_ITERS":3,"relaxation":0.7842,"directionStrength":1.317034633295262,"directionChannel":5,"directionPolarity":true,"kernelRadiusX":4,"kernelRadiusY":6,"kernelSoftness":18.86,"kernelName":"triangle","blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Temporal Delay Line","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"delayFrames":1,"feedback":0.75}}]},
+    {"name":"Last World","config":[{"name":"Bad Signal Chain","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"tearAmount":{"value":0.75,"mod":{"type":"none","freq":0.243,"phase":0,"scale":0.15,"offset":0.75,"_walkValue":0.3685938671565034,"_lastUpdate":2136.989999998973}},"jitter":{"value":0.3,"mod":{"type":"none","freq":0.054,"phase":0,"scale":0.4,"offset":0.2}},"syncLoss":{"value":0.32,"mod":{"type":"saw","freq":1.8476935227436477,"phase":0,"scale":0.43960895599999994,"offset":0.5}},"chunks":6,"tearMode":"jump","noiseAmount":0.56,"rfNoise":0.18,"dropoutAmount":0.37,"chromaBleed":0.72,"ghostOffset":0.165,"ghostAmount":0.88,"scanlineAmount":0.66,"phosphor":0.58,"flickerAmount":0.6,"t_":0.326725635973338,"bias":0.06,"scale":1150.75,"seed":429}},{"name":"Chromawave","config":{"threshold":0.1006,"cycle":true,"cycleMode":"spatial","hueShift":0.4,"saturation":36,"lightness":39,"hueSpread":1.3276886102082952,"bleed":0.19,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"bandingSteps":4,"waveType":"square","dutyCycle":0.2158,"originX":0.97,"originY":{"value":0.9,"mod":{"type":"sine","freq":0.047,"phase":0,"scale":0.09,"offset":0.9}},"spatialPattern":"diagonal","bandHue":0.79,"paletteMode":"continuous"}},{"name":"Mirrorband","config":{"bandSize":{"value":0.1423,"mod":{"type":"triangle","freq":0.052,"phase":0,"scale":0.07,"offset":0.1423}},"orientation":0,"mirrorRate":0.11,"offset":0.32000000000000006,"noiseAmount":0,"colorNoise":0,"blendAmount":1,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"chromaBoost":1,"seed":5,"levels":1,"rotationAmount":{"value":0.72,"mod":{"type":"triangle","freq":0.072296875,"phase":0,"scale":0.1489410478838412,"offset":0.8733627576979626}},"sBias":-0.29000000000000004,"vBias":{"value":0.89,"mod":{"type":"fm-lfo","freq":0.046,"phase":0,"scale":0.23,"offset":0.89}},"hue":{"value":0.06,"mod":{"type":"walk","freq":0.34500000000000003,"phase":0,"scale":0,"offset":0.06,"_walkValue":0.47381272068646163,"_lastUpdate":2244.659999999691}},"colorMode":1,"colorBlend":1}},{"name":"Temporal Delay Line","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"delayFrames":4,"feedback":0.75}}]},
+    {"name":"Left in Water","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":-0.45,"directionStrength":0.5,"directionChannel":0,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"useChromaDrag":false,"chromaDragAmount":1,"APPROX_INVERSE":false,"INVERSE_APPROX_ITERS":5,"relaxation":0.33}},{"name":"contourFlow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":0.96,"scalarChannel":0,"flowMode":0,"directionPolarity":false,"edgeGain":4.98534875408306,"edgeLow":0,"edgeHigh":0.25,"flowGamma":1.3702306876742552,"twistAmount":-2.61791666666667,"streamSteps":8,"stepLength":1.964240714232841,"decay":1.6,"centerWeight":1.88,"kernelName":"triangle","kernelRadiusX":3,"kernelRadiusY":5,"kernelSoftness":3.85,"useChromaGate":false,"chromaGateAmount":1}}]},
+    {"name":"Lightly Dreaming","config":[{"name":"Look","config":{"exposure":0.5,"toneShoulder":2.16,"toneCenter":-0.25,"curveStrength":1,"chromaWeight":1,"chromaFadeLow":-3,"chromaFadeHigh":2,"tintHue":68,"tintStrength":0,"lift":0,"midtone":0,"gain":0}},{"name":"Triangle","config":{"BLENDMODE":"11","COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"scale":0.5,"ITERATIONS":6,"COLORING_MODE":0,"depth":1,"zoom":0.3637463202843676,"spin":0,"chromaGamma":1,"startHue":0.5,"hueSpacing":0.5,"hueBleed":0,"curveStrength":0.41,"curveDirection":221}},{"name":"Line Integral Convolution","config":{"angle":96,"useKernel":true,"kernelRadius":5,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":3.4,"falloff":0.02,"STEPS":10,"jitter":0,"seed":0,"sharpness":2}}]},
+{"name":"Metamaterials","config":[{"name":"Contour Synth","config":{"phaseOff":86,"phaseScale":1.7376941488313977,"phaseGamma":{"value":0.32999999999999996,"mod":{"type":"fm-lfo","freq":0.032,"phase":0,"scale":0.11,"offset":0.32999999999999996}},"waveform":"Tri","spatialWaveform":"Radial","freq":5,"freqScale":3.5,"COLOR_MODE":2,"hueOff":0.66,"hueScale":2.7,"chromaGamma":{"value":0.87,"mod":{"type":"none"}},"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Structure Kernel","config":{"intensity":1.17,"temperature":4,"CALCULATE_MODE":4,"useCalcKernel":true,"calcKernelRadius":3,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelName":"gaussian","kernelRadiusX":7,"kernelRadiusY":7,"kernelSoftness":6.89,"STRUCTURE_MODE":0,"stretchAmount":0}}]},
+
+    {"name":"Compression Weather","config":[{"name":"Triangle","config":{"BLENDMODE":"12","COLORSPACE":"1","BLEND_CHANNEL_MODE":0,"blendAmount":1,"scale":0.5,"ITERATIONS":6,"COLORING_MODE":"3","depth":0.625,"zoom":0.7105613125179717,"spin":220,"chromaGamma":0.4,"startHue":0.47,"hueSpacing":0.25,"hueBleed":0,"curveStrength":0.29,"curveDirection":85}},{"name":"Line Integral Convolution","config":{"angle":223,"useKernel":true,"kernelRadius":3,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":1,"stepSize":0.75,"falloff":0.02,"STEPS":10,"jitter":0,"seed":0,"sharpness":1.34}}]},
+    {"name":"Datashroom","config":[{"name":"Busted DVD","config":{"macroblockAmount":{"value":0.63,"mod":{"type":"sine","freq":0.045,"phase":0,"scale":1.14,"offset":0.63}},"blockSize":0.08,"packetLoss":0.8099999999999999,"errorConceal":1.2,"motionVectorGlitch":{"value":2.4,"mod":{"type":"impulse","freq":0.168,"phase":0,"scale":2.07,"offset":2.4}},"gopStutter":0.7000000000000001,"sliceTear":1.47,"quantization":0.39,"dctRinging":7.6000000000000005,"banding":0.8999999999999999,"chromaSubsample":{"value":0.8,"mod":{"type":"hold","freq":0.051,"phase":0,"scale":0.2,"offset":0.8}},"chromaMisalign":{"value":1.17,"mod":{"type":"triangle","freq":0.076,"phase":0,"scale":1.01,"offset":1.17}},"colorTableSlip":1.77,"bitRot":1.3,"blockSparkle":{"value":0.24,"mod":{"type":"walk","freq":0.27,"phase":0,"scale":0.21,"offset":0.24,"_walkValue":0.8800545151513555,"_lastUpdate":1148.6699999991972}},"deinterlaceComb":9.1,"t_":{"value":4.07150407905237,"mod":{"type":"saw","freq":0.10171746071937102,"phase":0,"scale":6.283185307179586,"offset":3.141592653589793}},"seed":389,"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Fractal Orbit","config":{"FRACTAL_MODE":0,"TRACK_MODE":2,"WRAP_MODE":0,"ITERATIONS":19,"depth":{"value":0.6165,"mod":{"type":"sine","freq":0.117,"phase":0,"scale":0.09,"offset":0.6165}},"zoom":0.30595140532915,"spin":226,"centerX":{"value":0.30000000000000004,"mod":{"type":"sine","freq":0.103,"phase":0,"scale":0.22,"offset":0.30000000000000004}},"centerY":0.8400000000000001,"juliaReal":0.128,"juliaImag":-0.7040000000000001,"orbitScale":0.5606978403536117,"orbitSpin":324,"earlyOrbitBias":0.2475,"trapX":-0.56,"trapY":-1.3599999999999999,"trailDecay":{"value":0.41400000000000003,"mod":{"type":"sine","freq":0.046,"phase":0,"scale":0.23,"offset":0.41400000000000003}},"escapeRadius":{"value":3.305781151254982,"mod":{"type":"hold","freq":0.116,"phase":0,"scale":21.09,"offset":3.305781151254982}},"COLORING_MODE":2,"chromaGamma":0.7,"hueSpacing":4.970000000000001,"startHue":{"value":0.77,"mod":{"type":"sine","freq":0.083,"phase":0,"scale":0.01,"offset":0.77}},"hueBleed":0.86,"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Temporal Delay Line","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"delayFrames":4,"feedback":0.81}}]},
+    {"name":"Electric Carpet","config":[{"name":"Contour Synth","config":{"freq":2,"freqScale":1,"phaseScale":2.086416713042938,"phaseOff":{"value":-180,"mod":{"type":"saw","freq":0.16630504311481845,"phase":0,"scale":180,"offset":0}},"blendAmount":1,"BLENDMODE":"1","BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"chromaBoost":1,"waveform":"Saw","spatialWaveform":"None","COLOR_MODE":"1","hueOff":0,"hueScale":1,"chromaGamma":1,"phaseGamma":0.87}},{"name":"Line Integral Convolution","config":{"angle":210,"useKernel":true,"kernelRadius":2,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":3,"texelSizeY":1,"stepSize":2,"falloff":0.02,"STEPS":9,"jitter":0.0725,"seed":0,"sharpness":1.9}}]},
+{"name":"Najeon Glue","config":[{"name":"Perlin Distort","config":{"boundMode":"fract","pitchX":0,"pitchY":0,"freqX":4,"freqY":4,"seed":1,"depth":0.5,"rate":4,"rateDrive":0,"fc":[6,15,10],"reps":[5,5],"phase":[0,0],"fuzz":0,"noiseMode":"pseudo","clampScale":1,"BLENDMODE":"8","BLEND_CHANNEL_MODE":0,"COLORSPACE":"3","chromaBoost":1,"blendAmount":1}},{"name":"Look","config":{"exposure":0.5,"toneShoulder":2.2,"toneCenter":-0.75,"curveStrength":1,"chromaWeight":1.25,"chromaFadeLow":-3,"chromaFadeHigh":2,"tintHue":68,"tintStrength":0,"lift":0,"midtone":0,"gain":0}},{"name":"Structure Kernel","config":{"intensity":1,"temperature":4,"CALCULATE_MODE":4,"useCalcKernel":true,"calcKernelRadius":3,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelName":"gaussian","kernelRadiusX":3,"kernelRadiusY":3,"kernelSoftness":10,"STRUCTURE_MODE":0,"stretchAmount":0}}]},
+
     {
         "name": "Light and Shadow",
         "config": [{
@@ -5686,6 +5558,10 @@ export const builtInPresets = [
             }
         }]
     },
+    {"name":"Fisher Dusk","config":[{"name":"Moonwave","config":{"threshold":0.02,"cycle":true,"cycleMode":"luma","hueShift":{"value":1.25,"mod":{"type":"saw","freq":0.18794304968503686,"phase":0,"scale":2,"offset":2}},"saturation":100,"lightness":47,"hueSpread":4.688656320883089,"bleed":0,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":0.68,"facetSteps":0,"facetType":"fold","softness":0.04,"refraction":0.41,"originX":0.5,"originY":0.5,"spatialPattern":"fold","baseHue":0.71,"paletteMode":"bruise"}},{"name":"Line Integral Convolution","config":{"angle":13,"useKernel":true,"kernelRadius":5,"BLENDMODE":"1","COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":0.84,"texelSizeX":7,"texelSizeY":2,"stepSize":4.2,"falloff":0.02,"STEPS":10,"jitter":0,"seed":0,"sharpness":1.74}},{"name":"Look","config":{"exposure":0.5,"toneShoulder":1.6,"toneCenter":-1.1,"curveStrength":1,"chromaWeight":1,"chromaFadeLow":-3,"chromaFadeHigh":2,"tintHue":68,"tintStrength":0,"lift":0,"midtone":0,"gain":0}}]},
+    {"name":"Flyover","config":[{"name":"Affine Transform","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"chromaBoost":1,"angle":{"value":0,"mod":{"type":"sine","freq":0.05841547155586169,"phase":0,"scale":-38.92005935999998,"offset":0}},"shearX":{"value":0,"mod":{"type":"sine","freq":0.12653520217187506,"phase":0,"scale":0.14400000000000013,"offset":0}},"shearY":{"value":0,"mod":{"type":"sine","freq":0.1349121681809873,"phase":0,"scale":0.15600000000000014,"offset":0}},"scaleX":0.7064610375763682,"scaleY":0.7064610375763682,"translateX":0,"translateY":0,"wrap":false}},{"name":"Temporal Delay Line","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"delayFrames":24,"delayKernelRadius":3,"delayKernelSigma":2.596,"feedback":0}}]},
+    {"name":"Intersections","config":[{"name":"Pixelate","config":{"blockSize":70,"blendAmount":{"value":0.6900000000000001,"mod":{"type":"triangle","freq":0.118,"phase":0,"scale":0.37,"offset":0.6900000000000001}},"BLENDMODE":1,"COLORSPACE":2,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}},{"name":"Pixelate","config":{"blockSize":{"value":20,"mod":{"type":"sine","freq":0.044,"phase":0,"scale":1.43,"offset":20}},"blendAmount":0.73,"BLENDMODE":"16","COLORSPACE":3,"BLEND_CHANNEL_MODE":0,"chromaBoost":0.9}}]},
+
     {
         "name": "Glitch Witch",
         "config": [{
@@ -5727,81 +5603,8 @@ export const builtInPresets = [
             }
         }]
     },
-    {
-        "name": "Not This Again",
-        "config": [{
-            "name": "Chromawave",
-            "config": {
-                "threshold": 0.1,
-                "cycle": true,
-                "cycleMode": "spatial",
-                "hueShift": {"value": 0.79, "mod": {"type": "none"}},
-                "saturation": 100,
-                "lightness": 75,
-                "hueSpread": {"value": 3.4224554306374966, "mod": {"type": "none"}},
-                "bleed": 0,
-                "COLORSPACE": "4",
-                "BLENDMODE": "1",
-                "BLEND_CHANNEL_MODE": 0,
-                "blendAmount": 0.7,
-                "chromaBoost": 1,
-                "bandingSteps": 1,
-                "waveType": "sine",
-                "dutyCycle": 0.5,
-                "originX": 0.26,
-                "originY": 0.37,
-                "spatialPattern": "radial",
-                "bandHue": 0,
-                "blendTarget": "0"
-            }
-        }, {
-            "name": "Edge Trace",
-            "config": {
-                "BLENDMODE": 1,
-                "COLORSPACE": "1",
-                "BLEND_CHANNEL_MODE": "1",
-                "blendAmount": 0.26,
-                "threshold": 0.13,
-                "tint": [0, 0, 0],
-                "chromaBoost": 1,
-                "baseOpacity": 1
-            }
-        }, {
-            "name": "Morphology",
-            "config": {
-                "radius": 2,
-                "operation": 0,
-                "blendAmount": 0.18,
-                "BLENDMODE": 1,
-                "COLORSPACE": "1",
-                "BLEND_CHANNEL_MODE": "1"
-            }
-        }, {
-            "name": "Chromawave",
-            "config": {
-                "threshold": 0.35,
-                "cycle": true,
-                "cycleMode": "spatial",
-                "hueShift": 0.54,
-                "saturation": 100,
-                "lightness": 100,
-                "hueSpread": 3.5297829383277772,
-                "bleed": 0,
-                "COLORSPACE": 0,
-                "BLENDMODE": 1,
-                "BLEND_CHANNEL_MODE": 0,
-                "blendAmount": 0.16,
-                "chromaBoost": 1,
-                "bandingSteps": 0,
-                "waveType": "tri",
-                "dutyCycle": 1.0,
-                "originX": 0.5,
-                "originY": 0.5,
-                "spatialPattern": "angle",
-                "bandHue": 0
-            }
-        }]
-    },
+{"name":"Not This Again","config":[{"name":"Chromawave","config":{"threshold":0.3,"cycle":true,"cycleMode":"spatial","hueShift":{"value":0.93,"mod":{"type":"none"}},"saturation":63,"lightness":56,"hueSpread":{"value":3.4224554306374966,"mod":{"type":"none"}},"bleed":0,"COLORSPACE":"4","BLENDMODE":"1","BLEND_CHANNEL_MODE":0,"blendAmount":0.7,"chromaBoost":1,"bandingSteps":1,"waveType":"sine","dutyCycle":0.5,"originX":0.26,"originY":0.37,"spatialPattern":"radial","bandHue":0.11,"blendTarget":"0"}},{"name":"Edge Trace","config":{"BLENDMODE":1,"COLORSPACE":"1","BLEND_CHANNEL_MODE":"1","blendAmount":0.26,"threshold":0.13,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0,"chromaBoost":1}},{"name":"Morphology","config":{"radius":2,"operation":0,"blendAmount":0.18,"BLENDMODE":1,"COLORSPACE":"1","BLEND_CHANNEL_MODE":"1"}},{"name":"Chromawave","config":{"threshold":0.45,"cycle":true,"cycleMode":"spatial","hueShift":0.54,"saturation":100,"lightness":50,"hueSpread":3.5297829383277772,"bleed":0,"COLORSPACE":0,"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"blendAmount":0.16,"chromaBoost":1,"bandingSteps":0,"waveType":0,"dutyCycle":0.5,"originX":0.5,"originY":0.5,"spatialPattern":"angle","bandHue":0}}]},
+
     {
         "name": "Old Linen",
         "config": [{
@@ -5884,6 +5687,9 @@ export const builtInPresets = [
             }
         }]
     },
+    {"name":"Particulate","config":[{"name":"Dither","config":{"seed":370,"components":[0.59,0.5,0.76,0.24,0.85,0.07,0.47000000000000003],"scale":242.371680785336,"levels":2,"edgeStrength":3.7,"USE_STRUCTURE":true,"colormap":"inferno","tint":[0.34,0.53,0.9],"blendAmount":0.8,"BLENDMODE":1,"COLORSPACE":7,"BLEND_CHANNEL_MODE":0}},{"name":"Fractal Orbit","config":{"FRACTAL_MODE":1,"TRACK_MODE":"0","WRAP_MODE":1,"ITERATIONS":28,"depth":0.25,"zoom":0.5943922736851106,"spin":172,"centerX":{"value":-0.9,"mod":{"type":"sine","freq":0.030439812357450996,"phase":0,"scale":-0.8875686400000002,"offset":-0.03000000000000025}},"centerY":0.298,"juliaReal":{"value":-0.416,"mod":{"type":"sine","freq":0.09513302624714842,"phase":0,"scale":-0.1562379840000001,"offset":-0.387}},"juliaImag":0.544,"orbitScale":{"value":1.0282737771670436,"mod":{"type":"sine","freq":0.061,"phase":0,"scale":0.83,"offset":1.0282737771670436}},"orbitSpin":214,"earlyOrbitBias":0.11,"trapX":{"value":-0.56,"mod":{"type":"sine","freq":0.107,"phase":0,"scale":1.3,"offset":-0.56}},"trapY":{"value":-0.76,"mod":{"type":"sine","freq":0.08,"phase":0,"scale":1.35,"offset":-0.76}},"trailDecay":0.333,"escapeRadius":3.6766936096248664,"COLORING_MODE":2,"chromaGamma":{"value":0.778,"mod":{"type":"sine","freq":0.115,"phase":0,"scale":0.08,"offset":0.778}},"hueSpacing":0.4,"startHue":0.68,"hueBleed":0.15,"blendAmount":1,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0}},{"name":"Temporal Delay Line","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"delayFrames":3,"feedback":0.75}},{"name":"Line Integral Convolution","config":{"stepSize":3.4,"falloff":0.015,"sharpness":2.88,"STEPS":11,"angle":169,"jitter":0.0885,"seed":86,"useKernel":true,"kernelRadius":5,"texelSizeX":1,"texelSizeY":1,"blendAmount":1,"BLENDMODE":"10","COLORSPACE":"0","BLEND_CHANNEL_MODE":0}}]},
+    {"name":"Pausing Forever","config":[{"name":"Fractal Orbit","config":{"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"FRACTAL_MODE":"1","TRACK_MODE":"2","COLORING_MODE":"1","depth":1,"zoom":1.6444795589526247,"spin":0,"centerX":-0.22,"centerY":-0.469,"juliaReal":-0.8,"juliaImag":0.156,"escapeRadius":8,"orbitScale":1,"orbitSpin":0,"trailDecay":0.2,"trapX":0,"trapY":-0.99,"chromaGamma":0.9,"startHue":{"value":0.59,"mod":{"type":"saw","freq":0.05983465683709041,"phase":0,"scale":1,"offset":0.5}},"hueSpacing":0.32,"hueBleed":0,"ITERATIONS":91}},{"name":"Risograph","config":{"blendAmount":1,"COLORSPACE":"1","BLENDMODE":1,"BLEND_CHANNEL_MODE":"1","RISOGRAPH_MODE":"0","palette":"Dirty Zine","cellSize":12,"ink1Angle":12,"ink2Angle":72,"ink3Angle":33,"ink1Offset":1.5,"ink2Offset":4,"ink3Offset":7,"plateWobble":0.35,"grainAmount":0.42,"paperAmount":0.55,"inkCoverage":0.92,"edgeBleed":0.55,"posterizeLevels":5,"noiseSeed":0}}]},
+
     {
         "name": "Painted Over",
         "config": [{
@@ -6194,6 +6000,8 @@ export const builtInPresets = [
             }
         }]
     },
+    {"name":"Sublimating 2","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":"1","COLORSPACE":"1","blendAmount":0.48,"warpStrength":-0.05,"directionStrength":0.5129404142770122,"directionChannel":"0","magChannel":"0","directionPolarity":false,"magPolarity":true,"threshLow":0,"threshHigh":0.63,"magGamma":0.897144494663181,"kernelName":"saw","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":{"value":5.655,"mod":{"type":"none"}},"useChromaDrag":false,"chromaDragAmount":1,"APPROX_INVERSE":false,"INVERSE_APPROX_ITERS":5,"relaxation":0.33,"chromaBoost":0.9}},{"name":"Edge Trace","config":{"BLENDMODE":"1","COLORSPACE":"7","BLEND_CHANNEL_MODE":"1","blendAmount":1,"threshold":0.2,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0.34}},{"name":"Kuwahara","config":{"texelSizeX":1,"texelSizeY":1,"radius":13,"sharpness":2.5,"eccentricity":2.22,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":6}}]},
+
     {
         "name": "Sublimating",
         "config": [{
@@ -7211,7 +7019,11 @@ export const builtInPresets = [
                 "chromaBoost": 0.9
             }
         }]
-    }
+    },
+    {"name":"Alla Prima","config":[{"name":"contourFlow()","config":{"BLENDMODE":"12","BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":1.08,"scalarChannel":"0","flowMode":"2","directionPolarity":false,"edgeGain":4.077647984848968,"edgeLow":0,"edgeHigh":1,"flowGamma":0.863370826529088,"twistAmount":0,"streamSteps":5,"stepLength":1.5,"decay":1.6,"centerWeight":1,"kernelName":"gaussian","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":6.225,"useChromaGate":false,"chromaGateAmount":1}},{"name":"Line Integral Convolution","config":{"angle":64,"useKernel":true,"kernelRadius":4,"BLENDMODE":"1","COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"texelSizeX":1,"texelSizeY":2,"stepSize":2.3,"falloff":0.051,"STEPS":8,"jitter":0.0525,"seed":0,"sharpness":1.68}}]},
+    {"name":"Almost Crying","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":-0.45,"mod":{"type":"sine","freq":0.09513302624714842,"phase":0,"scale":-0.4366349999999999,"offset":0}},"directionStrength":{"value":0.49462742506373836,"mod":{"type":"sine","freq":0.04574897138988031,"phase":0,"scale":11.200000000000001,"offset":10}},"directionChannel":0,"magChannel":0,"directionPolarity":false,"magPolarity":false,"threshLow":0,"threshHigh":1,"magGamma":1,"kernelName":"hann","kernelRadiusX":4,"kernelRadiusY":4,"kernelSoftness":10,"useChromaDrag":false,"chromaDragAmount":1,"APPROX_INVERSE":false,"INVERSE_APPROX_ITERS":5,"relaxation":0.33}},{"name":"contourFlow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":0,"COLORSPACE":0,"blendAmount":1,"warpStrength":{"value":0.96,"mod":{"type":"none"}},"scalarChannel":"0","flowMode":"2","directionPolarity":false,"edgeGain":4.98534875408306,"edgeLow":0,"edgeHigh":{"value":0.675,"mod":{"type":"none"}},"flowGamma":1.3702306876742552,"twistAmount":-3.35093333333333,"streamSteps":5,"stepLength":1.964240714232841,"decay":1.2243205606344252,"centerWeight":3.4,"kernelName":"gaussian","kernelRadiusX":7,"kernelRadiusY":7,"kernelSoftness":6.415,"useChromaGate":false,"chromaGateAmount":1}}]},
+
+
 
 
 ]

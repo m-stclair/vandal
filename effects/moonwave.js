@@ -116,13 +116,13 @@ export default {
         } = resolveAnimAll(instance.config, t);
 
         let satNorm, lightNorm, shiftNorm, spreadNorm;
-        const PRISMVEIL_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode] ?? 2;
-        if (PRISMVEIL_CYCLE === 0) {
+        const MOONWAVE_CYCLE = {"hue": 0, "luma": 1, "spatial": 2}[cycleMode] ?? 2;
+        if (MOONWAVE_CYCLE === 0) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = hueShift;
             spreadNorm = ((hueSpread * 2.5) ** 0.45);
-        } else if (PRISMVEIL_CYCLE === 1) {
+        } else if (MOONWAVE_CYCLE === 1) {
             satNorm = saturation / 100;
             lightNorm = lightness / 100;
             shiftNorm = (hueShift / 4) ** 0.7;
@@ -163,9 +163,9 @@ export default {
             COLORSPACE: COLORSPACE,
             BLENDMODE: BLENDMODE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            PRISMVEIL_CYCLE: PRISMVEIL_CYCLE,
-            PRISMVEIL_BLEED: Number(bleed > 0),
-            PRISMVEIL_REFRACT: Number(refraction > 0),
+            MOONWAVE_CYCLE: MOONWAVE_CYCLE,
+            MOONWAVE_BLEED: Number(bleed > 0),
+            MOONWAVE_REFRACT: Number(refraction > 0),
             USE_FACET_STEPS: Number(facetSteps > 0),
             FACETTYPE: facetCode,
             SPATIAL_PATTERN: patternCode,

@@ -1,7 +1,5 @@
 import {resolveAnimAll} from "../utils/animutils.js";
 import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
-import {group} from "../utils/ui_configs.js";
-import {hsv2Rgb} from "../utils/colorutils.js";
 
 const shaderPath = "huerotate.frag";
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};

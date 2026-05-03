@@ -28,7 +28,7 @@ export default {
             height,
             texelSizeX,
             texelSizeY,
-            CALCULATE_MODE,
+            Number(CALCULATE_MODE),
             useKernel,
             kernelRadius,
         )
@@ -64,7 +64,8 @@ export default {
             calculate: calcPass.calculate,
             outputFBO: null,
             width: null,
-            height: null
+            height: null,
+            id: `${instance.id}-calc-pass`
         }
         await instance.calcPass.initHook(instance.calcPass, renderer);
     },

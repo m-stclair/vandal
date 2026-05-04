@@ -181,7 +181,6 @@ export const effectMeta = {
   tags: ["blur", "sharpen"],
   description: "Smooth contrast/sharpening effect.",
   backend: "gpu",
-  canAnimate: true,
+  canAnimate: false,
   realtimeSafe: true,
-  notInRandom: true
 };

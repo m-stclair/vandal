@@ -1,5 +1,6 @@
 import {downsampleImageData, formatFloatWidth, imageDataHash} from "./utils/helpers.js";
 import {requestRender, requestUIDraw} from "./state.js";
+import {clamp} from "./utils/mathutils.js";
 
 
 function makeField() {
@@ -54,16 +55,36 @@ function dualZoneRemap(x, pivot = 0.25, expLow = 2.5, expHigh = 1.0) {
     }
 }
 
+function isFiniteNumber(value) {
+    return typeof value === "number" && Number.isFinite(value);
+}
+
+function inverseDualZoneRemap(x, pivot = 0.25, expLow = 2.5, expHigh = 1.0) {
+    const y = clamp(x, 0, 1);
+
+    if (y < pivot) {
+        return pivot * Math.pow(y / pivot, 1 / expLow);
+    }
+
+    return pivot + (1 - pivot) * Math.pow(
+        (y - pivot) / (1 - pivot),
+        1 / expHigh
+    );
+}
+
 
 function createDualResponseSlider({
                                       container,
                                       label = "Param",
-                                      min = 0, max = 1,
+                                      min = 0,
+                                      max = 1,
                                       pivot = 0.5,
                                       expLow = 5,
                                       expHigh = 1.0,
-                                      initial = 0.1,
+                                      initial = 0.1,          // slider position, 0..1
+                                      initialValue = undefined, // actual parameter value
                                       units = "",
+                                      step = "any",
                                       format = v => v.toFixed(3)
                                   }) {
     const wrapper = document.createElement("div");
@@ -79,44 +100,89 @@ function createDualResponseSlider({
     slider.min = 0;
     slider.max = 1;
     slider.step = 0.001;
-    slider.value = initial;
 
-    const valueDisplay = document.createElement("span");
+    const valueInput = document.createElement("input");
+    valueInput.type = "number";
+    valueInput.classList.add("slider-value", "mod-value");
+    valueInput.min = min;
+    valueInput.max = max;
+    valueInput.step = step;
+
+    const unitsEl = document.createElement("span");
+    unitsEl.textContent = units;
 
     let listeners = [];
 
-    const update = () => {
-        const raw = parseFloat(slider.value);
+    const scaledFromPosition = (position) => {
+        const raw = clamp(position, 0, 1);
         const mapped = dualZoneRemap(raw, pivot, expLow, expHigh);
-        const scaled = min + mapped * (max - min);
-        valueDisplay.textContent = format(scaled) + units;
-        listeners.forEach(fn => fn(scaled));
+        return min + mapped * (max - min);
     };
 
-    slider.addEventListener("input", update);
-    update();
+    const positionFromScaled = (scaled) => {
+        if (max === min) return 0;
 
-    wrapper.appendChild(labelEl);
-    wrapper.appendChild(slider);
-    wrapper.appendChild(valueDisplay);
+        const normalized = clamp((scaled - min) / (max - min), 0, 1);
+        return inverseDualZoneRemap(normalized, pivot, expLow, expHigh);
+    };
+
+    const updateFromSlider = (emit = true) => {
+        const scaled = scaledFromPosition(slider.value);
+        valueInput.value = format(scaled);
+
+        if (emit) {
+            listeners.forEach(fn => fn(scaled));
+        }
+    };
+
+    const setValue = (scaled, emit = false) => {
+        const safeScaled = clamp(scaled, min, max);
+        slider.value = positionFromScaled(safeScaled);
+        valueInput.value = format(safeScaled);
+
+        if (emit) {
+            listeners.forEach(fn => fn(safeScaled));
+        }
+    };
+
+    const updateFromNumber = () => {
+        const parsed = parseFloat(valueInput.value);
+        if (!Number.isFinite(parsed)) return;
+
+        setValue(parsed, true);
+    };
+
+    if (isFiniteNumber(initialValue)) {
+        slider.value = positionFromScaled(initialValue);
+    } else {
+        slider.value = clamp(initial, 0, 1);
+    }
+
+    updateFromSlider(false);
+
+    slider.addEventListener("input", () => updateFromSlider(true));
+    valueInput.addEventListener("change", updateFromNumber);
+    valueInput.addEventListener("blur", updateFromNumber);
+    valueInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            updateFromNumber();
+        }
+    });
+
+    wrapper.append(labelEl, slider, valueInput);
+    if (units) wrapper.appendChild(unitsEl);
+
     container.appendChild(wrapper);
 
     return {
-        getValue: () => {
-            const raw = parseFloat(slider.value);
-            const mapped = dualZoneRemap(raw, pivot, expLow, expHigh);
-            return min + mapped * (max - min);
-        },
-        setValue: (scaled) => {
-            const mapped = (scaled - min) / (max - min);
-            // Note: we don't attempt to inverse dualZoneRemap here — it's one-way
-        },
+        getValue: () => scaledFromPosition(slider.value),
+        setValue,
         onChange: fn => {
             listeners.push(fn);
         },
-        position: () => {
-            return Number.parseFloat(slider.value);
-        }
+        position: () => Number.parseFloat(slider.value),
+        slider,
+        valueInput
     };
 }
 
@@ -132,8 +198,7 @@ export function renderFoldoutToggle(state, label, onToggle) {
     return button;
 }
 
-function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, config, key) {
-    const modFoldout = document.createElement("div");
+function renderAnimationFoldout(animUIState, value, input, valueInput, min, max, wrapper, config, key) {    const modFoldout = document.createElement("div");
     modFoldout.classList.add("mod-drawer");
     const msWrapper = document.createElement("div");
     msWrapper.className = "mod-field";
@@ -163,28 +228,32 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
     // [depth.slider, bias.slider, freq.slider].forEach(el =>
     //     el.addEventListener("input", applyModState)
     // );
-    const depth = createDualResponseSlider({
+        const depth = createDualResponseSlider({
         container: modFoldout,
         label: "Depth",
-        initial: typeof animUIState.depthValue === 'number' ? animUIState.depthValue : 0.2,
+        initial: isFiniteNumber(animUIState.depthValue) ? animUIState.depthValue : 0.2,
+        initialValue: isFiniteNumber(mod?.scale) ? mod.scale : undefined,
         min: min,
         max: max,
         expLow: 3
     });
+
     const bias = createDualResponseSlider({
         container: modFoldout,
         label: "Bias",
-        initial: typeof animUIState.biasValue === 'number' ? animUIState.biasValue : 0.5,
+        initial: isFiniteNumber(animUIState.biasValue) ? animUIState.biasValue : 0.5,
+        initialValue: isFiniteNumber(mod?.offset) ? mod.offset : undefined,
         min: min,
         max: max,
-        // i.e., this one's not really dual-zone
         expLow: 1,
         expHigh: 1
     });
+
     const freq = createDualResponseSlider({
         container: modFoldout,
         label: "Rate",
-        initial: typeof animUIState.freqValue === 'number' ? animUIState.freqValue : 0.5,
+        initial: isFiniteNumber(animUIState.freqValue) ? animUIState.freqValue : 0.5,
+        initialValue: isFiniteNumber(mod?.freq) ? mod.freq : undefined,
         min: 0.002,
         max: 9,
         expLow: 6
@@ -195,6 +264,10 @@ function renderAnimationFoldout(animUIState, value, input, min, max, wrapper, co
         const modulated = modType !== "none";
 
         input.disabled = modulated;
+        valueInput.disabled = modulated;
+
+        input.classList.toggle("animating", modulated);
+        valueInput.classList.toggle("animating", modulated);
         wrapper.classList.toggle("modulated", modulated);
         config[key] = {
             value: parseFloat(applyScaling(input.value, input.scale, input.scaleFactor)),
@@ -257,17 +330,24 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
     input.dataset.key = key;
     input.dataset.fxId = id
 
+    const paramMin = min ?? 0;
+    const paramMax = max ?? 1;
+    const paramStep = step ?? (steps ? (paramMax - paramMin) / steps : 0.01);
 
     const valueInput = document.createElement("input");
     valueInput.type = "number";
     valueInput.classList.add("slider-value");
     valueInput.name = `${key}-value`;
-    valueInput.value = input.value;
-    valueInput.min = input.min;
-    valueInput.max = input.max;
-    valueInput.step = input.step;
+
+    // Important:
+    // number input lives in parameter-space, not slider-space.
+    valueInput.value = formatFloatWidth(baseValue);
+    valueInput.min = paramMin;
+    valueInput.max = paramMax;
+    valueInput.step = paramStep;
+
     valueInput.dataset.key = key;
-    valueInput.dataset.fxId = id
+    valueInput.dataset.fxId = id;
 
     row.append(input, valueInput);
     wrapper.appendChild(row);
@@ -292,7 +372,7 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
         row.classList.add("has-animation-foldout")
         if (!animUIState.collapsed) {
             foldout = renderAnimationFoldout(
-                animUIState, value, input, min, max, wrapper, config, key
+                animUIState, value, input, valueInput, min, max, wrapper, config, key
             );
         }
         if ((config[key]?.mod) && (config[key].mod.type !== "none")) {
@@ -306,9 +386,16 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
 
     input.addEventListener("input", (e) => {
         e.stopPropagation();
-        const scaled = applyScaling(input.value, input.scale, input.scaleFactor);
+
+        const scaled = clamp(
+            applyScaling(input.value, input.scale, input.scaleFactor),
+            paramMin,
+            paramMax
+        );
+
         valueInput.value = formatFloatWidth(scaled);
-        if (typeof (config[key]) !== "object") {
+
+        if (typeof config[key] !== "object") {
             config[key] = scaled;
         } else {
             config[key] = {
@@ -316,28 +403,44 @@ function makeSlider(id, config, uiSpec, fxUIState, canAnimate = false) {
                 mod: config[key]?.mod || {type: "none"},
             };
         }
+
         requestRender();
     });
 
+    let prevValue = Number(valueInput.value);
+
     function valueUpdate() {
-        input.value = Number(valueInput.value);
-        if (typeof (config[key]) !== "object") {
-            config[key] = Number(input.value);
+        const parsed = parseFloat(valueInput.value);
+        if (!Number.isFinite(parsed)) return;
+
+        const scaled = clamp(parsed, paramMin, paramMax);
+
+        // Slider lives in slider-space.
+        input.value = reverseScaling(scaled, input.scale, input.scaleFactor);
+
+        // Number box lives in parameter-space.
+        valueInput.value = formatFloatWidth(scaled);
+        prevValue = scaled;
+
+        if (typeof config[key] !== "object") {
+            config[key] = scaled;
         } else {
             config[key] = {
-                value: Number(input.value),
+                value: scaled,
                 mod: config[key]?.mod || {type: "none"},
             };
         }
+
         requestRender();
     }
-
-    let prevValue = valueInput.value;
     valueInput.addEventListener('input', () => {
         const parsed = parseFloat(valueInput.value);
+        if (!Number.isFinite(parsed)) return;
+
+        const stepNum = Number(valueInput.step);
         const delta = parsed - prevValue;
-        if (Math.abs(delta) === Number(valueInput.step)) {
-            prevValue = parsed;
+
+        if (Number.isFinite(stepNum) && Math.abs(delta) === stepNum) {
             valueUpdate();
         }
     });

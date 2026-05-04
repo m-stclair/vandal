@@ -143,6 +143,11 @@ const CHROMA_SECOND_CHANNEL_SPACES = [
 const FULL_OPACITY_DEFAULT_CHANCE = 1 / 3;
 
 function enforceBlendConstraints(config, meta) {
+    if (!Object.keys(config).includes("blendAmount")) {
+        // effect does not use full blend system and might use color conversion
+        // or parts of the blend system for other purposes; don't mess with it
+        return;
+    }
     const fullOpacityChance = meta.fullOpacityChance ?? FULL_OPACITY_DEFAULT_CHANCE;
     if (Math.random() <= fullOpacityChance) {
         config.BLENDMODE = BlendModeEnum.MIX;

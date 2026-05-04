@@ -7,7 +7,9 @@ import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementa
 import {lab2Rgb, linear2SRGB} from "../utils/colorutils.js";
 import {preprocessPalette} from "../utils/paletteutils.js";
 
-function exportPalette(_config, palette) {
+function exportPalette(_config, _k, _e, instance) {
+  if (!instance.auxiliaryCache?.exportPalette) return;
+  const palette = instance.auxiliaryCache.exportPalette;
   const canvas = document.createElement("canvas");
   canvas.width = palette.length;
   canvas.height = 1;
@@ -68,7 +70,7 @@ export default {
             lumaWeight, chromaWeight, hueWeight, BLENDMODE,
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
-            chromaBoost, deltaL, gammaC,
+            deltaL, gammaC,
             blockSize, seed, minDistance
         } = resolveAnimAll(instance.config, t)
 
@@ -82,13 +84,14 @@ export default {
             midtone: selectWeights[0],
             outlier: selectWeights[1],
             chroma: selectWeights[2],
-        }
+        };
+        const safePaletteSize = paletteSize >= 3 ? Math.round(paletteSize / 3) * 3 : 3;
         let palette = probe.analyze(
             probe,
             inputTex,
             width,
             height,
-            (paletteSize < 3 ? 3 : paletteSize) / 3,
+            safePaletteSize / 3,
             deltaL,
             gammaC,
             blockSize,
@@ -96,9 +99,9 @@ export default {
             selectionWeights,
             minDistance
         );
-        const {paletteBlock, paletteFeatures} = preprocessPalette(palette, paletteSize);
+        const {paletteBlock, paletteFeatures} = preprocessPalette(palette, safePaletteSize);
 
-        instance.config['exportPalette'] = palette;
+        instance.auxiliaryCache.exportPalette = palette;
 
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
@@ -110,9 +113,9 @@ export default {
             u_cycleOffset: {value: cycleOffset, type: "int"},
             u_softness: {value: softness, type: "float"},
             u_blendK: {value: blendK, type: "int"},
-            u_lumaWeight: {value: lumaWeight, type: "float"},
-            u_chromaWeight: {value: chromaWeight, type: "float"},
-            u_hueWeight: {value: hueWeight, type: "float"},
+            u_lumaWeight: {value: lumaWeight >= 0 ? lumaWeight : 0, type: "float"},
+            u_chromaWeight: {value: chromaWeight >= 0 ? chromaWeight : 0, type: "float"},
+            u_hueWeight: {value: hueWeight >= 0 ? hueWeight : 0, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
         };
         const defines = {
@@ -129,6 +132,7 @@ export default {
     async initHook(fx, renderer) {
         await fragSources.load();
         await makeProbe(fx, renderer);
+        fx.auxiliaryCache = {};
     },
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
@@ -223,7 +227,7 @@ export default {
                     type: "modSlider",
                     key: "lumaWeight",
                     label: "Luma",
-                    min: -0.2,
+                    min: 0,
                     max: 3,
                     step: 0.01
                 },
@@ -231,7 +235,7 @@ export default {
                     type: "modSlider",
                     key: "chromaWeight",
                     label: "Chroma",
-                    min: -0.2,
+                    min: 0,
                     max: 3,
                     step: 0.01
                 },
@@ -239,7 +243,7 @@ export default {
                     type: "modSlider",
                     key: "hueWeight",
                     label: "Hue",
-                    min: -0.2,
+                    min: 0,
                     max: 3,
                     step: 0.01
                 },
@@ -298,7 +302,7 @@ export default {
         chromaWeight: 0.75,
         hueWeight: 0.25,
         selectWeights: [0.25, 0.5, 0.1],
-        minDistance: 12,
+        minDistance: 18,
         assignMode: "blend",
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,
@@ -324,7 +328,8 @@ export const effectMeta = {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
         showPalette: {"always": "none"},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
-        gammaC: {"min": 0.8, "max": 1.2}
+        gammaC: {"min": 0.8, "max": 1.2},
+        minDistance: {"min": 12, "max": 30}
     },
     fullOpacityChance: 0.75
 };

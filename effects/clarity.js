@@ -169,7 +169,7 @@ export default {
         },
         {
             key: "COLORSPACE",
-            label: "Colorspace",
+            label: "Lightness Model",
             type: "select",
             options: [{"label": "JzAzBz", value: ColorspaceEnum.JzAzBz}, {"label": "Lab", "value": ColorspaceEnum.Lab}]
         }

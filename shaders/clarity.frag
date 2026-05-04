@@ -11,8 +11,9 @@ precision mediump float;
 
 const int KERNEL_SIZE = KERNEL_WIDTH * KERNEL_HEIGHT;
 
-// this is the output of the sharpening pass and is in 0-1 normalized Lab units
+// this is the output of the sharpening pass in 0-1 normalized Lab or Jz units
 uniform sampler2D u_sharpPass;
+// this is the original input image in sRGB
 uniform sampler2D u_image;
 uniform vec2 u_resolution;
 
@@ -25,7 +26,7 @@ out vec4 outColor;
 #include "colorconvert.glsl"
 
 #if (!((COLORSPACE == COLORSPACE_JZAZBZ) || (COLORSPACE == COLORSPACE_LAB)))
-    #error COLORSPACE must be JzAzBz or Lab
+    #error colorspace must be JzAzBz or Lab
 #endif
 
 float softLightBlend(float base, float fx) {

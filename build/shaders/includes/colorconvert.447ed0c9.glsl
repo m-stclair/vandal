@@ -15,16 +15,16 @@ float lab_fInv(float t) {
 
 // RGB/XYZ/LMS conversion matrices
 const mat3 RGB_TO_XYZ = mat3(
-  0.412390799, 0.357584339, 0.180480789,
-  0.212639006, 0.715168679, 0.072192315,
-  0.019330819, 0.119194780, 0.950532152
-);
-const mat3 XYZ_TO_RGB = mat3(
-   3.24096994, -1.53738318, -0.49861076,
-  -0.96924364,  1.87596750,  0.04155506,
-   0.05563008, -0.20397696,  1.05697151
+  0.412390799, 0.212639006, 0.019330819,
+  0.357584339, 0.715168679, 0.119194780,
+  0.180480789, 0.072192315, 0.950532152
 );
 
+const mat3 XYZ_TO_RGB = mat3(
+   3.24096994, -0.96924364,  0.05563008,
+  -1.53738318,  1.87596750, -0.20397696,
+  -0.49861076,  0.04155506,  1.05697151
+);
 const mat3 XYZ_TO_LMS = mat3(
      0.41478972, -0.2015100, -0.0166008,
      0.579999,    1.120649,   0.264800,
@@ -51,65 +51,106 @@ const float pq_p  = 1.7 * 2523.0 / 32.0;
 const float pq_d  = -0.56;
 const float pq_d0 = 1.6295499532821566e-11;
 
-vec3 pq_encode(vec3 x) {
-    vec3 num = pq_c1 + pq_c2 * pow(x, vec3(pq_n));
-    vec3 den = vec3(1.0) + pq_c3 * pow(x, vec3(pq_n));
+#define JZ_PEAK_NITS 203
+
+#if JZ_PEAK_NITS == 80
+const float JZ_PEAK_LUMINANCE = 80.0;
+const float JZ_WHITE = 0.15250760;
+#elif JZ_PEAK_NITS == 100
+const float JZ_PEAK_LUMINANCE = 100.0;
+const float JZ_WHITE = 0.16717343;
+#elif JZ_PEAK_NITS == 203
+const float JZ_PEAK_LUMINANCE = 203.0;
+const float JZ_WHITE = 0.22206525;
+#elif JZ_PEAK_NITS == 1000
+const float JZ_PEAK_LUMINANCE = 1000.0;
+const float JZ_WHITE = 0.40912411;
+#else
+#error Unsupported JZ_PEAK_NITS
+#endif
+
+// 80 nits
+const float JZ_WHITE_80 = 0.15250760;
+
+// 100 nits
+const float JZ_WHITE_100 = 0.16717343;
+
+// 203 nits, common SDR-reference-ish HDR bridge value
+const float JZ_WHITE_203 = 0.22206525;
+
+// 1000 nits
+const float JZ_WHITE_1000 = 0.40912411;
+
+// 10000 nits
+const float JZ_WHITE_10000 = 0.98860696;
+
+
+const vec3 RGB_WHITE = vec3(1.0);
+
+vec3 pq_encode(vec3 x_cd_m2) {
+    vec3 x = max(x_cd_m2 / 10000.0, vec3(0.0));
+
+    vec3 xp = pow(x, vec3(pq_n));
+    vec3 num = pq_c1 + pq_c2 * xp;
+    vec3 den = vec3(1.0) + pq_c3 * xp;
+
     return pow(num / den, vec3(pq_p));
 }
 
 vec3 pq_decode(vec3 x) {
-    vec3 xp = pow(max(x, 1e-4), vec3(1.0 / pq_p));
-    vec3 num = max(xp - pq_c1, 1e-4);
-    vec3 denom = max(pq_c2 - pq_c3 * xp, 1e-4);
-    return pow(num / denom, vec3(1.0 / pq_n));
+    vec3 xp = pow(max(x, vec3(0.0)), vec3(1.0 / pq_p));
+
+    vec3 num = max(xp - pq_c1, vec3(0.0));
+    vec3 den = max(pq_c2 - pq_c3 * xp, vec3(1e-9));
+
+    return 10000.0 * pow(num / den, vec3(1.0 / pq_n));
 }
 
 vec3 rgb2jzazbz(vec3 rgb) {
     vec3 xyz = RGB_TO_XYZ * rgb;
-    vec3 lms = XYZ_TO_LMS * xyz;
-    vec3 lmsp = vec3(
-      pq_b * lms.x - (pq_b - 1.0) * lms.z,
-      pq_g * lms.y,
-      lms.z
+
+    // Convert relative linear RGB into absolute-ish luminance.
+    xyz *= JZ_PEAK_LUMINANCE;
+
+    // JzAzBz pre-adaptation happens in XYZ, not LMS.
+    vec3 xyzp = vec3(
+        pq_b * xyz.x - (pq_b - 1.0) * xyz.z,
+        pq_g * xyz.y - (pq_g - 1.0) * xyz.x,
+        xyz.z
     );
-    // Apply PQ nonlinearity
-    vec3 lms_P = pq_encode(max(lmsp, vec3(1e-5)));
-    vec3 jab = LMS_P_TO_JAB * lms_P;
-    float iz = jab.x;
+
+    vec3 lms = XYZ_TO_LMS * xyzp;
+    vec3 lms_P = pq_encode(lms);
+
+    vec3 izab = LMS_P_TO_JAB * lms_P;
+
+    float iz = izab.x;
     float jz = ((1.0 + pq_d) * iz) / (1.0 + pq_d * iz) - pq_d0;
 
-    return vec3(jz, jab.yz);
+    return vec3(jz, izab.yz);
 }
 
+vec3 jzazbz2rgb(vec3 jzazbz) {
+    float iz_unnorm = jzazbz.x + pq_d0;
+    float iz = iz_unnorm / (1.0 + pq_d - pq_d * iz_unnorm);
+
+    vec3 izab = vec3(iz, jzazbz.yz);
+    vec3 lms_P = JAB_TO_LMS_P * izab;
+
+    vec3 lms = pq_decode(lms_P);
+    vec3 xyzp = LMS_TO_XYZ * lms;
+
+    float X = (xyzp.x + (pq_b - 1.0) * xyzp.z) / pq_b;
+    float Y = (xyzp.y + (pq_g - 1.0) * X) / pq_g;
+    float Z = xyzp.z;
+
+    vec3 xyz = vec3(X, Y, Z) / JZ_PEAK_LUMINANCE;
+
+    return XYZ_TO_RGB * xyz;
+}
 
 bool anyNaN(vec3 v) {
     return !(v.x == v.x && v.y == v.y && v.z == v.z);
-}
-
-
-
-vec3 jzazbz2rgb(vec3 jzazbz) {
-    float jz = jzazbz.x;
-    if (jz < 1e-5) {
-        jz = 1e-5;
-        jzazbz.yz = vec2(0., 0.);
-    }
-    float iz_unnorm = jz + pq_d0;
-    float iz = iz_unnorm / (1.0 + pq_d - pq_d * iz_unnorm);
-    vec3 jab = vec3(iz, jzazbz.yz);
-    vec3 lms_P = JAB_TO_LMS_P * jab;
-    vec3 lmsp = pq_decode(lms_P);
-    vec3 lms = vec3(
-      (lmsp.x + (pq_b - 1.0) * lmsp.z) / pq_b,
-      lmsp.y / pq_g,
-      lmsp.z
-    );
-    vec3 xyz = LMS_TO_XYZ * lms;
-    vec3 rgb = XYZ_TO_RGB * xyz;
-    // if (anyNaN(rgb) || any(lessThan(rgb, vec3(-1.0)))) {
-    //    rgb = vec3(0.5);
-    // }
-    return rgb;
 }
 
 
@@ -133,11 +174,8 @@ vec3 safeRGB(vec3 rgb) {
 }
 
 vec3 jchz2rgb(vec3 jchz) {
-    float epsilon = 1e-4;
     vec2 ab = jchz.y * vec2(cos(jchz.z), sin(jchz.z));
-    vec3 jzazbz = vec3(jchz.x, ab.x, ab.y);
-    vec3 rgb = jzazbz2rgb(jzazbz);
-    return safeRGB(rgb);
+    return jzazbz2rgb(vec3(jchz.x, ab.x, ab.y));
 }
 
 
@@ -311,7 +349,9 @@ vec3 srgb2linear(vec3 c) {
 }
 
 vec3 linear2srgb(vec3 c) {
-    return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c));
+    vec3 lo = c * 12.92;
+    vec3 hi = 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
+    return mix(lo, hi, step(0.0031308, c));
 }
 
 vec3 normalizeLab(vec3 lab) {
@@ -328,21 +368,22 @@ vec3 denormalizeLCH(vec3 lchn) {
 }
 
 vec3 normalizeJzazbz(vec3 jzazbz) {
-    return vec3(jzazbz.x, (jzazbz.yz + 1.) / 2.);
+    return vec3(jzazbz.x / JZ_WHITE, (jzazbz.yz + 1.) / 2.);
 }
 
 vec3 denormalizeJzazbz(vec3 jzazbzn) {
-    return vec3(jzazbzn.x, jzazbzn.yz * 2. - 1.);
+    return vec3(jzazbzn.x * JZ_WHITE, jzazbzn.yz * 2. - 1.);
 }
 
+const float JCHZ_C_SCALE = 0.35;
+
 vec3 normalizeJchz(vec3 jchz) {
-    return vec3(jchz.x, jchz.y, jchz.z / 6.2832);
+    return vec3(jchz.x / JZ_WHITE, jchz.y / JCHZ_C_SCALE, jchz.z / 6.28318530718);
 }
 
 vec3 denormalizeJchz(vec3 jchzn) {
-    return vec3(jchzn.x, jchzn.y, jchzn.z * 6.2832);
+    return vec3(jchzn.x * JZ_WHITE, jchzn.y * JCHZ_C_SCALE, jchzn.z * 6.28318530718);
 }
-
 
 vec3 srgb2NormLab(vec3 srgb) {
     return normalizeLab(rgb2lab(srgb2linear(srgb)));

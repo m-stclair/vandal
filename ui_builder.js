@@ -108,21 +108,14 @@ function buildGroup(instance, group, fxUIState, container, drawTriggers) {
         }
         const foldout = renderFoldoutToggle(groupState, group.label, requestUIDraw);
         groupContents.appendChild(foldout);
-        // if (group?.color) {
-        //     foldout.style.backgroundColor = group.color;
-        // }
     } else {
         groupState.collapsed = false;
     }
     // Only build children if expanded
     if (!groupState.collapsed) {
         const inner = document.createElement('div');
-        // TODO: style
         inner.className = 'group-contents';
         buildUI(instance, group.children, fxUIState, inner, drawTriggers, true);
-        // if (group?.color) {
-        //     inner.style.backgroundColor = group.color;
-        // }
         groupContents.appendChild(inner);
     }
     container.appendChild(groupContents);
@@ -141,7 +134,7 @@ export function buildUI(instance, layout, fxUIState, container, drawTriggers, bu
         if (!buildingGroup && item.type !== "group") {
             trivialGroupAccum.push(item);
         } else if (!buildingGroup && item.type === "group" && trivialGroupAccum.length > 0) {
-            const trivialGroup = {classes: ["trivial=group"], children: trivialGroupAccum}
+            const trivialGroup = {classes: ["trivial-group"], children: trivialGroupAccum}
             buildGroup(instance, trivialGroup, fxUIState, container, drawTriggers);
             trivialGroupAccum = [];
             buildGroup(instance, item, fxUIState, container, drawTriggers);

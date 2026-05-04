@@ -11,6 +11,12 @@ function uploadFromCanvas(ocv) {
         img.onload = () => {
             setOriginalImage(img);
             resizeAndRedraw();
+            URL.revokeObjectURL(url);
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            console.error("Failed to load image from generated canvas blob");
         };
         clearRenderCache();
         img.src = url;
@@ -38,7 +44,7 @@ export async function drawRGBSquares() {
 
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, ocv.width, ocv.height);
-    const colors = ['red', 'green', 'blue'];
+    const colors = ['#ff0000', '#00ff00', '#0000ff'];
     colors.forEach((col, i) => {
         ctx.fillStyle = col;
         ctx.fillRect(

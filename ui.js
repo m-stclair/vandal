@@ -46,11 +46,6 @@ export function setupPaneDrag() {
     });
 }
 
-
-// effect stack container
-
-const effectStackElement = document.getElementById("effectStack");
-
 export function moveEffectInStack(effectStack, from, to) {
     if (from < 0 || from >= effectStack.length) return;
     to = Math.max(0, Math.min(to, effectStack.length));
@@ -68,10 +63,7 @@ const textarea = gid("stack-json");
 
 export function setupStaticButtons(
     handleUpload,
-    addSelectedEffect,
     saveState,
-    loadState,
-    registry,
     resetStack,
     requestRender,
     requestUIDraw,
@@ -100,71 +92,6 @@ export function setupStaticButtons(
     gid("randomStack").addEventListener("click", async () => await randomizeEffectStack());
 }
 
-
-// effect selector
-export const addEffectSelect = gid('addEffect');
-
-export function buildEffectSelect(effectGroups) {
-    addEffectSelect.add(new Option("-- pick an effect --", "", true, true));
-    Object.entries(effectGroups).forEach((group) => {
-        const [label, effects] = group;
-        const optgroup = document.createElement("optgroup");
-        optgroup.label = label;
-        effects.forEach(mod => {
-            const opt = new Option(mod.name, mod.name);
-            optgroup.appendChild(opt);
-        });
-        addEffectSelect.appendChild(optgroup);
-    });
-}
-
-export function initEffectBrowser(effectRegistry) {
-    const allTags = new Set();
-    Object.values(effectRegistry).forEach(entry => entry.meta.tags.forEach(tag => allTags.add(tag)));
-
-    const tagFilters = document.getElementById("tag-filters");
-    const effectList = document.getElementById("effect-list");
-    const searchInput = document.getElementById("searchInput");
-    let activeTags = new Set();
-
-    function renderTags() {
-        tagFilters.innerHTML = "";
-        allTags.forEach(tag => {
-            const div = document.createElement("div");
-            div.textContent = tag;
-            div.className = "tag";
-            if (activeTags.has(tag)) div.classList.add("active");
-            div.onclick = () => {
-                if (activeTags.has(tag)) activeTags.delete(tag);
-                else activeTags.add(tag);
-                renderEffectList();
-                renderTags();
-            };
-            tagFilters.appendChild(div);
-        });
-    }
-
-    function renderEffectList() {
-        const search = searchInput.value.toLowerCase();
-        effectList.innerHTML = "";
-        Object.values(effectRegistry).forEach(entry => {
-            const {name, meta} = entry;
-            const matchesSearch = name.toLowerCase().includes(search) || meta.description.toLowerCase().includes(search);
-            const matchesTags = [...activeTags].every(tag => meta.tags.includes(tag));
-            if (matchesSearch && matchesTags) {
-                const tile = document.createElement("div");
-                tile.className = "effect-tile";
-                tile.innerHTML = `<div class="effect-name">${name}</div><div class="effect-desc">${meta.description}</div>`;
-                tile.onclick = () => alert(`Selected: ${name}`);
-                effectList.appendChild(tile);
-            }
-        });
-    }
-
-    searchInput.oninput = renderEffectList;
-    renderTags();
-    renderEffectList();
-}
 
 // window setup (currently just resize trigger)
 export function setupWindow(resizeAndRedraw) {
@@ -288,10 +215,6 @@ export function setupVideoExportModal() {
         }
     });
 }
-
-const dropZone = document.getElementById('drop-zone-fullscreen');
-
-// const fileInput = document.getElementById('file-input');
 
 export function setupDragAndDrop(handleUpload) {
     document.addEventListener('dragover', e => e.preventDefault());

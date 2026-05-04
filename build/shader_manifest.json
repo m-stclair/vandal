@@ -90,7 +90,7 @@
   "includes/kernel_utils.glsl": "includes/kernel_utils.8726f9e6.glsl",
   "includes/differences.glsl": "includes/differences.fd09cbc1.glsl",
   "includes/vecfield.glsl": "includes/vecfield.9a4f2176.glsl",
-  "includes/colorconvert.glsl": "includes/colorconvert.f8f8c969.glsl",
+  "includes/colorconvert.glsl": "includes/colorconvert.447ed0c9.glsl",
   "includes/noise.glsl": "includes/noise.9fc274aa.glsl",
   "includes/blend.glsl": "includes/blend.fe3ab533.glsl",
   "includes/zones.glsl": "includes/zones.a913ab28.glsl",

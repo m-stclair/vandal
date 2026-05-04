@@ -547,6 +547,10 @@ function makeVectorSlider(id, config, uiSpec) {
         slider.step = step;
         slider.value = value[i];
         const valueInput = document.createElement("input");
+        valueInput.type = "number";
+        valueInput.min = min;
+        valueInput.max = max;
+        valueInput.step = step;
         valueInput.classList.add("vec-number");
         valueInput.value = formatFloatWidth(slider.value);
         // TODO: _god_ this is wordy and repetitive
@@ -560,21 +564,24 @@ function makeVectorSlider(id, config, uiSpec) {
         });
 
         function valueUpdate() {
-            slider.value = valueInput.value;
-            if (typeof (config[key]) !== "object") {
-                config[key][i] = parseFloat(slider.value);
-            } else {
-                config[key][i] = {
-                    value: parseFloat(slider.value),
-                    mod: config[key]?.mod || {type: "none"},
-                };
-            }
+            const parsed = parseFloat(valueInput.value);
+            if (!Number.isFinite(parsed)) return;
+
+            const clamped = clamp(parsed, min, max);
+
+            slider.value = clamped;
+            valueInput.value = formatFloatWidth(clamped);
+
+            config[key][i] = clamped;
+
             requestRender();
         }
 
-        let prevValue = valueInput.value;
+        let prevValue = Number(valueInput.value);
         valueInput.addEventListener('input', () => {
             const parsed = parseFloat(valueInput.value);
+            if (!Number.isFinite(parsed)) return;
+
             const delta = parsed - prevValue;
             if (Math.abs(delta) === Number(valueInput.step)) {
                 prevValue = parsed;
@@ -712,7 +719,6 @@ function ReferenceImage(id, config, uiSpec, fx) {
 }
 
 export default {
-    formatFloatWidth,
     makeButton,
     makeSlider,
     makeMatrixSlider,

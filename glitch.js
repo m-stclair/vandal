@@ -297,10 +297,7 @@ async function appSetup() {
     });
     setupStaticButtons(
         handleUpload,
-        addSelectedEffect,
         saveState,
-        loadState,
-        effectRegistry,
         resetStack,
         requestRender,
         requestUIDraw,

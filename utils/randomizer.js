@@ -123,10 +123,17 @@ const PERMISSIBLE_NON_MIX_BLENDS = new Map([
     ]],
     [ColorspaceEnum.JCHz, [
         BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN, BlendModeEnum.DIFFERENCE,
-        BlendModeEnum.COLOR_DODGE
+        BlendModeEnum.COLOR_DODGE, BlendModeEnum.OVERLAY,
+        BlendModeEnum.SCREEN, BlendModeEnum.ADD, BlendModeEnum.MULTIPLY,
+        BlendModeEnum.SOFT_LIGHT, BlendModeEnum.HARD_LIGHT,
+        BlendModeEnum.SOFT_LIGHT_I, BlendModeEnum.HARD_LIGHT_I,
+
     ]],
     [ColorspaceEnum.JzAzBz, [
-        BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN
+        BlendModeEnum.DARKEN, BlendModeEnum.LIGHTEN, BlendModeEnum.OVERLAY,
+        BlendModeEnum.SOFT_LIGHT, BlendModeEnum.HARD_LIGHT,
+        BlendModeEnum.SOFT_LIGHT_I, BlendModeEnum.HARD_LIGHT_I,
+        BlendModeEnum.POWER
     ]],
     [ColorspaceEnum.Opponent, [
         BlendModeEnum.ADD, BlendModeEnum.MULTIPLY, BlendModeEnum.SCREEN,

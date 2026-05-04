@@ -16,7 +16,7 @@ export default {
     name: "Adjustments",
 
     defaultConfig: {
-        COLORSPACE: ColorspaceEnum.LCH,
+        COLORSPACE: ColorspaceEnum.JCHz,
         exposure: 0,
         gamma: 1,
         brightness: 0,

@@ -16,21 +16,19 @@ export default {
         useR: true,
         useG: true,
         useB: true,
-        perlin: false,
     },
 
     apply(instance, data, width, height, t) {
         const sortedData = new Float32Array(data);
-        const {threshold, direction, useR, useG, useB, perlin} = resolveAnimAll(instance.config, t);
+        const {threshold, direction, useR, useG, useB} = resolveAnimAll(instance.config, t);
 
-        const brightness = (p, x, y) => {
+        const brightness = (p) => {
             let value = 0;
             const scl = [+useR, +useG, +useB].reduce((a, b) => a + b);
             if (scl === 0) return 0;
             if (useR) value += p.r;
             if (useG) value += p.g;
             if (useB) value += p.b;
-            if (perlin) value += 128 * noise(x * 0.02, y * 0.02);
             return value / scl;
         };
 
@@ -54,7 +52,7 @@ export default {
                 const idx = startIdx + i * stride;
                 const pixel = getPixel(idx);
                 const [x, y] = isHorizontal ? [i, fixedCoord] : [fixedCoord, i];
-                const b = brightness(pixel, x, y);
+                const b = brightness(pixel);
                 line.push({pixel, brightness: b});
             }
 
@@ -90,7 +88,6 @@ export default {
         {type: 'checkbox', key: 'useR', label: 'Use R'},
         {type: 'checkbox', key: 'useG', label: 'Use G'},
         {type: 'checkbox', key: 'useB', label: 'Use B'},
-        {type: 'checkbox', key: 'perlin', label: 'Perlin Mask'}
     ]
 };
 

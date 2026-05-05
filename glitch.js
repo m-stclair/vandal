@@ -69,35 +69,150 @@ function handleUpload(e) {
 }
 
 
-function stopCapture(recorder) {
-    recorder.stop();
-    document.getElementById('captureOverlay').style.display = 'none';
+let activeCapture = null;
+
+function getVideoMimeType() {
+    if (!window.MediaRecorder) return null;
+
+    const candidates = [
+        "video/webm; codecs=vp9",
+        "video/webm; codecs=vp8",
+        "video/webm"
+    ];
+
+    return candidates.find(type => MediaRecorder.isTypeSupported(type)) ?? "";
+}
+
+function parseCaptureNumber(id, fallback, min, max) {
+    const el = document.getElementById(id);
+    const value = Number(el?.value);
+
+    if (!Number.isFinite(value)) return fallback;
+
+    return Math.min(max, Math.max(min, value));
+}
+
+function stopCapture() {
+    if (!activeCapture) return;
+
+    const { recorder, timeoutId } = activeCapture;
+
+    if (timeoutId) {
+        clearTimeout(timeoutId);
+        activeCapture.timeoutId = null;
+    }
+
+    if (recorder.state !== "inactive") {
+        recorder.stop();
+    }
+}
+
+function cleanupCaptureUI() {
+    document.getElementById("captureOverlay").style.display = "none";
 }
 
 function startCapture() {
-    const exportDuration = document.getElementById("exportDuration").value;
-    const exportFPS = document.getElementById("exportFPS").value;
-
-    const stream = renderer.gl.canvas.captureStream(exportFPS);
-    const options = {
-        mimeType: 'video/webm; codecs=vp9',
-        videoBitsPerSecond: 16_000_000,
+    if (activeCapture) {
+        console.warn("Capture already running.");
+        return;
     }
-    const recorder = new MediaRecorder(stream, options);
-    const chunks = [];
-    recorder.ondataavailable = e => chunks.push(e.data);
-    recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "video/webm" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = vandalStamp('webm');
-        a.click();
+
+    const canvas = renderer.gl.canvas;
+
+    if (!canvas.captureStream) {
+        alert("Video capture is not supported in this browser.");
+        return;
+    }
+
+    if (!window.MediaRecorder) {
+        alert("MediaRecorder is not supported in this browser.");
+        return;
+    }
+
+    const exportDuration = parseCaptureNumber("exportDuration", 4, 1, 30);
+    const exportFPS = parseCaptureNumber("exportFPS", 30, 1, 60);
+
+    const mimeType = getVideoMimeType();
+    if (mimeType === null) {
+        alert("Video recording is not supported in this browser.");
+        return;
+    }
+
+    const stream = canvas.captureStream(exportFPS);
+
+    const options = {
+        videoBitsPerSecond: 16_000_000
     };
-    document.getElementById('captureOverlay').style.display = 'flex';
+
+    if (mimeType) {
+        options.mimeType = mimeType;
+    }
+
+    let recorder;
+
+    try {
+        recorder = new MediaRecorder(stream, options);
+    } catch (err) {
+        stream.getTracks().forEach(track => track.stop());
+        console.error("Failed to create MediaRecorder:", err);
+        alert("Could not start video recording with this browser's supported codecs.");
+        return;
+    }
+
+    const chunks = [];
+
+    activeCapture = {
+        recorder,
+        stream,
+        chunks,
+        timeoutId: null
+    };
+
+    recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+            chunks.push(e.data);
+        }
+    };
+
+    recorder.onerror = (event) => {
+        console.error("MediaRecorder error:", event.error ?? event);
+        stopCapture();
+    };
+
+    recorder.onstop = () => {
+        const capture = activeCapture;
+
+        if (capture?.timeoutId) {
+            clearTimeout(capture.timeoutId);
+        }
+
+        stream.getTracks().forEach(track => track.stop());
+        cleanupCaptureUI();
+
+        activeCapture = null;
+
+        if (!chunks.length) {
+            console.warn("Capture produced no video chunks.");
+            return;
+        }
+
+        const blob = new Blob(chunks, {
+            type: recorder.mimeType || mimeType || "video/webm"
+        });
+
+        downloadBlob(blob, vandalStamp("webm"));
+    };
+
+    document.getElementById("captureOverlay").style.display = "flex";
+
+    // Make sure at least the current frame is fresh when recording begins.
+    requestRender();
+
     recorder.start();
 
-    setTimeout(() => stopCapture(recorder), exportDuration * 1000);
+    activeCapture.timeoutId = setTimeout(() => {
+        stopCapture();
+    }, exportDuration * 1000);
 }
 
 

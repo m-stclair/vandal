@@ -310,23 +310,36 @@ export class GlitchRenderer {
         const pixels = new this.format.arrayConstructor(width * height * 4);
         gl.readPixels(0, 0, width, height, this.format.formatEnum,
                       this.format.typeEnum, pixels);
-        this.deleteFrameBuffer(fbo);
+        this.deleteFramebufferTarget(fbo);
         return pixels;
     }
 
     deleteFrameBuffer(fbo) {
         const gl = this.gl;
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo)
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, null, 0);
-        gl.bindTexture(gl.TEXTURE_2D, null);
+        if (!fbo) return;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+        gl.framebufferTexture2D(
+            gl.FRAMEBUFFER,
+            gl.COLOR_ATTACHMENT0,
+            gl.TEXTURE_2D,
+            null,
+            0
+        );
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.defaultFBO);
         gl.deleteFramebuffer(fbo);
     }
 
-    unbindFramebuffer(fbo) {
+    deleteFramebufferTarget(target) {
+        if (!target) return;
+
         const gl = this.gl;
-        if (gl.getParameter(gl.FRAMEBUFFER_BINDING) === fbo) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, this.defaultFBO);
+
+        if (target.fbo) {
+            this.deleteFrameBuffer(target.fbo);
+        }
+
+        if (target.texture) {
+            gl.deleteTexture(target.texture);
         }
     }
 

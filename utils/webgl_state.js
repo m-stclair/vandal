@@ -108,7 +108,7 @@ export class webGLState {
         if (!this.initialized) {
             // this should always mean the frag source isn't ready yet --
             // machine gun preset loading or something. soft fault, skip a frame.
-            if(!this.init(defines)) return inputTex;
+            if (!this.init(defines)) return inputTex;
         }
         const gl = this.gl;
         // this will result in a double compilation on the very first frame
@@ -137,54 +137,200 @@ export class webGLState {
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         this.last_uniforms = uniformSpec;
     }
-        // checkFrameBuffer(gl);
-        // checkTexture(gl, inputTex);
-        // checkTexture(gl, outputFBO.texture);
 
     uploadUniforms(uniformSpec) {
         const gl = this.gl;
-        let textureIndex = 0;
-        Object.entries(uniformSpec).forEach(([name, {value, type, width, height, binding}]) => {
-            if (!this.uniforms[name]) {
-                // TODO: a hack. ACTIVE_UNIFORMS doesn't detect arrays well?
+
+        this.last_uniform_values ??= {};
+        this.uboCache ??= new Map();
+        this.textureUniformCache ??= new Map();
+        this.uniformBlockIndexCache ??= new Map();
+
+        // Uniform values live on the program. If the program changed, the GPU-side
+        // uniform state is gone even if the JS values are "the same".
+        const programChanged = this._uniformCacheProgram !== this.program;
+        if (programChanged) {
+            this._uniformCacheProgram = this.program;
+            this.last_uniform_values = {};
+            this.uniformBlockIndexCache.clear();
+        }
+
+        const cloneUniformValue = (value) => {
+            if (ArrayBuffer.isView(value) && !(value instanceof DataView)) {
+                return new value.constructor(value);
+            }
+            if (Array.isArray(value)) {
+                return value.map(v => (
+                    Array.isArray(v) ||
+                    (ArrayBuffer.isView(v) && !(v instanceof DataView))
+                ) ? cloneUniformValue(v) : v);
+            }
+            return value;
+        };
+
+        const getUniformLocation = (name) => {
+            if (!(name in this.uniforms)) {
                 this.uniforms[name] = gl.getUniformLocation(this.program, name);
             }
-            const loc = this.uniforms[name];
+            return this.uniforms[name];
+        };
+
+        const rememberUniformValue = (name, value) => {
+            this.last_uniform_values[name] = cloneUniformValue(value);
+        };
+
+        const uniformValueUnchanged = (name, value) => {
+            return isEqual(this.last_uniform_values[name], value);
+        };
+
+        const isArrayTextureData = (value) => {
+            return Array.isArray(value) ||
+                (ArrayBuffer.isView(value) && !(value instanceof DataView));
+        };
+
+        const bindTextureUniformValue = (name, value, width, height) => {
+            if (!isArrayTextureData(value)) {
+                gl.bindTexture(gl.TEXTURE_2D, value);
+                return;
+            }
+
+            if (!width || !height) {
+                throw new Error(`texture2D uniform ${name} needs width and height`);
+            }
+
+            const data = Array.isArray(value)
+                ? new this.format.arrayConstructor(value)
+                : value;
+
+            let cached = this.textureUniformCache.get(name);
+
+            if (!cached || cached.width !== width || cached.height !== height) {
+                if (cached?.texture) {
+                    gl.deleteTexture(cached.texture);
+                }
+
+                cached = {
+                    texture: gl.createTexture(),
+                    width,
+                    height,
+                    lastValue: null
+                };
+
+                this.textureUniformCache.set(name, cached);
+            }
+
+            gl.bindTexture(gl.TEXTURE_2D, cached.texture);
+
+            if (!isEqual(cached.lastValue, data)) {
+                gl.texImage2D(
+                    gl.TEXTURE_2D,
+                    0,
+                    this.format.internalFormat,
+                    width,
+                    height,
+                    0,
+                    this.format.formatEnum,
+                    this.format.typeEnum,
+                    data
+                );
+
+                cached.lastValue = cloneUniformValue(data);
+            }
+        };
+
+        let textureIndex = 0;
+
+        for (const [name, spec] of Object.entries(uniformSpec)) {
+            const {value, type, width, height, binding} = spec;
+
+            if (value === undefined) {
+                continue;
+            }
+
             if (type === "texture2D") {
+                const loc = getUniformLocation(name);
+
                 textureIndex++;
                 gl.activeTexture(gl.TEXTURE0 + textureIndex);
-                if (value instanceof Array) {
-                    const value = gl.createTexture()
-                    this.allocateTexture(this.format, width, height, value);
-                }
-                gl.bindTexture(gl.TEXTURE_2D, value);
+
+                bindTextureUniformValue(name, value, width, height);
+
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-                // in this case, UniformSetters[type] is just gl.uniform1i(loc, val)
-                UniformSetters[type](gl, loc, textureIndex);
-                return;
+                if (loc !== null) {
+                    UniformSetters[type](gl, loc, textureIndex);
+                }
+
+                continue;
             }
 
-            if (isEqual(this.last_uniforms[name], value)) return;
             if (type === "UBO") {
-                const blockIndex = gl.getUniformBlockIndex(this.program, name);
                 const blockBinding = binding ?? 0;
-                gl.uniformBlockBinding(this.program, blockIndex, blockBinding);
-                const ubo = gl.createBuffer();
-                gl.bindBufferBase(gl.UNIFORM_BUFFER, blockBinding, ubo);
-                gl.bufferData(gl.UNIFORM_BUFFER, value, gl.DYNAMIC_DRAW);
-            } else {
-                UniformSetters[type](gl, loc, value);
-            }
-            // const err = gl.getError();
-            // if (err !== gl.NO_ERROR) {
-            //     console.warn("Bad uniform set:", err, name);
-            // }
 
-        });
+                let blockIndex = this.uniformBlockIndexCache.get(name);
+                if (blockIndex === undefined) {
+                    blockIndex = gl.getUniformBlockIndex(this.program, name);
+                    this.uniformBlockIndexCache.set(name, blockIndex);
+                }
+
+                if (blockIndex === gl.INVALID_INDEX) {
+                    continue;
+                }
+
+                gl.uniformBlockBinding(this.program, blockIndex, blockBinding);
+
+                let cached = this.uboCache.get(name);
+                if (!cached) {
+                    cached = {
+                        buffer: gl.createBuffer(),
+                        byteLength: 0
+                    };
+                    this.uboCache.set(name, cached);
+                }
+
+                gl.bindBufferBase(gl.UNIFORM_BUFFER, blockBinding, cached.buffer);
+                gl.bindBuffer(gl.UNIFORM_BUFFER, cached.buffer);
+
+                const data = ArrayBuffer.isView(value)
+                    ? value
+                    : new Float32Array(value);
+
+                if (!uniformValueUnchanged(name, data)) {
+                    if (cached.byteLength !== data.byteLength) {
+                        gl.bufferData(gl.UNIFORM_BUFFER, data, gl.DYNAMIC_DRAW);
+                        cached.byteLength = data.byteLength;
+                    } else {
+                        gl.bufferSubData(gl.UNIFORM_BUFFER, 0, data);
+                    }
+
+                    rememberUniformValue(name, data);
+                }
+
+                continue;
+            }
+
+            const loc = getUniformLocation(name);
+
+            // Uniform may be optimized out or #defined away.
+            if (loc === null) {
+                continue;
+            }
+
+            if (uniformValueUnchanged(name, value)) {
+                continue;
+            }
+
+            const setter = UniformSetters[type];
+            if (!setter) {
+                throw new Error(`Unknown uniform type "${type}" for ${name}`);
+            }
+
+            setter(gl, loc, value);
+            rememberUniformValue(name, value);
+        }
     }
 
 }

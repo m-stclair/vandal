@@ -29,11 +29,12 @@ export function subsampleTexture(probe, width, height, gl, inputTexture) {
 
 export function blockSample(probe, width, height, gl, inputTexture) {
     const conf = probe.config;
-    const tempBuffer = probe.glState.renderer.make_framebuffer(1, conf.paletteSize * 5);
+    const sampleCount = conf.paletteSize;
+    const tempBuffer = probe.glState.renderer.make_framebuffer(1, sampleCount);
     const patchUniform = new Float32Array(conf.patchOrigins.flat());
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, tempBuffer.fbo);
-    gl.viewport(0, 0, 1, conf.paletteSize);
-    if (!probe.glState.program) {
+    gl.viewport(0, 0, 1, sampleCount);    if (!probe.glState.program) {
         probe.glState.program = probe.glState.buildProgram({});
     }
     const prog = probe.glState.program;
@@ -52,8 +53,9 @@ export function blockSample(probe, width, height, gl, inputTexture) {
     // checkFrameBuffer(gl);
     // checkTexture(gl, inputTexture);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    const outData = new Float32Array(conf.paletteSize * 20);
-    gl.readPixels(0, 0, 1, conf.paletteSize * 5, gl.RGBA, gl.FLOAT, outData);
-    probe.glState.renderer.deleteFrameBuffer(tempBuffer.fbo)
+    const outData = new Float32Array(sampleCount * 4);
+    gl.readPixels(0, 0, 1, sampleCount, gl.RGBA, gl.FLOAT, outData);
+
+    probe.glState.renderer.deleteFramebufferTarget(tempBuffer.fbo);
     return outData;
 }

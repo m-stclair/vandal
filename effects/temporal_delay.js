@@ -62,7 +62,7 @@ function cleanupDelayFBOs(instance) {
     const renderer = instance.glState.renderer;
 
     for (const entry of instance.delayFBOs) {
-        renderer.deleteFrameBuffer(entry.fbo.fbo);
+        renderer.deleteFramebufferTarget(entry.fbo.fbo);
     }
 
     instance.delayFBOs = null;

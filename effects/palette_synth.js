@@ -32,6 +32,7 @@ function exportPalette(_config, _k, _e, instance) {
     link.href = url;
     link.download = "lut.png";
     link.click();
+    URL.revokeObjectURL(url);
   });
 }
 
@@ -93,7 +94,10 @@ export default {
                 outlier: selectWeights[1],
                 chroma: selectWeights[2],
             };
-            const safePaletteSize = paletteSize >= 3 ? Math.round(paletteSize / 3) * 3 : 3;
+            const safePaletteSize = Math.min(
+                126,
+                paletteSize >= 3 ? Math.round(paletteSize / 3) * 3 : 3
+            );
             palette = probe.analyze(
                 probe,
                 inputTex,
@@ -107,7 +111,7 @@ export default {
                 selectionWeights,
                 minDistance
             );
-            let procResult = preprocessPalette(palette, safePaletteSize);
+            let procResult = preprocessPalette(palette);
             paletteBlock = procResult['paletteBlock']
             paletteFeatures = procResult['paletteFeatures']
 

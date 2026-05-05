@@ -219,8 +219,8 @@ export function setupExportImage(exportImage) {
 }
 
 export function setupVideoCapture(startCapture, stopCapture) {
-    document.getElementById('startCapture').onclick = () => startCapture();
-    document.getElementById('stopCaptureOverlay').onclick = () => stopCapture();
+    document.getElementById("startCapture").onclick = startCapture;
+    document.getElementById("stopCaptureOverlay").onclick = stopCapture;
 }
 
 

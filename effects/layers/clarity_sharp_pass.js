@@ -42,14 +42,14 @@ export const claritySharpPass = {
     },
     cleanupHook: (pass) => {
         if (pass.outputFBO?.fbo) {
-            pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
+            pass.glState.renderer.deleteFramebufferTarget(pass.outputFBO.fbo);
             pass.outputFBO = null;
         }
     },
     setupFBO: (pass, width, height) => {
         if (pass.width !== width || pass.height !== height) {
             if (pass.outputFBO?.fbo) {
-                pass.glState.renderer.deleteFrameBuffer(pass.outputFBO.fbo);
+                pass.glState.renderer.deleteFramebufferTarget(pass.outputFBO.fbo);
                 pass.outputFBO = null;
             }
             pass.outputFBO = pass.glState.renderer.make_framebuffer(width, height, "kernelpass", "kernelpass");

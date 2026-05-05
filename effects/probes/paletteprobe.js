@@ -10,7 +10,9 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 function expandSwatchVariants([L, a, b], deltaL = 10, chromaExp = 1.0) {
     const C = Math.hypot(a, b);
     const h = Math.atan2(b, a);
-    const Cmod = Math.pow(C, chromaExp);
+    const chromaRef = 100;
+    const Cn = clamp(C / chromaRef, 0, 2);
+    const Cmod = chromaRef * Math.pow(Cn, chromaExp);
     const anew = Math.cos(h) * Cmod;
     const bnew = Math.sin(h) * Cmod;
     return [

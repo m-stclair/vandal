@@ -5,7 +5,7 @@ import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
 import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "../utils/glsl_enums.js";
 import {lab2Rgb, linear2SRGB} from "../utils/colorutils.js";
-import {preprocessPalette} from "../utils/paletteutils.js";
+import {preprocessPalette, sortPalette} from "../utils/paletteutils.js";
 
 function exportPalette(_config, _k, _e, instance) {
   if (!instance.auxiliaryCache?.lastPalette) return;
@@ -72,13 +72,13 @@ export default {
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
             deltaL, gammaC, freeze,
-            blockSize, seed, minDistance, CYCLE_MODE
+            blockSize, seed, minDistance, CYCLE_MODE, sortMode
         } = resolveAnimAll(instance.config, t)
 
         let palette, paletteBlock, paletteFeatures;
 
         let paletteSettings = String([paletteSize, selectWeights, seed,
-                                      minDistance, deltaL, gammaC, blockSize]);
+                                      minDistance, deltaL, gammaC, blockSize, sortMode]);
         if (
             freeze
             && instance.auxiliaryCache.lastPalette
@@ -111,6 +111,8 @@ export default {
                 selectionWeights,
                 minDistance
             );
+            palette = sortPalette(palette, sortMode);
+
             let procResult = preprocessPalette(palette);
             paletteBlock = procResult['paletteBlock']
             paletteFeatures = procResult['paletteFeatures']
@@ -129,7 +131,7 @@ export default {
             u_paletteSize: {value: palette.length, type: "int"},
             u_cycleOffset: {value: cycleOffset, type: "int"},
             u_softness: {value: softness, type: "float"},
-            u_blendK: {value: blendK, type: "int"},
+            u_blendK: {value: blendK < 1 ? 1 : Math.floor(blendK), type: "int"},
             u_lumaWeight: {value: lumaWeight >= 0 ? lumaWeight : 0, type: "float"},
             u_chromaWeight: {value: chromaWeight >= 0 ? chromaWeight : 0, type: "float"},
             u_hueWeight: {value: hueWeight >= 0 ? hueWeight : 0, type: "float"},
@@ -307,13 +309,25 @@ export default {
         },
         {
             type: "select",
+            key: "sortMode",
+            label: "Sort",
+            options: [
+                {"label": "Lightness", value: "lightness"},
+                {"label": "Variant Bands", value: "variantBands"},
+                {"label": "Hue Families", value: "hueFamilies"},
+                {"label": "LAB Walk", value: "labWalk"}
+            ]
+        },
+        {
+            type: "select",
             key: "CYCLE_MODE",
+            label: "Cycle Region",
             options: [
                 {"label": "global", value: 0},
-                {"label": "blocks", value: 1},
-                {"label": "midtone", value: 2},
-                {"label": "highlight", value: 3},
-                {"label": "shadow", value: 4}
+                {"label": "thirds", value: 1},
+                {"label": "middle band", value: 2},
+                {"label": "high band", value: 3},
+                {"label": "low band", value: 4}
             ],
         },
         {
@@ -342,6 +356,7 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         COLORSPACE: ColorspaceEnum.RGB,
         showPalette: "none",
+        sortMode: "lightness",
         chromaBoost: 1,
         blockSize: 3,
         seed: 1,

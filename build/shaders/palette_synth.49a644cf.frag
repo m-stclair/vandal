@@ -35,10 +35,10 @@ out vec4 outColor;
 #define ASSIGN_BLEND 1
 
 #define CYCLE_GLOBAL 0
-#define CYCLE_LUMA_BLOCKS 1
-#define CYCLE_LUMA_MIDTONE 2
-#define CYCLE_LUMA_HIGHLIGHT 3
-#define CYCLE_LUMA_SHADOW 4
+#define CYCLE_AXIS_THIRDS 1
+#define CYCLE_AXIS_MIDDLE 2
+#define CYCLE_AXIS_HIGH 3
+#define CYCLE_AXIS_LOW 4
 
 #ifndef CYCLE_MODE
 #define CYCLE_MODE CYCLE_GLOBAL
@@ -54,7 +54,8 @@ int positiveMod(int x, int m) {
     return (r < 0) ? r + m : r;
 }
 
-// Palette is assumed sorted by luminance, dark -> light.
+// Palette order is selected on the CPU. Non-global cycle modes treat array thirds
+// as low/middle/high bands along that active ordering axis.
 
 int cyclePaletteIndex(int idx, int cycleOffset) {
     if (u_paletteSize <= 1) {
@@ -64,42 +65,42 @@ int cyclePaletteIndex(int idx, int cycleOffset) {
 #if (CYCLE_MODE != CYCLE_GLOBAL)
     int n = u_paletteSize;
 
-    int shadowEnd = n / 3;
-    int highlightStart = (2 * n) / 3;
+    int lowEnd = n / 3;
+    int highStart = (2 * n) / 3;
 
-    #if CYCLE_MODE == CYCLE_LUMA_MIDTONE
-        if (idx < shadowEnd || idx >= highlightStart) {
+    #if CYCLE_MODE == CYCLE_AXIS_MIDDLE
+        if (idx < lowEnd || idx >= highStart) {
             return idx;
         }
-        int lo = shadowEnd;
-        int hi = highlightStart;
-    #elif CYCLE_MODE == CYCLE_LUMA_HIGHLIGHT
-        if (idx < highlightStart) {
+        int lo = lowEnd;
+        int hi = highStart;
+    #elif CYCLE_MODE == CYCLE_AXIS_HIGH
+        if (idx < highStart) {
             return idx;
         }
-        int lo = highlightStart;
+        int lo = highStart;
         int hi = n;
-    #elif CYCLE_MODE == CYCLE_LUMA_SHADOW
-        if (idx >= shadowEnd) {
+    #elif CYCLE_MODE == CYCLE_AXIS_LOW
+        if (idx >= lowEnd) {
             return idx;
         }
         int lo = 0;
-        int hi = shadowEnd;
+        int hi = lowEnd;
     #else
         int lo = 0;
         int hi = n;
 
-        if (idx < shadowEnd) {
-            // Shadows
+        if (idx < lowEnd) {
+            // Low band
             lo = 0;
-            hi = shadowEnd;
-        } else if (idx < highlightStart) {
-            // Midtones
-            lo = shadowEnd;
-            hi = highlightStart;
+            hi = lowEnd;
+        } else if (idx < highStart) {
+            // Middle band
+            lo = lowEnd;
+            hi = highStart;
         } else {
-            // Highlights
-            lo = highlightStart;
+            // High band
+            lo = highStart;
             hi = n;
         }
     #endif

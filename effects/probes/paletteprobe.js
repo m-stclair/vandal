@@ -164,8 +164,9 @@ export const paletteprobe = {
             baseSwatches.push([L, a, b]);
         }
         const selected = selectTopNScoredSwatches(baseSwatches, selectionWeights, paletteSize, minDistance);
-        const expanded = selected.map(s => expandSwatchVariants(s, deltaL, gammaC)).flat();
-        return expanded.sort((a, b) => a[0] - b[0]);
+        // Keep base/tint/shade triplets intact. Downstream sort modes may use
+        // that generated-family structure before flattening to the shader.
+        return selected.map(s => expandSwatchVariants(s, deltaL, gammaC)).flat();
     },
     initHook: fragSources.load,
 }

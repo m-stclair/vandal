@@ -186,5 +186,5 @@ export const effectMeta = {
     description: "Applies a configurable dithering effect that can approximate a variety of print techniques.",
     canAnimate: true,
     realtimeSafe: true,
-    parameterHints: {"levels": {"min": 2, "max": 4}}
+    parameterHints: {"levels": {"min": 2, "max": 4}, "scale": {"min": 150, "max": 1800}}
 };

@@ -72,7 +72,7 @@ export default {
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
             deltaL, gammaC, freeze,
-            blockSize, seed, minDistance, CYCLE_MODE, sortMode
+            blockSize, seed, minDistance, CYCLE_MODE, sortMode, ditherScale
         } = resolveAnimAll(instance.config, t)
 
         let palette, paletteBlock, paletteFeatures;
@@ -131,17 +131,18 @@ export default {
             u_paletteSize: {value: palette.length, type: "int"},
             u_cycleOffset: {value: cycleOffset, type: "int"},
             u_softness: {value: softness, type: "float"},
-            u_blendK: {value: blendK < 1 ? 1 : Math.floor(blendK), type: "int"},
+            u_blendK: {value: blendK, type: "int"},
             u_lumaWeight: {value: lumaWeight >= 0 ? lumaWeight : 0, type: "float"},
             u_chromaWeight: {value: chromaWeight >= 0 ? chromaWeight : 0, type: "float"},
             u_hueWeight: {value: hueWeight >= 0 ? hueWeight : 0, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
+            u_ditherScale: {value: ditherScale, type: "float"},
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
-            ASSIGNMODE: {"nearest": 0, "blend": 1}[assignMode],
+            ASSIGNMODE: {"nearest": 0, "blend": 1, "dither": 2}[assignMode],
             SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette],
             CYCLE_MODE: CYCLE_MODE
         }
@@ -229,13 +230,24 @@ export default {
                     label: "Show Palette",
                     options: ["none", "strip"]
                 },
+                {
+                    type: "select",
+                    key: "sortMode",
+                    label: "Sort",
+                    options: [
+                        {"label": "Lightness", value: "lightness"},
+                        {"label": "Variant Bands", value: "variantBands"},
+                        {"label": "Hue Families", value: "hueFamilies"},
+                        {"label": "LAB Walk", value: "labWalk"}
+                    ]
+                },
             ]
         },
         {
             type: "select",
             key: "assignMode",
             label: "Assignment Mode",
-            options: ["nearest", "blend"]
+            options: ["nearest", "blend", "dither"]
         },
         {
             type: "group",
@@ -294,6 +306,22 @@ export default {
             ]
         },
         {
+            type: "group",
+            kind: "collapse",
+            label: "Dither",
+            showIf: {key: "assignMode", equals: "dither"},
+            children: [
+                {
+                    type: "modSlider",
+                    key: "ditherScale",
+                    label: "Pattern Scale",
+                    min: 1,
+                    max: 6,
+                    step: 1
+                }
+            ]
+        },
+        {
             type: "checkbox",
             key: "freeze",
             label: "Freeze"
@@ -306,17 +334,6 @@ export default {
             min: 0,
             max: 100,
             step: 1
-        },
-        {
-            type: "select",
-            key: "sortMode",
-            label: "Sort",
-            options: [
-                {"label": "Lightness", value: "lightness"},
-                {"label": "Variant Bands", value: "variantBands"},
-                {"label": "Hue Families", value: "hueFamilies"},
-                {"label": "LAB Walk", value: "labWalk"}
-            ]
         },
         {
             type: "select",
@@ -345,6 +362,7 @@ export default {
         cycleOffset: 0,
         softness: 1,
         blendK: 2,
+        ditherScale: 1,
         lumaWeight: 0.75,
         chromaWeight: 0.75,
         hueWeight: 0.25,
@@ -379,7 +397,8 @@ export const effectMeta = {
         showPalette: {"always": "none"},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
         gammaC: {"min": 0.8, "max": 1.2},
-        minDistance: {"min": 12, "max": 30}
+        minDistance: {"min": 12, "max": 30},
+        ditherScale: {"min": 1, "max": 3}
     },
     fullOpacityChance: 0.8
 };

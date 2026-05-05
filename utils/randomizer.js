@@ -280,10 +280,6 @@ function selectRandomParam(hints, param) {
         const min = hints[param.key]?.min ?? param.min;
         const max = hints[param.key]?.max ?? param.max;
         let val = randBetween(min, max);
-        if (param.scale === "log") {
-            const scaleFactor = param.scaleFactor ?? 10;
-            val = min + Math.log(val - min + 1) / Math.log(scaleFactor)
-        }
         if (param.step === 1) val = Math.floor(val);
 
         if (ptype === "modslider" && Math.random() < ANIMATE_PROB) {

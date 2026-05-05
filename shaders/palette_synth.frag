@@ -24,6 +24,7 @@ uniform float u_lumaWeight;
 uniform float u_chromaWeight;
 uniform float u_hueWeight;
 uniform float u_blendAmount;
+uniform float u_ditherScale;
 
 out vec4 outColor;
 
@@ -33,6 +34,7 @@ out vec4 outColor;
 
 #define ASSIGN_NEAREST 0
 #define ASSIGN_BLEND 1
+#define ASSIGN_DITHER 2
 
 #define CYCLE_GLOBAL 0
 #define CYCLE_AXIS_THIRDS 1
@@ -211,6 +213,57 @@ vec3 matchNearest(vec3 lab, int cycleOffset) {
     return paletteColors[cyclePaletteIndex(best_i, cycleOffset)].rgb;
 }
 
+float orderedDither4x4(vec2 fragCoord, float scale) {
+    vec2 cell = floor(fragCoord / max(scale, 1.0));
+    int x = int(mod(cell.x, 4.0));
+    int y = int(mod(cell.y, 4.0));
+    int index = y * 4 + x;
+    float thresholds[16] = float[](
+        0.0,  0.5,    0.125,  0.625,
+        0.75, 0.25,   0.875,  0.375,
+        0.1875, 0.6875, 0.0625, 0.5625,
+        0.9375, 0.4375, 0.8125, 0.3125
+    );
+    return thresholds[index];
+}
+
+vec3 ditherAssign(vec3 lab, int cycleOffset) {
+    float bestDist = 1e20;
+    float secondDist = 1e20;
+    int bestIndex = 0;
+    int secondIndex = 0;
+
+    for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
+        if (i >= u_paletteSize) break;
+
+        float d = deltaE_bias_fast(lab, paletteFeatures[i]);
+
+        if (d < bestDist) {
+            secondDist = bestDist;
+            secondIndex = bestIndex;
+            bestDist = d;
+            bestIndex = i;
+        } else if (d < secondDist) {
+            secondDist = d;
+            secondIndex = i;
+        }
+    }
+
+    if (u_paletteSize <= 1) {
+        return paletteColors[cyclePaletteIndex(bestIndex, cycleOffset)].rgb;
+    }
+
+    float chooseSecond = bestDist / max(bestDist + secondDist, 1e-5);
+    float threshold = orderedDither4x4(gl_FragCoord.xy, u_ditherScale);
+    int chosenIndex;
+    if (chooseSecond < 0.0625) {
+        chosenIndex = bestIndex;
+    } else {
+        chosenIndex = threshold < chooseSecond ? secondIndex : bestIndex;
+    }
+    return paletteColors[cyclePaletteIndex(chosenIndex, cycleOffset)].rgb;
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
@@ -231,6 +284,8 @@ void main() {
 
 #if ASSIGNMODE == ASSIGN_BLEND
     vec3 labMapped = softAssign(lab, u_cycleOffset);
+#elif ASSIGNMODE == ASSIGN_DITHER
+    vec3 labMapped = ditherAssign(lab, u_cycleOffset);
 #else
     vec3 labMapped = matchNearest(lab, u_cycleOffset);
 #endif

@@ -13,37 +13,63 @@ import {randomizeEffectStack} from "./utils/randomizer.js";
 // pane dragging logic
 const dragBar = document.getElementById("dragBar");
 const leftPane = document.getElementById("leftPane");
+const rightPane = document.getElementById("rightPane");
 const layout = document.getElementById("mainLayout");
 
-export function setupPaneDrag() {
-    let isDragging = false;
-    const leftWidth = leftPane.getBoundingClientRect().width;
-    dragBar.style.left = `${leftWidth}px`;
+function makeRafScheduler(fn) {
+    let queued = false;
+    return () => {
+        if (!fn || queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+            queued = false;
+            fn();
+        });
+    };
+}
 
-    dragBar.addEventListener("mousedown", (e) => {
+export function setupPaneDrag(resizeAndRedraw) {
+    let isDragging = false;
+    const scheduleResize = makeRafScheduler(resizeAndRedraw);
+
+    const setLeftWidth = (clientX) => {
+        const layoutRect = layout.getBoundingClientRect();
+        const dragWidth = dragBar.getBoundingClientRect().width || 5;
+        const minLeft = Number.parseFloat(getComputedStyle(leftPane).minWidth) || 100;
+        const minRight = Number.parseFloat(getComputedStyle(rightPane).minWidth) || 300;
+        const maxLeft = Math.max(minLeft, layoutRect.width - dragWidth - minRight);
+        const newLeft = Math.round(
+            Math.min(Math.max(clientX - layoutRect.left, minLeft), maxLeft)
+        );
+
+        leftPane.style.flex = `0 0 ${newLeft}px`;
+        scheduleResize();
+    };
+
+    dragBar.addEventListener("pointerdown", (e) => {
         isDragging = true;
+        dragBar.setPointerCapture?.(e.pointerId);
         document.body.style.cursor = "ew-resize";
         e.preventDefault();
     });
 
-    document.addEventListener("mousemove", (e) => {
+    document.addEventListener("pointermove", (e) => {
         if (!isDragging) return;
-
-        const layoutRect = layout.getBoundingClientRect();
-        const minLeft = 100;
-        const maxLeft = layoutRect.width - 200; // leave min space for rightPane
-
-        const newLeft = Math.min(Math.max(e.clientX - layoutRect.left, minLeft), maxLeft);
-
-        leftPane.style.flex = `0 0 ${newLeft}px`;
+        setLeftWidth(e.clientX);
     });
 
-    document.addEventListener("mouseup", () => {
-        if (isDragging) {
-            isDragging = false;
-            document.body.style.cursor = "default";
-        }
-    });
+    const endDrag = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        dragBar.releasePointerCapture?.(e.pointerId);
+        document.body.style.cursor = "default";
+        scheduleResize();
+    };
+
+    document.addEventListener("pointerup", endDrag);
+    document.addEventListener("pointercancel", endDrag);
+
+    new ResizeObserver(scheduleResize).observe(leftPane);
 }
 
 export function moveEffectInStack(effectStack, from, to) {
@@ -95,8 +121,10 @@ export function setupStaticButtons(
 
 // window setup (currently just resize trigger)
 export function setupWindow(resizeAndRedraw) {
-    window.addEventListener('resize', resizeAndRedraw);
-    window.addEventListener('orientationchange', resizeAndRedraw);
+    const scheduleResize = makeRafScheduler(resizeAndRedraw);
+    window.addEventListener('resize', scheduleResize);
+    window.addEventListener('orientationchange', scheduleResize);
+    window.visualViewport?.addEventListener('resize', scheduleResize);
 }
 
 

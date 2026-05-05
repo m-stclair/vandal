@@ -246,10 +246,13 @@ export function resizeAndRedraw() {
     Lock.image = true;
     try {
         const leftPane = document.getElementById('leftPane');
-        const width = leftPane.clientWidth;
-        const height = window.innerHeight * 0.9;
-        canvas.width = width;
-        canvas.height = height;
+        const rect = leftPane.getBoundingClientRect();
+        const width = Math.max(1, Math.floor(rect.width));
+        const height = Math.max(1, Math.floor(rect.height));
+
+        if (canvas.width !== width) canvas.width = width;
+        if (canvas.height !== height) canvas.height = height;
+
         renderer.inputDirty = true;
         requestRender();
     } finally {

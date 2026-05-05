@@ -316,7 +316,7 @@ async function appSetup() {
     setupDragAndDrop(handleUpload);
     setupExportImage(exportImage);
     setupVideoCapture(startCapture, stopCapture);
-    setupPaneDrag();
+    setupPaneDrag(resizeAndRedraw);
     setupVideoExportModal();
     pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
                    requestRender, startCapture);

@@ -1,7 +1,6 @@
 {
   "tile_desync.frag": "tile_desync.87525c87.frag",
   "noise_pass.frag": "noise_pass.a898206c.frag",
-  "snowflake.frag": "snowflake.8b361bbe.frag",
   "structureflow.frag": "structureflow.fa2ce512.frag",
   "kernel2d.glsl": "kernel2d.3e955b82.glsl",
   "risograph.frag": "risograph.48e5ec4a.frag",
@@ -77,9 +76,8 @@
   "kernel_pass.glsl": "kernel_pass.e91f9747.glsl",
   "wave.frag": "wave.fd241572.frag",
   "huerotate.frag": "huerotate.8bb9447e.frag",
-  "carpet.frag": "carpet.fab8e838.frag",
   "look.frag": "look.35eafac7.frag",
-  "gridpattern.frag": "gridpattern.15b1c51d.frag",
+  "gridpattern.frag": "gridpattern.3bb5eccf.frag",
   "temporal_delay.frag": "temporal_delay.41b00e02.frag",
   "aberration.frag": "aberration.b2d44bd4.frag",
   "perlin_distort.frag": "perlin_distort.8a780b89.frag",

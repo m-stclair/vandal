@@ -24,6 +24,7 @@ export default {
         spacingFactor: 1.2,
         phaseX: 0.0,
         phaseY: 0.0,
+        horizonRoll: 0.0,
         direction: "grid",
         mode: "binary",
         BLENDMODE: BlendModeEnum.MIX,
@@ -82,6 +83,14 @@ export default {
             steps: 200,
         },
         {
+            key: "horizonRoll",
+            label: "Horizon Roll",
+            type: "modSlider",
+            min: -0.5,
+            max: 0.5,
+            steps: 360,
+        },
+        {
             key: "skew",
             label: "Skew",
             type: "modSlider",
@@ -115,7 +124,7 @@ export default {
             key: "mode",
             label: "Mode",
             type: "Select",
-            options: ["binary", "sine", "tri", "saw"]
+            options: ["binary", "sine", "tri", "saw", "horizon"]
         },
         {
             key: "lumaThreshold",
@@ -203,7 +212,7 @@ export default {
     apply(instance, inputTex, width, height, t, outputFBO) {
         initGLEffect(instance, fragSources);
         const {
-            lineWidth, phaseX, phaseY, noiseScale, noiseAmount, direction, mode, BLENDMODE, blendAmount,
+            lineWidth, phaseX, phaseY, horizonRoll = 0, noiseScale, noiseAmount, direction, mode, BLENDMODE, blendAmount,
             COLORSPACE, invert, spacingFactor, skew, BLEND_CHANNEL_MODE, lumaMod, color,
             lumaThreshold, lumaAngle, channelPhase0, channelPhase1, channelPhase2,
             chromaBoost, backgroundColor, backgroundOpacity
@@ -223,6 +232,7 @@ export default {
             u_luma_angle: {value: lumaAngle, type: "float"},
             u_lumathreshold: {value: lumaThreshold, type: "float"},
             u_phase: {value: [phaseX * width, phaseY * height], type: "vec2"},
+            u_horizonroll: {value: horizonRoll, type: "float"},
             u_color: {value: color, type: "vec3"},
             u_backgroundColor: {value: backgroundColor, type: "vec3"},
             u_backgroundOpacity: {value: backgroundOpacity, type: "float"},
@@ -238,7 +248,7 @@ export default {
         // console.log(uniformSpec);
         const defines = {
             DIRECTION: {"vertical": 0, "horizontal": 1, "grid": 2}[direction],
-            MODE: {"binary": 0, "sine": 1, "tri": 2, "saw": 3}[mode],
+            MODE: {"binary": 0, "sine": 1, "tri": 2, "saw": 3, "horizon": 4}[mode],
             BLENDMODE: Number.parseInt(BLENDMODE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             COLORSPACE: Number.parseInt(COLORSPACE),

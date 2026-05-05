@@ -82,10 +82,8 @@ const effectFiles = [
     "adjustments.js",
     "clarity.js",
     "temporal_delay.js",
-    "penrose.js"
-    // "snowflake.js"
-    // "carpet.js"
-    // "coupled_lens_physical.js"
+    "penrose.js",
+//    "prism_bleed.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

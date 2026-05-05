@@ -158,7 +158,6 @@ export default {
                 {type: "modSlider", key: "plateWobble", label: "Plate Jitter", min: 0, max: 2, step: 0.01},
             ],
         },
-
         {
             type: "group",
             label: "Ink & Paper Dirt",
@@ -292,6 +291,10 @@ export const effectMeta = {
     description: (
         "Risograph-style spot-ink halftone with precomputed plate separation, shared paper tooth, misregistration, and overprint."
     ),
+    parameterHints: {
+        "inkCoverage": {"min": 0.85, "max": 1.35},
+        "grainAmount": {"min": 0, "max": 0.75}
+    },
     canAnimate: true,
     realtimeSafe: true,
 };

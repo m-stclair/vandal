@@ -3,13 +3,13 @@ import {initGLEffect, loadFragSrcInit} from "../utils/gl.js";
 import {paletteprobe} from "./probes/paletteprobe.js";
 import {webGLState} from "../utils/webgl_state.js";
 import {blendControls} from "../utils/ui_configs.js";
-import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum, hasChromaBoostImplementation} from "../utils/glsl_enums.js";
+import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "../utils/glsl_enums.js";
 import {lab2Rgb, linear2SRGB} from "../utils/colorutils.js";
 import {preprocessPalette} from "../utils/paletteutils.js";
 
 function exportPalette(_config, _k, _e, instance) {
-  if (!instance.auxiliaryCache?.exportPalette) return;
-  const palette = instance.auxiliaryCache.exportPalette;
+  if (!instance.auxiliaryCache?.lastPalette) return;
+  const palette = instance.auxiliaryCache.lastPalette;
   const canvas = document.createElement("canvas");
   canvas.width = palette.length;
   canvas.height = 1;
@@ -70,39 +70,52 @@ export default {
             lumaWeight, chromaWeight, hueWeight, BLENDMODE,
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
-            deltaL, gammaC,
-            blockSize, seed, minDistance
+            deltaL, gammaC, freeze,
+            blockSize, seed, minDistance, CYCLE_MODE
         } = resolveAnimAll(instance.config, t)
 
-        // TODO, maybe: there are some cases in which we don't need to recompute the
-        //  palette -- when (1) we are the first active effect in the chain,
-        //  (2) there hasn't been a base image swap, and (3) no parameters
-        //  relevant to palette _selection_ have changed (e.g., someone
-        //  changed a blend setting). but the probe is very cheap.
-        const probe = instance.probe;
-        const selectionWeights = {
-            midtone: selectWeights[0],
-            outlier: selectWeights[1],
-            chroma: selectWeights[2],
-        };
-        const safePaletteSize = paletteSize >= 3 ? Math.round(paletteSize / 3) * 3 : 3;
-        let palette = probe.analyze(
-            probe,
-            inputTex,
-            width,
-            height,
-            safePaletteSize / 3,
-            deltaL,
-            gammaC,
-            blockSize,
-            seed,
-            selectionWeights,
-            minDistance
-        );
-        const {paletteBlock, paletteFeatures} = preprocessPalette(palette, safePaletteSize);
+        let palette, paletteBlock, paletteFeatures;
 
-        instance.auxiliaryCache.exportPalette = palette;
+        let paletteSettings = String([paletteSize, selectWeights, seed,
+                                      minDistance, deltaL, gammaC, blockSize]);
+        if (
+            freeze
+            && instance.auxiliaryCache.lastPalette
+            && paletteSettings === instance.auxiliaryCache.lastPaletteSettings
+        ) {
+            palette = instance.auxiliaryCache.lastPalette;
+            paletteBlock = instance.auxiliaryCache.lastPaletteBlock;
+            paletteFeatures = instance.auxiliaryCache.lastPaletteFeatures;
+        } else {
+            const probe = instance.probe;
+            const selectionWeights = {
+                midtone: selectWeights[0],
+                outlier: selectWeights[1],
+                chroma: selectWeights[2],
+            };
+            const safePaletteSize = paletteSize >= 3 ? Math.round(paletteSize / 3) * 3 : 3;
+            palette = probe.analyze(
+                probe,
+                inputTex,
+                width,
+                height,
+                safePaletteSize / 3,
+                deltaL,
+                gammaC,
+                blockSize,
+                seed,
+                selectionWeights,
+                minDistance
+            );
+            let procResult = preprocessPalette(palette, safePaletteSize);
+            paletteBlock = procResult['paletteBlock']
+            paletteFeatures = procResult['paletteFeatures']
 
+            instance.auxiliaryCache.lastPalette = palette;
+            instance.auxiliaryCache.lastPaletteBlock = paletteBlock;
+            instance.auxiliaryCache.lastPaletteFeatures = paletteFeatures;
+        }
+        instance.auxiliaryCache.lastPaletteSettings = paletteSettings;
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
@@ -121,10 +134,10 @@ export default {
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
-            APPLY_CHROMA_BOOST: hasChromaBoostImplementation(COLORSPACE),
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ASSIGNMODE: {"nearest": 0, "blend": 1}[assignMode],
-            SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette]
+            SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette],
+            CYCLE_MODE: CYCLE_MODE
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
@@ -274,6 +287,11 @@ export default {
                 },
             ]
         },
+        {
+            type: "checkbox",
+            key: "freeze",
+            label: "Freeze"
+        },
         blendControls(),
         {
             type: "modSlider",
@@ -282,6 +300,17 @@ export default {
             min: 0,
             max: 100,
             step: 1
+        },
+        {
+            type: "select",
+            key: "CYCLE_MODE",
+            options: [
+                {"label": "global", value: 0},
+                {"label": "blocks", value: 1},
+                {"label": "midtone", value: 2},
+                {"label": "highlight", value: 3},
+                {"label": "shadow", value: 4}
+            ],
         },
         {
             type: 'button',
@@ -311,7 +340,9 @@ export default {
         showPalette: "none",
         chromaBoost: 1,
         blockSize: 3,
-        seed: 1
+        seed: 1,
+        freeze: false,
+        CYCLE_MODE: 0
     }
 }
 
@@ -331,5 +362,5 @@ export const effectMeta = {
         gammaC: {"min": 0.8, "max": 1.2},
         minDistance: {"min": 12, "max": 30}
     },
-    fullOpacityChance: 0.75
+    fullOpacityChance: 0.8
 };

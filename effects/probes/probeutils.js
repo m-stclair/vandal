@@ -29,7 +29,7 @@ export function subsampleTexture(probe, width, height, gl, inputTexture) {
 
 export function blockSample(probe, width, height, gl, inputTexture) {
     const conf = probe.config;
-    const tempBuffer = probe.glState.renderer.make_framebuffer(1, conf.paletteSize);
+    const tempBuffer = probe.glState.renderer.make_framebuffer(1, conf.paletteSize * 5);
     const patchUniform = new Float32Array(conf.patchOrigins.flat());
     gl.bindFramebuffer(gl.FRAMEBUFFER, tempBuffer.fbo);
     gl.viewport(0, 0, 1, conf.paletteSize);
@@ -52,8 +52,8 @@ export function blockSample(probe, width, height, gl, inputTexture) {
     // checkFrameBuffer(gl);
     // checkTexture(gl, inputTexture);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    const outData = new Float32Array(conf.paletteSize * 4);
-    gl.readPixels(0, 0, 1, conf.paletteSize, gl.RGBA, gl.FLOAT, outData);
+    const outData = new Float32Array(conf.paletteSize * 20);
+    gl.readPixels(0, 0, 1, conf.paletteSize * 5, gl.RGBA, gl.FLOAT, outData);
     probe.glState.renderer.deleteFrameBuffer(tempBuffer.fbo)
     return outData;
 }

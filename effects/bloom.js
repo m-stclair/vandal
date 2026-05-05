@@ -138,6 +138,6 @@ export const effectMeta = {
     realtimeSafe: true,
     parameterHints: {
         bloomThreshold: {min: 0, max: 0.65},
-        kernelRadius: {min: 2, max: 8}
+        kernelRadius: {min: 2, max: 6}
     }
 };

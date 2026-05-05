@@ -142,10 +142,10 @@ export const paletteprobe = {
         const gl = probe.glState.gl;
         probe.config.blockSize = blockSize;
         // x10 oversampling for scoring
-        probe.config.paletteSize = paletteSize * 10;
+        probe.config.paletteSize = paletteSize * 5;
         probe.config.patchOrigins = []
         const rng = seededNotVeryRandom(seed);
-        for (let p = 1; p < paletteSize * 10; p++) {
+        for (let p = 0; p < paletteSize * 5; p++) {
             const pX = rng() * width;
             const pY = rng() * height
             probe.config.patchOrigins.push([pX, pY])

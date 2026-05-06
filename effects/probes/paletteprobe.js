@@ -6,6 +6,17 @@ const shaderPath = "blockprobe.frag"
 const includePaths = {"colorconvert.glsl": "includes/colorconvert.glsl"};
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
+const CANDIDATE_SAMPLE_COUNT = 255;
+const SHADOW_L_CUTOFF = 35;
+const HIGHLIGHT_L_CUTOFF = 65;
+const TONAL_NEED_BONUS = 0.22;
+const TONAL_CROWDING_PENALTY = 0.12;
+const RANGE_EXPANSION_BONUS = 0.18;
+const NOVELTY_BONUS = 0.16;
+const SELECTION_NOISE_AMOUNT = 0.08;
+const TOP_BAND_RATIO = 0.92;
+const TOP_BAND_ABS_WINDOW = 0.08;
+
 
 function expandSwatchVariants([L, a, b], deltaL = 10, chromaExp = 1.0) {
     const C = Math.hypot(a, b);
@@ -28,6 +39,48 @@ function seededNotVeryRandom(seed) {
         x = Math.sin(x) * 10000;
         return x - Math.floor(x);
     };
+}
+
+
+function buildRandomPatchOrigins(sampleCount, width, height, rng) {
+    const patchOrigins = [];
+    for (let p = 0; p < sampleCount; p++) {
+        patchOrigins.push([rng() * width, rng() * height]);
+    }
+    return patchOrigins;
+}
+
+function buildStratifiedJitteredPatchOrigins(sampleCount, width, height, rng) {
+    if (sampleCount <= 0) return [];
+
+    const aspect = Math.max(width, 1) / Math.max(height, 1);
+    let cols = Math.max(1, Math.round(Math.sqrt(sampleCount * aspect)));
+    let rows = Math.max(1, Math.ceil(sampleCount / cols));
+
+    while (cols * rows < sampleCount) {
+        if ((cols / rows) < aspect) cols += 1;
+        else rows += 1;
+    }
+
+    const cellW = width / cols;
+    const cellH = height / rows;
+    const patchOrigins = [];
+    for (let i = 0; i < sampleCount; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const pX = (col + rng()) * cellW;
+        const pY = (row + rng()) * cellH;
+        patchOrigins.push([Math.min(pX, width), Math.min(pY, height)]);
+    }
+    return patchOrigins;
+}
+
+function buildPatchOrigins(sampleCount, width, height, seed, samplingMode = "random") {
+    const rng = seededNotVeryRandom(seed);
+    if (samplingMode === "stratified") {
+        return buildStratifiedJitteredPatchOrigins(sampleCount, width, height, rng);
+    }
+    return buildRandomPatchOrigins(sampleCount, width, height, rng);
 }
 
 function meanLab(samples) {
@@ -80,53 +133,143 @@ function baseScore(
     );
 }
 
-function scoreAndSortPalette(
-    candidates,
-    weights = { chroma: 1.0, outlier: 0.7, midtone: 0.25 }
-) {
-    const center = meanLab(candidates);
-    return candidates
-        .map(lab => ({
-            lab,
-            score: baseScore(lab, center, weights)
-        }))
-        .sort((a, b) => b.score - a.score);
+function tonalBandIndex(L) {
+    if (L < SHADOW_L_CUTOFF) return 0;
+    if (L > HIGHLIGHT_L_CUTOFF) return 2;
+    return 1;
+}
+
+function targetBandCounts(N) {
+    if (N <= 1) return [0, 1, 0];
+    if (N === 2) return [1, 0, 1];
+    return [1, N - 2, 1];
+}
+
+function weightedPick(entries, rng) {
+    if (entries.length === 0) return null;
+    let total = 0;
+    const weights = entries.map(entry => {
+        const weight = Math.max(entry.marginalScore - entry.bandThreshold, 0) + 1e-4;
+        total += weight;
+        return weight;
+    });
+    let draw = rng() * total;
+    for (let i = 0; i < entries.length; i++) {
+        draw -= weights[i];
+        if (draw <= 0) return entries[i];
+    }
+    return entries[entries.length - 1];
 }
 
 /**
- * Greedy selection with a minimum LAB spacing constraint.
- * This is the part your earlier version was missing.
+ * Iterative marginal selection with a minimum LAB spacing constraint, soft
+ * tonal-balance pressure, range expansion preference, and light seeded
+ * stochasticity so seed changes produce alternate good palettes rather than
+ * merely different sample coverage.
  */
 function selectTopNScoredSwatches(
     candidates,
     weights,
     N,
-    minDistance = 14
+    minDistance = 14,
+    seed = 1
 ) {
-    const scored = scoreAndSortPalette(candidates, weights);
-    const selected = [];
+    const center = meanLab(candidates);
+    const baseScored = candidates.map((lab, index) => ({
+        lab,
+        index,
+        baseScore: baseScore(lab, center, weights)
+    }));
 
-    for (const entry of scored) {
-        const tooClose = selected.some(s => labDist(entry.lab, s) < minDistance);
-        if (!tooClose) {
-            selected.push(entry.lab);
-            if (selected.length >= N) break;
-        }
+    const rng = seededNotVeryRandom(seed + 97.1337);
+    const selected = [];
+    const used = new Set();
+    const bandCounts = [0, 0, 0];
+    const desiredBandCounts = targetBandCounts(N);
+
+    for (let slot = 0; slot < N; slot++) {
+        const remaining = baseScored.filter(entry => !used.has(entry.index));
+        if (!remaining.length) break;
+
+        const farEnough = remaining.filter(entry =>
+            selected.every(swatch => labDist(entry.lab, swatch) >= minDistance)
+        );
+        const pool = farEnough.length ? farEnough : remaining;
+
+        const currentLows = selected.map(([L]) => L);
+        const minL = currentLows.length ? Math.min(...currentLows) : null;
+        const maxL = currentLows.length ? Math.max(...currentLows) : null;
+
+        const ranked = pool.map(entry => {
+            const [L] = entry.lab;
+            const band = tonalBandIndex(L);
+
+            const bandTarget = desiredBandCounts[band];
+            const bandCount = bandCounts[band];
+            const bandNeed = bandTarget > 0
+                ? clamp((bandTarget - bandCount) / bandTarget, 0, 1)
+                : 0;
+            const crowding = bandTarget > 0
+                ? Math.max(0, bandCount - bandTarget + 1) / Math.max(1, N)
+                : bandCount > 0 ? bandCount / Math.max(1, N) : 0;
+
+            let rangeExpansion = 0;
+            if (minL !== null && maxL !== null) {
+                if (L < minL) rangeExpansion = clamp((minL - L) / 50, 0, 1);
+                else if (L > maxL) rangeExpansion = clamp((L - maxL) / 50, 0, 1);
+            }
+
+            let novelty = 0;
+            if (selected.length) {
+                const nearest = Math.min(...selected.map(swatch => labDist(entry.lab, swatch)));
+                novelty = clamp(nearest / 40, 0, 1);
+            }
+
+            const marginalScore =
+                entry.baseScore +
+                bandNeed * TONAL_NEED_BONUS -
+                crowding * TONAL_CROWDING_PENALTY +
+                rangeExpansion * RANGE_EXPANSION_BONUS +
+                novelty * NOVELTY_BONUS +
+                rng() * SELECTION_NOISE_AMOUNT;
+
+            return {
+                ...entry,
+                band,
+                marginalScore
+            };
+        }).sort((a, b) =>
+            (b.marginalScore - a.marginalScore) ||
+            (b.baseScore - a.baseScore) ||
+            (a.index - b.index)
+        );
+
+        const bestScore = ranked[0].marginalScore;
+        const threshold = Math.max(bestScore * TOP_BAND_RATIO, bestScore - TOP_BAND_ABS_WINDOW);
+        const topBand = ranked
+            .filter(entry => entry.marginalScore >= threshold)
+            .map(entry => ({...entry, bandThreshold: threshold}));
+
+        const picked = weightedPick(topBand, rng) ?? ranked[0];
+        selected.push(picked.lab);
+        used.add(picked.index);
+        bandCounts[picked.band] += 1;
     }
 
-    // Fallback: if the candidate pool is too clustered, fill remaining slots by score.
-    for (const entry of scored) {
+    if (selected.length >= N) return selected;
+
+    for (const entry of baseScored.sort((a, b) => b.baseScore - a.baseScore)) {
         if (selected.length >= N) break;
-        if (!selected.includes(entry.lab)) {
-            selected.push(entry.lab);
-        }
+        if (used.has(entry.index)) continue;
+        selected.push(entry.lab);
+        used.add(entry.index);
     }
 
     return selected;
 }
 
 export const paletteprobe = {
-    config: {blockSize: null, paletteSize: null, patchOrigins: null},
+    config: {blockSize: null, paletteSize: null, patchOrigins: null, samplingMode: null},
     analyze(
         probe,
         inputTexture,
@@ -138,20 +281,23 @@ export const paletteprobe = {
         blockSize,
         seed,
         selectionWeights,
-        minDistance
+        minDistance,
+        samplingMode = "random"
     ) {
         initGLEffect(probe, fragSources);
         const gl = probe.glState.gl;
         probe.config.blockSize = blockSize;
-        // x10 oversampling for scoring
-        probe.config.paletteSize = paletteSize * 5;
-        probe.config.patchOrigins = []
-        const rng = seededNotVeryRandom(seed);
-        for (let p = 0; p < paletteSize * 5; p++) {
-            const pX = rng() * width;
-            const pY = rng() * height
-            probe.config.patchOrigins.push([pX, pY])
-        }
+        probe.config.samplingMode = samplingMode;
+        // Sample a fixed, driver-friendly candidate budget so palette size
+        // only controls the final selection count, not how hard we look.
+        probe.config.paletteSize = CANDIDATE_SAMPLE_COUNT;
+        probe.config.patchOrigins = buildPatchOrigins(
+            probe.config.paletteSize,
+            width,
+            height,
+            seed,
+            samplingMode
+        );
         const outData = blockSample(
             probe, width, height, gl, inputTexture, seed
         );
@@ -163,7 +309,7 @@ export const paletteprobe = {
             const b = outData[idx + 2];
             baseSwatches.push([L, a, b]);
         }
-        const selected = selectTopNScoredSwatches(baseSwatches, selectionWeights, paletteSize, minDistance);
+        const selected = selectTopNScoredSwatches(baseSwatches, selectionWeights, paletteSize, minDistance, seed);
         // Keep base/tint/shade triplets intact. Downstream sort modes may use
         // that generated-family structure before flattening to the shader.
         return selected.map(s => expandSwatchVariants(s, deltaL, gammaC)).flat();

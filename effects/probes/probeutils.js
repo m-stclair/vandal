@@ -29,7 +29,7 @@ export function subsampleTexture(probe, width, height, gl, inputTexture) {
 
 export function blockSample(probe, width, height, gl, inputTexture) {
     const conf = probe.config;
-    const sampleCount = conf.paletteSize;
+    const sampleCount = conf.patchOrigins.length;
     const tempBuffer = probe.glState.renderer.make_framebuffer(1, sampleCount);
     const patchUniform = new Float32Array(conf.patchOrigins.flat());
 

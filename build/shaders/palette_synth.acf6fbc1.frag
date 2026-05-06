@@ -214,10 +214,6 @@ vec3 softAssign(vec3 labColor, int cycleOffset) {
     }
 
     // Blend top K.
-    //
-    // Important bit:
-    // each chosen source index cycles inside its own block.
-    // So a shadow match stays a shadow. Midtone stays midtone. Highlight stays highlight.
     vec3 result = vec3(0.0);
     float totalWeight = 0.0;
 

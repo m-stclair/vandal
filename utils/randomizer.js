@@ -299,6 +299,8 @@ function selectRandomParam(hints, param) {
             param.options.map(opt => opt.value ?? opt),
             {...(weightTable[param.key] ?? {}), ...(hints[param.key]?.weights ?? {})}
         );
+    } else if (ptype === "palette") {
+        return structuredClone(param.defaultValue ?? param.fallbackPalette ?? []);
     } else if (ptype === "vector") {
         let vec = [];
         const min = hints[param.key]?.min ?? param.min;

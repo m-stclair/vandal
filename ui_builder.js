@@ -69,6 +69,9 @@ function buildWidget(instance, uiSpec, fxUIState, drawTriggers) {
         case 'vector':
             widget = widgets.makeVectorSlider(instance.id, config, uiSpec, fxUIState);
             break;
+        case 'palette':
+            widget = widgets.makePaletteEditor(instance.id, config, uiSpec, fxUIState);
+            break;
         case 'button':
             widget = widgets.makeButton(instance.id, config, instance, uiSpec, fxUIState);
             break;

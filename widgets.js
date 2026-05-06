@@ -59,6 +59,48 @@ function isFiniteNumber(value) {
     return typeof value === "number" && Number.isFinite(value);
 }
 
+function normalizeHexColor(value, fallback = "#000000") {
+    if (typeof value !== "string") return fallback;
+    const trimmed = value.trim();
+    const short = trimmed.match(/^#?([0-9a-fA-F]{3})$/);
+    if (short) {
+        return "#" + short[1].split("").map(ch => ch + ch).join("").toLowerCase();
+    }
+    const full = trimmed.match(/^#?([0-9a-fA-F]{6})$/);
+    if (full) return "#" + full[1].toLowerCase();
+    return fallback;
+}
+
+function normalizePaletteSwatch(swatch, fallback = "#000000") {
+    if (typeof swatch === "string") {
+        return {color: normalizeHexColor(swatch, fallback), locked: false};
+    }
+    if (swatch && typeof swatch === "object") {
+        return {
+            color: normalizeHexColor(swatch.color, fallback),
+            locked: Boolean(swatch.locked)
+        };
+    }
+    return {color: fallback, locked: false};
+}
+
+function normalizePaletteValue(value, fallbackPalette = ["#000000", "#ffffff"]) {
+    const source = Array.isArray(value) && value.length ? value : fallbackPalette;
+    return source.map((swatch, i) =>
+        normalizePaletteSwatch(swatch, fallbackPalette[i % fallbackPalette.length] ?? "#000000")
+    );
+}
+
+function parseHexColorList(text) {
+    if (!text) return [];
+    const matches = text.match(/#?[0-9a-fA-F]{6}|#?[0-9a-fA-F]{3}/g) ?? [];
+    return matches.map(token => normalizeHexColor(token));
+}
+
+function clonePaletteValue(value) {
+    return normalizePaletteValue(value).map(swatch => ({...swatch}));
+}
+
 function inverseDualZoneRemap(x, pivot = 0.25, expLow = 2.5, expHigh = 1.0) {
     const y = clamp(x, 0, 1);
 
@@ -607,6 +649,196 @@ function makeVectorSlider(id, config, uiSpec) {
     return wrapper;
 }
 
+function makePaletteEditor(id, config, uiSpec) {
+    const {
+        key,
+        label,
+        max = 64,
+        min = 1,
+        allowAdd = true,
+        allowRemove = true,
+        allowReorder = true,
+        allowLock = true,
+        allowPaste = true,
+        defaultColor = "#808080",
+        fallbackPalette = ["#111111", "#eeeeee"]
+    } = uiSpec;
+
+    config[key] = normalizePaletteValue(config[key], fallbackPalette).slice(0, max);
+
+    const wrapper = makeField();
+    wrapper.classList.add("row-palette");
+    wrapper.dataset.key = key;
+    if (id) wrapper.dataset.fxId = id;
+
+    const header = document.createElement("div");
+    header.className = "palette-editor-header";
+
+    const labelEl = document.createElement("label");
+    labelEl.textContent = label ?? key;
+
+    const meta = document.createElement("span");
+    meta.className = "palette-editor-count";
+
+    const actions = document.createElement("div");
+    actions.className = "palette-editor-actions";
+
+    const emit = (redrawUI = false) => {
+        wrapper.dispatchEvent(new Event("input", {bubbles: true}));
+        wrapper.dispatchEvent(new Event("change", {bubbles: true}));
+        requestRender();
+        if (redrawUI) requestUIDraw();
+    };
+
+    const setPalette = (next, redrawUI = true) => {
+        config[key] = normalizePaletteValue(next, fallbackPalette).slice(0, max);
+        emit(redrawUI);
+    };
+
+    if (allowAdd) {
+        const addButton = document.createElement("button");
+        addButton.type = "button";
+        addButton.textContent = "+";
+        addButton.title = "Add swatch";
+        addButton.addEventListener("click", () => {
+            if (config[key].length >= max) return;
+            config[key].push({color: normalizeHexColor(defaultColor), locked: false});
+            emit(true);
+        });
+        actions.appendChild(addButton);
+    }
+
+    if (allowPaste) {
+        const pasteButton = document.createElement("button");
+        pasteButton.type = "button";
+        pasteButton.textContent = "paste";
+        pasteButton.title = "Replace palette from pasted hex colors";
+        pasteButton.addEventListener("click", () => {
+            const text = window.prompt("Paste hex colors separated by spaces, commas, or new lines");
+            const colors = parseHexColorList(text);
+            if (!colors.length) return;
+            setPalette(colors.slice(0, max).map(color => ({color, locked: false})));
+        });
+        actions.appendChild(pasteButton);
+
+        const copyButton = document.createElement("button");
+        copyButton.type = "button";
+        copyButton.textContent = "copy";
+        copyButton.title = "Copy palette as hex colors";
+        copyButton.addEventListener("click", async () => {
+            const text = config[key].map(swatch => swatch.color).join(" ");
+            try {
+                await navigator.clipboard?.writeText(text);
+            } catch (_err) {
+                window.prompt("Copy palette hex list", text);
+            }
+        });
+        actions.appendChild(copyButton);
+    }
+
+    header.append(labelEl, meta, actions);
+
+    const swatchGrid = document.createElement("div");
+    swatchGrid.className = "palette-editor-grid";
+
+    let dragIndex = null;
+
+    const renderSwatches = () => {
+        config[key] = normalizePaletteValue(config[key], fallbackPalette).slice(0, max);
+        meta.textContent = `${config[key].length}/${max}`;
+        swatchGrid.innerHTML = "";
+
+        config[key].forEach((swatch, index) => {
+            const swatchEl = document.createElement("div");
+            swatchEl.className = "palette-swatch";
+            swatchEl.dataset.index = String(index);
+            swatchEl.classList.toggle("locked", swatch.locked);
+            if (allowReorder) swatchEl.draggable = true;
+
+            const colorInput = document.createElement("input");
+            colorInput.type = "color";
+            colorInput.value = swatch.color;
+            colorInput.title = `Swatch ${index + 1}`;
+            colorInput.className = "palette-color-input";
+            colorInput.addEventListener("input", () => {
+                config[key][index].color = normalizeHexColor(colorInput.value);
+                swatchEl.style.setProperty("--swatch-color", config[key][index].color);
+                emit(false);
+            });
+
+            swatchEl.style.setProperty("--swatch-color", swatch.color);
+            swatchEl.appendChild(colorInput);
+
+            if (allowLock) {
+                const lockButton = document.createElement("button");
+                lockButton.type = "button";
+                lockButton.className = "palette-swatch-lock";
+                lockButton.textContent = swatch.locked ? "🔒" : "◇";
+                lockButton.title = swatch.locked ? "Unlock swatch" : "Lock swatch";
+                lockButton.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    config[key][index].locked = !config[key][index].locked;
+                    emit(true);
+                });
+                swatchEl.appendChild(lockButton);
+            }
+
+            if (allowRemove) {
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.className = "palette-swatch-remove";
+                removeButton.textContent = "×";
+                removeButton.title = "Remove swatch";
+                removeButton.disabled = config[key].length <= min;
+                removeButton.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    if (config[key].length <= min) return;
+                    config[key].splice(index, 1);
+                    emit(true);
+                });
+                swatchEl.appendChild(removeButton);
+            }
+
+            if (allowReorder) {
+                swatchEl.addEventListener("dragstart", (e) => {
+                    dragIndex = index;
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", String(index));
+                    swatchEl.classList.add("dragging");
+                });
+                swatchEl.addEventListener("dragend", () => {
+                    dragIndex = null;
+                    swatchEl.classList.remove("dragging");
+                });
+                swatchEl.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                });
+                swatchEl.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    const from = dragIndex ?? Number.parseInt(e.dataTransfer.getData("text/plain"));
+                    const to = index;
+                    if (!Number.isInteger(from) || from === to) return;
+                    const [moved] = config[key].splice(from, 1);
+                    config[key].splice(to, 0, moved);
+                    emit(true);
+                });
+            }
+
+            swatchGrid.appendChild(swatchEl);
+        });
+    };
+
+    renderSwatches();
+    wrapper.append(header, swatchGrid);
+
+    Object.defineProperty(wrapper, "value", {
+        get: () => clonePaletteValue(config[key])
+    });
+
+    return wrapper;
+}
+
 function Checkbox(id, config, uiSpec) {
     const {key, label} = uiSpec;
     const value = config[key];
@@ -676,6 +908,7 @@ function makeButton(id, config, instance, uiSpec) {
     if (uiSpec.inputType === "file") {
         input = document.createElement('input');
         input.type = 'file';
+        if (uiSpec.accept) input.accept = uiSpec.accept;
     } else {
         input = document.createElement('button');
     }
@@ -723,6 +956,7 @@ export default {
     makeSlider,
     makeMatrixSlider,
     makeVectorSlider,
+    makePaletteEditor,
     Select,
     Checkbox,
     ReferenceImage,

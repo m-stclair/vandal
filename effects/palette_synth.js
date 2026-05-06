@@ -67,6 +67,93 @@ const OutputModeLookup = {
     shadowHighlight: OutputModeEnum.SHADOW_HIGHLIGHT
 };
 
+function clamp01(x) {
+    return Math.max(0, Math.min(1, x));
+}
+
+function clonePalette(palette) {
+    return palette.map(([L, a, b]) => [L, a, b]);
+}
+
+function labDistanceSq(a, b) {
+    return (
+        (a[0] - b[0]) ** 2 +
+        (a[1] - b[1]) ** 2 +
+        (a[2] - b[2]) ** 2
+    );
+}
+
+function mixLab(a, b, amount) {
+    return [
+        a[0] + (b[0] - a[0]) * amount,
+        a[1] + (b[1] - a[1]) * amount,
+        a[2] + (b[2] - a[2]) * amount
+    ];
+}
+
+function greedyPaletteMatch(currentPalette, targetPalette) {
+    const pairs = [];
+
+    for (let i = 0; i < currentPalette.length; i++) {
+        for (let j = 0; j < targetPalette.length; j++) {
+            pairs.push({
+                currentIndex: i,
+                targetIndex: j,
+                distance: labDistanceSq(currentPalette[i], targetPalette[j])
+            });
+        }
+    }
+
+    pairs.sort((a, b) =>
+        (a.distance - b.distance) ||
+        (a.currentIndex - b.currentIndex) ||
+        (a.targetIndex - b.targetIndex)
+    );
+
+    const currentUsed = new Array(currentPalette.length).fill(false);
+    const targetUsed = new Array(targetPalette.length).fill(false);
+    const matches = new Array(currentPalette.length).fill(-1);
+
+    for (const pair of pairs) {
+        if (currentUsed[pair.currentIndex] || targetUsed[pair.targetIndex]) continue;
+
+        currentUsed[pair.currentIndex] = true;
+        targetUsed[pair.targetIndex] = true;
+        matches[pair.currentIndex] = pair.targetIndex;
+    }
+
+    // Defensive fallback. Should only matter if lengths get weird.
+    for (let i = 0; i < matches.length; i++) {
+        if (matches[i] !== -1) continue;
+
+        const fallback = targetUsed.findIndex(used => !used);
+        matches[i] = fallback === -1 ? Math.min(i, targetPalette.length - 1) : fallback;
+        if (fallback !== -1) targetUsed[fallback] = true;
+    }
+
+    return matches;
+}
+
+function transitionPalette(currentPalette, targetPalette, response) {
+    if (!currentPalette || currentPalette.length !== targetPalette.length) {
+        return clonePalette(targetPalette);
+    }
+
+    if (response >= 1) {
+        return clonePalette(targetPalette);
+    }
+
+    if (response <= 0) {
+        return currentPalette;
+    }
+
+    const matches = greedyPaletteMatch(currentPalette, targetPalette);
+
+    return currentPalette.map((lab, i) =>
+        mixLab(lab, targetPalette[matches[i]], response)
+    );
+}
+
 //
 async function makeProbe(fx, renderer) {
     const prb = {
@@ -97,21 +184,42 @@ export default {
             showPalette, selectWeights,
             deltaL, gammaC, freeze,
             blockSize, seed, minDistance, CYCLE_MODE, sortMode, ditherScale,
-            outputMode, shadowCutoff, highlightCutoff
+            outputMode, shadowCutoff, highlightCutoff, paletteResponse
         } = resolveAnimAll(instance.config, t)
 
         let palette, paletteBlock, paletteFeatures;
 
-        let paletteSettings = String([paletteSize, selectWeights, seed,
-                                      minDistance, deltaL, gammaC, blockSize, sortMode]);
-        if (
-            freeze
-            && instance.auxiliaryCache.lastPalette
-            && paletteSettings === instance.auxiliaryCache.lastPaletteSettings
-        ) {
-            palette = instance.auxiliaryCache.lastPalette;
-            paletteBlock = instance.auxiliaryCache.lastPaletteBlock;
-            paletteFeatures = instance.auxiliaryCache.lastPaletteFeatures;
+        const cache = instance.auxiliaryCache;
+        const response = clamp01((paletteResponse ?? 100) / 100);
+
+        let paletteSettings = String([
+            paletteSize,
+            selectWeights,
+            seed,
+            minDistance,
+            deltaL,
+            gammaC,
+            blockSize,
+            sortMode
+        ]);
+
+        const hasCachedPalette =
+            cache.lastPalette &&
+            paletteSettings === cache.lastPaletteSettings;
+
+        const paletteSettingsChanged =
+            paletteSettings !== cache.lastPaletteSettings;
+
+        const shouldReusePalette =
+            hasCachedPalette && (
+                freeze ||
+                response <= 0
+            );
+
+        if (shouldReusePalette) {
+            palette = cache.lastPalette;
+            paletteBlock = cache.lastPaletteBlock;
+            paletteFeatures = cache.lastPaletteFeatures;
         } else {
             const probe = instance.probe;
             const selectionWeights = {
@@ -119,11 +227,13 @@ export default {
                 outlier: selectWeights[1],
                 chroma: selectWeights[2],
             };
+
             const safePaletteSize = Math.min(
                 126,
                 paletteSize >= 3 ? Math.round(paletteSize / 3) * 3 : 3
             );
-            palette = probe.analyze(
+
+            let targetPalette = probe.analyze(
                 probe,
                 inputTex,
                 width,
@@ -136,17 +246,29 @@ export default {
                 selectionWeights,
                 minDistance
             );
-            palette = sortPalette(palette, sortMode);
+
+            targetPalette = sortPalette(targetPalette, sortMode);
+
+            const shouldSnap =
+                paletteSettingsChanged ||
+                !cache.lastPalette ||
+                response >= 1 ||
+                freeze;
+
+            palette = shouldSnap
+                ? targetPalette
+                : transitionPalette(cache.lastPalette, targetPalette, response);
 
             let procResult = preprocessPalette(palette);
-            paletteBlock = procResult['paletteBlock']
-            paletteFeatures = procResult['paletteFeatures']
+            paletteBlock = procResult["paletteBlock"];
+            paletteFeatures = procResult["paletteFeatures"];
 
-            instance.auxiliaryCache.lastPalette = palette;
-            instance.auxiliaryCache.lastPaletteBlock = paletteBlock;
-            instance.auxiliaryCache.lastPaletteFeatures = paletteFeatures;
+            cache.lastPalette = palette;
+            cache.lastPaletteBlock = paletteBlock;
+            cache.lastPaletteFeatures = paletteFeatures;
         }
-        instance.auxiliaryCache.lastPaletteSettings = paletteSettings;
+
+        cache.lastPaletteSettings = paletteSettings;
         /** @typedef {import('../glitchtypes.ts').UniformSpec} UniformSpec */
         /** @type {UniformSpec} */
         const uniformSpec = {
@@ -380,6 +502,15 @@ export default {
             ]
         },
         {
+            type: "range",
+            key: "paletteResponse",
+            label: "Palette Response",
+            min: 0,
+            max: 100,
+            step: 1,
+            showIf: {key: "freeze", notEquals: true}
+        },
+        {
             type: "checkbox",
             key: "freeze",
             label: "Freeze"
@@ -436,7 +567,7 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         showPalette: "none",
         sortMode: "lightness",
-        chromaBoost: 1,
+        paletteResponse: 100,
         blockSize: 3,
         seed: 1,
         freeze: false,
@@ -462,7 +593,8 @@ export const effectMeta = {
         ditherScale: {"min": 1, "max": 3},
         shadowCutoff: {"min": 10, "max": 45},
         highlightCutoff: {"min": 55, "max": 90},
-        outputMode: {"weights": {"fullReplace": 10}}
+        outputMode: {"weights": {"fullReplace": 10}},
+        paletteResponse: {"min": 10, "max": 100},
     },
     fullOpacityChance: 0.8
 };

@@ -7,6 +7,7 @@ import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "../utils/glsl_enum
 import {lab2Rgb, linear2SRGB, rgb2Lab, sRGB2Linear} from "../utils/colorutils.js";
 import {preprocessPalette, sortPalette} from "../utils/paletteutils.js";
 import {cmapLuts, resampleLut} from "../utils/colormaps.js";
+import {palettePresets} from "../utils/palettes.js";
 
 function exportPalette(_config, _k, _e, instance) {
   if (!instance.auxiliaryCache?.lastPalette) return;
@@ -136,6 +137,37 @@ function srgbaPaletteToManualSwatches(srgbaPalette, size) {
     return swatches;
 }
 
+function manualPalettePresetColors(preset) {
+    if (Array.isArray(preset)) return preset;
+    if (Array.isArray(preset?.colors)) return preset.colors;
+    return [];
+}
+
+function manualPalettePresetSize(preset) {
+    const colors = manualPalettePresetColors(preset);
+    const requestedSize = Array.isArray(preset)
+        ? colors.length
+        : Math.round(preset?.size ?? colors.length);
+
+    return Math.max(1, Math.min(MANUAL_PALETTE_MAX, requestedSize || colors.length || 1));
+}
+
+function manualPalettePresetOptions() {
+    return Object.entries(palettePresets).map(([name, preset]) => ({
+        value: name,
+        label: `${name} (${Math.min(manualPalettePresetColors(preset).length, manualPalettePresetSize(preset))})`
+    }));
+}
+
+function hexPaletteToManualSwatches(hexPalette, size = hexPalette?.length) {
+    if (!Array.isArray(hexPalette) || !hexPalette.length) return [];
+    const safeSize = Math.max(1, Math.min(MANUAL_PALETTE_MAX, Math.round(size ?? hexPalette.length)));
+    return hexPalette.slice(0, safeSize).map(color => ({
+        color: normalizeHexColor(color),
+        locked: false
+    }));
+}
+
 function manualInitSize(config) {
     return Math.max(1, Math.min(
         MANUAL_PALETTE_MAX,
@@ -170,6 +202,19 @@ function initManualFromColormap(config, _emptyVal, _e, instance, requestRender, 
     if (!lut) return;
     config.paletteMode = "manual";
     config.manualPalette = srgbaPaletteToManualSwatches(lut, manualInitSize(config));
+    invalidatePaletteCache(instance);
+    requestRender();
+    requestUIDraw();
+}
+
+function initManualFromPreset(config, _emptyVal, _e, instance, requestRender, requestUIDraw) {
+    const presetName = config.manualInitPalette || Object.keys(palettePresets)[0];
+    const preset = palettePresets[presetName];
+    const colors = manualPalettePresetColors(preset);
+    if (!colors.length) return;
+
+    config.paletteMode = "manual";
+    config.manualPalette = hexPaletteToManualSwatches(colors, manualPalettePresetSize(preset));
     invalidatePaletteCache(instance);
     requestRender();
     requestUIDraw();
@@ -587,9 +632,23 @@ export default {
                     fallbackPalette: ["#111111", "#f04a2a", "#f6d365", "#2f80ed", "#eeeeee"]
                 },
                 {
+                    type: "select",
+                    key: "manualInitPalette",
+                    label: "Init Palette",
+                    get options() {
+                        return manualPalettePresetOptions();
+                    }
+                },
+                {
+                    type: "button",
+                    key: "initManualFromPreset",
+                    label: "Load Palette",
+                    func: initManualFromPreset
+                },
+                {
                     type: "range",
                     key: "manualInitSize",
-                    label: "Init Size",
+                    label: "Colormap Size",
                     min: 1,
                     max: MANUAL_PALETTE_MAX,
                     step: 1
@@ -914,6 +973,7 @@ export default {
             {color: "#2f80ed", locked: false},
             {color: "#eeeeee", locked: false}
         ],
+        manualInitPalette: "amigaWorkbench",
         manualInitSize: 15,
         manualInitLut: "viridis",
         generatedAssist: 0,

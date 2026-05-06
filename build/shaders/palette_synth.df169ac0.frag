@@ -24,9 +24,12 @@ uniform float u_lumaWeight;
 uniform float u_chromaWeight;
 uniform float u_hueWeight;
 uniform float u_blendAmount;
-uniform float u_ditherScale;
 uniform float u_shadowCutoff;
 uniform float u_highlightCutoff;
+uniform float u_ditherAngle;
+uniform float u_ditherLumaAmount;
+uniform float u_ditherScale;
+
 
 out vec4 outColor;
 
@@ -58,6 +61,16 @@ out vec4 outColor;
 #define OUTPUT_MODE OUTPUT_FULL_REPLACE
 #endif
 
+#define DITHER_ORDERED_2 0
+#define DITHER_ORDERED_4 1
+#define DITHER_ORDERED_8 2
+#define DITHER_HASH      3
+#define DITHER_LINES     4
+#define DITHER_HALFTONE  5
+
+#ifndef DITHER_PATTERN
+#define DITHER_PATTERN DITHER_ORDERED_4
+#endif
 
 bool is_finite(float x) {
     return abs(x) < 1e20;
@@ -66,6 +79,20 @@ bool is_finite(float x) {
 int positiveMod(int x, int m) {
     int r = x % m;
     return (r < 0) ? r + m : r;
+}
+
+mat2 rot2(float degrees) {
+    float a = radians(degrees);
+    float s = sin(a);
+    float c = cos(a);
+    return mat2(c, -s, s, c);
+}
+
+float hash12(vec2 p) {
+    // stable, cheap, no texture
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
 }
 
 // Palette order is selected on the CPU. Non-global cycle modes treat array thirds
@@ -225,6 +252,26 @@ vec3 matchNearest(vec3 lab, int cycleOffset) {
     return paletteColors[cyclePaletteIndex(best_i, cycleOffset)].rgb;
 }
 
+float orderedDither8x8(vec2 fragCoord, float scale) {
+    vec2 cell = floor(fragCoord / max(scale, 1.0));
+    int x = int(mod(cell.x, 8.0));
+    int y = int(mod(cell.y, 8.0));
+    int index = y * 8 + x;
+
+    float thresholds[64] = float[](
+         0.0/64.0, 32.0/64.0,  8.0/64.0, 40.0/64.0,  2.0/64.0, 34.0/64.0, 10.0/64.0, 42.0/64.0,
+        48.0/64.0, 16.0/64.0, 56.0/64.0, 24.0/64.0, 50.0/64.0, 18.0/64.0, 58.0/64.0, 26.0/64.0,
+        12.0/64.0, 44.0/64.0,  4.0/64.0, 36.0/64.0, 14.0/64.0, 46.0/64.0,  6.0/64.0, 38.0/64.0,
+        60.0/64.0, 28.0/64.0, 52.0/64.0, 20.0/64.0, 62.0/64.0, 30.0/64.0, 54.0/64.0, 22.0/64.0,
+         3.0/64.0, 35.0/64.0, 11.0/64.0, 43.0/64.0,  1.0/64.0, 33.0/64.0,  9.0/64.0, 41.0/64.0,
+        51.0/64.0, 19.0/64.0, 59.0/64.0, 27.0/64.0, 49.0/64.0, 17.0/64.0, 57.0/64.0, 25.0/64.0,
+        15.0/64.0, 47.0/64.0,  7.0/64.0, 39.0/64.0, 13.0/64.0, 45.0/64.0,  5.0/64.0, 37.0/64.0,
+        63.0/64.0, 31.0/64.0, 55.0/64.0, 23.0/64.0, 61.0/64.0, 29.0/64.0, 53.0/64.0, 21.0/64.0
+    );
+
+    return thresholds[index];
+}
+
 float orderedDither4x4(vec2 fragCoord, float scale) {
     vec2 cell = floor(fragCoord / max(scale, 1.0));
     int x = int(mod(cell.x, 4.0));
@@ -237,6 +284,77 @@ float orderedDither4x4(vec2 fragCoord, float scale) {
         0.9375, 0.4375, 0.8125, 0.3125
     );
     return thresholds[index];
+}
+
+float orderedDither2x2(vec2 fragCoord, float scale) {
+    vec2 cell = floor(fragCoord / max(scale, 1.0));
+    int x = int(mod(cell.x, 2.0));
+    int y = int(mod(cell.y, 2.0));
+    int index = y * 2 + x;
+
+    float thresholds[4] = float[](
+        0.0, 0.5,
+        0.75, 0.25
+    );
+
+    return thresholds[index];
+}
+
+float hashDither(vec2 fragCoord, float scale) {
+    vec2 cell = floor(fragCoord / max(scale, 1.0));
+    return hash12(cell);
+}
+
+float lineDither(vec2 fragCoord, float scale, float angle) {
+    vec2 pivot = 0.5 * u_resolution;
+    vec2 p = rot2(angle) * (fragCoord - pivot);
+
+    float period = max(scale, 1.0) * 4.0;
+    float phase = fract(p.y / period);
+
+    // triangle wave: 0 at stripe center, 1 at gap center
+    return abs(phase - 0.5) * 2.0;
+}
+
+float halftoneDither(vec2 fragCoord, float scale, float angle) {
+    vec2 pivot = 0.5 * u_resolution;
+    vec2 p = rot2(angle) * (fragCoord - pivot);
+
+    float cellSize = max(scale, 1.0) * 6.0;
+    vec2 cell = floor(p / cellSize);
+    vec2 local = p - (cell + 0.5) * cellSize;
+
+    float maxR = 0.5 * cellSize;
+    float r = length(local) / max(maxR, 1e-5);
+
+    // 0 in dot center, 1 outside/near corners.
+    return clamp(r, 0.0, 1.0);
+}
+
+float applyLumaDitherFalloff(float chooseSecond, float labL) {
+    float luma01 = clamp(labL / 100.0, 0.0, 1.0);
+
+    // 0 at black/white, 1 in midtones.
+    float midtone = 1.0 - abs(luma01 * 2.0 - 1.0);
+
+    float scale = mix(1.0, midtone, clamp(u_ditherLumaAmount, 0.0, 1.0));
+    return chooseSecond * scale;
+}
+
+float ditherThreshold(vec2 fragCoord, float scale) {
+#if DITHER_PATTERN == DITHER_ORDERED_2
+    return orderedDither2x2(fragCoord, scale);
+#elif DITHER_PATTERN == DITHER_ORDERED_8
+    return orderedDither8x8(fragCoord, scale);
+#elif DITHER_PATTERN == DITHER_HASH
+    return hashDither(fragCoord, scale);
+#elif DITHER_PATTERN == DITHER_LINES
+    return lineDither(fragCoord, scale, u_ditherAngle);
+#elif DITHER_PATTERN == DITHER_HALFTONE
+    return halftoneDither(fragCoord, scale, u_ditherAngle);
+#else
+    return orderedDither4x4(fragCoord, scale);
+#endif
 }
 
 vec3 ditherAssign(vec3 lab, int cycleOffset) {
@@ -266,16 +384,19 @@ vec3 ditherAssign(vec3 lab, int cycleOffset) {
     }
 
     float chooseSecond = bestDist / max(bestDist + secondDist, 1e-5);
-    float threshold = orderedDither4x4(gl_FragCoord.xy, u_ditherScale);
+    chooseSecond = applyLumaDitherFalloff(chooseSecond, lab.x);
+
+    float threshold = ditherThreshold(gl_FragCoord.xy, u_ditherScale);
+
     int chosenIndex;
     if (chooseSecond < 0.0625) {
         chosenIndex = bestIndex;
     } else {
         chosenIndex = threshold < chooseSecond ? secondIndex : bestIndex;
     }
+
     return paletteColors[cyclePaletteIndex(chosenIndex, cycleOffset)].rgb;
 }
-
 
 vec2 safeHueUnit(vec2 ab, vec2 fallback) {
     float c = length(ab);

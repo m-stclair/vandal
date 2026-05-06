@@ -67,6 +67,15 @@ const OutputModeLookup = {
     shadowHighlight: OutputModeEnum.SHADOW_HIGHLIGHT
 };
 
+const DitherPatternLookup = {
+    ordered2: 0,
+    ordered4: 1,
+    ordered8: 2,
+    hash: 3,
+    lines: 4,
+    halftone: 5
+};
+
 function clamp01(x) {
     return Math.max(0, Math.min(1, x));
 }
@@ -183,8 +192,9 @@ export default {
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
             deltaL, gammaC, freeze,
-            blockSize, seed, minDistance, CYCLE_MODE, sortMode, ditherScale,
-            outputMode, shadowCutoff, highlightCutoff, paletteResponse
+            blockSize, seed, minDistance, CYCLE_MODE, sortMode,
+            outputMode, shadowCutoff, highlightCutoff, paletteResponse,
+            ditherScale, ditherPattern, ditherAngle, ditherLumaAmount,
         } = resolveAnimAll(instance.config, t)
 
         let palette, paletteBlock, paletteFeatures;
@@ -284,6 +294,8 @@ export default {
             u_hueWeight: {value: hueWeight >= 0 ? hueWeight : 0, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
             u_ditherScale: {value: ditherScale, type: "float"},
+            u_ditherAngle: {value: ditherAngle, type: "float"},
+            u_ditherLumaAmount: {value: ditherLumaAmount, type: "float"},
             u_shadowCutoff: {value: shadowCutoff, type: "float"},
             u_highlightCutoff: {value: highlightCutoff, type: "float"},
         };
@@ -294,7 +306,8 @@ export default {
             ASSIGNMODE: {"nearest": 0, "blend": 1, "dither": 2}[assignMode],
             OUTPUT_MODE: OutputModeLookup[outputMode] ?? OutputModeEnum.FULL_REPLACE,
             SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette],
-            CYCLE_MODE: CYCLE_MODE
+            CYCLE_MODE: CYCLE_MODE,
+            DITHER_PATTERN: DitherPatternLookup[ditherPattern] ?? DitherPatternLookup.ordered4,
         }
         instance.glState.renderGL(inputTex, outputFBO, uniformSpec, defines);
     },
@@ -492,12 +505,41 @@ export default {
             showIf: {key: "assignMode", equals: "dither"},
             children: [
                 {
+                    type: "select",
+                    key: "ditherPattern",
+                    label: "Pattern",
+                    options: [
+                        {label: "Ordered 2×2", value: "ordered2"},
+                        {label: "Ordered 4×4", value: "ordered4"},
+                        {label: "Ordered 8×8", value: "ordered8"},
+                        {label: "Hash Noise", value: "hash"},
+                        {label: "Lines", value: "lines"},
+                        {label: "Halftone", value: "halftone"}
+                    ]
+                },
+                {
                     type: "modSlider",
                     key: "ditherScale",
                     label: "Pattern Scale",
                     min: 1,
-                    max: 6,
+                    max: 12,
                     step: 1
+                },
+                {
+                    type: "modSlider",
+                    key: "ditherAngle",
+                    label: "Angle",
+                    min: -180,
+                    max: 180,
+                    step: 1,
+                },
+                {
+                    type: "range",
+                    key: "ditherLumaAmount",
+                    label: "Luma Falloff",
+                    min: 0,
+                    max: 1,
+                    step: 0.01
                 }
             ]
         },
@@ -551,7 +593,6 @@ export default {
         cycleOffset: 0,
         softness: 1,
         blendK: 2,
-        ditherScale: 1,
         lumaWeight: 0.75,
         chromaWeight: 0.5,
         hueWeight: 0.5,
@@ -571,7 +612,11 @@ export default {
         blockSize: 3,
         seed: 1,
         freeze: false,
-        CYCLE_MODE: 0
+        CYCLE_MODE: 0,
+        ditherPattern: "ordered4",
+        ditherAngle: 45,
+        ditherLumaAmount: 0,
+        ditherScale: 1,
     }
 }
 
@@ -590,11 +635,22 @@ export const effectMeta = {
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
         gammaC: {"min": 0.8, "max": 1.2},
         minDistance: {"min": 12, "max": 30},
-        ditherScale: {"min": 1, "max": 3},
         shadowCutoff: {"min": 10, "max": 45},
         highlightCutoff: {"min": 55, "max": 90},
         outputMode: {"weights": {"fullReplace": 10}},
         paletteResponse: {"min": 10, "max": 100},
+        ditherPattern: {
+        weights: {
+                ordered4: 8,
+                ordered8: 4,
+                ordered2: 2,
+                hash: 3,
+                lines: 3,
+                halftone: 3
+            }
+        },
+        ditherScale: {"min": 1, "max": 4},
+        ditherLumaAmount: {"min": 0, "max": 0.5}
     },
     fullOpacityChance: 0.8
 };

@@ -43,6 +43,30 @@ const includePaths = {
 };
 const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
+const OutputModeEnum = Object.freeze({
+    FULL_REPLACE: 0,
+    PRESERVE_LUMA: 1,
+    PRESERVE_CHROMA: 2,
+    HUE_WASH: 3,
+    SHADOW_HIGHLIGHT: 4
+});
+
+const OutputModeOpts = [
+    {label: "Full Replace", value: "fullReplace"},
+    {label: "Preserve Luma", value: "preserveLuma"},
+    {label: "Preserve Chroma", value: "preserveChroma"},
+    {label: "Hue Wash", value: "hueWash"},
+    {label: "Shadow/Highlight", value: "shadowHighlight"}
+];
+
+const OutputModeLookup = {
+    fullReplace: OutputModeEnum.FULL_REPLACE,
+    preserveLuma: OutputModeEnum.PRESERVE_LUMA,
+    preserveChroma: OutputModeEnum.PRESERVE_CHROMA,
+    hueWash: OutputModeEnum.HUE_WASH,
+    shadowHighlight: OutputModeEnum.SHADOW_HIGHLIGHT
+};
+
 //
 async function makeProbe(fx, renderer) {
     const prb = {
@@ -72,7 +96,8 @@ export default {
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
             deltaL, gammaC, freeze,
-            blockSize, seed, minDistance, CYCLE_MODE, sortMode, ditherScale
+            blockSize, seed, minDistance, CYCLE_MODE, sortMode, ditherScale,
+            outputMode, shadowCutoff, highlightCutoff
         } = resolveAnimAll(instance.config, t)
 
         let palette, paletteBlock, paletteFeatures;
@@ -137,12 +162,15 @@ export default {
             u_hueWeight: {value: hueWeight >= 0 ? hueWeight : 0, type: "float"},
             u_blendAmount: {value: blendAmount, type: "float"},
             u_ditherScale: {value: ditherScale, type: "float"},
+            u_shadowCutoff: {value: shadowCutoff, type: "float"},
+            u_highlightCutoff: {value: highlightCutoff, type: "float"},
         };
         const defines = {
             BLENDMODE: BLENDMODE,
             COLORSPACE: COLORSPACE,
             BLEND_CHANNEL_MODE: BLEND_CHANNEL_MODE,
             ASSIGNMODE: {"nearest": 0, "blend": 1, "dither": 2}[assignMode],
+            OUTPUT_MODE: OutputModeLookup[outputMode] ?? OutputModeEnum.FULL_REPLACE,
             SHOW_PALETTE: {"none": 0, "strip": 1}[showPalette],
             CYCLE_MODE: CYCLE_MODE
         }
@@ -248,6 +276,36 @@ export default {
             key: "assignMode",
             label: "Assignment Mode",
             options: ["nearest", "blend", "dither"]
+        },
+        {
+            type: "select",
+            key: "outputMode",
+            label: "Output Mode",
+            options: OutputModeOpts
+        },
+        {
+            type: "group",
+            kind: "collapse",
+            label: "Shadow/Highlight Cutoffs",
+            showIf: {key: "outputMode", equals: "shadowHighlight"},
+            children: [
+                {
+                    type: "modSlider",
+                    key: "shadowCutoff",
+                    label: "Shadow Cutoff",
+                    min: 0,
+                    max: 100,
+                    step: 0.5
+                },
+                {
+                    type: "modSlider",
+                    key: "highlightCutoff",
+                    label: "Highlight Cutoff",
+                    min: 0,
+                    max: 100,
+                    step: 0.5
+                }
+            ]
         },
         {
             type: "group",
@@ -364,11 +422,14 @@ export default {
         blendK: 2,
         ditherScale: 1,
         lumaWeight: 0.75,
-        chromaWeight: 0.75,
-        hueWeight: 0.25,
+        chromaWeight: 0.5,
+        hueWeight: 0.5,
         selectWeights: [0.25, 0.5, 0.1],
         minDistance: 18,
         assignMode: "blend",
+        outputMode: "fullReplace",
+        shadowCutoff: 30,
+        highlightCutoff: 70,
         blendAmount: 1,
         BLENDMODE: BlendModeEnum.MIX,
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
@@ -398,7 +459,10 @@ export const effectMeta = {
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
         gammaC: {"min": 0.8, "max": 1.2},
         minDistance: {"min": 12, "max": 30},
-        ditherScale: {"min": 1, "max": 3}
+        ditherScale: {"min": 1, "max": 3},
+        shadowCutoff: {"min": 10, "max": 45},
+        highlightCutoff: {"min": 55, "max": 90},
+        outputMode: {"weights": {"fullReplace": 10}}
     },
     fullOpacityChance: 0.8
 };

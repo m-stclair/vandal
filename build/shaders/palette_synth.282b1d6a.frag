@@ -25,6 +25,8 @@ uniform float u_chromaWeight;
 uniform float u_hueWeight;
 uniform float u_blendAmount;
 uniform float u_ditherScale;
+uniform float u_shadowCutoff;
+uniform float u_highlightCutoff;
 
 out vec4 outColor;
 
@@ -36,6 +38,12 @@ out vec4 outColor;
 #define ASSIGN_BLEND 1
 #define ASSIGN_DITHER 2
 
+#define OUTPUT_FULL_REPLACE 0
+#define OUTPUT_PRESERVE_LUMA 1
+#define OUTPUT_PRESERVE_CHROMA 2
+#define OUTPUT_HUE_WASH 3
+#define OUTPUT_SHADOW_HIGHLIGHT 4
+
 #define CYCLE_GLOBAL 0
 #define CYCLE_AXIS_THIRDS 1
 #define CYCLE_AXIS_MIDDLE 2
@@ -44,6 +52,10 @@ out vec4 outColor;
 
 #ifndef CYCLE_MODE
 #define CYCLE_MODE CYCLE_GLOBAL
+#endif
+
+#ifndef OUTPUT_MODE
+#define OUTPUT_MODE OUTPUT_FULL_REPLACE
 #endif
 
 
@@ -264,6 +276,35 @@ vec3 ditherAssign(vec3 lab, int cycleOffset) {
     return paletteColors[cyclePaletteIndex(chosenIndex, cycleOffset)].rgb;
 }
 
+
+vec2 safeHueUnit(vec2 ab, vec2 fallback) {
+    float c = length(ab);
+    return c > 1e-6 ? ab / c : fallback;
+}
+
+vec3 applyOutputMode(vec3 sourceLab, vec3 paletteLab) {
+#if OUTPUT_MODE == OUTPUT_PRESERVE_LUMA
+    return vec3(sourceLab.x, paletteLab.yz);
+#elif OUTPUT_MODE == OUTPUT_PRESERVE_CHROMA
+    float sourceChroma = length(sourceLab.yz);
+    vec2 sourceHue = safeHueUnit(sourceLab.yz, vec2(1.0, 0.0));
+    vec2 paletteHue = safeHueUnit(paletteLab.yz, sourceHue);
+    return vec3(paletteLab.x, paletteHue * sourceChroma);
+#elif OUTPUT_MODE == OUTPUT_HUE_WASH
+    float sourceChroma = length(sourceLab.yz);
+    vec2 sourceHue = safeHueUnit(sourceLab.yz, vec2(1.0, 0.0));
+    vec2 paletteHue = safeHueUnit(paletteLab.yz, sourceHue);
+    return vec3(sourceLab.x, paletteHue * sourceChroma);
+#elif OUTPUT_MODE == OUTPUT_SHADOW_HIGHLIGHT
+    float lo = min(u_shadowCutoff, u_highlightCutoff);
+    float hi = max(u_shadowCutoff, u_highlightCutoff);
+    float inBand = max(step(sourceLab.x, lo), step(hi, sourceLab.x));
+    return mix(sourceLab, paletteLab, inBand);
+#else
+    return paletteLab;
+#endif
+}
+
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
@@ -289,6 +330,8 @@ void main() {
 #else
     vec3 labMapped = matchNearest(lab, u_cycleOffset);
 #endif
+
+    labMapped = applyOutputMode(lab, labMapped);
 
     vec3 srgbOut = linear2srgb(lab2rgb(labMapped));
     srgbOut = clamp(srgbOut, 0.0, 1.0);

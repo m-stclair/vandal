@@ -496,9 +496,12 @@ export default {
                 response >= 1 ||
                 freeze;
 
-            palette = shouldSnap
-                ? targetPalette
-                : transitionPalette(cache.lastPalette, targetPalette, response);
+                palette = shouldSnap
+                    ? targetPalette
+                    : sortPalette(
+                        transitionPalette(cache.lastPalette, targetPalette, response),
+                        sortMode
+                      );
 
             let procResult = preprocessPalette(palette);
             paletteBlock = procResult["paletteBlock"];
@@ -939,7 +942,7 @@ export default {
         paletteResponse: 100,
         blockSize: 3,
         seed: 1,
-        samplingMode: "random",
+        samplingMode: "stratified",
         freeze: false,
         CYCLE_MODE: 0,
         ditherPattern: "ordered4",
@@ -962,6 +965,7 @@ export const effectMeta = {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
         paletteMode: {"always": "generated"},
         showPalette: {"always": "none"},
+        deltaL: {"min": 18, "max": 60},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
         gammaC: {"min": 0.8, "max": 1.2},
         minDistance: {"min": 12, "max": 30},
@@ -969,6 +973,8 @@ export const effectMeta = {
         highlightCutoff: {"min": 55, "max": 90},
         outputMode: {"weights": {"fullReplace": 10}},
         paletteResponse: {"min": 10, "max": 100},
+        lumaWeight: {"min": 1, "max": 3},
+        size: {"aniMin": 3, "aniMax": 42},
         ditherPattern: {
         weights: {
                 ordered4: 8,

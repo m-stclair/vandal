@@ -21,7 +21,7 @@ function generateAnimationMod(base, min, max) {
     const type = weightedSample([
         ['sine', 3],
         ['triangle', 1],
-        ['saw', 0.5],
+        ['saw', 1],
         ['fm-lfo', 1],
         ['square', 0.1],
         ['hold', 0.5],

@@ -18,7 +18,6 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 
 const {
     enum: FlipColorEnum,
-    names: FlipColorNames,
     options: FlipColorOpts
 } = makeEnum([
     'RANDOM',

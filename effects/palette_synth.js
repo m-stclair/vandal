@@ -962,7 +962,6 @@ export default {
             label: "Export Palette",
             func: exportPalette
         },
-
     ],
     defaultConfig: {
         paletteMode: "generated",
@@ -1001,7 +1000,7 @@ export default {
         sortMode: "lightness",
         paletteResponse: 100,
         blockSize: 3,
-        seed: 1,
+        seed: 2,
         samplingMode: "stratified",
         freeze: false,
         CYCLE_MODE: 0,
@@ -1034,7 +1033,6 @@ export const effectMeta = {
         outputMode: {"weights": {"fullReplace": 10}},
         paletteResponse: {"min": 10, "max": 100},
         lumaWeight: {"min": 1, "max": 3},
-        size: {"aniMin": 3, "aniMax": 42},
         ditherPattern: {
         weights: {
                 ordered4: 8,

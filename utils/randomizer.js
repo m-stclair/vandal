@@ -11,13 +11,12 @@ import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "./glsl_enums.js";
 import {FieldDisplayModeEnum} from "../effects/fieldParentheses.js";
 
 
-const ANIMATE_PROB = 0.25;  // chance to animate an eligible param
+const ANIMATE_PROB = 0.25;  // chance to animate each eligible param
 
 function generateAnimationMod(base, min, max) {
-    const span = max - min;
-    let freq = +(Math.random() * 0.09 + 0.03).toFixed(3); // 0.03–0.12 Hz
-    let scale = +(Math.random() * 0.5 * span).toFixed(2); // up to 50% swing
     const offset = base;
+    const headroom = Math.max(0, Math.min(base - min, max - base));
+
     const type = weightedSample([
         ['sine', 3],
         ['triangle', 1],
@@ -29,14 +28,21 @@ function generateAnimationMod(base, min, max) {
         ['impulse-ease', 0.5],
         ['impulse', 0.25],
     ]);
+
+    const scaleMul = ['impulse-ease', 'impulse'].includes(type) ? 1.5 : 1;
+    const maxScale = headroom / scaleMul;
+
+    let freq = +(Math.random() * 0.09 + 0.03).toFixed(3);
+    let scale = +(Math.random() * maxScale).toFixed(2);
+
     if (['impulse-ease', 'impulse', 'walk'].includes(type)) {
         freq *= 3;
-
     }
     if (['impulse-ease', 'impulse'].includes(type)) {
         scale *= 1.5;
     }
-    return {type, freq, phase: 0, scale, offset};
+
+    return { type, freq, phase: 0, scale, offset };
 }
 
 

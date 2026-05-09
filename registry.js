@@ -83,7 +83,7 @@ const effectFiles = [
     "clarity.js",
     "temporal_delay.js",
     "penrose.js",
-//    "prism_bleed.js"
+    "conformal_map.js",
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

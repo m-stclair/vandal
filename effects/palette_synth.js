@@ -463,9 +463,9 @@ export default {
             lumaWeight, chromaWeight, hueWeight, BLENDMODE,
             COLORSPACE, BLEND_CHANNEL_MODE, assignMode, blendAmount,
             showPalette, selectWeights,
-            deltaL, gammaC, freeze,
+            deltaL, gammaC,
             blockSize, seed, minDistance, CYCLE_MODE, sortMode,
-            outputMode, shadowCutoff, highlightCutoff, paletteResponse,
+            outputMode, shadowCutoff, highlightCutoff, paletteAnimationResponse,
             ditherScale, ditherPattern, ditherAngle, ditherLumaAmount,
             paletteMode = "generated", generatedAssist = 0,
         } = params;
@@ -491,6 +491,10 @@ export default {
             if (typeof redrawUI === "function") redrawUI();
         }
 
+        const paletteResponse = {
+            "freeze": 0, "slow": 5, "fast": 25, "instant": 100
+        }[paletteAnimationResponse] ?? 100
+        const freeze = paletteResponse === "freeze"
         const response = clamp01((paletteResponse ?? 100) / 100);
         const useManualPalette = paletteMode === "manual";
         const normalizedManualPalette = normalizeManualPalette(manualPalette);
@@ -922,18 +926,13 @@ export default {
             ]
         },
         {
-            type: "range",
-            key: "paletteResponse",
-            label: "Palette Response",
+            type: "select",
+            key: "paletteAnimationResponse",
+            label: "Palette Animation Response",
             min: 0,
             max: 100,
             step: 1,
-            showIf: {key: "freeze", notEquals: true}
-        },
-        {
-            type: "checkbox",
-            key: "freeze",
-            label: "Freeze"
+            options: ["freeze", "slow", "fast", "instant"],
         },
         blendControls(),
         {
@@ -998,11 +997,10 @@ export default {
         COLORSPACE: ColorspaceEnum.RGB,
         showPalette: "none",
         sortMode: "lightness",
-        paletteResponse: 100,
+        paletteAnimationResponse: "instant",
         blockSize: 3,
         seed: 2,
         samplingMode: "stratified",
-        freeze: false,
         CYCLE_MODE: 0,
         ditherPattern: "ordered4",
         ditherAngle: 45,
@@ -1023,6 +1021,7 @@ export const effectMeta = {
     parameterHints: {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
         paletteMode: {"always": "generated"},
+        paletteAnimationResponse: {weights: {freeze: 8, slow: 4, fast: 1, instant: 3}},
         showPalette: {"always": "none"},
         deltaL: {"min": 18, "max": 60},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},
@@ -1031,7 +1030,6 @@ export const effectMeta = {
         shadowCutoff: {"min": 10, "max": 45},
         highlightCutoff: {"min": 55, "max": 90},
         outputMode: {"weights": {"fullReplace": 10}},
-        paletteResponse: {"min": 10, "max": 100},
         lumaWeight: {"min": 1, "max": 3},
         ditherPattern: {
         weights: {

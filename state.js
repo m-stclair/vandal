@@ -175,7 +175,8 @@ export function makeEffectInstance(mod) {
         apply: mod.apply,
         label: mod.name,
         solo: false,
-        isGPU: mod.isGPU
+        isGPU: mod.isGPU,
+        meta: mod.meta
     }
     if (mod.isGPU) {
         instance.glState = new webGLState(renderer, mod.name, instance.id)

@@ -2,7 +2,7 @@
 import { checkFrameBuffer, checkTexture, preprocessGLSL} from "./gl.js";
 import { getEffectStack } from "../state.js";
 import { hashObject } from "./helpers.js";
-import { isModulating } from "../glitch.js";
+import { isAnimatingEffect } from "../glitch.js";
 import { monkeyPatchBindTexture, monkeyPatchDrawArrays } from "../tools/gl_bs.js";
 import { clamp } from "./mathutils.js";
 
@@ -403,10 +403,11 @@ export class GlitchRenderer {
             const cacheEntry = this.renderCache.get(fx.id);
             const isGPU = fx.isGPU;
             const timeChanged = cacheEntry?.lastT !== t;
-            animationUpdate = animationUpdate ? animationUpdate : isModulating(fx) && timeChanged;
+            const effectAnimated = isAnimatingEffect(fx);
+            animationUpdate = animationUpdate ? animationUpdate : effectAnimated && timeChanged;
             const configHash = hashObject(fx.config);
             hashChain += configHash + fx.id;
-            if (isModulating(fx)) hashChain += `-${t}`;
+            if (effectAnimated) hashChain += `-${t}`;
             const hashChanged = (
                 !cacheEntry
                 || hashChain !== cacheEntry.hashChain

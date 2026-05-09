@@ -225,6 +225,10 @@ export function isModulating(fx) {
     )
 }
 
+export function isAnimatingEffect(fx) {
+    return isModulating(fx) || !!fx.meta?.stateful;
+}
+
 function maybeCallStyleHook(fx) {
     if (!fx.styleHook || fx.disabled) {
         return false;
@@ -260,7 +264,7 @@ async function exportImage() {
 }
 
 
-const isAnimationActive = () => getEffectStack().some(fx => isModulating(fx))
+const isAnimationActive = () => getEffectStack().some(fx => isAnimatingEffect(fx))
 
 let frameIx = 0;
 

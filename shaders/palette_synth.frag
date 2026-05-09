@@ -89,14 +89,14 @@ mat2 rot2(float degrees) {
 }
 
 float hash12(vec2 p) {
-    // stable, cheap, no texture
     vec3 p3 = fract(vec3(p.xyx) * 0.1031);
     p3 += dot(p3, p3.yzx + 33.33);
     return fract((p3.x + p3.y) * p3.z);
 }
 
-// Palette order is selected on the CPU. Non-global cycle modes treat array thirds
-// as low/middle/high bands along that active ordering axis.
+// Palette order (which may be luminance, hue clusters, tint/shade groups, etc.)
+// is selected on the CPU. Non-global cycle modes treat array thirds
+// as low/middle/high bands along that ordering axis.
 
 int cyclePaletteIndex(int idx, int cycleOffset) {
     if (u_paletteSize <= 1) {
@@ -158,21 +158,16 @@ int cyclePaletteIndex(int idx, int cycleOffset) {
 #endif
 }
 
-float deltaE_bias_fast(vec3 lab, vec4 q) {
-    float L = q[0];
-    float C = q[1];
-    float cosH = q[2];
-    float sinH = q[3];
+float deltaE_bias_fast(float labL, float labC, vec2 labHue, vec4 q) {
+    float L = q.x;
+    float C = q.y;
+    vec2 hue = q.zw;
 
-    float dL = lab.x - L;
+    float dL = labL - L;
+    float dC = labC - C;
 
-    float C1 = length(lab.yz);
-    float dC = C1 - C;
-
-    vec2 u = (C1 > 1e-6) ? lab.yz / C1 : vec2(1.0, 0.0);
-
-    float theta = clamp(dot(u, vec2(cosH, sinH)), -1.0, 1.0);
-    float hueBias = 0.5 * (C1 + C) * (1.0 - theta);
+    float theta = clamp(dot(labHue, hue), -1.0, 1.0);
+    float hueBias = 0.5 * (labC + C) * (1.0 - theta);
 
     return (
         u_lumaWeight   * abs(dL) +
@@ -181,63 +176,145 @@ float deltaE_bias_fast(vec3 lab, vec4 q) {
     );
 }
 
+void insertTop5(
+    float d,
+    int idx,
+
+    inout float d0,
+    inout float d1,
+    inout float d2,
+    inout float d3,
+    inout float d4,
+
+    inout int i0,
+    inout int i1,
+    inout int i2,
+    inout int i3,
+    inout int i4
+) {
+    if (d >= d4) {
+        return;
+    }
+
+    if (d < d0) {
+        d4 = d3; i4 = i3;
+        d3 = d2; i3 = i2;
+        d2 = d1; i2 = i1;
+        d1 = d0; i1 = i0;
+        d0 = d;  i0 = idx;
+    } else if (d < d1) {
+        d4 = d3; i4 = i3;
+        d3 = d2; i3 = i2;
+        d2 = d1; i2 = i1;
+        d1 = d;  i1 = idx;
+    } else if (d < d2) {
+        d4 = d3; i4 = i3;
+        d3 = d2; i3 = i2;
+        d2 = d;  i2 = idx;
+    } else if (d < d3) {
+        d4 = d3; i4 = i3;
+        d3 = d;  i3 = idx;
+    } else {
+        d4 = d;  i4 = idx;
+    }
+}
+
 vec3 softAssign(vec3 labColor, int cycleOffset) {
-    float dist[MAX_PALETTE_SIZE];
-    int index[MAX_PALETTE_SIZE];
+    if (u_paletteSize <= 0) {
+        return labColor;
+    }
+
+    float labC = length(labColor.yz);
+    vec2 labHue = (labC > 1e-6) ? labColor.yz / labC : vec2(1.0, 0.0);
+
+    float d0 = 1e20;
+    float d1 = 1e20;
+    float d2 = 1e20;
+    float d3 = 1e20;
+    float d4 = 1e20;
+
+    int i0 = 0;
+    int i1 = 0;
+    int i2 = 0;
+    int i3 = 0;
+    int i4 = 0;
 
     for (int i = 0; i < MAX_PALETTE_SIZE; ++i) {
         if (i >= u_paletteSize) break;
 
-        dist[i] = deltaE_bias_fast(labColor, paletteFeatures[i]);
-        index[i] = i;
+        float d = deltaE_bias_fast(
+            labColor.x,
+            labC,
+            labHue,
+            paletteFeatures[i]
+        );
+
+        insertTop5(
+            d,
+            i,
+            d0, d1, d2, d3, d4,
+            i0, i1, i2, i3, i4
+        );
     }
 
-    int k = min(u_blendK, u_paletteSize);
+    int k = min(min(max(u_blendK, 1), u_paletteSize), 5);
 
-    // Partial bubble sort top K
-    for (int i = 0; i < MAX_PALETTE_SIZE; ++i) {
-        if (i >= k) break;
-
-        for (int j = i + 1; j < MAX_PALETTE_SIZE; ++j) {
-            if (j >= u_paletteSize) break;
-
-            if (dist[j] < dist[i]) {
-                float td = dist[i];
-                dist[i] = dist[j];
-                dist[j] = td;
-
-                int ti = index[i];
-                index[i] = index[j];
-                index[j] = ti;
-            }
-        }
-    }
-
-    // Blend top K.
     vec3 result = vec3(0.0);
     float totalWeight = 0.0;
 
-    for (int i = 0; i < MAX_PALETTE_SIZE; ++i) {
-        if (i >= k) break;
-
-        float w = 1.0 / pow(dist[i] + 1e-5, u_softness);
-        int cycledIndex = cyclePaletteIndex(index[i], cycleOffset);
-
-        result += w * paletteColors[cycledIndex].rgb;
+    if (k >= 1) {
+        float w = 1.0 / pow(d0 + 1e-5, u_softness);
+        result += w * paletteColors[cyclePaletteIndex(i0, cycleOffset)].rgb;
         totalWeight += w;
     }
 
-    return result / totalWeight;
+    if (k >= 2) {
+        float w = 1.0 / pow(d1 + 1e-5, u_softness);
+        result += w * paletteColors[cyclePaletteIndex(i1, cycleOffset)].rgb;
+        totalWeight += w;
+    }
+
+    if (k >= 3) {
+        float w = 1.0 / pow(d2 + 1e-5, u_softness);
+        result += w * paletteColors[cyclePaletteIndex(i2, cycleOffset)].rgb;
+        totalWeight += w;
+    }
+
+    if (k >= 4) {
+        float w = 1.0 / pow(d3 + 1e-5, u_softness);
+        result += w * paletteColors[cyclePaletteIndex(i3, cycleOffset)].rgb;
+        totalWeight += w;
+    }
+
+    if (k >= 5) {
+        float w = 1.0 / pow(d4 + 1e-5, u_softness);
+        result += w * paletteColors[cyclePaletteIndex(i4, cycleOffset)].rgb;
+        totalWeight += w;
+    }
+
+    return result / max(totalWeight, 1e-5);
 }
 
 vec3 matchNearest(vec3 lab, int cycleOffset) {
-    float minDist = 1e6;
+    if (u_paletteSize <= 0) {
+        return lab;
+    }
+
+    float labC = length(lab.yz);
+    vec2 labHue = (labC > 1e-6) ? lab.yz / labC : vec2(1.0, 0.0);
+
+    float minDist = 1e20;
     int best_i = 0;
 
-    for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
+    for (int i = 0; i < MAX_PALETTE_SIZE; ++i) {
         if (i >= u_paletteSize) break;
 
-        float d = deltaE_bias_fast(lab, paletteFeatures[i]);
+        float d = deltaE_bias_fast(
+            lab.x,
+            labC,
+            labHue,
+            paletteFeatures[i]
+        );
 
         if (d < minDist) {
             minDist = d;
@@ -354,19 +431,33 @@ float ditherThreshold(vec2 fragCoord, float scale) {
 }
 
 vec3 ditherAssign(vec3 lab, int cycleOffset) {
+    if (u_paletteSize <= 0) {
+        return lab;
+    }
+
+    float labC = length(lab.yz);
+    vec2 labHue = (labC > 1e-6) ? lab.yz / labC : vec2(1.0, 0.0);
+
     float bestDist = 1e20;
     float secondDist = 1e20;
+
     int bestIndex = 0;
     int secondIndex = 0;
 
-    for (int i = 0; i < MAX_PALETTE_SIZE; i++) {
+    for (int i = 0; i < MAX_PALETTE_SIZE; ++i) {
         if (i >= u_paletteSize) break;
 
-        float d = deltaE_bias_fast(lab, paletteFeatures[i]);
+        float d = deltaE_bias_fast(
+            lab.x,
+            labC,
+            labHue,
+            paletteFeatures[i]
+        );
 
         if (d < bestDist) {
             secondDist = bestDist;
             secondIndex = bestIndex;
+
             bestDist = d;
             bestIndex = i;
         } else if (d < secondDist) {
@@ -375,20 +466,22 @@ vec3 ditherAssign(vec3 lab, int cycleOffset) {
         }
     }
 
-    if (u_paletteSize <= 1) {
+    if (u_paletteSize <= 1 || u_blendK <= 1) {
         return paletteColors[cyclePaletteIndex(bestIndex, cycleOffset)].rgb;
     }
 
-    float chooseSecond = bestDist / max(bestDist + secondDist, 1e-5);
+    float bestWeight = 1.0 / pow(bestDist + 1e-5, u_softness);
+    float secondWeight = 1.0 / pow(secondDist + 1e-5, u_softness);
+
+    float chooseSecond = secondWeight / max(bestWeight + secondWeight, 1e-5);
     chooseSecond = applyLumaDitherFalloff(chooseSecond, lab.x);
 
     float threshold = ditherThreshold(gl_FragCoord.xy, u_ditherScale);
 
-    int chosenIndex;
-    if (chooseSecond < 0.0625) {
-        chosenIndex = bestIndex;
-    } else {
-        chosenIndex = threshold < chooseSecond ? secondIndex : bestIndex;
+    int chosenIndex = bestIndex;
+
+    if (chooseSecond >= 0.0625 && threshold < chooseSecond) {
+        chosenIndex = secondIndex;
     }
 
     return paletteColors[cyclePaletteIndex(chosenIndex, cycleOffset)].rgb;

@@ -771,12 +771,6 @@ export default {
                 },
                 {
                     type: "select",
-                    key: "showPalette",
-                    label: "Show Palette",
-                    options: ["none", "strip"]
-                },
-                {
-                    type: "select",
                     key: "sortMode",
                     label: "Sort",
                     options: [
@@ -787,6 +781,12 @@ export default {
                     ]
                 },
             ]
+        },
+        {
+            type: "select",
+            key: "showPalette",
+            label: "Show Palette",
+            options: ["none", "strip"]
         },
         {
             type: "select",
@@ -1029,17 +1029,17 @@ export const effectMeta = {
         minDistance: {"min": 12, "max": 30},
         shadowCutoff: {"min": 10, "max": 45},
         highlightCutoff: {"min": 55, "max": 90},
-        outputMode: {"weights": {"fullReplace": 10}},
+        outputMode: {weights: {"fullReplace": 10}},
         lumaWeight: {"min": 1, "max": 3},
         ditherPattern: {
-        weights: {
-                ordered4: 8,
-                ordered8: 4,
-                ordered2: 2,
-                hash: 3,
-                lines: 3,
-                halftone: 3
-            }
+            weights: {
+                    ordered4: 8,
+                    ordered8: 4,
+                    ordered2: 2,
+                    hash: 3,
+                    lines: 3,
+                    halftone: 3
+                }
         },
         ditherScale: {"min": 1, "max": 4},
         ditherLumaAmount: {"min": 0, "max": 0.5}

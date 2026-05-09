@@ -33,7 +33,7 @@ out vec4 outColor;
 
 const float PI  = 3.141592653589793;
 const float TAU = 6.283185307179586;
-const float SINGULARITY_CLAMP = 0.1;
+const float SINGULARITY_CLAMP = 0.025;
 const float SINGULARITY_CLAMP_SQ = SINGULARITY_CLAMP * SINGULARITY_CLAMP;
 
 mat2 rot2(float a) {

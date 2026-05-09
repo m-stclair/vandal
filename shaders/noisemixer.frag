@@ -1,6 +1,7 @@
 #version 300 es
 
 precision highp float;
+precision highp int;
 
 #include "noisenums.glsl"
 #include "zones.glsl"
@@ -60,20 +61,25 @@ out vec4 outColor;
 
 void main() {
     vec2 uv = (gl_FragCoord.xy + vec2(0.5)) / u_resolution;
-    vec2 uvs = uv + uniformNoise(u_seed + 1.0);
+    vec2 seedOffset = vec2(u_seed * 17.31, u_seed * -9.73);
+    vec2 uvs = uv + seedOffset;
     float xScl = uvs.x * u_freqx;
     float yScl = uvs.y * u_freqy;
+    vec2 freqCoord = vec2(xScl, yScl);
+    vec2 pixelCoord = floor(gl_FragCoord.xy);
     float noiseVal = 0.0;
 
-    noiseVal += uniformNoise(uvs.x * uvs.y) * u_uniform;
+    // Distribution-style noise is white per pixel and seed, not tied to
+    // frequency controls and not made from float-domain coordinate hashes.
+    noiseVal += uniformPixelNoise(pixelCoord, u_seed) * u_uniform;
 
-    noiseVal += cnoise(vec2(xScl, yScl)) * u_perlin * 1.4;
+    noiseVal += cnoise(freqCoord) * u_perlin * 1.4;
     vec2 gradientOut = vec2(0.0, 0.0); // scratch space for periodic simplex noise algo
-    noiseVal += psrdnoise(vec2(xScl, yScl), vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
-    noiseVal += gaussianNoise(uvs) * u_gauss;
-    noiseVal += brownNoise(uvs) * u_brown;
-    noiseVal += valueNoise(vec2(xScl, yScl)) * u_value;
-    vec2 cellnoise = cellular(vec2(xScl, yScl)) * u_worley;
+    noiseVal += psrdnoise(freqCoord, vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
+    noiseVal += gaussianPixelNoise(pixelCoord, u_seed, 0x1b56c4e9u) * u_gauss;
+    noiseVal += brownPixelNoise(pixelCoord, u_seed) * u_brown;
+    noiseVal += valueNoise(freqCoord) * u_value;
+    vec2 cellnoise = cellular(freqCoord) * u_worley;
     noiseVal += (cellnoise.x + cellnoise.y) / 2.;
     noiseVal = clamp(noiseVal, 0.0, 1.0);
 

@@ -1021,7 +1021,7 @@ export const effectMeta = {
     parameterHints: {
         BLEND_CHANNEL_MODE: {"always": BlendTargetEnum.ALL},
         paletteMode: {"always": "generated"},
-        paletteAnimationResponse: {weights: {freeze: 8, slow: 4, fast: 1, instant: 3}},
+        paletteAnimationResponse: {weights: {"freeze": 8, "slow": 4, "fast": 1, "instant": 3}},
         showPalette: {"always": "none"},
         deltaL: {"min": 18, "max": 60},
         cycleOffset: {"min": 0, "max": 0, "aniMin": 0, "aniMax": 100},

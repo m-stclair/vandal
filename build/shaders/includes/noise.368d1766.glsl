@@ -13,6 +13,39 @@ vec2 hash2d_uv(vec2 uv) {
     return fract(vec2(n, n * 1.2154));
 }
 
+float hash12(vec2 p) {
+    // Float-domain fallback for legacy callers. Do not use this for
+    // screen-space white-noise fields: float hashes form visible lattices
+    // on integer pixel grids once the resolution gets large enough.
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+uint mixBits(uint x) {
+    x ^= x >> 16;
+    x *= 0x7feb352du;
+    x ^= x >> 15;
+    x *= 0x846ca68bu;
+    x ^= x >> 16;
+    return x;
+}
+
+uint hashPixelBits(vec2 pixel, float seed, uint salt) {
+    uvec2 p = uvec2(ivec2(floor(pixel)));
+    uint h = floatBitsToUint(seed) ^ salt ^ 0x9e3779b9u;
+    h ^= mixBits(p.x + 0x85ebca6bu);
+    h = mixBits(h);
+    h ^= mixBits(p.y + 0xc2b2ae35u);
+    return mixBits(h);
+}
+
+float hashPixel(vec2 pixel, float seed, uint salt) {
+    // Keep the top 24 bits: exactly representable as a highp float mantissa,
+    // so the random value does not pick up precision striping in WebGL.
+    return float(hashPixelBits(pixel, seed, salt) >> 8) * (1.0 / 16777216.0);
+}
+
 float hash(vec2 p) {
     return fract(sin(dot(p ,vec2(127.1,311.7))) * 43758.5453123);
 }
@@ -105,19 +138,22 @@ vec3 perlinNoise2D(
 }
 
 float uniformNoise(vec2 xy) {
-    return fract(sin(xy.x * xy.y * 12.9898 + 78.233) * 43758.5453);
+    return hash12(xy);
 }
 
 float uniformNoise(float x) {
-    return fract(sin(x * 12.9898 + 78.233) * 43758.5453);
+    return hash12(vec2(x, x * 1.61803398875 + 0.137));
 }
 
 
 // Box-Muller transform to generate Gaussian noise
 float gaussianNoise(vec2 p) {
-    float u1 = max(hash(vec2(p.x, p.y)), 1e-6);;
-    float u2 = hash(vec2(p.x + 1.0, p.y));
-    float z0 = sqrt(-2.0 * log(u1)) * cos(2.0 * 3.14159 * u2);
+    // Use the same sinless hash family as uniform noise. The old sin-dot hash
+    // was especially prone to visible bands when brown noise repeatedly sampled
+    // nearby normalized coordinates.
+    float u1 = max(hash12(p), 1e-6);
+    float u2 = hash12(p + vec2(37.17, 91.73));
+    float z0 = sqrt(-2.0 * log(u1)) * cos(2.0 * 3.14159265359 * u2);
     return z0;
 }
 
@@ -138,20 +174,49 @@ float pinkNoise(vec2 p) {
     return total;
 }
 
+float uniformPixelNoise(vec2 pixel, float seed) {
+    return hashPixel(pixel, seed, 0xa24baed5u);
+}
+
+float gaussianPixelNoise(vec2 pixel, float seed, uint salt) {
+    float u1 = max(hashPixel(pixel, seed, salt), 1e-6);
+    float u2 = hashPixel(pixel, seed, salt ^ 0x68bc21ebu);
+    return sqrt(-2.0 * log(u1)) * cos(2.0 * 3.14159265359 * u2);
+}
+
+float brownPixelNoise(vec2 pixel, float seed) {
+    float sum = 0.0;
+    float amplitude = 1.0;
+    float total = 0.0;
+
+    // Noise Mixer and Dither treat brown as a distribution component, not as a
+    // spatial texture field. Use independent salted pixel hashes instead of
+    // resampling scaled coordinates, otherwise low octaves become visible clouds
+    // or moire.
+    for (int i = 0; i < 5; i++) {
+        uint salt = 0xb5297a4du + uint(i) * 0x9e3779b9u;
+        sum += gaussianPixelNoise(pixel, seed, salt) * amplitude;
+        total += amplitude;
+        amplitude *= 0.5;
+    }
+    return sum / total;
+}
+
 float brownNoise(vec2 uv) {
     float sum = 0.0;
     float amplitude = 1.0;
     float scale = 1.0;
     float total = 0.0;
 
-    // 1/f² weighting: each octave contributes more than the next
     for (int i = 0; i < 5; i++) {
-        float n = gaussianNoise(uv * scale);
+        float octave = float(i);
+        vec2 offset = vec2(131.17, 47.73) * (octave + 1.0);
+        float n = gaussianNoise(uv * scale + offset);
         sum += n * amplitude;
         total += amplitude;
 
         scale *= 0.5;
-        amplitude *= 2.0;  // inverse-square amplitude (≈1/f²)
+        amplitude *= 2.0;
     }
     return sum / total;
 }

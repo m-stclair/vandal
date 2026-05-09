@@ -1,6 +1,7 @@
 #version 300 es
 
 precision mediump float;
+precision highp int;
 
 uniform sampler2D u_image;
 uniform vec2 u_resolution;
@@ -72,5 +73,4 @@ float chroma = 0.0;
 #endif
     outColor = vec4(blendWithColorSpace(src, shredded, u_blendamount), 1.0);
 }
-
 

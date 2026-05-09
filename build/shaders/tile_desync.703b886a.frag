@@ -1,5 +1,6 @@
 #version 300 es
 precision mediump float;
+precision highp int;
 
 uniform sampler2D u_image;
 uniform vec2 u_resolution;

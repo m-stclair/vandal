@@ -1,6 +1,7 @@
 #version 300 es
 
-precision mediump float;
+precision highp float;
+precision highp int;
 
 uniform sampler2D u_image;
 out vec4 outColor;
@@ -45,17 +46,21 @@ uniform sampler2D u_calcPass;
 
 void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    vec2 uvjit = uv + uniformNoise(u_seed + 1.0);
+    vec2 seedOffset = vec2(u_seed * 17.31, u_seed * -9.73);
+    vec2 uvjit = uv + seedOffset;
     vec2 uvs = uvjit * u_scale;
+    vec2 pixelCoord = floor(gl_FragCoord.xy);
 
     // math from noise mixer
     float noiseVal = 0.0;
-    noiseVal += uniformNoise(uvjit.x * uvjit.y) * u_uniform;
+    // Distribution-style noise is white per pixel and seed, not tied to
+    // the dither scale control and not made from float-domain coordinate hashes.
+    noiseVal += uniformPixelNoise(pixelCoord, u_seed) * u_uniform;
     noiseVal += cnoise(uvs) * u_perlin * 1.5;
     vec2 gradientOut = vec2(0.0, 0.0);  // scratch space for periodic simplex noise algo
     noiseVal += psrdnoise(uvs, vec2(0.0), 0.0, gradientOut) * u_simplex * 1.3;
-    noiseVal += gaussianNoise(uvjit) * u_gauss;
-    noiseVal += brownNoise(uvjit) * u_brown;
+    noiseVal += gaussianPixelNoise(pixelCoord, u_seed, 0x1b56c4e9u) * u_gauss;
+    noiseVal += brownPixelNoise(pixelCoord, u_seed) * u_brown;
     noiseVal += valueNoise(uvs) * u_value;
     vec2 cellnoise = cellular(uvs) * u_worley;
     noiseVal += (cellnoise.x + cellnoise.y) / 2.;

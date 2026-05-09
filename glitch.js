@@ -229,22 +229,6 @@ export function isAnimatingEffect(fx) {
     return isModulating(fx) || !!fx.meta?.stateful;
 }
 
-function maybeCallStyleHook(fx) {
-    if (!fx.styleHook || fx.disabled) {
-        return false;
-    }
-    return fx.styleHook(fx);
-}
-
-function updateVisualStyles(cvs = canvas) {
-    const filters = getActiveEffects()
-        .map(fx => maybeCallStyleHook(fx))
-        .filter(Boolean)
-        .join(' ');
-    setFilters(filters || 'none', cvs);
-}
-
-
 async function exportImage() {
     Lock.image = true;
     const [w, h] = [renderer.cachedImage.width, renderer.cachedImage.height]

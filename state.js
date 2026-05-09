@@ -170,7 +170,6 @@ export function makeEffectInstance(mod) {
         config: structuredClone(mod.defaultConfig),
         uiLayout: mod.uiLayout,
         disabled: false,
-        styleHook: mod.styleHook,
         cleanupHook: mod.cleanupHook,
         apply: mod.apply,
         label: mod.name,

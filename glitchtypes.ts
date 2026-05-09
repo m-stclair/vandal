@@ -108,12 +108,10 @@ export interface EffectInstance {
     name: string;
     config: ConfigObject;
     apply?: ApplyFunc;
-    styleHook?: (instance: EffectInstance) => SVGUrl;
     cleanupHook?: (instance: EffectInstance) => void;
     initHook?: (instance: EffectInstance) => Promise<void> | void;
     uiLayout: UIControl[];
     disabled: boolean;
-    // optional per-instance derived data cache
     auxiliaryCache?: Record<string, any>;
     // user-edited name
     label?: string;

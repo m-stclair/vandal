@@ -192,6 +192,6 @@ export const effectMeta = {
     parameterHints: {
         threshold: {min: 0.02, max: 0.15},
         saturation: {min: 25, max: 100},
-        lightness: {min: 25, max: 60}
+        lightness: {min: 70, max: 100}
     }
 }

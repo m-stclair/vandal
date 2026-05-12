@@ -260,11 +260,13 @@ export const effectMeta = {
         edgeGain: {min: 3, max: 14},
         edgeLow: {min: 0, max: 0.08},
         edgeHigh: {min: 0.55, max: 1},
+        centerWeight: {min: 0, max: 2},
         streamSteps: {min: 3, max: 8},
         kernelRadiusX: {min: 3, max: 8},
         kernelRadiusY: {min: 3, max: 8},
         kernelName: {"always": "gaussian"},
         edgeGamma: {"aniMin": 0.01},
+        useChromaGate: {"always": false},
         BLENDMODE: {"always": BlendModeEnum.MIX}
     }
 };

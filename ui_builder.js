@@ -13,7 +13,7 @@ import {randomizeConfig} from "./utils/randomizer.js";
 import {isModulating} from "./glitch.js";
 
 
-// TODO, maybe: this doesn't handle cases in which a config entry is of the form {value: x, mod: {...}}.
+// NOTE: this doesn't handle cases in which a config entry is of the form {value: x, mod: {...}}.
 //  however, I don't think we ever want to make UI visibility contingent on an animated value!
 
 function collectVisibilityDrivers(configArray, keyTriggersUIDraw) {
@@ -227,11 +227,19 @@ function createLabelEditor(fx, uiState) {
     savePresetBtn.className = "save-effect-preset-btn";
     savePresetBtn.addEventListener('click', e => {
         e.stopPropagation()
-        saveEffectPreset(fx.name, label.textContent, structuredClone(fx.config));
-        const newOpt = document.createElement('option');
-        newOpt.value = label.textContent;
-        newOpt.textContent = label.textContent;
-        presetDropdown.appendChild(newOpt);
+        const presetName = label.textContent.trim();
+        if (!presetName) return;
+
+        saveEffectPreset(fx.name, presetName, structuredClone(fx.config));
+
+        const existingOpt = Array.from(presetDropdown.options).find(opt => opt.value === presetName);
+        if (!existingOpt) {
+            const newOpt = document.createElement('option');
+            newOpt.value = presetName;
+            newOpt.textContent = presetName;
+            presetDropdown.appendChild(newOpt);
+        }
+        presetDropdown.value = presetName;
     });
 
     const labelWrapper = document.createElement("div");

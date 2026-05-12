@@ -2,6 +2,7 @@
 
 import {assertHas} from "./helpers.js";
 import {builtInPresets} from "../presets/app.js";
+import {builtInAppDerivedPluginPresets, builtInPluginPresets} from "../presets/plugins.js";
 
 const STORAGE_PREFIX = 'vandal';
 
@@ -60,7 +61,7 @@ function listAppPresets() {
 
 // ─── Per-Effect Config Presets ─────────────────────────────────────────────────
 
-function loadAllEffectPresets() {
+function loadUserEffectPresets() {
     const all = {};
     for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -82,22 +83,45 @@ function loadAllEffectPresets() {
     return all;
 }
 
-const effectPresets = loadAllEffectPresets();
+function mergeEffectPresetMaps(...maps) {
+    const merged = {};
+
+    for (const map of maps) {
+        for (const [effectName, presets] of Object.entries(map || {})) {
+            if (!merged[effectName]) merged[effectName] = {};
+
+            for (const [label, config] of Object.entries(presets || {})) {
+                merged[effectName][label] = structuredClone(config);
+            }
+        }
+    }
+
+    return merged;
+}
+
+let effectPresets;
+
+function updateEffectPresets() {
+    effectPresets = mergeEffectPresetMaps(
+        builtInAppDerivedPluginPresets,
+        builtInPluginPresets,
+        loadUserEffectPresets()
+    );
+}
+
+updateEffectPresets();
 
 function saveEffectPreset(effectName, label, config) {
     const key = lsKey('app', 'plugins', effectName, 'presets', label);
     localStorage.setItem(key, JSON.stringify(config));
-    if (!effectPresets[effectName]) effectPresets[effectName] = {};
-    effectPresets[effectName][label] = config;
+    updateEffectPresets();
 }
 
 
 function deleteEffectPreset(effectName, label) {
     const key = lsKey('app', 'plugins', effectName, 'presets', label);
     localStorage.removeItem(key);
-    if (effectPresets[effectName]) {
-        delete effectPresets[effectName][label];
-    }
+    updateEffectPresets();
 }
 
 function getEffectPresetsView(effectName) {
@@ -110,7 +134,7 @@ function getEffectPresetsView(effectName) {
 }
 
 function listEffectPresets(effectName) {
-    return Object.keys(effectPresets[effectName] || {});
+    return Object.keys(effectPresets[effectName] || {}).sort((a, b) => a.localeCompare(b));
 }
 
 function getEffectPresetView(effectName, presetName) {
@@ -122,12 +146,14 @@ function getEffectPresetView(effectName, presetName) {
 
 export {
     loadUserPresets,
+    loadUserEffectPresets,
     addUserPreset,
     deleteUserPreset,
     listAppPresets,
     getEffectPresetView,
     getAppPresetView,
     updateAppPresets,
+    updateEffectPresets,
     saveEffectPreset,
     getEffectPresetsView,
     listEffectPresets,

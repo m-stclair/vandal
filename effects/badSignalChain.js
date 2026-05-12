@@ -286,5 +286,6 @@ export const effectMeta = {
     description: "Analog-ish damage built as a signal chain: horizontal sync error, chroma delay, RF snow, tape dropout, scanline/phosphor response, reflection ghosts, and decoder wobble.",
     backend: "gpu",
     realtimeSafe: true,
-    canAnimate: true
+    canAnimate: true,
+    parameterHints: {"t_": {"animationProb": 0.8}}
 };

@@ -334,5 +334,5 @@ export const effectMeta = {
     backend: "gpu",
     realtimeSafe: true,
     canAnimate: true,
-    parameterHints: {bitRot: {min: 0, max: 3}}
+    parameterHints: {bitRot: {min: 0, max: 3}, t_: {animationProb: 0.8}}
 };

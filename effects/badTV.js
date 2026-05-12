@@ -195,5 +195,6 @@ export const effectMeta = {
         "VHS dropout, NTSC hash, CRT raster offset, and failing analog broadcasts.",
     backend: "gpu",
     realtimeSafe: true,
-    canAnimate: true
+    canAnimate: true,
+    parameterHints: {"t_": {"animationProb": 0.8}}
 };

@@ -7,7 +7,7 @@ import {
 } from "../utils/glsl_enums.js";
 import {blendControls} from "../utils/ui_configs.js";
 
-const shaderPath = "busted_vhs.frag";
+const shaderPath = "broken_projector.frag";
 const includePaths = {
     'colorconvert.glsl': 'includes/colorconvert.glsl',
     'blend.glsl': 'includes/blend.glsl',
@@ -17,7 +17,7 @@ const fragSources = loadFragSrcInit(shaderPath, includePaths);
 /** @typedef {import('../glitchtypes.ts').EffectModule} EffectModule */
 /** @type {EffectModule} */
 export default {
-    name: "Busted VHS",
+    name: "Broken Projector",
 
     defaultConfig: {
         BLENDMODE: BlendModeEnum.MIX,
@@ -25,25 +25,23 @@ export default {
         BLEND_CHANNEL_MODE: BlendTargetEnum.ALL,
         blendAmount: 1,
 
-        trackingAmount: 0.78,
-        tapeWarp: 0.62,
-        headSwitch: 0.58,
-        verticalRoll: 0,
+        gateWeave: 0.42,
+        frameSlip: 0.18,
+        shutterFlicker: 0.38,
+        lampInstability: 0.52,
 
-        syncLoss: 0.42,
-        signalBandwidth: 0.62,
-        rfNoise: 0.46,
-        interlaceJitter: 0.28,
+        focusBlur: 0.32,
+        lensBreathing: 0.22,
+        chromaticFringe: 0.28,
+        keystoneWarp: 0.16,
 
-        chromaBleed: 0.7,
-        ghostAmount: 0.38,
-        colorRot: 0.22,
+        dustAmount: 0.36,
+        scratchAmount: 0.30,
+        burnAmount: 0.10,
+        sprocketShadow: 0.18,
 
-        snowAmount: 0.48,
-        dropoutAmount: 0.42,
-        scanlineAmount: 0.52,
-        crushedLuma: 0.28,
-
+        vignette: 0.42,
+        gateShadow: 0.28,
         t_: 0,
         seed: 0,
     },
@@ -52,36 +50,36 @@ export default {
         {
             type: "group",
             kind: "collapse",
-            label: "Tape Damage",
+            label: "Transport",
             children: [
                 {
                     type: "modSlider",
-                    key: "trackingAmount",
-                    label: "Tracking Tear",
+                    key: "gateWeave",
+                    label: "Gate Weave",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "tapeWarp",
-                    label: "Tape Warp",
+                    key: "frameSlip",
+                    label: "Frame Slip",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "headSwitch",
-                    label: "Head Switch",
+                    key: "shutterFlicker",
+                    label: "Shutter Flicker",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "verticalRoll",
-                    label: "Vertical Roll",
+                    key: "lampInstability",
+                    label: "Lamp Flutter",
                     min: 0,
                     max: 1,
                     steps: 100,
@@ -91,36 +89,75 @@ export default {
         {
             type: "group",
             kind: "collapse",
-            label: "Signal Physics",
+            label: "Optics",
             children: [
                 {
                     type: "modSlider",
-                    key: "syncLoss",
-                    label: "Sync Loss",
+                    key: "focusBlur",
+                    label: "Focus Blur",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "signalBandwidth",
-                    label: "Bandwidth Loss",
+                    key: "lensBreathing",
+                    label: "Lens Breathing",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "rfNoise",
-                    label: "RF Hash",
+                    key: "chromaticFringe",
+                    label: "Chromatic Fringe",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "interlaceJitter",
-                    label: "Field Weave",
+                    key: "keystoneWarp",
+                    label: "Keystone Warp",
+                    min: -1,
+                    max: 1,
+                    steps: 200,
+                },
+            ],
+        },
+        {
+            type: "group",
+            kind: "collapse",
+            label: "Film Damage",
+            children: [
+                {
+                    type: "modSlider",
+                    key: "dustAmount",
+                    label: "Dust / Hair",
+                    min: 0,
+                    max: 1,
+                    steps: 100,
+                },
+                {
+                    type: "modSlider",
+                    key: "scratchAmount",
+                    label: "Scratches",
+                    min: 0,
+                    max: 1,
+                    steps: 100,
+                },
+                {
+                    type: "modSlider",
+                    key: "burnAmount",
+                    label: "Gate Burn",
+                    min: 0,
+                    max: 1,
+                    steps: 100,
+                },
+                {
+                    type: "modSlider",
+                    key: "sprocketShadow",
+                    label: "Sprocket Shadow",
                     min: 0,
                     max: 1,
                     steps: 100,
@@ -130,67 +167,20 @@ export default {
         {
             type: "group",
             kind: "collapse",
-            label: "Color Smear",
+            label: "Projection Surface",
             children: [
                 {
                     type: "modSlider",
-                    key: "chromaBleed",
-                    label: "Chroma Bleed",
+                    key: "vignette",
+                    label: "Vignette",
                     min: 0,
                     max: 1,
                     steps: 100,
                 },
                 {
                     type: "modSlider",
-                    key: "ghostAmount",
-                    label: "Ghost Echo",
-                    min: 0,
-                    max: 1,
-                    steps: 100,
-                },
-                {
-                    type: "modSlider",
-                    key: "colorRot",
-                    label: "Color Drift",
-                    min: 0,
-                    max: 1,
-                    steps: 100,
-                },
-            ],
-        },
-        {
-            type: "group",
-            kind: "collapse",
-            label: "Noise / Luma",
-            children: [
-                {
-                    type: "modSlider",
-                    key: "snowAmount",
-                    label: "Snow",
-                    min: 0,
-                    max: 1,
-                    steps: 100,
-                },
-                {
-                    type: "modSlider",
-                    key: "dropoutAmount",
-                    label: "Dropout",
-                    min: 0,
-                    max: 1,
-                    steps: 100,
-                },
-                {
-                    type: "modSlider",
-                    key: "scanlineAmount",
-                    label: "Scanline Dirt",
-                    min: 0,
-                    max: 1,
-                    steps: 100,
-                },
-                {
-                    type: "modSlider",
-                    key: "crushedLuma",
-                    label: "Crushed Luma",
+                    key: "gateShadow",
+                    label: "Gate Shadow",
                     min: 0,
                     max: 1,
                     steps: 100,
@@ -228,34 +218,32 @@ export default {
         const {config} = instance;
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE,
-            trackingAmount, tapeWarp, headSwitch, verticalRoll,
-            syncLoss, signalBandwidth, rfNoise, interlaceJitter,
-            chromaBleed, ghostAmount, colorRot,
-            snowAmount, dropoutAmount, scanlineAmount, crushedLuma,
-            t_, seed,
+            gateWeave, frameSlip, shutterFlicker, lampInstability,
+            focusBlur, lensBreathing, chromaticFringe, keystoneWarp,
+            dustAmount, scratchAmount, burnAmount, sprocketShadow,
+            vignette, gateShadow, t_, seed,
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
         const uniforms = {
             u_resolution: {type: "vec2", value: [width, height]},
-            "u_vhs.seed": {type: "float", value: seed},
-            "u_vhs.t": {type: "float", value: t_},
-            "u_vhs.blendAmount": {type: "float", value: blendAmount},
-            "u_vhs.trackingAmount": {type: "float", value: trackingAmount},
-            "u_vhs.tapeWarp": {type: "float", value: tapeWarp},
-            "u_vhs.headSwitch": {type: "float", value: headSwitch},
-            "u_vhs.verticalRoll": {type: "float", value: verticalRoll},
-            "u_vhs.syncLoss": {type: "float", value: syncLoss},
-            "u_vhs.signalBandwidth": {type: "float", value: signalBandwidth},
-            "u_vhs.rfNoise": {type: "float", value: rfNoise},
-            "u_vhs.interlaceJitter": {type: "float", value: interlaceJitter},
-            "u_vhs.chromaBleed": {type: "float", value: chromaBleed},
-            "u_vhs.ghostAmount": {type: "float", value: ghostAmount},
-            "u_vhs.colorRot": {type: "float", value: colorRot},
-            "u_vhs.snowAmount": {type: "float", value: snowAmount},
-            "u_vhs.dropoutAmount": {type: "float", value: dropoutAmount},
-            "u_vhs.scanlineAmount": {type: "float", value: scanlineAmount},
-            "u_vhs.crushedLuma": {type: "float", value: crushedLuma},
+            "u_projector.seed": {type: "float", value: seed},
+            "u_projector.t": {type: "float", value: t_},
+            "u_projector.blendAmount": {type: "float", value: blendAmount},
+            "u_projector.gateWeave": {type: "float", value: gateWeave},
+            "u_projector.frameSlip": {type: "float", value: frameSlip},
+            "u_projector.shutterFlicker": {type: "float", value: shutterFlicker},
+            "u_projector.lampInstability": {type: "float", value: lampInstability},
+            "u_projector.focusBlur": {type: "float", value: focusBlur},
+            "u_projector.lensBreathing": {type: "float", value: lensBreathing},
+            "u_projector.chromaticFringe": {type: "float", value: chromaticFringe},
+            "u_projector.keystoneWarp": {type: "float", value: keystoneWarp},
+            "u_projector.dustAmount": {type: "float", value: dustAmount},
+            "u_projector.scratchAmount": {type: "float", value: scratchAmount},
+            "u_projector.burnAmount": {type: "float", value: burnAmount},
+            "u_projector.sprocketShadow": {type: "float", value: sprocketShadow},
+            "u_projector.vignette": {type: "float", value: vignette},
+            "u_projector.gateShadow": {type: "float", value: gateShadow},
         };
 
         const defines = {
@@ -270,7 +258,6 @@ export default {
     cleanupHook(instance) {
         instance.glState.renderer.deleteEffectFBO(instance.id);
     },
-
     initHook: fragSources.load,
     glState: null,
     isGPU: true,
@@ -278,11 +265,10 @@ export default {
 
 export const effectMeta = {
     group: "Media",
-    tags: ["vhs", "tape", "analog", "tracking", "dropout", "crt", "glitch"],
-    description: " timebase error, sync loss, YIQ chroma bandwidth, " +
-        "RF hash, oxide dropout, head-switch wobble, field weave, and crushed luma.",
+    tags: ["film", "projector", "analog", "optical", "dust", "scratches", "flicker"],
+    description: "Simulates a dying film projector: gate weave, frame slip, shutter/lamp flicker, soft optics, chromatic lens fringe, gate shadows, sprocket ghosts, dust, hair, scratches, and heat-burn bloom.",
     backend: "gpu",
-    parameterHints: {"t_": {"animationProb": 0.8}},
     realtimeSafe: true,
     canAnimate: true,
+    parameterHints: {"t_": {"animationProb": 0.8}}
 };

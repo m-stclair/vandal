@@ -84,6 +84,7 @@ const effectFiles = [
     "temporal_delay.js",
     "penrose.js",
     "conformal_map.js",
+    "brokenProjector.js"
 ]
 import {makeRegistryEntry} from "./utils/registry_utils.js";
 

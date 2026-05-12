@@ -11,7 +11,7 @@ import {BlendModeEnum, BlendTargetEnum, ColorspaceEnum} from "./glsl_enums.js";
 import {FieldDisplayModeEnum} from "../effects/fieldParentheses.js";
 
 
-const ANIMATE_PROB = 0.25;  // chance to animate each eligible param
+const DEFAULT_ANIMATION_PROB = 0.25;  // base chance to animate each eligible param
 
 function generateAnimationMod(base, min, max) {
     const offset = base;
@@ -277,6 +277,7 @@ function validateConfig(config, layout) {
     return errors;
 }
 
+
 function selectRandomParam(hints, param) {
     if (hints[param.key]?.always) {
         return hints[param.key].always;
@@ -287,8 +288,11 @@ function selectRandomParam(hints, param) {
         const max = hints[param.key]?.max ?? param.max;
         let val = randBetween(min, max);
         if (param.step === 1) val = Math.floor(val);
-
-        if (ptype === "modslider" && Math.random() < ANIMATE_PROB) {
+        const animationProb =
+            ptype !== "modslider"
+                ? 0
+                : hints[param.key]?.animationProb ?? DEFAULT_ANIMATION_PROB;
+        if (Math.random() < animationProb) {
             const aniMin = hints[param.key]?.aniMin ?? min;
             const aniMax = hints[param.key]?.aniMax ?? max;
             return {

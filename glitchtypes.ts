@@ -228,6 +228,7 @@ export type ParameterHint = {
     max?: number;
     aniMin?: number;
     aniMax?: number;
+    animationProb?: number;
     weights?: Record<string | number, number>;
     [key: string]: any;
 };

@@ -263,7 +263,7 @@ function isProbablyMobile() {
     return isMobileUA || (isTouchDevice && isSmallScreen);
 }
 
-export function pruneForMobile(exportImage, loadState, registry,
+export function pruneForMobile(exportImage, loadState, resetStack, registry,
                                requestUIDraw, requestRender, startCapture) {
     if (!isProbablyMobile()) return;
     document.body.classList.add('mobile-mode');
@@ -286,6 +286,7 @@ export function pruneForMobile(exportImage, loadState, registry,
     document.getElementById('presetSelect').addEventListener("change", async () => {
         const name = document.getElementById('presetSelect').value;
         if (listAppPresets().includes(name)) {
+            resetStack();
             await loadState(getAppPresetView(name), registry, false);
         }
         requestUIDraw();

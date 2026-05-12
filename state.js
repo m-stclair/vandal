@@ -261,7 +261,6 @@ export function resizeAndRedraw() {
 }
 
 
-// TODO: big gun type situation
 export function resetStack() {
     renderer.reset_pipeline();
     forEachEffect(

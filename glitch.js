@@ -421,7 +421,7 @@ async function appSetup() {
     setupVideoCapture(startCapture, stopCapture);
     setupPaneDrag(resizeAndRedraw);
     setupVideoExportModal();
-    pruneForMobile(exportImage, loadState, effectRegistry, requestUIDraw,
+    pruneForMobile(exportImage, loadState, resetStack, effectRegistry, requestUIDraw,
                    requestRender, startCapture);
     setupWindow(resizeAndRedraw);
     await drawPattern('spiral');

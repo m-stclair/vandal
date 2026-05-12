@@ -20,7 +20,7 @@ export const noisePass = {
     },
 
     initHook: async (pass, renderer) => {
-        pass.glState = new webGLState(renderer, "riso-noise-pass", pass.id);
+        pass.glState = new webGLState(renderer, "noise-pass", pass.id);
         await fragSources.load(pass, renderer);
     },
 
@@ -40,8 +40,8 @@ export const noisePass = {
             pass.outputFBO = pass.glState.renderer.make_framebuffer(
                 width,
                 height,
-                "riso-noise-pass",
-                "riso-noise-pass"
+                "noise-pass",
+                "noise-pass"
             );
         }
 

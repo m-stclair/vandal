@@ -268,14 +268,15 @@ export default {
 }
 
 export const effectMeta = {
-  group: "Stylize",
-  tags: ["grid", "monitor", "tv", "pattern"],
-  description: "Creates a grid pattern.",
-  backend: "gpu",
-  canAnimate: true,
-  realtimeSafe: true,
+    group: "Stylize",
+    tags: ["grid", "pattern"],
+    description: "Creates a grid pattern.",
+    backend: "gpu",
+    canAnimate: true,
+    realtimeSafe: true,
     parameterHints: {
       lineWidth: {min: 15, max: 200},
       spacingFactor: {min: 1, max: 2}
-    }
+    },
+    notInRandom: true
 };

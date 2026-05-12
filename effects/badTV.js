@@ -35,29 +35,23 @@ export default {
         chunks: 20,
         tearMode: "band",
         ghostOffset: 0.05,
+        ghostAmount: 0.25,
         noiseAmount: 0.22,
+        scanlineAmount: 0.2,
     },
     uiLayout: [
         {
             type: "group",
             kind: "collapse",
-            label: "Noise",
+            label: "Reception",
             children: [
                {
                     type: "range",
                     key: "noiseAmount",
-                    label: "Amount",
+                    label: "Snow",
                     min: 0,
                     max: 1,
                     steps: 200
-                },
-                {
-                    type: "modSlider",
-                    key: "jitter",
-                    label: "Jitter",
-                    min: 0,
-                    max: 1,
-                    steps: 100
                 },
                 {
                     type: "range",
@@ -67,22 +61,44 @@ export default {
                     max: 1,
                     steps: 100
                 },
-
                 {
-                    type: "modSlider",
-                    key: "scale",
-                    label: "Scale",
-                    min: 25,
-                    max: 2000,
-                    steps: 200,
-                },
-                {
-                    type: "modSlider",
-                    key: "bias",
-                    label: "Bias",
+                    type: "range",
+                    key: "ghostAmount",
+                    label: "Ghost",
                     min: 0,
                     max: 1,
-                    steps: 200
+                    steps: 100
+                },
+                {
+                    type: "range",
+                    key: "ghostOffset",
+                    label: "Ghost Offset",
+                    min: 0,
+                    max: 0.5,
+                    step: 0.01
+                },
+            ]
+        },
+        {
+            type: "group",
+            kind: "collapse",
+            label: "Raster",
+            children: [
+                {
+                    type: "modSlider",
+                    key: "jitter",
+                    label: "Line Jitter",
+                    min: 0,
+                    max: 1,
+                    steps: 100
+                },
+                {
+                    type: "range",
+                    key: "scanlineAmount",
+                    label: "Scanlines",
+                    min: 0,
+                    max: 1,
+                    steps: 100
                 },
             ]
         },
@@ -102,24 +118,39 @@ export default {
                 {
                     type: "range",
                     key: "chunks",
-                    label: "Chunks",
+                    label: "Line Groups",
                     min: 1,
                     max: 64,
                     step: 1
-                },
-                {
-                    type: "range",
-                    key: "ghostOffset",
-                    label: "Ghost",
-                    min: 0,
-                    max: 0.5,
-                    step: 0.01
                 },
                 {
                     type: "select",
                     key: "tearMode",
                     options: ["wave", "jump", "band", "chunk", "ghost"]
                 }
+            ]
+        },
+        {
+            type: "group",
+            label: "Noise Shape",
+            kind: "collapse",
+            children: [
+                {
+                    type: "modSlider",
+                    key: "scale",
+                    label: "Cell Scale",
+                    min: 25,
+                    max: 2000,
+                    steps: 200,
+                },
+                {
+                    type: "modSlider",
+                    key: "bias",
+                    label: "Anisotropy",
+                    min: 0,
+                    max: 1,
+                    steps: 200
+                },
             ]
         },
         {
@@ -154,7 +185,7 @@ export default {
         const {
             blendAmount, COLORSPACE, BLENDMODE, BLEND_CHANNEL_MODE,
             flickerAmount, tearAmount, jitter, t_, bias, scale, seed, chunks,
-            tearMode, ghostOffset, noiseAmount
+            tearMode, ghostOffset, ghostAmount = 0.25, noiseAmount, scanlineAmount = 0.2
         } = resolveAnimAll(config, t);
 
         /** @type {import('../glitchtypes.ts').UniformSpec} */
@@ -167,6 +198,8 @@ export default {
             "u_mod.jitter": {type: "float", value: jitter},
             "u_mod.flickerAmount": {type: "float", value: flickerAmount},
             "u_mod.noiseAmount": {type: "float", value: noiseAmount},
+            "u_mod.scanlineAmount": {type: "float", value: scanlineAmount},
+            "u_mod.ghostAmount": {type: "float", value: ghostAmount},
             "u_mod.blendAmount": {type: "float", value: blendAmount},
             "u_tear.amount": {type: "float", value: tearAmount * 0.15},
             "u_tear.chunks": {type: "float", value: chunks},
@@ -190,9 +223,9 @@ export default {
 
 export const effectMeta = {
     group: "Media",
-    tags: ["tv", "retro", "vhs", "analog", "noise"],
-    description: "Applies shaped noise, flicker, and tear. Can simulate " +
-        "VHS dropout, NTSC hash, CRT raster offset, and failing analog broadcasts.",
+    tags: ["tv", "retro", "crt", "analog", "noise"],
+    description: "Simple bad-reception TV damage: snow, flicker, scanlines, " +
+        "line jitter, ghosting, and broad horizontal tearing.",
     backend: "gpu",
     realtimeSafe: true,
     canAnimate: true,

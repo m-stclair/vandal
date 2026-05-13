@@ -183,4 +183,9 @@ export const effectMeta = {
   backend: "gpu",
   canAnimate: false,
   realtimeSafe: true,
+  parameterHints: {
+      blurRadius: {min: 1, max: 6},
+      sharpRadius: {min: 1, max: 6},
+      intensity: {min: 0.5, max: 1}
+  }
 };

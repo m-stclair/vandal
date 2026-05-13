@@ -133,6 +133,8 @@ export const effectMeta = {
         blendAmount: {min: 0.75, max: 1},
         kernelRadiusY: {min: 2, max: 9},
         kernelRadiusX: {min: 2, max: 9},
-
+        strength: {min: 1, max: 3},
+        threshold: {min: 0, max: 0.1},
+        knee: {min: 0, max: 0.05}
     }
 };

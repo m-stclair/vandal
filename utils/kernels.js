@@ -49,9 +49,6 @@ export function generateKernel(type, radius = 3, softness = 1.0, freq = 0.5) {
             case 'altsign':
                 w = i % 2 === 0 ? 1 : -1;
                 break;
-            case 'saw':
-                w = i + 1;
-                break;
             case 'sobel1d':
                 w = x;
                 break;
@@ -90,7 +87,6 @@ export const KernelTypeEnum = {
     GABOR: 'gabor',
     SOBEL1D: 'sobel1d',
     ALTSIGN: 'altsign',
-    SAW: 'saw',
     IMPULSE: 'impulse',
     TRIANGLE: 'triangle',
     HANN: 'hann',

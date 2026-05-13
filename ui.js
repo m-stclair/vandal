@@ -16,6 +16,68 @@ const leftPane = document.getElementById("leftPane");
 const rightPane = document.getElementById("rightPane");
 const layout = document.getElementById("mainLayout");
 
+const DEFAULT_RIGHT_PANE_WIDTH = 300;
+let preferredRightPaneWidth = null;
+
+function readPx(value, fallback) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function paneDragIsActive() {
+    return Boolean(
+        layout?.isConnected &&
+        leftPane?.isConnected &&
+        rightPane?.isConnected &&
+        dragBar?.isConnected &&
+        getComputedStyle(rightPane).display !== "none"
+    );
+}
+
+function getVisibleLayoutWidth(layoutRect) {
+    const viewportWidth = window.visualViewport?.width ||
+        document.documentElement.clientWidth ||
+        window.innerWidth ||
+        layoutRect.width;
+    const visibleRight = Math.min(layoutRect.right, viewportWidth);
+    return Math.max(0, visibleRight - layoutRect.left);
+}
+
+function getPaneMetrics() {
+    const layoutRect = layout.getBoundingClientRect();
+    const dragWidth = dragBar.getBoundingClientRect().width || 5;
+    const leftStyle = getComputedStyle(leftPane);
+    const rightStyle = getComputedStyle(rightPane);
+    const minLeft = readPx(leftStyle.minWidth, 100);
+    const configuredMinRight = readPx(rightStyle.minWidth, DEFAULT_RIGHT_PANE_WIDTH);
+    const availableWidth = getVisibleLayoutWidth(layoutRect);
+
+    // The right pane should keep its usual minimum when there is room. When
+    // the browser is made narrower than the normal minimums, the right pane
+    // must be allowed to shrink instead of being pushed behind overflow:hidden.
+    const maxRight = Math.max(0, availableWidth - dragWidth - minLeft);
+    const minRight = Math.min(configuredMinRight, maxRight);
+
+    return {layoutRect, dragWidth, minRight, maxRight};
+}
+
+function applyRightPaneWidth(rawWidth) {
+    if (!paneDragIsActive()) return null;
+
+    const {minRight, maxRight} = getPaneMetrics();
+    const clampedWidth = Math.round(
+        Math.min(Math.max(rawWidth, minRight), maxRight)
+    );
+
+    layout.style.setProperty("--right-pane-width", `${clampedWidth}px`);
+    return clampedWidth;
+}
+
+function reclampRightPane() {
+    if (!paneDragIsActive() || preferredRightPaneWidth === null) return;
+    applyRightPaneWidth(preferredRightPaneWidth);
+}
+
 function makeRafScheduler(fn) {
     let queued = false;
     return () => {
@@ -32,22 +94,17 @@ export function setupPaneDrag(resizeAndRedraw) {
     let isDragging = false;
     const scheduleResize = makeRafScheduler(resizeAndRedraw);
 
-    const setLeftWidth = (clientX) => {
-        const layoutRect = layout.getBoundingClientRect();
-        const dragWidth = dragBar.getBoundingClientRect().width || 5;
-        const minLeft = Number.parseFloat(getComputedStyle(leftPane).minWidth) || 100;
-        const minRight = Number.parseFloat(getComputedStyle(rightPane).minWidth) || 300;
-        const maxLeft = Math.max(minLeft, layoutRect.width - dragWidth - minRight);
-        const newLeft = Math.round(
-            Math.min(Math.max(clientX - layoutRect.left, minLeft), maxLeft)
-        );
-
-        leftPane.style.flex = `0 0 ${newLeft}px`;
+    const setRightWidth = (clientX) => {
+        const {layoutRect, dragWidth} = getPaneMetrics();
+        const rawRightWidth = layoutRect.right - clientX - dragWidth;
+        const appliedWidth = applyRightPaneWidth(rawRightWidth);
+        if (appliedWidth !== null) preferredRightPaneWidth = appliedWidth;
         scheduleResize();
     };
 
     dragBar.addEventListener("pointerdown", (e) => {
         isDragging = true;
+        preferredRightPaneWidth = rightPane.getBoundingClientRect().width;
         dragBar.setPointerCapture?.(e.pointerId);
         document.body.style.cursor = "ew-resize";
         e.preventDefault();
@@ -55,7 +112,7 @@ export function setupPaneDrag(resizeAndRedraw) {
 
     document.addEventListener("pointermove", (e) => {
         if (!isDragging) return;
-        setLeftWidth(e.clientX);
+        setRightWidth(e.clientX);
     });
 
     const endDrag = (e) => {
@@ -63,6 +120,7 @@ export function setupPaneDrag(resizeAndRedraw) {
         isDragging = false;
         dragBar.releasePointerCapture?.(e.pointerId);
         document.body.style.cursor = "default";
+        reclampRightPane();
         scheduleResize();
     };
 
@@ -119,12 +177,21 @@ export function setupStaticButtons(
 }
 
 
-// window setup (currently just resize trigger)
+// window setup
 export function setupWindow(resizeAndRedraw) {
     const scheduleResize = makeRafScheduler(resizeAndRedraw);
-    window.addEventListener('resize', scheduleResize);
-    window.addEventListener('orientationchange', scheduleResize);
-    window.visualViewport?.addEventListener('resize', scheduleResize);
+    const handleViewportResize = () => {
+        reclampRightPane();
+        scheduleResize();
+    };
+
+    window.addEventListener('resize', handleViewportResize);
+    window.addEventListener('orientationchange', handleViewportResize);
+    window.visualViewport?.addEventListener('resize', handleViewportResize);
+
+    if (layout && 'ResizeObserver' in window) {
+        new ResizeObserver(handleViewportResize).observe(layout);
+    }
 }
 
 
@@ -304,4 +371,3 @@ export function pruneForMobile(exportImage, loadState, resetStack, registry,
     gid("mobile-topbar-target").appendChild(topBar);
     gid("mobile-topbar-target").style.display = "block"
 }
-

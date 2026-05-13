@@ -13,7 +13,7 @@ import {randomizeConfig} from "./utils/randomizer.js";
 import {isModulating} from "./glitch.js";
 
 
-// NOTE: this doesn't handle cases in which a config entry is of the form {value: x, mod: {...}}.
+// TODO, maybe: this doesn't handle cases in which a config entry is of the form {value: x, mod: {...}}.
 //  however, I don't think we ever want to make UI visibility contingent on an animated value!
 
 function collectVisibilityDrivers(configArray, keyTriggersUIDraw) {

@@ -5662,7 +5662,7 @@ export const builtInPresets = [
                 "kernelRadiusX": 4,
                 "kernelRadiusY": 6,
                 "kernelSoftness": 13,
-                "kernelName": "saw",
+                "kernelName": "altsign",
                 "blendAmount": 0.48,
                 "BLENDMODE": 1,
                 "COLORSPACE": "1",
@@ -6000,7 +6000,7 @@ export const builtInPresets = [
             }
         }]
     },
-    {"name":"Sublimating 2","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":"1","COLORSPACE":"1","blendAmount":0.48,"warpStrength":-0.05,"directionStrength":0.5129404142770122,"directionChannel":"0","magChannel":"0","directionPolarity":false,"magPolarity":true,"threshLow":0,"threshHigh":0.63,"magGamma":0.897144494663181,"kernelName":"saw","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":{"value":5.655,"mod":{"type":"none"}},"useChromaDrag":false,"chromaDragAmount":1,"APPROX_INVERSE":false,"INVERSE_APPROX_ITERS":5,"relaxation":0.33,"chromaBoost":0.9}},{"name":"Edge Trace","config":{"BLENDMODE":"1","COLORSPACE":"7","BLEND_CHANNEL_MODE":"1","blendAmount":1,"threshold":0.2,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0.34}},{"name":"Kuwahara","config":{"texelSizeX":1,"texelSizeY":1,"radius":13,"sharpness":2.5,"eccentricity":2.22,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":6}}]},
+    {"name":"Sublimating 2","config":[{"name":"flow()","config":{"BLENDMODE":1,"BLEND_CHANNEL_MODE":"1","COLORSPACE":"1","blendAmount":0.48,"warpStrength":-0.05,"directionStrength":0.5129404142770122,"directionChannel":"0","magChannel":"0","directionPolarity":false,"magPolarity":true,"threshLow":0,"threshHigh":0.63,"magGamma":0.897144494663181,"kernelName":"altsign","kernelRadiusX":5,"kernelRadiusY":5,"kernelSoftness":{"value":5.655,"mod":{"type":"none"}},"useChromaDrag":false,"chromaDragAmount":1,"APPROX_INVERSE":false,"INVERSE_APPROX_ITERS":5,"relaxation":0.33,"chromaBoost":0.9}},{"name":"Edge Trace","config":{"BLENDMODE":"1","COLORSPACE":"7","BLEND_CHANNEL_MODE":"1","blendAmount":1,"threshold":0.2,"tint":[0,0,0],"baseOpacity":1,"dilation":0,"smoothing":0,"softness":0.34}},{"name":"Kuwahara","config":{"texelSizeX":1,"texelSizeY":1,"radius":13,"sharpness":2.5,"eccentricity":2.22,"useKernel":true,"BLENDMODE":1,"COLORSPACE":0,"BLEND_CHANNEL_MODE":0,"blendAmount":1,"kernelRadius":6}}]},
 
     {
         "name": "Sublimating",
@@ -6020,7 +6020,7 @@ export const builtInPresets = [
                 "threshLow": 0,
                 "threshHigh": 0.63,
                 "magGamma": 0.897144494663181,
-                "kernelName": "saw",
+                "kernelName": "altsign",
                 "kernelRadiusX": 5,
                 "kernelRadiusY": 5,
                 "kernelSoftness": {"value": 5.655, "mod": {"type": "none"}},
@@ -6036,8 +6036,8 @@ export const builtInPresets = [
                 "threshold": 0.09,
                 "tint": [0, 0, 0],
                 "baseOpacity": 1,
-                "dilation": 0,
-                "smoothing": 0,
+                "dilation": 2,
+                "smoothing": 1  ,
                 "softness": 0
             }
         }, {

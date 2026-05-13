@@ -46,7 +46,7 @@ body {
     flex: 1 1 auto;
     width: 100%;
     min-height: 0;
-    min-width: 600px; /* Prevent extreme collapse */
+    min-width: 0;
     overflow: hidden;
 }
 
@@ -283,7 +283,7 @@ input, select, textarea, button {
 }
 
 #leftPane {
-    flex: 0 1 70%;
+    flex: 1 1 auto;
     padding: 0;
     text-align: center;
     overflow: hidden;
@@ -297,10 +297,12 @@ input, select, textarea, button {
 }
 
 #rightPane {
-    width: 300px;
-    flex: 1 1 300px;
-    min-width: 300px;
+    width: var(--right-pane-width, clamp(300px, 30vw, 480px));
+    flex: 0 0 var(--right-pane-width, clamp(300px, 30vw, 480px));
+    min-width: min(300px, max(0px, calc(100vw - 105px)));
+    max-width: max(0px, calc(100vw - 105px));
     min-height: 0;
+    box-sizing: border-box;
     background: #222;
     color: white;
     padding: 0;
@@ -584,4 +586,3 @@ html {
   scrollbar-width: thin;  /* Use thin scrollbars */
   scrollbar-color: #555 #333; /* Thumb and track color */
 }
-

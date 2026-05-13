@@ -12,8 +12,76 @@
 import {builtInPresets} from "./app.js";
 
 export const builtInPluginPresets = {
-    // Add hand-curated plugin presets here when a preset should ship independently
-    // of any full-stack app preset.
+    "Palette Synth": {
+        "Dungeon": {
+            "paletteMode": "manual",
+            "manualPalette": [{"color": "#000000", "locked": false}, {
+                "color": "#0000aa",
+                "locked": false
+            }, {"color": "#00aaaa", "locked": false}, {"color": "#1c2818", "locked": false}, {
+                "color": "#344028",
+                "locked": false
+            }, {"color": "#586838", "locked": false}, {"color": "#889060", "locked": false}, {
+                "color": "#882030",
+                "locked": false
+            }, {"color": "#d8a838", "locked": false}, {"color": "#287058", "locked": false}, {
+                "color": "#4080a8",
+                "locked": false
+            }, {"color": "#aa00aa", "locked": false}, {"color": "#aa5500", "locked": false}, {
+                "color": "#aaaaaa",
+                "locked": false
+            }, {"color": "#2a1a12", "locked": false}, {"color": "#442818", "locked": false}, {
+                "color": "#663820",
+                "locked": false
+            }, {"color": "#884c28", "locked": false}, {"color": "#b86838", "locked": false}, {
+                "color": "#d89050",
+                "locked": false
+            }, {"color": "#ffd080", "locked": false}, {"color": "#ffffff", "locked": false}, {
+                "color": "#181028",
+                "locked": false
+            }, {"color": "#2a1f48", "locked": false}, {"color": "#443868", "locked": false}, {
+                "color": "#6858a0",
+                "locked": false
+            }, {"color": "#8c80c0", "locked": false}],
+            "manualInitPalette": "vgaDungeon",
+            "manualInitSize": 15,
+            "manualInitLut": "viridis",
+            "generatedAssist": 0,
+            "manualGeneratedCommitNonce": 0,
+            "paletteSize": 15,
+            "deltaL": 30,
+            "gammaC": 1,
+            "cycleOffset": 0,
+            "softness": 1,
+            "blendK": 2,
+            "lumaWeight": 1,
+            "chromaWeight": 0.5,
+            "hueWeight": 0.5,
+            "selectWeights": [0.1, 0, 0],
+            "minDistance": 18,
+            "assignMode": "dither",
+            "outputMode": "fullReplace",
+            "shadowCutoff": 30,
+            "highlightCutoff": 70,
+            "blendAmount": 1,
+            "BLENDMODE": 1,
+            "BLEND_CHANNEL_MODE": 0,
+            "COLORSPACE": 0,
+            "showPalette": "none",
+            "sortMode": "lightness",
+            "paletteAnimationResponse": "instant",
+            "blockSize": 3,
+            "seed": 2,
+            "samplingMode": "stratified",
+            "CYCLE_MODE": 0,
+            "ditherPattern": "ordered4",
+            "ditherAngle": 45,
+            "ditherLumaAmount": 1,
+            "ditherScale": 4,
+            "paletteResponse": 100,
+            "freeze": false
+        }
+    }
 };
 
 function hasOwn(obj, key) {

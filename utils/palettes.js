@@ -322,5 +322,11 @@ export const palettePresets = {
         "#596e63", "#929087", "#d48135", "#6d7bc5",
         "#dfc49b", "#e4e2d8", "#fffbd0", "#e29da4"
     ],
+    jungleDawn: [
+        "#020100", "#232a07", "#30252f", "#323326",
+        "#5e2529", "#766976", "#797a6b", "#b06d6e",
+        "#a1956f", "#b57c8b", "#b8be96", "#c6b7c5",
+        "#ecc778", "#ffbdbd", "#f5e7be", "#fffed5"
+    ]
 }
 

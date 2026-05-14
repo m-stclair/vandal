@@ -12,6 +12,12 @@
 import {builtInPresets} from "./app.js";
 
 export const builtInPluginPresets = {
+    "Channel Mixer": {
+        "Swap 2-3": {"mix2": [0, 0, 1], "mix3": [0, 1, 0], "COLORSPACE": "7"}
+    },
+    "Edge Trace": {
+        "Black Trace": {"threshold": 0.1, "tint": [0, 0, 0], "baseOpacity": 1}
+    },
     "Palette Synth": {
         "Dungeon": {
             "paletteMode": "manual",
@@ -45,43 +51,17 @@ export const builtInPluginPresets = {
             }, {"color": "#8c80c0", "locked": false}],
             "manualInitPalette": "vgaDungeon",
             "manualInitSize": 15,
-            "manualInitLut": "viridis",
-            "generatedAssist": 0,
-            "manualGeneratedCommitNonce": 0,
             "paletteSize": 15,
-            "deltaL": 30,
-            "gammaC": 1,
-            "cycleOffset": 0,
-            "softness": 1,
-            "blendK": 2,
-            "lumaWeight": 1,
-            "chromaWeight": 0.5,
-            "hueWeight": 0.5,
-            "selectWeights": [0.1, 0, 0],
-            "minDistance": 18,
             "assignMode": "dither",
             "outputMode": "fullReplace",
-            "shadowCutoff": 30,
-            "highlightCutoff": 70,
-            "blendAmount": 1,
-            "BLENDMODE": 1,
-            "BLEND_CHANNEL_MODE": 0,
-            "COLORSPACE": 0,
-            "showPalette": "none",
-            "sortMode": "lightness",
-            "paletteAnimationResponse": "instant",
             "blockSize": 3,
-            "seed": 2,
-            "samplingMode": "stratified",
-            "CYCLE_MODE": 0,
             "ditherPattern": "ordered4",
             "ditherAngle": 45,
             "ditherLumaAmount": 1,
             "ditherScale": 4,
-            "paletteResponse": 100,
-            "freeze": false
         }
-    }
+    },
+
 };
 
 function hasOwn(obj, key) {

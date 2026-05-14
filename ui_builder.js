@@ -217,8 +217,9 @@ function createLabelEditor(fx, uiState) {
         const selected = e.target.value;
         const preset = getEffectPresetView(fx.name, selected);
         if (preset) {
-            Object.assign(fx.config, structuredClone(preset));
+            Object.assign(fx.config, structuredClone(effectRegistry[fx.name].defaultConfig));
             requestRender();
+            requestUIDraw();
         }
     });
 

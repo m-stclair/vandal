@@ -307,24 +307,6 @@ vec3 lch2rgb(vec3 lch) {
     return lab2rgb(vec3(L, a, b));
 }
 
-vec3 rgb2opponent(vec3 rgb) {
-    float o1 = (rgb.r + rgb.g + rgb.b) / 3.0;
-    float o2 = (rgb.r - rgb.g) / sqrt(2.0);
-    float o3 = (rgb.r + rgb.g - 2.0 * rgb.b) / sqrt(6.0);
-    return vec3(o1, o2, o3);
-}
-
-vec3 opponent2rgb(vec3 opp) {
-    float o1 = opp.x;
-    float o2 = opp.y;
-    float o3 = opp.z;
-    float r = o1 + o2 / sqrt(2.0) + o3 / sqrt(6.0);
-    float g = o1 - o2 / sqrt(2.0) + o3 / sqrt(6.0);
-    float b = o1 - 2.0 * o3 / sqrt(6.0);
-    return vec3(r, g, b);
-}
-
-
 vec3 rgb2ycbcr(vec3 rgb) {
     float y  =  0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
     float cb = -0.169 * rgb.r - 0.331 * rgb.g + 0.500 * rgb.b + 0.5;
@@ -353,6 +335,40 @@ vec3 linear2srgb(vec3 c) {
     vec3 hi = 1.055 * pow(max(c, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055;
     return mix(lo, hi, step(0.0031308, c));
 }
+
+
+vec3 rgb2opponent(vec3 rgb) {
+    float o1 = (rgb.r + rgb.g + rgb.b) / 3.0;
+    float o2 = (rgb.r - rgb.g) / sqrt(2.0);
+    float o3 = (rgb.r + rgb.g - 2.0 * rgb.b) / sqrt(6.0);
+    return vec3(o1, o2, o3);
+}
+
+vec3 opponent2rgb(vec3 opp) {
+    float o1 = opp.x;
+    float o2 = opp.y;
+    float o3 = opp.z;
+    float r = o1 + o2 / sqrt(2.0) + o3 / sqrt(6.0);
+    float g = o1 - o2 / sqrt(2.0) + o3 / sqrt(6.0);
+    float b = o1 - 2.0 * o3 / sqrt(6.0);
+    return vec3(r, g, b);
+}
+
+vec3 srgb2NormOpponent(vec3 srgb) {
+    vec3 lin = srgb2linear(srgb);
+    vec3 opponent = rgb2opponent(lin);
+    opponent.y = (opponent.y * sqrt(2.0) + 1.0) / 2.0;
+    opponent.z = (opponent.z * sqrt(6.0) + 2.0) / 4.0;
+    return opponent;
+}
+
+vec3 normOpponent2SRGB(vec3 opponent) {
+    opponent.y = (opponent.y * 2.0 - 1.0) / sqrt(2.0);
+    opponent.z = (opponent.z * 4.0 - 2.0) / sqrt(6.0);
+    vec3 lin = opponent2rgb(opponent);
+    return linear2srgb(lin);
+}
+
 
 vec3 normalizeLab(vec3 lab) {
     return vec3(lab.x / 100.0, (lab.y + 128.0) / 255.0, (lab.z + 128.0) / 255.0);
@@ -397,13 +413,6 @@ vec3 srgb2NormLCH(vec3 srgb) {
 }
 vec3 normLCH2SRGB(vec3 lch) {
     return linear2srgb(lch2rgb(denormalizeLCH(lch)));
-}
-
-vec3 srgb2Opponent(vec3 srgb) {
-    return rgb2opponent(srgb2linear(srgb));
-}
-vec3 opponent2SRGB(vec3 opponent) {
-    return linear2srgb(opponent2rgb(opponent));
 }
 
 vec3 srgb2HSL(vec3 srgb) {
@@ -460,7 +469,7 @@ vec3 extractColor(vec3 srgb) {
 #elif COLORSPACE == COLORSPACE_LCH
     extracted = srgb2NormLCH(srgb);
 #elif COLORSPACE == COLORSPACE_OPPONENT
-    extracted = srgb2Opponent(srgb);
+    extracted = srgb2NormOpponent(srgb);
 #elif COLORSPACE == COLORSPACE_YCBCR
     extracted = rgb2ycbcr(srgb);
 #elif COLORSPACE == COLORSPACE_HSL
@@ -486,7 +495,7 @@ vec3 encodeColor(vec3 color) {
 #elif COLORSPACE == COLORSPACE_LCH
     encoded = normLCH2SRGB(color);
 #elif COLORSPACE == COLORSPACE_OPPONENT
-    encoded = opponent2SRGB(color);
+    encoded = normOpponent2SRGB(color);
 #elif COLORSPACE == COLORSPACE_YCBCR
     encoded = ycbcr2rgb(color);
 #elif COLORSPACE == COLORSPACE_HSL

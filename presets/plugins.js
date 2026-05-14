@@ -104,7 +104,7 @@ function addPluginPreset(presets, effectName, label, config) {
 }
 
 function appPresetLabel(appPreset, effectName, seenInStack) {
-    const base = appPreset?.name || "Built-in preset";
+    const base = "α: " + appPreset?.name || "Built-in preset";
     const count = seenInStack[effectName] || 0;
     seenInStack[effectName] = count + 1;
 
